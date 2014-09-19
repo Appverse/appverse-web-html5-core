@@ -20,9 +20,10 @@
     "angular-dynamic-locale": "0.0.2",
     "angular-resource": "1.2.1",
     "restangular": "1.2.0",
+    "modernizr": "2.6.1",
     "angular-cache": "2.3.3",
-    "angular-route": "1.2.1",
-    "venturocket-angular-slider": "~0.3.2",
+    "angular-route": "1.2.1"
+
 
   },
   "devDependencies": {
