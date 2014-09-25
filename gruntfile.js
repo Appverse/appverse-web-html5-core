@@ -26,25 +26,59 @@ module.exports = function (grunt) {
 		yeoman: yeomanConfig,		
 		maven: {
 			options: {
-                goal:'package',/*change to 'release' to publish version*/
+                goal:'install',
 				groupId: 'org.appverse.web.framework.modules.frontend.html5',
+				repositoryId: 'my-nexus',
 				releaseRepository: 'url'
+				
 			},
-			'release-src': {
+			'install-src': {
 				options: {
-					url: '<%= releaseRepository %>',
-					repositoryId: 'my-nexus',
 					classifier: 'sources'
-				},
-				files: [{src: ['<%= yeoman.app %>/**'], dest: ''}]
+				},				
+				files: [{
+                    expand: true,
+					cwd:'<%= yeoman.app %>/',
+					src: ['**','!bower_components/**'],
+					dest:'.'
+				}]
 			},
-			'release-min': {
-				options: {
-					url: '<%= releaseRepository %>',
-					repositoryId: 'my-nexus',
+			'install-min': {
+				options: {					
 					classifier: 'min'
 				},
-				files: [{src: ['<%= yeoman.dist %>/**'], dest: ''}]
+				files: [{
+                    expand: true,
+					cwd:'<%= yeoman.dist %>/',
+					src: ['**'],
+					dest:'.'
+				}]
+			},
+			'deploy-src': {
+				options: {
+					goal:'deploy',
+					url: '<%= releaseRepository %>',					
+					classifier: 'sources'
+				},
+				files: [{
+                    expand: true,
+					cwd:'<%= yeoman.app %>/',
+					src: ['**','!bower_components/**'],
+					dest:'.'
+				}]
+			},
+			'deploy-min': {
+				options: {
+					goal:'deploy',
+					url: '<%= releaseRepository %>',					
+					classifier: 'min'
+				},
+				files: [{
+                    expand: true,
+					cwd:'<%= yeoman.dist %>/',
+					src: ['**'],
+					dest:'.'
+				}]
 			}
 		},
         autoprefixer: {
@@ -71,13 +105,14 @@ module.exports = function (grunt) {
                 files: [{
                     dot: true,
                     src: [
-                        '.tmp',
-                        '<%= yeoman.dist %>/*',
+                        '.tmp',				
+                        '<%= yeoman.dist %>/**',
                         '!<%= yeoman.dist %>/.git*'
                     ]
                 }]
             },
-            server: '.tmp'
+            server: '.tmp',
+	    docular: 'doc'
         },
         jshint: {
             options: {
@@ -85,7 +120,7 @@ module.exports = function (grunt) {
             },
             all: [
                 'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/{,*/}*.js'
+                '<%= yeoman.app %>/{,*/}*.js'
             ]
         },
         coffee: {
@@ -138,12 +173,11 @@ module.exports = function (grunt) {
             }
         },
         uglify: {
-			options: {
-				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-				'<%= grunt.template.today("yyyy-mm-dd") %> */'
-			},
+		options: {
+			banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
+		},
             dist: {
-				files: {
+	    	files: {
                    
                     '<%= yeoman.dist %>/angular-jqm.min.js':['<%= yeoman.app %>/angular-jqm.js'],
 					'<%= yeoman.dist %>/modules/api-cache.min.js':['<%= yeoman.app %>/modules/api-cache.js'],
@@ -330,25 +364,17 @@ module.exports = function (grunt) {
         },
 		// Unit tests.
 		nodeunit: {
-			tests: ['test/*_test.js']
+			tests: ['test/**/*_test.js']
 		}
     });
 
-    grunt.loadNpmTasks('grunt-docular');
+	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-bump');
-	grunt.loadNpmTasks('grunt-maven-deploy');
-
-
-    grunt.registerTask('test', [
-        'clean:server',
-        'concurrent:server',
-        'autoprefixer',
-        'connect:test',
-        'karma'
-    ]);
+	grunt.loadNpmTasks('grunt-bump');
+	grunt.loadNpmTasks('grunt-maven-tasks');
 
     grunt.registerTask('doc', [
+		'clean:docular',
         'docular'        
     ]);
 	
@@ -359,7 +385,7 @@ module.exports = function (grunt) {
 	]);
 
     grunt.registerTask('dist', [
-        'clean:dist',        
+        'clean:dist',
         'autoprefixer',     
         'copy:dist',
         'cdnify',
@@ -368,12 +394,17 @@ module.exports = function (grunt) {
         'htmlmin'
     ]);
 
-    grunt.registerTask('package', [ 
+    grunt.registerTask('install', [ 
         'clean', 
-        'maven:release-src', 
-        'dist', 
-        'maven:release-min' 
-    
+		'maven:install-src',
+		'dist', 
+        'maven:install-min'
+    ]);
+	grunt.registerTask('deploy', [ 
+        'clean', 
+		'maven:deploy-src',
+		'dist', 
+        'maven:deploy-min'
     ]);
     
     grunt.registerTask('default', [
