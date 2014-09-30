@@ -116,7 +116,7 @@ in the common API.
     LocalBrowserStorage: 'localStorage',
     //Constant for the literal
     NoBrowserStorage: 'none',
-    
+
     //Direct browser storage (0 local | 1 session)
     browserDirectCacheType: '1',
     /*
@@ -436,7 +436,7 @@ Future updates of Restangular imply review of this section in order to keep cons
         'Content-Type': 'application/json',
         'X-XSRF-TOKEN': 'juan'
         //SECURITY_GENERAL.XSRFCSRFHeaderName: SECURITY_GENERAL.XSRFCSRFCookieValue
-        
+
     },
 
     /*
@@ -461,7 +461,7 @@ Future updates of Restangular imply review of this section in order to keep cons
     */
     EncodeIds: true,
     /*
-     * 
+     *
      */
     DefaultContentType: 'application/json'
 })
@@ -481,9 +481,9 @@ Future updates of Restangular imply review of this section in order to keep cons
  * Includes default information about authentication and authorization configuration based on OAUTH 2.0.
  */
 .constant('SECURITY_GENERAL', {
-    securityEnabled: true,
+    securityEnabled: false,
     XSRFCSRFRequestHeaderName: 'X-XSRF-TOKEN',
-    XSRFCSRFResponseCookieName: 'X-XSRF-Cookie',
+    XSRFCSRFResponseCookieName: 'XSRF-TOKEN',
     BearerTokenResponseHeader: 'access_token',
     BearerTokenRequestHeader: 'Authorization',
     RefreshTokenResponseHeader: 'refresh_token',
@@ -507,8 +507,9 @@ Future updates of Restangular imply review of this section in order to keep cons
     username: 'admin',
     password: 'admin',
     connected: 'connected',
-    disconnected: 'disconnected'
-            
+    disconnected: 'disconnected',
+    notEnabled: 'Security not enabled'
+
 })
 
 .constant('SECURITY_OAUTH', {
