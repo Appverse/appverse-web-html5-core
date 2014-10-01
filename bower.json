@@ -31,9 +31,8 @@
     "angularjs-scope.safeapply": "*"
   },
   "resolutions": {
-    "angular": "1.2.1",
     "angular-translate": "~1.1.1",
-    "jquery": "1.10.2"
+    "jquery": "2.1.1"
   },
   "ignore": [
     "**/.*",
