@@ -85,7 +85,7 @@ module.exports = function (grunt) {
             },
             all: [
                 'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/{,*/}*.js'
+                '<%= yeoman.app %>/{,*/}*.js'
             ]
         },
         coffee: {
@@ -138,10 +138,9 @@ module.exports = function (grunt) {
             }
         },
         uglify: {
-			options: {
-				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-				'<%= grunt.template.today("yyyy-mm-dd") %> */'
-			},
+		options: {
+			banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
+		},
             dist: {
 				files: {
                    
@@ -330,7 +329,7 @@ module.exports = function (grunt) {
         },
 		// Unit tests.
 		nodeunit: {
-			tests: ['test/*_test.js']
+			tests: ['test/**/*_test.js']
 		}
     });
 
@@ -349,6 +348,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('doc', [
+		'clean:docular',
         'docular'        
     ]);
 	
