@@ -209,7 +209,7 @@ angular.module('AppREST', ['restangular', 'AppCache', 'AppConfiguration', 'AppSe
          */
        factory.readBatch = function (path) {
             var d = $q.defer();
-            $http.get(REST_CONFIG.BaseUrl + '/' + path + '.json').success(function(data){
+            $http.get(REST_CONFIG.BaseUrl + '/' + path).success(function(data){
                 d.resolve(data);
             });
             return d.promise;
