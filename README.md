@@ -85,6 +85,10 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <script src="bower_components/appverse-web-html5-core/src/directives/cache-directives.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/directives/rest-directives.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/modules/api-performance.js"></script>
+    
+        
+    <!-- your scripts here-->    
+    
     <!-- endbuild -->    
 ```
 
