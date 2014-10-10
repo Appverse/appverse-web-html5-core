@@ -28,7 +28,7 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
 ```html
 <!-- build:js scripts/scripts.js -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-touch/angular-touch.min.js"></script>
     <script src="bower_components/modernizr/modernizr.js"></script>
     <script src="bower_components/jquery-flot/jquery.flot.js"></script>
