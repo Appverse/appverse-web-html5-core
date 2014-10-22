@@ -162,7 +162,7 @@ module.exports = function (grunt) {
 					'<%= yeoman.dist %>/directives/cache-directives.min.js':['<%= yeoman.app %>/directives/cache-directives.js'],
 					'<%= yeoman.dist %>/directives/rest-directives.min.js':['<%= yeoman.app %>/directives/rest-directives.js'],
 					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
-                    '<%= yeoman.dist %>/angular-core.min.js':[
+                    '<%= yeoman.dist %>/appverse-html5-core.min.js':[
                         '<%= yeoman.app %>/bower_components/angular-cache/dist/angular-cache.min.js',
                         '<%= yeoman.app %>/modules/api-cache.js',
                         '<%= yeoman.app %>/modules/api-configuration.js',
