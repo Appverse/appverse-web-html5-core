@@ -191,27 +191,7 @@ module.exports = function (grunt) {
 					'<%= yeoman.dist %>/directives/cache-directives.min.js':['<%= yeoman.app %>/directives/cache-directives.js'],
 					'<%= yeoman.dist %>/directives/rest-directives.min.js':['<%= yeoman.app %>/directives/rest-directives.js'],
 					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
-                    '<%= yeoman.dist %>/appverse-html5-core.min.js':[
-                        '<%= yeoman.app %>/bower_components/angular-cache/dist/angular-cache.min.js',
-                        '<%= yeoman.app %>/modules/api-cache.js',
-                        '<%= yeoman.app %>/modules/api-configuration.js',
-                        '<%= yeoman.app %>/modules/api-detection.js',
-                        '<%= yeoman.app %>/modules/api-logging.js',
-                        '<%= yeoman.app %>/modules/api-main.js',
-                        '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.min.js',
-                        '<%= yeoman.app %>/bower_components/restangular/dist/restangular.min.js',
-                        '<%= yeoman.app %>/modules/api-rest.js',
-                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.min.js',    
-                        '<%= yeoman.app %>/modules/api-serverpush.js',
-                        '<%= yeoman.app %>/modules/api-translate.js',
-                        '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.min.js',
-                        '<%= yeoman.app %>/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
-                        '<%= yeoman.app %>/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
-                        '<%= yeoman.app %>/modules/api-utils.js',
-                        '<%= yeoman.app %>/directives/cache-directives.js',
-                        '<%= yeoman.app %>/directives/rest-directives.js',
-                        '<%= yeoman.app %>/modules/api-performance.js'
-                    ]
+                    '<%= yeoman.dist %>/appverse-html5-core.min.js':['<%= yeoman.dist %>/appverse-html5-core.js']
                    
                 }
             }
