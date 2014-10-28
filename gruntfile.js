@@ -141,6 +141,35 @@ module.exports = function (grunt) {
                 }
             }
         },
+        concat: {
+            options: {
+              separator: ';',
+            },
+            dist: {
+              src: [
+                        '<%= yeoman.app %>/bower_components/angular-cache/dist/angular-cache.js',
+                        '<%= yeoman.app %>/modules/api-cache.js',
+                        '<%= yeoman.app %>/modules/api-configuration.js',
+                        '<%= yeoman.app %>/modules/api-detection.js',
+                        '<%= yeoman.app %>/modules/api-logging.js',
+                        '<%= yeoman.app %>/modules/api-main.js',
+                        '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.js',
+                        '<%= yeoman.app %>/bower_components/restangular/dist/restangular.js',
+                        '<%= yeoman.app %>/modules/api-rest.js',
+                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',    
+                        '<%= yeoman.app %>/modules/api-serverpush.js',
+                        '<%= yeoman.app %>/modules/api-translate.js',
+                        '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.js',
+                        '<%= yeoman.app %>/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
+                        '<%= yeoman.app %>/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
+                        '<%= yeoman.app %>/modules/api-utils.js',
+                        '<%= yeoman.app %>/directives/cache-directives.js',
+                        '<%= yeoman.app %>/directives/rest-directives.js',
+                        '<%= yeoman.app %>/modules/api-performance.js'
+                   ],
+              dest: '<%= yeoman.dist %>/appverse-html5-core.js',
+            },
+        },
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
@@ -172,6 +201,7 @@ module.exports = function (grunt) {
                         '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.min.js',
                         '<%= yeoman.app %>/bower_components/restangular/dist/restangular.min.js',
                         '<%= yeoman.app %>/modules/api-rest.js',
+                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.min.js',    
                         '<%= yeoman.app %>/modules/api-serverpush.js',
                         '<%= yeoman.app %>/modules/api-translate.js',
                         '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.min.js',
@@ -368,6 +398,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-maven-deploy');
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
 
     grunt.registerTask('test', [
@@ -398,7 +429,8 @@ module.exports = function (grunt) {
         'autoprefixer',     
         'copy:dist',
         'cdnify',
-        'ngAnnotate',        
+        'ngAnnotate',
+        'concat:dist',
         'uglify',        
         'htmlmin'
     ]);
