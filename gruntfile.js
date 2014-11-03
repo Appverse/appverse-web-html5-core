@@ -14,7 +14,10 @@ module.exports = function (grunt) {
     var yeomanConfig = {
         app: 'src',
         dist: 'dist',
-        doc: 'doc'
+        doc: 'doc',
+        test: 'test',
+        coverage: 'test/coverage',
+	instrumented: 'test/coverage/instrumented'
     };
 
     try {
@@ -113,6 +116,7 @@ module.exports = function (grunt) {
             },
             server: '.tmp',
 	    docular: 'doc'
+	    coverage: '<%= yeoman.test %>/coverage'
         },
         jshint: {
             options: {
@@ -172,10 +176,39 @@ module.exports = function (grunt) {
                 }
             }
         },
+        concat: {
+            options: {
+              separator: ';',
+            },
+            dist: {
+              src: [
+                        '<%= yeoman.app %>/bower_components/angular-cache/dist/angular-cache.js',
+                        '<%= yeoman.app %>/modules/api-cache.js',
+                        '<%= yeoman.app %>/modules/api-configuration.js',
+                        '<%= yeoman.app %>/modules/api-detection.js',
+                        '<%= yeoman.app %>/modules/api-logging.js',
+                        '<%= yeoman.app %>/modules/api-main.js',
+                        '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.js',
+                        '<%= yeoman.app %>/bower_components/restangular/dist/restangular.js',
+                        '<%= yeoman.app %>/modules/api-rest.js',
+                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',    
+                        '<%= yeoman.app %>/modules/api-serverpush.js',
+                        '<%= yeoman.app %>/modules/api-translate.js',
+                        '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.js',
+                        '<%= yeoman.app %>/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
+                        '<%= yeoman.app %>/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
+                        '<%= yeoman.app %>/modules/api-utils.js',
+                        '<%= yeoman.app %>/directives/cache-directives.js',
+                        '<%= yeoman.app %>/directives/rest-directives.js',
+                        '<%= yeoman.app %>/modules/api-performance.js'
+                   ],
+              dest: '<%= yeoman.dist %>/appverse-html5-core.js',
+            },
+        },
         uglify: {
-		options: {
-			banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
-		},
+            options: {
+                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
+            },
             dist: {
 	    	files: {
                    
@@ -193,6 +226,7 @@ module.exports = function (grunt) {
 					'<%= yeoman.dist %>/directives/cache-directives.min.js':['<%= yeoman.app %>/directives/cache-directives.js'],
 					'<%= yeoman.dist %>/directives/rest-directives.min.js':['<%= yeoman.app %>/directives/rest-directives.js'],
 					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
+                    '<%= yeoman.dist %>/appverse-html5-core.min.js':['<%= yeoman.dist %>/appverse-html5-core.js']
                    
                 }
             }
@@ -290,8 +324,13 @@ module.exports = function (grunt) {
         },        
         karma: {
             unit: {
-                configFile: 'karma.conf.js',
-                background: true
+                configFile: '<%= yeoman.test %>/karma-unit.conf.js',
+                autoWatch: false,
+                singleRun: true
+            },
+            unit_auto: {
+                configFile: '<%= yeoman.test %>/karma-unit.conf.js'
+            
             }
         },
         cdnify: {
@@ -349,11 +388,11 @@ module.exports = function (grunt) {
         },
         bump: {
             options: {
-              files: ['package.json', 'bower.json','sonar-project.properties'],
+              files: ['package.json', 'bower.json'],
               updateConfigs: [],
               commit: true,
               commitMessage: 'Release v%VERSION%',
-              commitFiles: ['package.json','bower.json','sonar-project.properties'],
+              commitFiles: ['package.json','bower.json'],
               createTag: true,
               tagName: 'v%VERSION%',
               tagMessage: 'Version %VERSION%',
@@ -370,26 +409,44 @@ module.exports = function (grunt) {
 
 	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-bump');
-	grunt.loadNpmTasks('grunt-maven-tasks');
+	grunt.loadNpmTasks('grunt-bump');	
+	grunt.loadNpmTasks('grunt-mocha');
+    	grunt.loadNpmTasks('grunt-karma');
+    	grunt.loadNpmTasks('grunt-bump');
+    	grunt.loadNpmTasks('grunt-maven-deploy');
+    	grunt.loadNpmTasks('grunt-contrib-concat');
+
+
+    grunt.registerTask('test', [
+        'clean:server',
+        'concurrent:server',
+        'autoprefixer',
+        'connect:test',
+        'karma'
+    ]);
 
     grunt.registerTask('doc', [
 		'clean:docular',
         'docular'        
     ]);
 	
-	grunt.registerTask('test',[
-		'jshint',
-		'clean',
-		'nodeunit'
-	]);
+    grunt.registerTask('test', [
+        'clean:coverage',
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('test:unit', [
+        'clean:coverage',
+        'karma:unit_auto'
+    ]);
 
     grunt.registerTask('dist', [
         'clean:dist',
         'autoprefixer',     
         'copy:dist',
         'cdnify',
-        'ngAnnotate',        
+        'ngAnnotate',
+        'concat:dist',
         'uglify',        
         'htmlmin'
     ]);
