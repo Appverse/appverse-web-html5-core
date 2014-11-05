@@ -9,6 +9,7 @@
   "onecase": false,
   "lastsemic": false,
   /*"indent": 2*/
+  "latedef": "nofunc",
   "globals"   : {
     "$"                    : false,
     "angular"              : false,

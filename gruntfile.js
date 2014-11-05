@@ -294,7 +294,7 @@ module.exports = function (grunt) {
                 configFile: '<%= yeoman.test %>/karma.conf.js',
                 singleRun: true,
             },
-            continuous: {
+            unitWatch: {
                 configFile: '<%= yeoman.test %>/karma.conf.js',
                 autoWatch: true
             },
@@ -393,9 +393,9 @@ module.exports = function (grunt) {
 		'nodeunit'
 	]);
 
-    // Continuous integration mode: test on change
-    grunt.registerTask('ci', [
-		'karma:continuous'
+    // Test on change
+    grunt.registerTask('test:watch', [
+		'karma:unitWatch'
 	]);
 
     grunt.registerTask('dist', [
