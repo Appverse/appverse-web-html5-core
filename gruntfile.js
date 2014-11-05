@@ -430,10 +430,10 @@ module.exports = function (grunt) {
 		'nodeunit'
 	]);
 
-    // Test on change
-    grunt.registerTask('test:watch', [
-		'karma:unitWatch'
-	]);
+    grunt.registerTask('test:unit', [
+        'clean:coverage',
+        'karma:unit_auto'
+    ]);
 
     grunt.registerTask('dist', [
         'clean:dist',
