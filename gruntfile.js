@@ -321,17 +321,16 @@ module.exports = function (grunt) {
                 dest: '<%= yeoman.dist %>',
                 src: 'images/**/*.png'
             }
-        },        
+        },
         karma: {
             unit: {
-                configFile: '<%= yeoman.test %>/karma-unit.conf.js',
-                autoWatch: false,
-                singleRun: true
+                configFile: '<%= yeoman.test %>/karma.conf.js',
+                singleRun: true,
             },
-            unit_auto: {
-                configFile: '<%= yeoman.test %>/karma-unit.conf.js'
-            
-            }
+            unitWatch: {
+                configFile: '<%= yeoman.test %>/karma.conf.js',
+                autoWatch: true
+            },
         },
         cdnify: {
             dist: {
@@ -407,6 +406,8 @@ module.exports = function (grunt) {
 		}
     });
 
+    // -- Load plugins --
+
 	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-bump');	
@@ -425,47 +426,50 @@ module.exports = function (grunt) {
         'karma'
     ]);
 
+    // -- Register tasks --
+
     grunt.registerTask('doc', [
 		'clean:docular',
-        'docular'        
-    ]);
-	
-    grunt.registerTask('test', [
-        'clean:coverage',
-        'karma:unit'
+        'docular'
     ]);
 
-    grunt.registerTask('test:unit', [
-        'clean:coverage',
-        'karma:unit_auto'
-    ]);
+	grunt.registerTask('test',[
+		'jshint',
+		'clean',
+		'nodeunit'
+	]);
+
+    // Test on change
+    grunt.registerTask('test:watch', [
+		'karma:unitWatch'
+	]);
 
     grunt.registerTask('dist', [
         'clean:dist',
-        'autoprefixer',     
+        'autoprefixer',
         'copy:dist',
         'cdnify',
         'ngAnnotate',
-        'concat:dist',
-        'uglify',        
+        'uglify',
         'htmlmin'
     ]);
 
-    grunt.registerTask('install', [ 
-        'clean', 
+    grunt.registerTask('install', [
+        'clean',
 		'maven:install-src',
-		'dist', 
+		'dist',
         'maven:install-min'
     ]);
-	grunt.registerTask('deploy', [ 
-        'clean', 
+
+	grunt.registerTask('deploy', [
+        'clean',
 		'maven:deploy-src',
-		'dist', 
+		'dist',
         'maven:deploy-min'
     ]);
-    
+
     grunt.registerTask('default', [
         'dist'
     ]);
-	
+
 };
