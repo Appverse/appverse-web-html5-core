@@ -24,19 +24,19 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		yeoman: yeomanConfig,		
+		yeoman: yeomanConfig,
 		maven: {
 			options: {
                 goal:'install',
 				groupId: 'org.appverse.web.framework.modules.frontend.html5',
 				repositoryId: 'my-nexus',
 				releaseRepository: 'url'
-				
+
 			},
 			'install-src': {
 				options: {
 					classifier: 'sources'
-				},				
+				},
 				files: [{
                     expand: true,
 					cwd:'<%= yeoman.app %>/',
@@ -45,7 +45,7 @@ module.exports = function (grunt) {
 				}]
 			},
 			'install-min': {
-				options: {					
+				options: {
 					classifier: 'min'
 				},
 				files: [{
@@ -58,7 +58,7 @@ module.exports = function (grunt) {
 			'deploy-src': {
 				options: {
 					goal:'deploy',
-					url: '<%= releaseRepository %>',					
+					url: '<%= releaseRepository %>',
 					classifier: 'sources'
 				},
 				files: [{
@@ -71,7 +71,7 @@ module.exports = function (grunt) {
 			'deploy-min': {
 				options: {
 					goal:'deploy',
-					url: '<%= releaseRepository %>',					
+					url: '<%= releaseRepository %>',
 					classifier: 'min'
 				},
 				files: [{
@@ -100,28 +100,31 @@ module.exports = function (grunt) {
                     dest: '.tmp/styles/'
                 }]
             }
-        },       
+        },
         clean: {
             dist: {
                 files: [{
                     dot: true,
                     src: [
-                        '.tmp',				
+                        '.tmp',
                         '<%= yeoman.dist %>/**',
                         '!<%= yeoman.dist %>/.git*'
                     ]
                 }]
             },
+            coverage : 'coverage/*',
             server: '.tmp',
 	    docular: 'doc'
         },
         jshint: {
             options: {
-                jshintrc: '.jshintrc'
+                jshintrc: '.jshintrc',
+                //Show errors but do not fail the task
+                force: true
             },
             all: [
-                'Gruntfile.js',
-                '<%= yeoman.app %>/{,*/}*.js'
+                '<%= yeoman.app %>/directives/{,*/}*.js',
+                '<%= yeoman.app %>/modules/{,*/}*.js',
             ]
         },
         coffee: {
@@ -179,7 +182,7 @@ module.exports = function (grunt) {
 		},
             dist: {
 	    	files: {
-                   
+
                     '<%= yeoman.dist %>/angular-jqm.min.js':['<%= yeoman.app %>/angular-jqm.js'],
 					'<%= yeoman.dist %>/modules/api-cache.min.js':['<%= yeoman.app %>/modules/api-cache.js'],
 					'<%= yeoman.dist %>/modules/api-configuration.min.js':['<%= yeoman.app %>/modules/api-configuration.js'],
@@ -194,10 +197,10 @@ module.exports = function (grunt) {
 					'<%= yeoman.dist %>/directives/cache-directives.min.js':['<%= yeoman.app %>/directives/cache-directives.js'],
 					'<%= yeoman.dist %>/directives/rest-directives.min.js':['<%= yeoman.app %>/directives/rest-directives.js'],
 					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
-                   
+
                 }
             }
-        },       
+        },
         htmlmin: {
             dist: {
                 options: {
@@ -291,11 +294,12 @@ module.exports = function (grunt) {
         },
         karma: {
             unit: {
-                configFile: '<%= yeoman.test %>/karma.conf.js',
-                singleRun: true,
+                configFile: '<%= yeoman.test %>/config/karma.unit.conf.js',
+                autoWatch: false,
+                singleRun: true
             },
-            unitWatch: {
-                configFile: '<%= yeoman.test %>/karma.conf.js',
+            unitAutoWatch: {
+                configFile: '<%= yeoman.test %>/config/karma.unit.watch.conf.js',
                 autoWatch: true
             },
         },
@@ -388,17 +392,22 @@ module.exports = function (grunt) {
     ]);
 
 	grunt.registerTask('test',[
-		'jshint',
-		'clean',
-		'nodeunit'
+		'test:unit:watch'
 	]);
 
-    // Test on change
-    grunt.registerTask('test:watch', [
-		'karma:unitWatch'
+    grunt.registerTask('test:unit', [
+        'clean:coverage',
+		'karma:unit'
 	]);
+
+    grunt.registerTask('test:unit:watch', [
+        'clean:coverage',
+        'karma:unitAutoWatch'
+    ]);
 
     grunt.registerTask('dist', [
+        'jshint',
+        'test:unit',
         'clean:dist',
         'autoprefixer',
         'copy:dist',
