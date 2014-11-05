@@ -410,20 +410,12 @@ module.exports = function (grunt) {
 
 	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-bump');	
 	grunt.loadNpmTasks('grunt-mocha');
     	grunt.loadNpmTasks('grunt-karma');
     	grunt.loadNpmTasks('grunt-bump');
     	grunt.loadNpmTasks('grunt-maven-deploy');
     	grunt.loadNpmTasks('grunt-contrib-concat');
-
-
-    grunt.registerTask('test', [
-        'clean:server',
-        'concurrent:server',
-        'autoprefixer',
-        'connect:test',
-        'karma'
-    ]);
 
     // -- Register tasks --
 
@@ -433,9 +425,9 @@ module.exports = function (grunt) {
     ]);
 
 	grunt.registerTask('test',[
-		//'jshint',
-		'clean:coverage',
-		'karma:unit'
+		'jshint',
+		'clean',
+		'nodeunit'
 	]);
 
     // Test on change
@@ -449,7 +441,7 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'ngAnnotate',
-	'concat:dist',
+        'concat:dist',
         'uglify',
         'htmlmin'
     ]);
