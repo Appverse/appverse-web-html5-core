@@ -116,8 +116,7 @@ module.exports = function (grunt) {
             },
             coverage : 'coverage/*',
             server: '.tmp',
-	    docular: 'doc',
-	    coverage: '<%= yeoman.test %>/coverage'
+	    docular: 'doc'
         },
         jshint: {
             options: {
