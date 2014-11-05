@@ -85,20 +85,21 @@
             originalLinkFunction.apply(this, [scope, $element, attr, ctrl]);
 
             scope.$on('$translateChangeSuccess', function () {
-                $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
-                var translatedText = $element.text();
-                var finalHtml =  htmlOnlyTags.replace('%%text%%', translatedText);
-                $element.html(finalHtml);
+                translateElement();
             });
 
             scope.$watch('[translationId, interpolateParams]', function () {
               if (scope.translationId) {
+                translateElement();
+              }
+            }, true);
+
+            function translateElement() {
                 $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
                 var translatedText = $element.text();
                 var finalHtml =  htmlOnlyTags.replace('%%text%%', translatedText);
                 $element.html(finalHtml);
-              }
-            }, true);
+            }
 
             return;
         };
