@@ -410,6 +410,7 @@ module.exports = function (grunt) {
 
 	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-bump');	
 	grunt.loadNpmTasks('grunt-mocha');
     	grunt.loadNpmTasks('grunt-karma');
     	grunt.loadNpmTasks('grunt-bump');
@@ -432,16 +433,15 @@ module.exports = function (grunt) {
         'docular'
     ]);
 
-	grunt.registerTask('test',[
-		//'jshint',
-		'clean:coverage',
-		'karma:unit'
-	]);
+    grunt.registerTask('test', [
+        'clean:coverage',
+        'karma:unit'
+    ]);
 
-    // Test on change
-    grunt.registerTask('test:watch', [
-		'karma:unitWatch'
-	]);
+    grunt.registerTask('test:unit', [
+        'clean:coverage',
+        'karma:unit_auto'
+    ]);
 
     grunt.registerTask('dist', [
         'clean:dist',
@@ -449,8 +449,8 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'ngAnnotate',
-	'concat:dist',
-        'uglify',
+        'concat:dist',
+        'uglify',        
         'htmlmin'
     ]);
 
