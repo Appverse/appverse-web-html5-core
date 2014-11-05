@@ -117,6 +117,10 @@ module.exports = function (grunt) {
             coverage : 'coverage/*',
             server: '.tmp',
 	    docular: 'doc'
+<<<<<<< HEAD
+=======
+	    coverage: '<%= yeoman.test %>/coverage'
+>>>>>>> jramcast-develop
         },
         jshint: {
             options: {
