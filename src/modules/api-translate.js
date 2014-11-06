@@ -18,13 +18,12 @@
         'pascalprecht.translate',
         'AppConfiguration',
         'tmh.dynamicLocale'
-    ]);
-
+    ])
 
     // Get module and set config and run blocks
-    angular.module('AppTranslate')
-        .config(configBlock)
-        .run(runBlock);
+    //angular.module('AppTranslate')
+    .config(configBlock)
+    .run(runBlock);
 
 
     function configBlock($translateProvider, I18N_CONFIG, tmhDynamicLocaleProvider, $provide) {
