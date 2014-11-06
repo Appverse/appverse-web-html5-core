@@ -1,10 +1,9 @@
-/*jshint -W030 */
-
+/*jshint expr:true */
 "use strict";
 
 describe('Unit: Testing AppSecurity module', function () {
 
-    beforeEach(module('AppSecurity'));
+    beforeEach(setupSecurityTesting);
 
     it('should contain a Oauth_Endpoint factory',
         inject(function (Oauth_Endpoint) {
@@ -20,13 +19,6 @@ describe('Unit: Testing AppSecurity module', function () {
         })
     );
 
-//    it('should contain a Oauth_Profile factory',
-//        inject(function (Oauth_Profile) {
-//
-//            expect(Oauth_Profile).to.be.an.object;
-//        })
-//    );
-
     it('should contain a RoleService factory',
         inject(function (RoleService) {
 
@@ -40,4 +32,28 @@ describe('Unit: Testing AppSecurity module', function () {
             expect(AuthenticationService).to.be.an.object;
         })
     );
+
+
+    /////////////// HELPER FUNCTIONS
+
+    function setupSecurityTesting() {
+
+        // Generate mock modules and providers
+        mockDependencies();
+
+        // Load the module to be tested
+        module("AppSecurity");
+    }
+
+    function mockDependencies() {
+
+        // Provide the dependency injector with mock empty objects
+        // instead of real ones
+        module(function ($provide) {
+            $provide.service('AuthenticationService', function() {});
+            $provide.service('RoleService', function() {});
+            $provide.service('Oauth_AccessToken', function() {});
+            $provide.service('Oauth_Endpoint', function() {});
+        });
+    }
 });

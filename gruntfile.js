@@ -435,7 +435,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit', [
         'clean:coverage',
-	'karma:unit'
+        'karma:unit'
 	]);
 
 

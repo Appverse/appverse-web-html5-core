@@ -18,7 +18,7 @@ var settings = {
         'test/unit/**/*.js'
     ],
 
-    frameworks: ['jasmine'],
+    frameworks: ['mocha', 'chai', 'sinon'],
 
     browsers : ['PhantomJS'],
 };

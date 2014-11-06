@@ -1,3 +1,5 @@
+/*jshint expr:true */
+
 describe('api-translate Tests', function() { 'use strict';
 
     var translateProvider,
@@ -8,19 +10,24 @@ describe('api-translate Tests', function() { 'use strict';
     describe('when configuring module...', function() {
 
         it('configures the static files loader', function() {
-            expect(translateProvider.useStaticFilesLoader).toHaveBeenCalledWith({
-                prefix: 'resources/i18n/',
-                suffix: '.json'
-            });
+            translateProvider.useStaticFilesLoader
+                .calledWith({
+                    prefix: 'resources/i18n/',
+                    suffix: '.json'
+                })
+                .should.be.true;
         });
 
         it('configures the preferred language', function() {
-            expect(translateProvider.preferredLanguage).toHaveBeenCalledWith('en_US');
+            translateProvider.preferredLanguage
+                .calledWith('en_US')
+                .should.be.true;
         });
 
         it('configures the locale file route pattern', function() {
-            expect(dynamicLocaleProvider.localeLocationPattern)
-                .toHaveBeenCalledWith('resources/i18n/angular/angular-locale_{{locale}}.js');
+            dynamicLocaleProvider.localeLocationPattern
+                .calledWith('resources/i18n/angular/angular-locale_{{locale}}.js')
+                .should.be.true;
         });
 
     });
@@ -28,11 +35,11 @@ describe('api-translate Tests', function() { 'use strict';
     describe('when translating with the service...', function() {
 
         it('should return the translated string if key exists', inject(function ($translate) {
-          expect($translate('SALUTE')).toBe('Hello');
+          $translate('SALUTE').should.be.equal('Hello');
         }));
 
         it('should return the original string if key does not exist', inject(function ($translate) {
-          expect($translate('not translated')).toBe('not translated');
+          $translate('not translated').should.be.equal('not translated');
         }));
 
     });
@@ -56,7 +63,7 @@ describe('api-translate Tests', function() { 'use strict';
             // fire all the watches, so text is evaluated
             $rootScope.$digest();
             // Check that the compiled element contains the templated content
-            expect(element.html()).toBe("Hello");
+            element.html().should.be.equal("Hello");
         });
 
         describe('when html contains an <i> tag...', function() {
@@ -64,7 +71,7 @@ describe('api-translate Tests', function() { 'use strict';
             it('should translate the text and keep the <i> tag', function() {
                 var element = $compile('<p translate><i class="icon"></i>SALUTE</p>')($rootScope);
                 $rootScope.$digest();
-                expect(element.html()).toBe('<i class="icon"></i>Hello');
+                element.html().should.be.equal('<i class="icon"></i>Hello');
             });
 
         });
@@ -90,7 +97,7 @@ describe('api-translate Tests', function() { 'use strict';
 
     /**
      * Creates mocks of dependencies.
-     * Mocked functions are actually jasmine spyies to check they have been called
+     * Mocked functions are actually sinon spyies to check they have been called
      */
     function mockDependencies() {
 
@@ -103,14 +110,13 @@ describe('api-translate Tests', function() { 'use strict';
         // available after config phase, therefore they cannot be injected with inject().
         // However, we can get their objects using a module() block.
         module('pascalprecht.translate', function($translateProvider) {
-            $translateProvider.useStaticFilesLoader = jasmine.createSpy('useStaticFilesLoader');
-            $translateProvider.preferredLanguage = jasmine.createSpy('preferredLanguage');
+            $translateProvider.useStaticFilesLoader = sinon.spy();
+            $translateProvider.preferredLanguage = sinon.spy();
             $translateProvider.translations({'SALUTE' : 'Hello'});
             translateProvider = $translateProvider;
         });
         module('tmh.dynamicLocale', function(tmhDynamicLocaleProvider) {
-            tmhDynamicLocaleProvider
-                .localeLocationPattern = jasmine.createSpy('localeLocationPattern');
+            tmhDynamicLocaleProvider.localeLocationPattern = sinon.spy();
             dynamicLocaleProvider = tmhDynamicLocaleProvider;
         });
     }
