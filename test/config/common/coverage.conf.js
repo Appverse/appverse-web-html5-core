@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress', 'coverage', 'notify'],
 
     preprocessors: {
         // source files, that you wanna generate coverage for

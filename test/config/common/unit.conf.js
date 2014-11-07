@@ -20,6 +20,8 @@ var settings = {
 
     frameworks: ['mocha', 'chai', 'sinon'],
 
+    reporters: ['progress', 'notify'],
+
     browsers : ['PhantomJS'],
 };
 
