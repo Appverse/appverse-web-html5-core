@@ -5,7 +5,7 @@ var settings = {
     basePath : '../../',
 
     files : [
-        'src/bower_components/jquery/dist/jquery.min.js',
+        //'src/bower_components/jquery/dist/jquery.min.js',
         'src/bower_components/angular/angular.js',
         'src/bower_components/angular-route/angular-route.js',
         'src/bower_components/angular-cookies/angular-cookies.js',

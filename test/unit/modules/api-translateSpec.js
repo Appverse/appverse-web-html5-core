@@ -1,6 +1,6 @@
 /*jshint expr:true */
 
-describe('api-translate Tests', function() { 'use strict';
+describe('Unit: Testing api-translate', function() { 'use strict';
 
     var translateProvider,
         dynamicLocaleProvider;

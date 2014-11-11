@@ -116,7 +116,7 @@ module.exports = function (grunt) {
             },
             coverage : 'coverage/*',
             server: '.tmp',
-	    docular: 'doc'
+	        docular: 'doc'
 
         },
         jshint: {
