@@ -336,6 +336,11 @@ module.exports = function (grunt) {
                 configFile: '<%= yeoman.test %>/config/karma.unit.watch.conf.js',
                 autoWatch: true
             },
+            midway: {
+                configFile: '<%= yeoman.test %>/config/karma.midway.conf.js',
+                autoWatch: false,
+                singleRun: true
+            },
         },
         cdnify: {
             dist: {
@@ -404,11 +409,7 @@ module.exports = function (grunt) {
               pushTo: 'origin',
               gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
-        },
-		// Unit tests.
-		nodeunit: {
-			tests: ['test/**/*_test.js']
-		}
+        }
     });
 
     // -- Load plugins --
@@ -430,20 +431,32 @@ module.exports = function (grunt) {
         'docular'
     ]);
 
-	grunt.registerTask('test',[
-		'test:unit:watch'
-	]);
-
-    grunt.registerTask('test:unit', [
-        'clean:coverage',
-        'karma:unit'
-	]);
-
+    grunt.registerTask('test', [
+        'test:all'
+    ]);
 
     grunt.registerTask('test:unit:watch', [
         'clean:coverage',
         'karma:unitAutoWatch'
     ]);
+
+    grunt.registerTask('test:unit:once', [
+        'clean:coverage',
+        'karma:unit'
+	]);
+
+    grunt.registerTask('test:midway', [
+        'clean:coverage',
+        'karma:midway'
+    ]);
+
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'karma:unit',
+        'karma:midway'
+    ]);
+
+
 
     grunt.registerTask('dist', [
         'jshint',

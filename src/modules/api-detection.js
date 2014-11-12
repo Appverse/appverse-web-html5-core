@@ -1,17 +1,14 @@
-'use strict';
-
-/**
- * @ngdoc module
- * @name AppDetection
- * @description
- * Provides browser and network detection.
- */
-
 (function() { 'use strict';
 
+    /**
+     * @ngdoc module
+     * @name AppDetection
+     * @description
+     * Provides browser and network detection.
+     */
     angular.module('AppDetection', ['angularLoad'])
         .run(runBlock)
-        .provider('Detection', Detection)
+        .provider('Detection', DetectionProvider)
         .service('MobileLibrariesLoader', MobileLibrariesLoader)
         .service('MobileDetector', MobileDetector)
         .service('ConfigLoader', ConfigLoader);
@@ -97,7 +94,7 @@
      * @description
      * Contains methods for browser and network detection.
      */
-    function Detection () {
+    function DetectionProvider() {
 
         var appConfigTemp = {};
 
@@ -202,6 +199,7 @@
         this.testBandwidth = function () {
             var jsonUrl = "resources/detection/bandwidth.json";
             fireEvent("onBandwidthStart");
+
             var ajaxResponse = $.ajax({
                 cache: false,
                 async: false,
@@ -309,7 +307,38 @@
     function MobileLibrariesLoader(angularLoad) {
 
         this.load = function() {
-            $.ajax({
+
+            angularLoad.loadScript('bower_components/angular-touch/angular-touch.js').then(function() {
+                // Script loaded succesfully.
+                // We can now start using the functions from someplugin.js
+            }).catch(function() {
+                // There was some error loading the script. Meh
+            });
+
+            angularLoad.loadScript('bower_components/angular-animate/angular-animate.js').then(function() {
+                // Script loaded succesfully.
+                // We can now start using the functions from someplugin.js
+            }).catch(function() {
+                // There was some error loading the script. Meh
+            });
+
+            angularLoad.loadScript('bower_components/angular-route/angular-route.js').then(function() {
+                // Script loaded succesfully.
+                // We can now start using the functions from someplugin.js
+            }).catch(function() {
+                // There was some error loading the script. Meh
+            });
+
+            angularLoad.loadScript('angular-jqm.js').then(function() {
+                // Script loaded succesfully.
+                // We can now start using the functions from someplugin.js
+            }).catch(function() {
+                // There was some error loading the script. Meh
+            });
+
+
+
+           /* $.ajax({
                 async: false,
                 url: "bower_components/angular-touch/angular-touch.js",
                 dataType: 'script'
@@ -328,7 +357,7 @@
                 async: false,
                 url: "scripts/api/angular-jqm.js",
                 dataType: 'script'
-            });
+            });*/
         };
 
     }
@@ -352,26 +381,36 @@
 
         this.loadFromJsonInto = function(appConfigTemp) {
 
-            var ajaxResponse = $.ajax({
+            /*var ajaxResponse = $.ajax({
                 async: false,
                 url: endpointUrl,
                 dataType: "json"
-            });
+            });*/
 
-            var jsonData = JSON.parse(ajaxResponse.responseText);
+            $http.get(endpointUrl)
+                .then(onLoaded)
+                .catch(function() {
+                    // catch error
+                });
 
-            angular.forEach(jsonData, function (constantObject, constantName) {
-                var appConfigObject = appConfigTemp[constantName];
+            function onLoaded(ajaxResponse) {
 
-                if (appConfigObject) {
-                    angular.forEach(constantObject, function (propertyValue, propertyName) {
-                        appConfigObject[propertyName] = propertyValue;
-                    });
-                    appConfigTemp[constantName] = appConfigObject;
-                } else {
-                    appConfigTemp[constantName] = constantObject;
-                }
-            });
+                var jsonData = JSON.parse(ajaxResponse.responseText);
+
+                angular.forEach(jsonData, function (constantObject, constantName) {
+                    var appConfigObject = appConfigTemp[constantName];
+
+                    if (appConfigObject) {
+                        angular.forEach(constantObject, function (propertyValue, propertyName) {
+                            appConfigObject[propertyName] = propertyValue;
+                        });
+                        appConfigTemp[constantName] = appConfigObject;
+                    } else {
+                        appConfigTemp[constantName] = constantObject;
+                    }
+                });
+            }
+
         };
 
     }

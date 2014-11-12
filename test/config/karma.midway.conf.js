@@ -8,15 +8,13 @@ module.exports = function(config) {
 
         basePath : settings.basePath,
 
-        files : settings.filesForUnitTests(),
+        files : settings.filesForMidwayTests(),
 
         frameworks: settings.frameworks,
 
         reporters: ['progress', 'notify'],
 
         browsers : ['PhantomJS'],
-
-        autoWatch : true,
     });
 
 };
