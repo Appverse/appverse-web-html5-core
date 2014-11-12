@@ -1,28 +1,16 @@
 (function() { 'use strict';
 
-    /**
-     * @ngdoc module
-     * @name AppDetection
-     * @description
-     * Provides browser and network detection.
-     */
-    angular.module('AppDetection', ['angularLoad'])
-        .run(runBlock)
-        .provider('Detection', DetectionProvider)
-        .service('MobileLibrariesLoader', MobileLibrariesLoader)
-        .service('MobileDetector', MobileDetector)
-        .service('ConfigLoader', ConfigLoader);
+/**
+ * @ngdoc module
+ * @name AppDetection
+ * @description
+ * Provides browser and network detection.
+ */
+angular.module('AppDetection', [])
 
+.run(['$log', 'Detection', '$rootScope', '$window',
+    function ($log, Detection, $rootScope, $window) {
 
-    runBlock.$inject = ['$log', 'Detection', '$rootScope', '$window'];
-    /**
-     * @doc function
-     * @name AppDetection.run:Detection
-     * @description
-     *
-     * Run block for AppDetection. Contains methods for browser and network detection.
-     */
-    function runBlock($log, Detection, $rootScope, $window) {
         $log.info('AppDetection run');
 
         if ($window.addEventListener) {
@@ -85,18 +73,57 @@
         } else {
             $log.warn('Detection module: window.addEventListener not supported.');
         }
-    }
+    }])
 
+/**
+ * @ngdoc service
+ * @name AppDetection.provider:Detection
+ * @description
+ * Contains methods for browser and network detection.
+ */
+.provider('Detection',
+    function () {
 
-    /**
-     * @ngdoc service
-     * @name AppDetection.provider:Detection
-     * @description
-     * Contains methods for browser and network detection.
-     */
-    function DetectionProvider() {
+        if (typeof Unity === 'undefined' || Unity.System.GetOSInfo() === null) {
+            this.hasAppverseMobile = false;
+        } else {
+            this.hasAppverseMobile = true;
+        }
 
-        var appConfigTemp = {};
+        /**
+         * Code adapted from http://detectmobilebrowser.com
+         **/
+        var a = navigator.userAgent || navigator.vendor || window.opera;
+        if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) {
+            this.isMobileBrowser = true;
+        } else {
+            this.isMobileBrowser = false;
+        }
+
+        if (this.hasAppverseMobile || this.isMobileBrowser) {
+            $.ajax({
+                async: false,
+                url: "bower_components/angular-touch/angular-touch.js",
+                dataType: 'script'
+            });
+            $.ajax({
+                async: false,
+                url: "bower_components/angular-animate/angular-animate.js",
+                dataType: 'script'
+            });
+            $.ajax({
+                async: false,
+                url: "bower_components/angular-route/angular-route.js",
+                dataType: 'script'
+            });
+            $.ajax({
+                async: false,
+                url: "scripts/api/angular-jqm.js",
+                dataType: 'script'
+            });
+        } else {
+            angular.module('jqm', []);
+        }
 
         var fireEvent = function (name, data) {
             var e = document.createEvent("Event");
@@ -136,37 +163,6 @@
         this.isPollingOnlineStatus = false;
 
         /**
-         * Sets a non-default mobileDetector.
-         * This object should expose hasAppverseMobile() and isMobileBrowser()
-         *
-         * @param {object} mobileDetector
-         */
-        this.setMobileDetector = function(mobileDetector) {
-            this.mobileDetector = mobileDetector;
-        };
-
-        /**
-         * Set a non-default mobileLibrariesLoader
-         * This object should expose load()
-         *
-         * @param {object} mobileLibrariesLoader
-         */
-        this.setMobileLibrariesLoader = function(mobileLibrariesLoader) {
-            this.mobileLibrariesLoader = mobileLibrariesLoader;
-        };
-
-        /**
-         * Set a non-default mobileLibrariesLoader
-         * This object should expose
-         * loadFromJsonInto(appConfigTemp) and fromUrl(url)
-         *
-         * @param {object} configLoader
-         */
-        this.setConfigLoader = function(configLoader) {
-            this.configLoader = configLoader;
-        };
-
-        /**
          * @ngdoc method
          * @name AppDetection.provider:Detection#testOnlineStatus
          * @methodOf AppDetection.provider:Detection
@@ -199,7 +195,6 @@
         this.testBandwidth = function () {
             var jsonUrl = "resources/detection/bandwidth.json";
             fireEvent("onBandwidthStart");
-
             var ajaxResponse = $.ajax({
                 cache: false,
                 async: false,
@@ -218,201 +213,52 @@
             this.isPollingBandwidth = false;
         };
 
-        this.$get = function (MobileLibrariesLoader, MobileDetector, ConfigLoader) {
-            this.setMobileLibrariesLoader(MobileLibrariesLoader);
-            this.setMobileDetector(MobileDetector);
-            this.setConfigLoader(ConfigLoader);
-            this.bootstrap();
-            return this;
-        };
-        this.$get.$inject = ['MobileLibrariesLoader', 'MobileDetector', 'ConfigLoader'];
-
-        this.bootstrap = function() {
-            this.hasAppverseMobile = this.mobileDetector.hasAppverseMobile();
-            this.isMobileBrowser = this.mobileDetector.isMobileBrowser();
-
-            if (this.hasAppverseMobile || this.isMobileBrowser) {
-                this.mobileLibrariesLoader.load();
-            } else {
-                angular.module('jqm', []);
-            }
-
-            angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
-                appConfigTemp[element[2][0]] = element[2][1];
-            });
-
-            if (this.hasAppverseMobile) {
-                this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
-            } else if (this.isMobileBrowser) {
-                this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
-            }
-
-            this.addConfigFromJSON('resources/configuration/environment-conf.json');
-
-            var appConfiguration = angular.module('AppConfiguration');
-
-            angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
-                appConfiguration.constant(propertyName, propertyValue);
-            });
-        };
-
-        this.addConfigFromJSON = function(jsonUrl) {
-            this.configLoader.fromUrl(jsonUrl).loadFromJsonInto(appConfigTemp);
-        };
-    }
-
-
-    /**
-     * @ngdoc service
-     * @name AppDetection.provider:Detection
-     * @description
-     * Detects if the browser is mobile
-     */
-    function MobileDetector() {
-
-        this.hasAppverseMobile = function() {
-            return hasUnity() && unityHasOSInfo();
-        };
-
-        this.isMobileBrowser = function (customAgent) {
-            var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
-            return agentContainsMobileKeyword(agent);
-        };
-
-        function hasUnity () {
-            return typeof Unity !== 'undefined';
-        }
-
-        function unityHasOSInfo () {
-            return Unity.System.GetOSInfo() !== null;
-        }
-
-        function agentContainsMobileKeyword(agent) {
-
-            /*jshint ignore:start,-W101*/
-            // Code adapted from http://detectmobilebrowser.com
-            return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4));
-            /*jshint ignore:end,-W101*/
-        }
-    }
-
-
-    MobileLibrariesLoader.$inject = ['angularLoad'];
-    /**
-     * @ngdoc service
-     * @name AppDetection.service:MobileLibrariesLoader
-     * @description
-     * Detects if the browser is mobile
-     */
-    function MobileLibrariesLoader(angularLoad) {
-
-        this.load = function() {
-
-            angularLoad.loadScript('bower_components/angular-touch/angular-touch.js').then(function() {
-                // Script loaded succesfully.
-                // We can now start using the functions from someplugin.js
-            }).catch(function() {
-                // There was some error loading the script. Meh
-            });
-
-            angularLoad.loadScript('bower_components/angular-animate/angular-animate.js').then(function() {
-                // Script loaded succesfully.
-                // We can now start using the functions from someplugin.js
-            }).catch(function() {
-                // There was some error loading the script. Meh
-            });
-
-            angularLoad.loadScript('bower_components/angular-route/angular-route.js').then(function() {
-                // Script loaded succesfully.
-                // We can now start using the functions from someplugin.js
-            }).catch(function() {
-                // There was some error loading the script. Meh
-            });
-
-            angularLoad.loadScript('angular-jqm.js').then(function() {
-                // Script loaded succesfully.
-                // We can now start using the functions from someplugin.js
-            }).catch(function() {
-                // There was some error loading the script. Meh
-            });
-
-
-
-           /* $.ajax({
-                async: false,
-                url: "bower_components/angular-touch/angular-touch.js",
-                dataType: 'script'
-            });
-            $.ajax({
-                async: false,
-                url: "bower_components/angular-animate/angular-animate.js",
-                dataType: 'script'
-            });
-            $.ajax({
-                async: false,
-                url: "bower_components/angular-route/angular-route.js",
-                dataType: 'script'
-            });
-            $.ajax({
-                async: false,
-                url: "scripts/api/angular-jqm.js",
-                dataType: 'script'
-            });*/
-        };
-
-    }
-
-
-    ConfigLoader.$inject = ['$http'];
-    /**
-     * @ngdoc service
-     * @name AppDetection.service:ConfigLoader
-     * @description
-     * Loads configuration files
-     */
-    function ConfigLoader($http) {
-
-        var endpointUrl;
-
-        this.fromUrl = function(url) {
-            endpointUrl = url;
+        this.$get = function () {
             return this;
         };
 
-        this.loadFromJsonInto = function(appConfigTemp) {
+        function addConfigFromJSON(jsonUrl) {
 
-            /*var ajaxResponse = $.ajax({
+            var ajaxResponse = $.ajax({
                 async: false,
-                url: endpointUrl,
+                url: jsonUrl,
                 dataType: "json"
-            });*/
+            });
 
-            $http.get(endpointUrl)
-                .then(onLoaded)
-                .catch(function() {
-                    // catch error
-                });
+            var jsonData = JSON.parse(ajaxResponse.responseText);
 
-            function onLoaded(ajaxResponse) {
+            angular.forEach(jsonData, function (constantObject, constantName) {
+                var appConfigObject = appConfigTemp[constantName];
 
-                var jsonData = JSON.parse(ajaxResponse.responseText);
+                if (appConfigObject) {
+                    angular.forEach(constantObject, function (propertyValue, propertyName) {
+                        appConfigObject[propertyName] = propertyValue;
+                    });
+                    appConfigTemp[constantName] = appConfigObject;
+                } else {
+                    appConfigTemp[constantName] = constantObject;
+                }
+            });
+        }
 
-                angular.forEach(jsonData, function (constantObject, constantName) {
-                    var appConfigObject = appConfigTemp[constantName];
+        var appConfigTemp = {};
 
-                    if (appConfigObject) {
-                        angular.forEach(constantObject, function (propertyValue, propertyName) {
-                            appConfigObject[propertyName] = propertyValue;
-                        });
-                        appConfigTemp[constantName] = appConfigObject;
-                    } else {
-                        appConfigTemp[constantName] = constantObject;
-                    }
-                });
-            }
+        angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
+            appConfigTemp[element[2][0]] = element[2][1];
+        });
 
-        };
+        if (this.hasAppverseMobile) {
+            addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+        } else if (this.isMobileBrowser) {
+            addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+        }
 
-    }
+        addConfigFromJSON('resources/configuration/environment-conf.json');
 
+        var appConfiguration = angular.module('AppConfiguration');
+
+        angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
+            appConfiguration.constant(propertyName, propertyValue);
+        });
+    });
 })();

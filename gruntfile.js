@@ -1,5 +1,74 @@
 'use strict';
 
+var fs = require('fs');
+
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({
+    port: LIVERELOAD_PORT
+});
+
+var mountFolder = function (connect, dir) {
+    return connect.static(require('path').resolve(dir));
+};
+
+var delayApiCalls = function (request, response, next) {
+    if (request.url.indexOf('/api') !== -1) {
+        setTimeout(function () {
+            next();
+        }, 1000);
+    } else {
+        next();
+    }
+};
+
+var httpMethods = function (request, response, next) {
+
+    var rawpath = request.url.split('?')[0],
+    path        = require('path').resolve(__dirname, 'demo/' + rawpath);
+
+    console.log("request method: " + JSON.stringify(request.method));
+    console.log("request url: " + JSON.stringify(request.url));
+    console.log("request path : " + JSON.stringify(path));
+
+    if ((request.method === 'PUT' || request.method === 'POST')) {
+        console.log('inside put/post');
+        request.content = '';
+        request.addListener("data", function (chunk) {
+            request.content += chunk;
+        });
+
+        request.addListener("end", function () {
+            console.log("request content: " + JSON.stringify(request.content));
+            if (fs.existsSync(path)) {
+                fs.writeFile(path, request.content, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('file saved');
+                    response.end('file was saved');
+                });
+                return;
+            }
+
+            if (request.url === '/log') {
+                var filePath = 'server/log/server.log';
+                var logData = JSON.parse(request.content);
+                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('log saved');
+                    response.end('log was saved');
+                });
+                return;
+            }
+        });
+        return;
+    }
+    next();
+};
+
+
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
@@ -16,6 +85,7 @@ module.exports = function (grunt) {
         dist: 'dist',
         doc: 'doc',
         test: 'test',
+        demo: 'demo',
         coverage: 'test/coverage',
 	instrumented: 'test/coverage/instrumented'
     };
@@ -194,7 +264,7 @@ module.exports = function (grunt) {
                         '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.js',
                         '<%= yeoman.app %>/bower_components/restangular/dist/restangular.js',
                         '<%= yeoman.app %>/modules/api-rest.js',
-                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',    
+                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',
                         '<%= yeoman.app %>/modules/api-serverpush.js',
                         '<%= yeoman.app %>/modules/api-translate.js',
                         '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.js',
@@ -231,7 +301,6 @@ module.exports = function (grunt) {
 					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
 
                     '<%= yeoman.dist %>/appverse-html5-core.min.js':['<%= yeoman.dist %>/appverse-html5-core.js']
-                   
                 }
             }
         },
@@ -409,7 +478,44 @@ module.exports = function (grunt) {
               pushTo: 'origin',
               gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
-        }
+        },
+        connect: {
+            options: {
+                protocol: 'http',
+                port: 9000,
+                hostname: 'localhost'
+            },
+            livereload: {
+                options: {
+                    middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            lrSnippet,
+                            mountFolder(connect, yeomanConfig.app),
+                            mountFolder(connect, yeomanConfig.demo),
+                            httpMethods
+                        ];
+                    }
+                }
+            }
+        },
+        watch: {
+            livereload: {
+                options: {
+                    livereload: LIVERELOAD_PORT
+                },
+                files: [
+                    '<%= yeoman.demo %>/**/*.html',
+                    '<%= yeoman.demo %>/js/*.js',
+                    '{.tmp,<%= yeoman.app %>}/**/*.js',
+                ]
+            }
+        },
+        open: {
+            demo: {
+                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.options.port %>'
+            },
+        },
     });
 
     // -- Load plugins --
@@ -423,6 +529,8 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-maven-deploy');
 	grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-notify');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     // -- Register tasks --
 
@@ -456,7 +564,11 @@ module.exports = function (grunt) {
         'karma:midway'
     ]);
 
-
+    grunt.registerTask('demo', [
+        'connect:livereload',
+        'open:demo',
+        'watch'
+    ]);
 
     grunt.registerTask('dist', [
         'jshint',
@@ -488,5 +600,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', [
         'dist'
     ]);
+
+
 
 };

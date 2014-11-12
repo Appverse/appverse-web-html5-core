@@ -6,6 +6,7 @@ describe('Unit: Api Detection Module', function() {
     var DetectionProvider;
     var Detection;
 
+/*
     describe('when browser is not mobile...', function() {
 
         beforeEach('inject mocks', function () {
@@ -122,7 +123,7 @@ describe('Unit: Api Detection Module', function() {
         });
 
     });
-
+*/
 
     /////////////// HELPER FUNCTIONS
 
