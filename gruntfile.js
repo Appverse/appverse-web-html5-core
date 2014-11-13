@@ -501,7 +501,7 @@ module.exports = function (grunt) {
             },
             e2e: {
                 options: {
-                    port: 9191,
+                    port: 9090,
                 }
             }
         },
@@ -526,9 +526,17 @@ module.exports = function (grunt) {
         },
 
         exec: {
-            protractor_update:  'npm run update-webdriver',
-            protractor_start: 'npm run protractor'
-        }
+            protractor_start: 'npm run protractor',
+            webdriver_update: 'npm run update-webdriver'
+        },
+
+        protractor_webdriver: {
+            start: {
+                options: {
+                    command: 'node_modules/.bin/webdriver-manager start --standalone'
+                }
+            }
+        },
 
     });
 
@@ -546,16 +554,73 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-exec');
+    grunt.loadNpmTasks('grunt-protractor-webdriver');
 
     // -- Register tasks --
 
-    grunt.registerTask('doc', [
-		'clean:docular',
-        'docular'
+    grunt.registerTask('default', [
+        'dist'
     ]);
 
     grunt.registerTask('test', [
         'test:all'
+    ]);
+
+    grunt.registerTask('unit', [
+        'test:unit:once'
+    ]);
+
+    grunt.registerTask('midway', [
+        'test:midway'
+    ]);
+
+    grunt.registerTask('e2e', [
+        'test:e2e'
+    ]);
+
+    grunt.registerTask('dev', 'Tasks to run while developing', [
+        // For now, only execute unit tests when a file changes?
+        // midway and e2e are slow and do not give innmedate
+        // feedback after a change
+        'test:unit:watch'
+    ]);
+
+    grunt.registerTask('demo', 'Runs demo app', [
+        'connect:livereload',
+        'open:demo',
+        'watch'
+    ]);
+
+    grunt.registerTask('doc', [
+        'clean:docular',
+        'docular'
+    ]);
+
+    grunt.registerTask('dist', [
+        'jshint',
+        'test:unit',
+        'clean:dist',
+        'autoprefixer',
+        'copy:dist',
+        'cdnify',
+        'ngAnnotate',
+        'concat:dist',
+        'uglify',
+        'htmlmin'
+    ]);
+
+    grunt.registerTask('install', [
+        'clean',
+        'maven:install-src',
+        'dist',
+        'maven:install-min'
+    ]);
+
+    grunt.registerTask('deploy', [
+        'clean',
+        'maven:deploy-src',
+        'dist',
+        'maven:deploy-min'
     ]);
 
     grunt.registerTask('test:unit:watch', [
@@ -574,11 +639,11 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:e2e', [
-        'exec:protractor_update',
+        'exec:webdriver_update',
         'connect:e2e',
+        'protractor_webdriver',
         'exec:protractor_start',
     ]);
-
 
     grunt.registerTask('test:all', [
         'clean:coverage',
@@ -586,44 +651,5 @@ module.exports = function (grunt) {
         'karma:midway',
         'test:e2e',
     ]);
-
-    grunt.registerTask('demo', [
-        'connect:livereload',
-        'open:demo',
-        'watch'
-    ]);
-
-    grunt.registerTask('dist', [
-        'jshint',
-        'test:unit',
-        'clean:dist',
-        'autoprefixer',
-        'copy:dist',
-        'cdnify',
-        'ngAnnotate',
-        'concat:dist',
-        'uglify',
-        'htmlmin'
-    ]);
-
-    grunt.registerTask('install', [
-        'clean',
-		'maven:install-src',
-		'dist',
-        'maven:install-min'
-    ]);
-
-	grunt.registerTask('deploy', [
-        'clean',
-		'maven:deploy-src',
-		'dist',
-        'maven:deploy-min'
-    ]);
-
-    grunt.registerTask('default', [
-        'dist'
-    ]);
-
-
 
 };

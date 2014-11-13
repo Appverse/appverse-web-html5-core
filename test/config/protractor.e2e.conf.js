@@ -6,13 +6,14 @@ exports.config = {
   ],
 
   capabilities: {
-    'browserName': 'chrome'
+    browserName: 'phantomjs',
+    'phantomjs.binary.path': 'node_modules/.bin/phantomjs' + (process.platform === 'win32' ? '.cmd' : ''),
+    'phantomjs.cli.args': ['--ignore-ssl-errors=true', '--web-security=false']
   },
 
-  // Enables Protractor to test directly against Chrome and Firefox without using a Selenium Server.
-  directConnect: true,
+  seleniumAddress: 'http://localhost:4444/wd/hub',
 
-  baseUrl: 'http://localhost:9191/',
+  baseUrl: 'http://localhost:9090/',
 
   framework: 'jasmine',
 
