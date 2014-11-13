@@ -23,6 +23,7 @@ var settings = {
     ],
 
     midwayFiles : [
+        'src/bower_components/jquery/dist/jquery.min.js',
         'src/bower_components/angular-load/angular-load.js',
         'test/midway/**/*.js'
     ],

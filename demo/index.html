@@ -11,16 +11,23 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
     </head>
-    <body data-ng-app="App">
+    <body data-ng-app="demoApp">
         <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <header>
-            <h1>Appverse Web HTML5 CORE Demo</h1>
-        </header>
         <div class="container">
-            <h2>Detection</h2>
+            <header>
+                <h1>Demo <small>Appverse Web HTML5 Core</small></h1>
+            </header>
+            <hr>
+            <div ng-controller="DetectionController">
+                <h2>Detection</h2>
+                <ul>
+                    <li><strong>Mobile Browser:</strong> <span ng-cloak id="mobileBrowser">{{isMobileText}}</span></li>
+                    <li><strong>Appverse Mobile:</strong> <span ng-cloak id="appverseMobile">{{hasAppverseMobile}}</span></li>
+                </ul>
+            </div>
         </div>
 
         <!-- build:js scripts/scripts.js -->

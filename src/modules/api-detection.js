@@ -225,7 +225,12 @@ angular.module('AppDetection', [])
                 dataType: "json"
             });
 
-            var jsonData = JSON.parse(ajaxResponse.responseText);
+            var jsonData;
+            try {
+                jsonData = JSON.parse(ajaxResponse.responseText);
+            } catch(e) {
+                jsonData = {};
+            }
 
             angular.forEach(jsonData, function (constantObject, constantName) {
                 var appConfigObject = appConfigTemp[constantName];

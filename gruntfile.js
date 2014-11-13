@@ -483,22 +483,29 @@ module.exports = function (grunt) {
             options: {
                 protocol: 'http',
                 port: 9000,
-                hostname: 'localhost'
+                hostname: 'localhost',
+                middleware: function (connect) {
+                    return [
+                        delayApiCalls,
+                        lrSnippet,
+                        mountFolder(connect, yeomanConfig.app),
+                        mountFolder(connect, yeomanConfig.demo),
+                        httpMethods
+                    ];
+                }
             },
             livereload: {
                 options: {
-                    middleware: function (connect) {
-                        return [
-                            delayApiCalls,
-                            lrSnippet,
-                            mountFolder(connect, yeomanConfig.app),
-                            mountFolder(connect, yeomanConfig.demo),
-                            httpMethods
-                        ];
-                    }
+                    port: 9000,
+                }
+            },
+            e2e: {
+                options: {
+                    port: 9191,
                 }
             }
         },
+
         watch: {
             livereload: {
                 options: {
@@ -511,11 +518,18 @@ module.exports = function (grunt) {
                 ]
             }
         },
+
         open: {
             demo: {
                 url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.options.port %>'
             },
         },
+
+        exec: {
+            protractor_update:  'npm run update-webdriver',
+            protractor_start: 'npm run protractor'
+        }
+
     });
 
     // -- Load plugins --
@@ -531,6 +545,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-exec');
 
     // -- Register tasks --
 
@@ -558,10 +573,18 @@ module.exports = function (grunt) {
         'karma:midway'
     ]);
 
+    grunt.registerTask('test:e2e', [
+        'exec:protractor_update',
+        'connect:e2e',
+        'exec:protractor_start',
+    ]);
+
+
     grunt.registerTask('test:all', [
         'clean:coverage',
         'karma:unit',
-        'karma:midway'
+        'karma:midway',
+        'test:e2e',
     ]);
 
     grunt.registerTask('demo', [
