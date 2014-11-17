@@ -34,6 +34,7 @@
     "grunt-open": "~0.2.0",
     "grunt-protractor-webdriver": "0.1.8",
     "grunt-rev": "~0.1.0",
+    "grunt-string-replace": "^1.0.0",
     "grunt-tinypng": "~0.5",
     "grunt-usemin": "~2.1.1",
     "jshint": "~2.5.6",
@@ -65,14 +66,10 @@
   },
   "scripts": {
     "postinstall": "bower install",
-
     "pretest": "npm install",
     "test": "grunt test",
-
     "update-webdriver": "webdriver-manager update --standalone",
-
     "run-webdriver": "webdriver-manager start --standalone",
-
     "protractor": "protractor test/config/protractor.e2e.conf.js"
   }
 }

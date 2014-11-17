@@ -7,8 +7,8 @@ var lrSnippet = require('connect-livereload')({
     port: LIVERELOAD_PORT
 });
 
-var mountFolder = function (connect, dir) {
-    return connect.static(require('path').resolve(dir));
+var mountFolder = function (connect, dir, options) {
+    return connect.static(require('path').resolve(dir), options);
 };
 
 var delayApiCalls = function (request, response, next) {
@@ -503,6 +503,22 @@ module.exports = function (grunt) {
                 options: {
                     port: 9090,
                 }
+            },
+            e2e_dist: {
+                options: {
+                    port: 9090,
+                    middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            lrSnippet,
+                            mountFolder(connect, yeomanConfig.app),
+                            mountFolder(connect, yeomanConfig.dist),
+                            mountFolder(connect, yeomanConfig.demo,{index: 'index-dist.html'}),
+                            httpMethods
+                        ];
+                    }
+                }
+
             }
         },
 
@@ -538,6 +554,21 @@ module.exports = function (grunt) {
             }
         },
 
+        'string-replace': {
+            dist: {
+                files: {
+                    '<%= yeoman.demo %>/index-dist.html': '<%= yeoman.demo %>/index.html',
+                },
+                options: {
+                    replacements: [{
+                        // do not use .min.js in files relative to bower_components/ or js/
+                        pattern: /"((?!((bower_components|js)\/)).+\.)(js)"/g,
+                        replacement: '"$1min.$4"'
+                    }]
+                }
+            }
+        }
+
     });
 
     // -- Load plugins --
@@ -555,6 +586,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-protractor-webdriver');
+    grunt.loadNpmTasks('grunt-string-replace');
 
     // -- Register tasks --
 
@@ -598,7 +630,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('dist', [
         'jshint',
-        'test:unit',
+        'unit',
+        'midway',
         'clean:dist',
         'autoprefixer',
         'copy:dist',
@@ -606,7 +639,8 @@ module.exports = function (grunt) {
         'ngAnnotate',
         'concat:dist',
         'uglify',
-        'htmlmin'
+        'htmlmin',
+        'test:e2e:dist'
     ]);
 
     grunt.registerTask('install', [
@@ -645,11 +679,23 @@ module.exports = function (grunt) {
         'exec:protractor_start',
     ]);
 
+    grunt.registerTask('test:e2e:dist', [
+        'exec:webdriver_update',
+        'demo:dist',
+        'connect:e2e_dist',
+        'protractor_webdriver',
+        'exec:protractor_start',
+    ]);
+
     grunt.registerTask('test:all', [
         'clean:coverage',
         'karma:unit',
         'karma:midway',
         'test:e2e',
+    ]);
+
+    grunt.registerTask('demo:dist', 'Creates demo app using dist version', [
+        'string-replace:dist',
     ]);
 
 };
