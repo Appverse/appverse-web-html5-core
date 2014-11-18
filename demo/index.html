@@ -12,23 +12,10 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
     </head>
     <body data-ng-app="demoApp">
-        <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
 
-        <div class="container">
-            <header>
-                <h1>Demo <small>Appverse Web HTML5 Core</small></h1>
-            </header>
-            <hr>
-            <div ng-controller="DetectionController">
-                <h2>Detection</h2>
-                <ul>
-                    <li><strong>Mobile Browser:</strong> <span ng-cloak id="mobileBrowser">{{isMobileText}}</span></li>
-                    <li><strong>Appverse Mobile:</strong> <span ng-cloak id="appverseMobile">{{hasAppverseMobile}}</span></li>
-                </ul>
-            </div>
-        </div>
+        <ng-include src="'partials/content.html'"></ng-include>
+
+        <!-- Scripts -->
 
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
         <script src="bower_components/angular/angular.js"></script>
@@ -40,37 +27,37 @@
         <script src="bower_components/angular-load/angular-load.js"></script>
 
         <!-- ########## Core modules ########## -->
-        <script src="modules/api-cache.js"></script>
+        <script src="api-cache/module.js"></script>
+        <script src="api-cache/cache.factory.js"></script>
+        <script src="api-cache/idb.service.js"></script>
+        <script src="api-cache/cache.directive.js"></script>
 
-        <script src="configuration/module.js"></script>
-        <script src="configuration-loader/module.js"></script>
-        <script src="configuration-loader/configloader.provider.js"></script>
-        <script src="configuration-loader/module-config.js"></script>
-        <script src="configuration-default/module.js"></script>
-        <script src="configuration-default/constants.js"></script>
+        <script src="api-configuration/module.js"></script>
+        <script src="api-configuration-loader/module.js"></script>
+        <script src="api-configuration-loader/configloader.provider.js"></script>
+        <script src="api-configuration-loader/module-config.js"></script>
+        <script src="api-configuration-default/module.js"></script>
+        <script src="api-configuration-default/constants.js"></script>
 
         <script src="modules/api-detection.js"></script>
         <script src="modules/api-logging.js"></script>
         <script src="modules/api-main.js"></script>
 
-        <!-- Translate module -->
+
         <script src="modules/api-translate.js"></script>
         <script src="bower_components/angular-translate/angular-translate.min.js"></script>
         <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
         <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
 
-        <!-- Utils -->
+
         <script src="modules/api-utils.js"></script>
 
-        <!-- Directives should be included after the modules -->
-        <script src="directives/cache-directives.js"></script>
         <script src="modules/api-performance.js"></script>
 
         <!-- Demo app specific js -->
         <script src="js/app.js"></script>
 
 
-        <!-- endbuild -->
 
     </body>
 </html>

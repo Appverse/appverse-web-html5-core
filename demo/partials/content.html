@@ -1,0 +1,24 @@
+<!--[if lt IE 8]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div class="container">
+    <header>
+        <h1>Demo <small>Appverse Web HTML5 Core</small></h1>
+    </header>
+    <hr>
+    <div ng-controller="DetectionController">
+        <h2>Detection</h2>
+        <ul>
+            <li><strong>Mobile Browser:</strong> <span ng-cloak id="mobileBrowser">{{isMobileText}}</span></li>
+            <li><strong>Appverse Mobile:</strong> <span ng-cloak id="appverseMobile">{{hasAppverseMobile}}</span></li>
+        </ul>
+    </div>
+
+    <div ng-controller="CacheController">
+        <h2>Cache</h2>
+        <div> <strong>Retrieve famous stone from cache:</strong> <span id="cachedValue" cache="famousStone">{{famousStone}}</span> </div>
+
+
+    </div>
+</div>

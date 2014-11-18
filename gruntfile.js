@@ -201,12 +201,16 @@ module.exports = function (grunt) {
                 // providers in their config block. Because of this, providers must be loaded prior to config blocks.
                 //  · 3rd, rest of files
                 files: {
-                    '<%= yeoman.dist %>/api-cache/api-cache.js' : ['<%= yeoman.app %>/modules/api-cache.js'],
+                    '<%= yeoman.dist %>/api-cache/api-cache.js' : [
+                        '<%= yeoman.app %>/api-cache/module.js',
+                        '<%= yeoman.app %>/api-cache/**/*.provider.js',
+                        '<%= yeoman.app %>/api-cache/**/*.js'
+                    ],
                     '<%= yeoman.dist %>/api-configuration/api-configuration.js' : [
-                        '<%= yeoman.app %>/configuration*/module.js',
-                        '<%= yeoman.app %>/configuration*/**/*.provider.js',
-                        '<%= yeoman.app %>/configuration*/**/*.js'
-                        ],
+                        '<%= yeoman.app %>/api-configuration*/module.js',
+                        '<%= yeoman.app %>/api-configuration*/**/*.provider.js',
+                        '<%= yeoman.app %>/api-configuration*/**/*.js'
+                    ],
                     '<%= yeoman.dist %>/api-detection/api-detection.js' : ['<%= yeoman.app %>/modules/api-detection.js'],
                     '<%= yeoman.dist %>/api-logging/api-logging.js' : ['<%= yeoman.app %>/modules/api-logging.js'],
                     '<%= yeoman.dist %>/api-main/api-main.js' : ['<%= yeoman.app %>/modules/api-main.js'],
@@ -330,6 +334,7 @@ module.exports = function (grunt) {
               gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
         },
+
         connect: {
             options: {
                 protocol: 'http',

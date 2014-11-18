@@ -24,4 +24,13 @@ describe('Appverse Web Html5 core App', function() {
         });
     });
 
+    describe('when retrieving the already cached "Rosetta" word', function() {
+
+        it('should show "Rosetta"', function() {
+            var text = element(by.css('#cachedValue')).getText();
+            expect(text).toBe('Rosetta');
+        });
+
+    });
+
 });

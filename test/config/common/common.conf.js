@@ -16,6 +16,9 @@ var settings = {
         'src/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
         'src/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
         'src/modules/**/*.js',
+        'src/api-*/**/module.js',
+        'src/api-*/**/*.provider.js',
+        'src/api-*/**/*.js',
     ],
 
     unitFiles : [
