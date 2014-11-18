@@ -199,7 +199,7 @@ module.exports = function (grunt) {
                 // · 1st, module.js files are loaded as these are the ones that create the module
                 // · 2nd, provider.js files containing are loaded. This is because some modules use their own
                 // providers in their config block. Because of this, providers must be loaded prior to config blocks.
-                //  · 3rd, rest of files
+                // · 3rd, rest of files
                 files: {
                     '<%= yeoman.dist %>/api-cache/api-cache.js' : [
                         '<%= yeoman.app %>/api-cache/module.js',
@@ -211,7 +211,14 @@ module.exports = function (grunt) {
                         '<%= yeoman.app %>/api-configuration*/**/*.provider.js',
                         '<%= yeoman.app %>/api-configuration*/**/*.js'
                     ],
-                    '<%= yeoman.dist %>/api-detection/api-detection.js' : ['<%= yeoman.app %>/modules/api-detection.js'],
+                    '<%= yeoman.dist %>/api-detection/api-detection.js' : [
+                        '<%= yeoman.app %>/api-detection/module.js',
+                        '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
+                        '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
+                        '<%= yeoman.app %>/api-detection/detection.provider.js',
+                        '<%= yeoman.app %>/api-detection*/**/*.provider.js',
+                        '<%= yeoman.app %>/api-detection*/**/*.js'
+                    ],
                     '<%= yeoman.dist %>/api-logging/api-logging.js' : ['<%= yeoman.app %>/modules/api-logging.js'],
                     '<%= yeoman.dist %>/api-main/api-main.js' : ['<%= yeoman.app %>/modules/api-main.js'],
                     '<%= yeoman.dist %>/api-translate/api-translate.js' : ['<%= yeoman.app %>/modules/api-translate.js'],
