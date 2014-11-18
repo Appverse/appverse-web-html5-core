@@ -87,7 +87,7 @@ module.exports = function (grunt) {
         test: 'test',
         demo: 'demo',
         coverage: 'test/coverage',
-	   instrumented: 'test/coverage/instrumented'
+       instrumented: 'test/coverage/instrumented'
     };
 
     try {
@@ -96,67 +96,67 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
 
-		pkg: grunt.file.readJSON('package.json'),
+        pkg: grunt.file.readJSON('package.json'),
 
-		yeoman: yeomanConfig,
+        yeoman: yeomanConfig,
 
-		maven: {
-			options: {
+        maven: {
+            options: {
                 goal:'install',
-				groupId: 'org.appverse.web.framework.modules.frontend.html5',
-				repositoryId: 'my-nexus',
-				releaseRepository: 'url'
+                groupId: 'org.appverse.web.framework.modules.frontend.html5',
+                repositoryId: 'my-nexus',
+                releaseRepository: 'url'
 
-			},
-			'install-src': {
-				options: {
-					classifier: 'sources'
-				},
-				files: [{
+            },
+            'install-src': {
+                options: {
+                    classifier: 'sources'
+                },
+                files: [{
                     expand: true,
-					cwd:'<%= yeoman.app %>/',
-					src: ['**','!bower_components/**'],
-					dest:'.'
-				}]
-			},
-			'install-min': {
-				options: {
-					classifier: 'min'
-				},
-				files: [{
+                    cwd:'<%= yeoman.app %>/',
+                    src: ['**','!bower_components/**'],
+                    dest:'.'
+                }]
+            },
+            'install-min': {
+                options: {
+                    classifier: 'min'
+                },
+                files: [{
                     expand: true,
-					cwd:'<%= yeoman.dist %>/',
-					src: ['**'],
-					dest:'.'
-				}]
-			},
-			'deploy-src': {
-				options: {
-					goal:'deploy',
-					url: '<%= releaseRepository %>',
-					classifier: 'sources'
-				},
-				files: [{
+                    cwd:'<%= yeoman.dist %>/',
+                    src: ['**'],
+                    dest:'.'
+                }]
+            },
+            'deploy-src': {
+                options: {
+                    goal:'deploy',
+                    url: '<%= releaseRepository %>',
+                    classifier: 'sources'
+                },
+                files: [{
                     expand: true,
-					cwd:'<%= yeoman.app %>/',
-					src: ['**','!bower_components/**'],
-					dest:'.'
-				}]
-			},
-			'deploy-min': {
-				options: {
-					goal:'deploy',
-					url: '<%= releaseRepository %>',
-					classifier: 'min'
-				},
-				files: [{
+                    cwd:'<%= yeoman.app %>/',
+                    src: ['**','!bower_components/**'],
+                    dest:'.'
+                }]
+            },
+            'deploy-min': {
+                options: {
+                    goal:'deploy',
+                    url: '<%= releaseRepository %>',
+                    classifier: 'min'
+                },
+                files: [{
                     expand: true,
-					cwd:'<%= yeoman.dist %>/',
-					src: ['**'],
-					dest:'.'
-				}]
-			}
-		},
+                    cwd:'<%= yeoman.dist %>/',
+                    src: ['**'],
+                    dest:'.'
+                }]
+            }
+        },
 
         clean: {
             dist: {
@@ -171,7 +171,7 @@ module.exports = function (grunt) {
             },
             coverage : 'coverage/*',
             server: '.tmp',
-	        docular: 'doc'
+            docular: 'doc'
 
         },
 
@@ -374,7 +374,6 @@ module.exports = function (grunt) {
                         ];
                     }
                 }
-
             }
         },
 
@@ -410,31 +409,17 @@ module.exports = function (grunt) {
             }
         },
 
-        'string-replace': {
-            dist: {
-                files: {
-                    '<%= yeoman.demo %>/index-dist.html': '<%= yeoman.demo %>/index.html',
-                },
-                options: {
-                    replacements: [{
-                        // do not use .min.js in files relative to bower_components/ or js/
-                        pattern: /"((?!((bower_components|js)\/)).+\.)(js)"/g,
-                        replacement: '"$1min.$4"'
-                    }]
-                }
-            }
-        }
     });
 
     // -- Load plugins --
 
-	grunt.loadNpmTasks('grunt-docular');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-mocha');
-	grunt.loadNpmTasks('grunt-karma');
-	grunt.loadNpmTasks('grunt-bump');
-	grunt.loadNpmTasks('grunt-maven-deploy');
-	grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-docular');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-mocha');
+    grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-maven-deploy');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
@@ -483,21 +468,6 @@ module.exports = function (grunt) {
         'docular'
     ]);
 
-    /*grunt.registerTask('dist', [
-        'jshint',
-        'unit',
-        'midway',
-        'clean:dist',
-        'autoprefixer',
-        'copy:dist',
-        'cdnify',
-        'ngAnnotate',
-        'concat:dist',
-        'uglify',
-        'htmlmin',
-        'test:e2e:dist'
-    ]);*/
-
     grunt.registerTask('dist', [
         'jshint',
         'unit',
@@ -531,7 +501,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test:unit:once', [
         'clean:coverage',
         'karma:unit'
-	]);
+    ]);
 
     grunt.registerTask('test:midway', [
         'clean:coverage',
@@ -547,7 +517,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:e2e:dist', [
         'exec:webdriver_update',
-        //'demo:dist',
         'connect:e2e_dist',
         'protractor_webdriver',
         'exec:protractor_start',
@@ -559,9 +528,5 @@ module.exports = function (grunt) {
         'karma:midway',
         'test:e2e',
     ]);
-
-    /*grunt.registerTask('demo:dist', 'Creates demo app using dist version', [
-        'string-replace:dist',
-    ]);*/
 
 };
