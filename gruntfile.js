@@ -87,7 +87,7 @@ module.exports = function (grunt) {
         test: 'test',
         demo: 'demo',
         coverage: 'test/coverage',
-	instrumented: 'test/coverage/instrumented'
+	   instrumented: 'test/coverage/instrumented'
     };
 
     try {
@@ -95,8 +95,11 @@ module.exports = function (grunt) {
     } catch (e) {}
 
     grunt.initConfig({
+
 		pkg: grunt.file.readJSON('package.json'),
+
 		yeoman: yeomanConfig,
+
 		maven: {
 			options: {
                 goal:'install',
@@ -154,25 +157,7 @@ module.exports = function (grunt) {
 				}]
 			}
 		},
-        autoprefixer: {
-            options: ['last 1 version'],
-            tmp: {
-                files: [{
-                    expand: true,
-                    cwd: '.tmp/styles/',
-                    src: '**/*.css',
-                    dest: '.tmp/styles/'
-                }]
-            },
-            styles: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/styles/',
-                    src: '**/*.css',
-                    dest: '.tmp/styles/'
-                }]
-            }
-        },
+
         clean: {
             dist: {
                 files: [{
@@ -189,10 +174,11 @@ module.exports = function (grunt) {
 	        docular: 'doc'
 
         },
+
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
-                //Show errors but do not fail the task
+                //Show failures but do not stop the task
                 force: true
             },
             all: [
@@ -200,201 +186,79 @@ module.exports = function (grunt) {
                 '<%= yeoman.app %>/modules/{,*/}*.js',
             ]
         },
-        coffee: {
-            options: {
-                sourceMap: true,
-                sourceRoot: ''
-            },
-            app: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/scripts',
-                    src: '**/*.coffee',
-                    dest: '.tmp/scripts',
-                    ext: '.js'
-                }]
-            },
-            test: {
-                files: [{
-                    expand: true,
-                    cwd: 'test/spec',
-                    src: '{,*/}*.coffee',
-                    dest: '.tmp/spec',
-                    ext: '.js'
-                }]
-            }
-        },
-        compass: {
-            options: {
-                sassDir: '<%= yeoman.app %>/styles',
-                cssDir: '.tmp/styles',
-                generatedImagesDir: '.tmp/images/generated',
-                imagesDir: '<%= yeoman.app %>/images',
-                javascriptsDir: '<%= yeoman.app %>/scripts',
-                fontsDir: '<%= yeoman.app %>/styles/fonts',
-                importPath: '<%= yeoman.app %>/bower_components',
-                httpImagesPath: '/images',
-                httpGeneratedImagesPath: '/images/generated',
-                httpFontsPath: '/styles/fonts',
-                relativeAssets: false
-            },
-            dist: {
-                options: {
-                    debugInfo: false
-                }
-            },
-            server: {
-                options: {
-                    debugInfo: true
-                }
-            }
-        },
+
         concat: {
             options: {
-              separator: ';',
+              sourceMap: true,
             },
+
+            // Concatenate all files for a module in a single module file
+            modules: {
+
+                // Files using the same module are concatenated in the correct order:
+                // · 1st, module.js files are loaded as these are the ones that create the module
+                // · 2nd, provider.js files containing are loaded. This is because some modules use their own
+                // providers in their config block. Because of this, providers must be loaded prior to config blocks.
+                //  · 3rd, rest of files
+                files: {
+                    '<%= yeoman.dist %>/api-cache/api-cache.js' : ['<%= yeoman.app %>/modules/api-cache.js'],
+                    '<%= yeoman.dist %>/api-configuration/api-configuration.js' : [
+                        '<%= yeoman.app %>/configuration*/module.js',
+                        '<%= yeoman.app %>/configuration*/**/*.provider.js',
+                        '<%= yeoman.app %>/configuration*/**/*.js'
+                        ],
+                    '<%= yeoman.dist %>/api-detection/api-detection.js' : ['<%= yeoman.app %>/modules/api-detection.js'],
+                    '<%= yeoman.dist %>/api-logging/api-logging.js' : ['<%= yeoman.app %>/modules/api-logging.js'],
+                    '<%= yeoman.dist %>/api-main/api-main.js' : ['<%= yeoman.app %>/modules/api-main.js'],
+                    '<%= yeoman.dist %>/api-translate/api-translate.js' : ['<%= yeoman.app %>/modules/api-translate.js'],
+                    '<%= yeoman.dist %>/api-utils/api-utils.js' : ['<%= yeoman.app %>/modules/api-utils.js'],
+                    '<%= yeoman.dist %>/api-performance/api-performance.js' : ['<%= yeoman.app %>/modules/api-performance.js']
+                }
+            },
+
+            // Concatenate all modules into a full distribution
             dist: {
-              src: [
-                        '<%= yeoman.app %>/bower_components/angular-cache/dist/angular-cache.js',
-                        '<%= yeoman.app %>/modules/api-cache.js',
-                        '<%= yeoman.app %>/modules/api-configuration.js',
-                        '<%= yeoman.app %>/modules/api-detection.js',
-                        '<%= yeoman.app %>/modules/api-logging.js',
-                        '<%= yeoman.app %>/modules/api-main.js',
-                        '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.js',
-                        '<%= yeoman.app %>/bower_components/restangular/dist/restangular.js',
-                        '<%= yeoman.app %>/modules/api-rest.js',
-                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',
-                        '<%= yeoman.app %>/modules/api-serverpush.js',
-                        '<%= yeoman.app %>/modules/api-translate.js',
-                        '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.js',
-                        '<%= yeoman.app %>/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
-                        '<%= yeoman.app %>/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
-                        '<%= yeoman.app %>/modules/api-utils.js',
-                        '<%= yeoman.app %>/directives/cache-directives.js',
-                        '<%= yeoman.app %>/directives/rest-directives.js',
-                        '<%= yeoman.app %>/modules/api-performance.js'
-                   ],
-              dest: '<%= yeoman.dist %>/appverse-html5-core.js',
+                src: [
+                    '<%= yeoman.dist %>/*/*.js',
+                ],
+                dest: '<%= yeoman.dist %>/appverse-html5-core.js',
             },
         },
+
+        // ng-annotate tries to make the code safe for minification automatically
+        // by using the Angular long form for dependency injection.
+        ngAnnotate: {
+          dist: {
+            files: [{
+              expand: true,
+              cwd: '<%= yeoman.dist %>',
+              src: ['**/*.js', '!oldieshim.js'],
+              dest: '<%= yeoman.dist %>',
+              extDot : 'last'
+            }]
+          }
+        },
+
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
             },
             dist: {
-	    	files: {
 
-                    '<%= yeoman.dist %>/angular-jqm.min.js':['<%= yeoman.app %>/angular-jqm.js'],
-					'<%= yeoman.dist %>/modules/api-cache.min.js':['<%= yeoman.app %>/modules/api-cache.js'],
-					'<%= yeoman.dist %>/modules/api-configuration.min.js':['<%= yeoman.app %>/modules/api-configuration.js'],
-					'<%= yeoman.dist %>/modules/api-detection.min.js':['<%= yeoman.app %>/modules/api-detection.js'],
-					'<%= yeoman.dist %>/modules/api-logging.min.js':['<%= yeoman.app %>/modules/api-logging.js'],
-					'<%= yeoman.dist %>/modules/api-main.min.js':['<%= yeoman.app %>/modules/api-main.js'],
-					'<%= yeoman.dist %>/modules/api-performance.min.js':['<%= yeoman.app %>/modules/api-performance.js'],
-					'<%= yeoman.dist %>/modules/api-rest.min.js':['<%= yeoman.app %>/modules/api-rest.js'],
-					'<%= yeoman.dist %>/modules/api-serverpush.min.js':['<%= yeoman.app %>/modules/api-serverpush.js'],
-					'<%= yeoman.dist %>/modules/api-translate.min.js':['<%= yeoman.app %>/modules/api-translate.js'],
-					'<%= yeoman.dist %>/modules/api-utils.min.js':['<%= yeoman.app %>/modules/api-utils.js'],
-					'<%= yeoman.dist %>/directives/cache-directives.min.js':['<%= yeoman.app %>/directives/cache-directives.js'],
-					'<%= yeoman.dist %>/directives/rest-directives.min.js':['<%= yeoman.app %>/directives/rest-directives.js'],
-					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
-
-                    '<%= yeoman.dist %>/appverse-html5-core.min.js':['<%= yeoman.dist %>/appverse-html5-core.js']
-                }
-            }
-        },
-        htmlmin: {
-            dist: {
-                options: {
-                    removeComments: true,
-                    removeCommentsFromCDATA: true,
-                    removeCDATASectionsFromCDATA: true,
-                    collapseWhitespace: true,
-                    //                    conservativeCollapse: true,
-                    collapseBooleanAttributes: true,
-                    removeAttributeQuotes: false,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true,
-                    removeEmptyAttributes: true,
-                    removeOptionalTags: true,
-                    keepClosingSlash: true,
-                },
                 files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.dist %>',
-                    src: [
-                        '*.html',
-                        'views/**/*.html',
-                        'template/**/*.html'
-                    ],
-                    dest: '<%= yeoman.dist %>'
-                }]
-            }
-        },
-        // Put files not handled in other tasks here
-        copy: {
-            dist: {
-                files: [{
-                    expand: true,
-                    dot: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        '*.{ico,png,txt}',
-                        '.htaccess',
-                        'api/**',
-                        'images/{,*/}*.{gif,webp}',
-                        'resources/**',
-                        'styles/fonts/*',
-                        'styles/images/*',
-                        '*.html',
-                        'views/**/*.html',
-                        'template/**/*.html'
-                    ]
-                }, {
-                    expand: true,
-                    cwd: '.tmp/images',
-                    dest: '<%= yeoman.dist %>/images',
-                    src: [
-                        'generated/*'
-                    ]
-                }, {
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/bower_components/angular-i18n',
-                    dest: '<%= yeoman.dist %>/resources/i18n/angular',
-                    src: [
-                        '*en-us.js',
-                        '*es-es.js',
-                        '*ja-jp.js',
-                        '*ar-eg.js'
-                    ]
-                }]
-            },
-            styles: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/styles',
-                dest: '.tmp/styles',
-                src: '**/*.css'
-            },
-            i18n: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/bower_components/angular-i18n',
-                dest: '.tmp/resources/i18n/angular',
-                src: [
-                    '*en-us.js',
-                    '*es-es.js',
-                    '*ja-jp.js',
-                    '*ar-eg.js'
+                      expand: true,     // Enable dynamic expansion.
+                      cwd: '<%= yeoman.dist %>',      // Src matches are relative to this path.
+                      src: ['**/*.js'], // Actual pattern(s) to match.
+                      dest: '<%= yeoman.dist %>',   // Destination path prefix.
+                      ext: '.min.js',   // Dest filepaths will have this extension.
+                      extDot: 'last'   // Extensions in filenames begin after the last dot
+                    }
                 ]
-            },
-            png: {
-                expand: true,
-                cwd: '<%= yeoman.app %>',
-                dest: '<%= yeoman.dist %>',
-                src: 'images/**/*.png'
             }
+
         },
+
+
         karma: {
             unit: {
                 configFile: '<%= yeoman.test %>/config/karma.unit.conf.js',
@@ -411,21 +275,7 @@ module.exports = function (grunt) {
                 singleRun: true
             },
         },
-        cdnify: {
-            dist: {
-                html: ['<%= yeoman.dist %>/*.html']
-            }
-        },
-        ngAnnotate: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '.tmp/concat/scripts',
-                    src: '*.js',
-                    dest: '.tmp/concat/scripts'
-                }]
-            }
-        },
+
         docular: {
             showDocularDocs: false,
             showAngularDocs: true,
@@ -464,6 +314,7 @@ module.exports = function (grunt) {
                 }
             ]
         },
+
         bump: {
             options: {
               files: ['package.json', 'bower.json'],
@@ -568,14 +419,12 @@ module.exports = function (grunt) {
                 }
             }
         }
-
     });
 
     // -- Load plugins --
 
 	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-mocha');
 	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-bump');
@@ -587,6 +436,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-protractor-webdriver');
     grunt.loadNpmTasks('grunt-string-replace');
+    grunt.loadNpmTasks('grunt-ng-annotate');
 
     // -- Register tasks --
 
@@ -628,7 +478,7 @@ module.exports = function (grunt) {
         'docular'
     ]);
 
-    grunt.registerTask('dist', [
+    /*grunt.registerTask('dist', [
         'jshint',
         'unit',
         'midway',
@@ -640,6 +490,17 @@ module.exports = function (grunt) {
         'concat:dist',
         'uglify',
         'htmlmin',
+        'test:e2e:dist'
+    ]);*/
+
+    grunt.registerTask('dist', [
+        'jshint',
+        'unit',
+        'midway',
+        'clean:dist',
+        'concat',
+        'ngAnnotate',
+        'uglify',
         'test:e2e:dist'
     ]);
 
@@ -681,7 +542,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:e2e:dist', [
         'exec:webdriver_update',
-        'demo:dist',
+        //'demo:dist',
         'connect:e2e_dist',
         'protractor_webdriver',
         'exec:protractor_start',
@@ -694,8 +555,8 @@ module.exports = function (grunt) {
         'test:e2e',
     ]);
 
-    grunt.registerTask('demo:dist', 'Creates demo app using dist version', [
+    /*grunt.registerTask('demo:dist', 'Creates demo app using dist version', [
         'string-replace:dist',
-    ]);
+    ]);*/
 
 };

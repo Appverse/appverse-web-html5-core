@@ -7,3 +7,4 @@ dist
 coverage/
 doc/
 demo/index-dist.html
+*.log

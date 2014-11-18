@@ -30,23 +30,25 @@
             </div>
         </div>
 
-        <!-- build:js scripts/scripts.js -->
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
         <script src="bower_components/angular/angular.js"></script>
-
-        <!-- modules -->
         <script src="bower_components/angular-cookies/angular-cookies.js"></script>
         <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
         <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
         <script src="bower_components/angular-cache/dist/angular-cache.js"></script>
         <script src="bower_components/angular-resource/angular-resource.js"></script>
-
-        <!-- 3rd party -->
         <script src="bower_components/angular-load/angular-load.js"></script>
 
         <!-- ########## Core modules ########## -->
         <script src="modules/api-cache.js"></script>
-        <script src="modules/api-configuration.js"></script>
+
+        <script src="configuration/module.js"></script>
+        <script src="configuration-loader/module.js"></script>
+        <script src="configuration-loader/configloader.provider.js"></script>
+        <script src="configuration-loader/module-config.js"></script>
+        <script src="configuration-default/module.js"></script>
+        <script src="configuration-default/constants.js"></script>
+
         <script src="modules/api-detection.js"></script>
         <script src="modules/api-logging.js"></script>
         <script src="modules/api-main.js"></script>
