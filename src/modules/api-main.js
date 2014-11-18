@@ -15,7 +15,7 @@
 
 
 /* Optional modules initialization */
-var optionalModules = ['xeditable', 'ja.qr', 'vr.directives.slider', 'ui.bootstrap', 'AppDetection', 'AppREST', 'AppTranslate', 'AppModal', 'AppLogging', 'AppServerPush'];
+var optionalModules = ['xeditable', 'ja.qr', 'vr.directives.slider', 'ui.bootstrap', 'AppDetection', 'AppREST', 'AppTranslate', 'AppModal', 'AppLogging', 'AppServerPush', 'AppSecurity', 'ngGrid'];
 
 angular.forEach(optionalModules, function (element) {
     try {
@@ -26,7 +26,7 @@ angular.forEach(optionalModules, function (element) {
 });
 
 /* Main module */
-angular.module('COMMONAPI', optionalModules.concat(['ui.router', 'AppCache', 'AppConfiguration', 'jqm', 'AppSecurity', 'AppPerformance']))
+angular.module('COMMONAPI', optionalModules.concat(['ui.router', 'AppCache', 'AppConfiguration', 'jqm', 'AppPerformance']))
 
 .run(['$rootScope', '$state', '$stateParams',
         function ($rootScope, $state, $stateParams) {

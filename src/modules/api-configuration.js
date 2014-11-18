@@ -1,4 +1,4 @@
-'use strict';
+(function() { 'use strict';
 
 /**
  * @ngdoc module
@@ -7,15 +7,128 @@
  * @description
  * It includes constants for all the common API components.
  */
-angular.module('AppConfiguration', ['AppDetection'])
+angular.module('AppConfiguration', ['AppConfigLoader'])
+    .run(runBlock);
 
-.run(['$log',
-        function ($log) {
 
-        $log.info('AppConfiguration run');
-    }]);
+runBlock.$inject = ['$log'];
+function runBlock($log) {
+    $log.info('AppConfiguration run');
+}
 
-angular.module('AppConfigDefault', ['$browser'])
+
+/**
+ * @ngdoc module
+ * @name AppConfigLoader
+ * @description
+ * Load default and custom settings into AppConfiguration
+ */
+angular.module('AppConfigLoader',['AppDetection'])
+    .provider('ConfigLoader', ConfigLoaderProvider)
+    .config(configBlock);
+
+
+configBlock.$inject = ['ConfigLoaderProvider'];
+function configBlock(ConfigLoaderProvider) {
+    // Trigger the configuration loading process
+    ConfigLoaderProvider
+        .loadDefaultConfig()
+        .loadCustomConfig()
+        .overrideDefaultConfig();
+}
+
+
+/**
+ * @ngdoc module
+ * @name AppConfiguration.provider:ConfigLoader
+ * @requires AppDetection
+ * @description
+ * It includes constants for all the common API components.
+ */
+ConfigLoaderProvider.$inject = ['DetectionProvider'];
+function ConfigLoaderProvider(DetectionProvider) {
+
+    var appConfigTemp = {},
+    detection         = DetectionProvider;
+
+    this.loadDefaultConfig = function() {
+        angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
+            appConfigTemp[element[2][0]] = element[2][1];
+        });
+        return this;
+    };
+
+    this.loadCustomConfig = function() {
+        this.loadMobileConfigIfRequired();
+        this.loadEnvironmentConfig();
+        return this;
+    };
+
+    this.overrideDefaultConfig = function() {
+        angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
+            angular.module('AppConfiguration').constant(propertyName, propertyValue);
+        });
+    };
+
+    this.loadMobileConfigIfRequired = function() {
+        if (detection.hasAppverseMobile()) {
+            this.loadAppverseMobileConfig();
+        } else if (detection.isMobileBrowser()) {
+            this.loadMobileBrowserConfig();
+        }
+    };
+
+    this.loadEnvironmentConfig = function() {
+        this.addConfigFromJSON('resources/configuration/environment-conf.json');
+        return this;
+    };
+
+    this.loadAppverseMobileConfig = function() {
+        this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+        return this;
+    };
+
+    this.loadMobileBrowserConfig = function() {
+        this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+        return this;
+    };
+
+    this.addConfigFromJSON = function(jsonUrl) {
+        var ajaxResponse = $.ajax({
+            async: false,
+            url: jsonUrl,
+            dataType: "json"
+        });
+
+        var jsonData = JSON.parse(ajaxResponse.responseText);
+
+        angular.forEach(jsonData, function (constantObject, constantName) {
+            var appConfigObject = appConfigTemp[constantName];
+
+            if (appConfigObject) {
+                angular.forEach(constantObject, function (propertyValue, propertyName) {
+                    appConfigObject[propertyName] = propertyValue;
+                });
+                appConfigTemp[constantName] = appConfigObject;
+            } else {
+                appConfigTemp[constantName] = constantObject;
+            }
+        });
+    };
+
+    this.$get = function() {
+        return this;
+    };
+}
+
+/**
+ * @ngdoc module
+ * @name AppConfigDefault
+ * @requires $browser
+ * @description
+ * This module defines default settings.
+ */
+var AppConfigDefault = angular.module('AppConfigDefault', ['$browser'])
 
 /*
 PROJECT CONFIGURATION
@@ -550,7 +663,7 @@ Future updates of Restangular imply review of this section in order to keep cons
     revocation: 'revocation',
     manual_renovation: 'manual_renovation',
     automatic_renovation: 'automatic_renovation',
-    tokenRenewalPolicy: this.automatic_renovation
+    tokenRenewalPolicy: 'automatic_renovation'
 })
 
 /*
@@ -610,40 +723,41 @@ WEBSOCKETS MODULE CONFIGURATION
  * Note that the app is not really pooling threads, but just using this pool to control the number of concurrently
  * executing web workers due to the high cost for start them.
  */
-        /*
-        Maximum number of simultaneous executing threads used by workers
-         */
-        webworker_pooled_threads: 4,
-        /*
-        If true, only workers in the web worker_authorized_workers property might be executed.
-        Other invoked workers will not result in a worker call.
-         */
-        webworker_authorized_workers_only: true,
-        /*
-        Folder for workers' files
-         */
-        webworker_directory: "resources/webworkers/",
-        /*
-        List of authorized workers with its ID.
-        The ID is used to be passed in the directive's attribute.
-         */
-        webworker_authorized_workers: [
-            {
-                'id': 'w1',
-                'type': 'dedicated',
-                'poolSize': 4,
-                'file': 'RenderImage.js'
-            },
-            {
-                'id': 'w2',
-                'type': 'dedicated',
-                'poolSize': 4,
-                'file': 'RestMultiRequest.js'
-            }
-        ],
-        webworker_dedicated_literal: "dedicated",
-        webworker_shared_literal: "shared",
-        webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
-    });
+    /*
+    Maximum number of simultaneous executing threads used by workers
+     */
+    webworker_pooled_threads: 4,
+    /*
+    If true, only workers in the web worker_authorized_workers property might be executed.
+    Other invoked workers will not result in a worker call.
+     */
+    webworker_authorized_workers_only: true,
+    /*
+    Folder for workers' files
+     */
+    webworker_directory: "resources/webworkers/",
+    /*
+    List of authorized workers with its ID.
+    The ID is used to be passed in the directive's attribute.
+     */
+    webworker_authorized_workers: [
+        {
+            'id': 'w1',
+            'type': 'dedicated',
+            'poolSize': 4,
+            'file': 'RenderImage.js'
+        },
+        {
+            'id': 'w2',
+            'type': 'dedicated',
+            'poolSize': 4,
+            'file': 'RestMultiRequest.js'
+        }
+    ],
+    webworker_dedicated_literal: "dedicated",
+    webworker_shared_literal: "shared",
+    webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
+});
 
+})();
 

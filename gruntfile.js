@@ -1,5 +1,74 @@
 'use strict';
 
+var fs = require('fs');
+
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({
+    port: LIVERELOAD_PORT
+});
+
+var mountFolder = function (connect, dir, options) {
+    return connect.static(require('path').resolve(dir), options);
+};
+
+var delayApiCalls = function (request, response, next) {
+    if (request.url.indexOf('/api') !== -1) {
+        setTimeout(function () {
+            next();
+        }, 1000);
+    } else {
+        next();
+    }
+};
+
+var httpMethods = function (request, response, next) {
+
+    var rawpath = request.url.split('?')[0],
+    path        = require('path').resolve(__dirname, 'demo/' + rawpath);
+
+    console.log("request method: " + JSON.stringify(request.method));
+    console.log("request url: " + JSON.stringify(request.url));
+    console.log("request path : " + JSON.stringify(path));
+
+    if ((request.method === 'PUT' || request.method === 'POST')) {
+        console.log('inside put/post');
+        request.content = '';
+        request.addListener("data", function (chunk) {
+            request.content += chunk;
+        });
+
+        request.addListener("end", function () {
+            console.log("request content: " + JSON.stringify(request.content));
+            if (fs.existsSync(path)) {
+                fs.writeFile(path, request.content, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('file saved');
+                    response.end('file was saved');
+                });
+                return;
+            }
+
+            if (request.url === '/log') {
+                var filePath = 'server/log/server.log';
+                var logData = JSON.parse(request.content);
+                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('log saved');
+                    response.end('log was saved');
+                });
+                return;
+            }
+        });
+        return;
+    }
+    next();
+};
+
+
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
@@ -16,6 +85,7 @@ module.exports = function (grunt) {
         dist: 'dist',
         doc: 'doc',
         test: 'test',
+        demo: 'demo',
         coverage: 'test/coverage',
 	instrumented: 'test/coverage/instrumented'
     };
@@ -116,7 +186,7 @@ module.exports = function (grunt) {
             },
             coverage : 'coverage/*',
             server: '.tmp',
-	    docular: 'doc'
+	        docular: 'doc'
 
         },
         jshint: {
@@ -194,7 +264,7 @@ module.exports = function (grunt) {
                         '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.js',
                         '<%= yeoman.app %>/bower_components/restangular/dist/restangular.js',
                         '<%= yeoman.app %>/modules/api-rest.js',
-                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',    
+                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',
                         '<%= yeoman.app %>/modules/api-serverpush.js',
                         '<%= yeoman.app %>/modules/api-translate.js',
                         '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.js',
@@ -231,7 +301,6 @@ module.exports = function (grunt) {
 					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
 
                     '<%= yeoman.dist %>/appverse-html5-core.min.js':['<%= yeoman.dist %>/appverse-html5-core.js']
-                   
                 }
             }
         },
@@ -336,6 +405,11 @@ module.exports = function (grunt) {
                 configFile: '<%= yeoman.test %>/config/karma.unit.watch.conf.js',
                 autoWatch: true
             },
+            midway: {
+                configFile: '<%= yeoman.test %>/config/karma.midway.conf.js',
+                autoWatch: false,
+                singleRun: true
+            },
         },
         cdnify: {
             dist: {
@@ -405,48 +479,159 @@ module.exports = function (grunt) {
               gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
         },
-		// Unit tests.
-		nodeunit: {
-			tests: ['test/**/*_test.js']
-		}
+        connect: {
+            options: {
+                protocol: 'http',
+                port: 9000,
+                hostname: 'localhost',
+                middleware: function (connect) {
+                    return [
+                        delayApiCalls,
+                        lrSnippet,
+                        mountFolder(connect, yeomanConfig.app),
+                        mountFolder(connect, yeomanConfig.demo),
+                        httpMethods
+                    ];
+                }
+            },
+            livereload: {
+                options: {
+                    port: 9000,
+                }
+            },
+            e2e: {
+                options: {
+                    port: 9090,
+                }
+            },
+            e2e_dist: {
+                options: {
+                    port: 9090,
+                    middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            lrSnippet,
+                            mountFolder(connect, yeomanConfig.app),
+                            mountFolder(connect, yeomanConfig.dist),
+                            mountFolder(connect, yeomanConfig.demo,{index: 'index-dist.html'}),
+                            httpMethods
+                        ];
+                    }
+                }
+
+            }
+        },
+
+        watch: {
+            livereload: {
+                options: {
+                    livereload: LIVERELOAD_PORT
+                },
+                files: [
+                    '<%= yeoman.demo %>/**/*.html',
+                    '<%= yeoman.demo %>/js/*.js',
+                    '{.tmp,<%= yeoman.app %>}/**/*.js',
+                ]
+            }
+        },
+
+        open: {
+            demo: {
+                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.options.port %>'
+            },
+        },
+
+        exec: {
+            protractor_start: 'npm run protractor',
+            webdriver_update: 'npm run update-webdriver'
+        },
+
+        protractor_webdriver: {
+            start: {
+                options: {
+                    command: 'node_modules/.bin/webdriver-manager start --standalone'
+                }
+            }
+        },
+
+        'string-replace': {
+            dist: {
+                files: {
+                    '<%= yeoman.demo %>/index-dist.html': '<%= yeoman.demo %>/index.html',
+                },
+                options: {
+                    replacements: [{
+                        // do not use .min.js in files relative to bower_components/ or js/
+                        pattern: /"((?!((bower_components|js)\/)).+\.)(js)"/g,
+                        replacement: '"$1min.$4"'
+                    }]
+                }
+            }
+        }
+
     });
 
     // -- Load plugins --
 
 	grunt.loadNpmTasks('grunt-docular');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-bump');	
+	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-mocha');
-    	grunt.loadNpmTasks('grunt-karma');
-    	grunt.loadNpmTasks('grunt-bump');
-    	grunt.loadNpmTasks('grunt-maven-deploy');
-    	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-karma');
+	grunt.loadNpmTasks('grunt-bump');
+	grunt.loadNpmTasks('grunt-maven-deploy');
+	grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-notify');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-exec');
+    grunt.loadNpmTasks('grunt-protractor-webdriver');
+    grunt.loadNpmTasks('grunt-string-replace');
 
     // -- Register tasks --
 
-    grunt.registerTask('doc', [
-		'clean:docular',
-        'docular'
+    grunt.registerTask('default', [
+        'dist'
     ]);
 
-	grunt.registerTask('test',[
-		'test:unit:watch'
-	]);
+    grunt.registerTask('test', [
+        'test:all'
+    ]);
 
-    grunt.registerTask('test:unit', [
-        'clean:coverage',
-        'karma:unit'
-	]);
+    grunt.registerTask('unit', [
+        'test:unit:once'
+    ]);
 
+    grunt.registerTask('midway', [
+        'test:midway'
+    ]);
 
-    grunt.registerTask('test:unit:watch', [
-        'clean:coverage',
-        'karma:unitAutoWatch'
+    grunt.registerTask('e2e', [
+        'test:e2e'
+    ]);
+
+    grunt.registerTask('dev', 'Tasks to run while developing', [
+        // For now, only execute unit tests when a file changes?
+        // midway and e2e are slow and do not give innmedate
+        // feedback after a change
+        'test:unit:watch'
+    ]);
+
+    grunt.registerTask('demo', 'Runs demo app', [
+        'connect:livereload',
+        'open:demo',
+        'watch'
+    ]);
+
+    grunt.registerTask('doc', [
+        'clean:docular',
+        'docular'
     ]);
 
     grunt.registerTask('dist', [
         'jshint',
-        'test:unit',
+        'unit',
+        'midway',
         'clean:dist',
         'autoprefixer',
         'copy:dist',
@@ -454,25 +639,63 @@ module.exports = function (grunt) {
         'ngAnnotate',
         'concat:dist',
         'uglify',
-        'htmlmin'
+        'htmlmin',
+        'test:e2e:dist'
     ]);
 
     grunt.registerTask('install', [
         'clean',
-		'maven:install-src',
-		'dist',
+        'maven:install-src',
+        'dist',
         'maven:install-min'
     ]);
 
-	grunt.registerTask('deploy', [
+    grunt.registerTask('deploy', [
         'clean',
-		'maven:deploy-src',
-		'dist',
+        'maven:deploy-src',
+        'dist',
         'maven:deploy-min'
     ]);
 
-    grunt.registerTask('default', [
-        'dist'
+    grunt.registerTask('test:unit:watch', [
+        'clean:coverage',
+        'karma:unitAutoWatch'
+    ]);
+
+    grunt.registerTask('test:unit:once', [
+        'clean:coverage',
+        'karma:unit'
+	]);
+
+    grunt.registerTask('test:midway', [
+        'clean:coverage',
+        'karma:midway'
+    ]);
+
+    grunt.registerTask('test:e2e', [
+        'exec:webdriver_update',
+        'connect:e2e',
+        'protractor_webdriver',
+        'exec:protractor_start',
+    ]);
+
+    grunt.registerTask('test:e2e:dist', [
+        'exec:webdriver_update',
+        'demo:dist',
+        'connect:e2e_dist',
+        'protractor_webdriver',
+        'exec:protractor_start',
+    ]);
+
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'karma:unit',
+        'karma:midway',
+        'test:e2e',
+    ]);
+
+    grunt.registerTask('demo:dist', 'Creates demo app using dist version', [
+        'string-replace:dist',
     ]);
 
 };
