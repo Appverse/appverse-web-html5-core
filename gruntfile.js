@@ -1,72 +1,9 @@
 'use strict';
 
-var fs = require('fs');
-
-var LIVERELOAD_PORT = 35729;
-var lrSnippet = require('connect-livereload')({
-    port: LIVERELOAD_PORT
-});
-
-var mountFolder = function (connect, dir, options) {
-    return connect.static(require('path').resolve(dir), options);
-};
-
-var delayApiCalls = function (request, response, next) {
-    if (request.url.indexOf('/api') !== -1) {
-        setTimeout(function () {
-            next();
-        }, 1000);
-    } else {
-        next();
-    }
-};
-
-var httpMethods = function (request, response, next) {
-
-    var rawpath = request.url.split('?')[0],
-    path        = require('path').resolve(__dirname, 'demo/' + rawpath);
-
-    console.log("request method: " + JSON.stringify(request.method));
-    console.log("request url: " + JSON.stringify(request.url));
-    console.log("request path : " + JSON.stringify(path));
-
-    if ((request.method === 'PUT' || request.method === 'POST')) {
-        console.log('inside put/post');
-        request.content = '';
-        request.addListener("data", function (chunk) {
-            request.content += chunk;
-        });
-
-        request.addListener("end", function () {
-            console.log("request content: " + JSON.stringify(request.content));
-            if (fs.existsSync(path)) {
-                fs.writeFile(path, request.content, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log('file saved');
-                    response.end('file was saved');
-                });
-                return;
-            }
-
-            if (request.url === '/log') {
-                var filePath = 'server/log/server.log';
-                var logData = JSON.parse(request.content);
-                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log('log saved');
-                    response.end('log was saved');
-                });
-                return;
-            }
-        });
-        return;
-    }
-    next();
-};
+var fs            = require('fs'),
+connectLiveReload = require('connect-livereload'),
+LIVERELOAD_PORT   = 35729,
+lrSnippet         = connectLiveReload({port: LIVERELOAD_PORT});
 
 
 // # Globbing
@@ -182,8 +119,7 @@ module.exports = function (grunt) {
                 force: true
             },
             all: [
-                '<%= yeoman.app %>/directives/{,*/}*.js',
-                '<%= yeoman.app %>/modules/{,*/}*.js',
+                '<%= yeoman.app %>/api-*/{,*/}*.js'
             ]
         },
 
@@ -201,29 +137,39 @@ module.exports = function (grunt) {
                 // providers in their config block. Because of this, providers must be loaded prior to config blocks.
                 // · 3rd, rest of files
                 files: {
-                    '<%= yeoman.dist %>/api-cache/api-cache.js' : [
-                        '<%= yeoman.app %>/api-cache/module.js',
-                        '<%= yeoman.app %>/api-cache/**/*.provider.js',
-                        '<%= yeoman.app %>/api-cache/**/*.js'
-                    ],
-                    '<%= yeoman.dist %>/api-configuration/api-configuration.js' : [
-                        '<%= yeoman.app %>/api-configuration*/module.js',
-                        '<%= yeoman.app %>/api-configuration*/**/*.provider.js',
-                        '<%= yeoman.app %>/api-configuration*/**/*.js'
-                    ],
-                    '<%= yeoman.dist %>/api-detection/api-detection.js' : [
-                        '<%= yeoman.app %>/api-detection/module.js',
-                        '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
-                        '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
-                        '<%= yeoman.app %>/api-detection/detection.provider.js',
-                        '<%= yeoman.app %>/api-detection*/**/*.provider.js',
-                        '<%= yeoman.app %>/api-detection*/**/*.js'
-                    ],
-                    '<%= yeoman.dist %>/api-logging/api-logging.js' : ['<%= yeoman.app %>/modules/api-logging.js'],
-                    '<%= yeoman.dist %>/api-main/api-main.js' : ['<%= yeoman.app %>/modules/api-main.js'],
-                    '<%= yeoman.dist %>/api-translate/api-translate.js' : ['<%= yeoman.app %>/modules/api-translate.js'],
-                    '<%= yeoman.dist %>/api-utils/api-utils.js' : ['<%= yeoman.app %>/modules/api-utils.js'],
-                    '<%= yeoman.dist %>/api-performance/api-performance.js' : ['<%= yeoman.app %>/modules/api-performance.js']
+                    '<%= yeoman.dist %>/api-cache/api-cache.js':
+                        moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
+
+                    '<%= yeoman.dist %>/api-configuration/api-configuration.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-configuration*'),
+
+                    '<%= yeoman.dist %>/api-detection/api-detection.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
+                            '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
+                            '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
+                            '<%= yeoman.app %>/api-detection/detection.provider.js',
+                        ]),
+
+                    '<%= yeoman.dist %>/api-logging/api-logging.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-logging'),
+
+                    '<%= yeoman.dist %>/api-main/api-main.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-main'),
+
+                    '<%= yeoman.dist %>/api-performance/api-performance.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-performance'),
+
+                    '<%= yeoman.dist %>/api-translate/api-translate.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-translate'),
+
+                    '<%= yeoman.dist %>/api-utils/api-utils.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-utils'),
+
+                    '<%= yeoman.dist %>/api-serverpush/api-serverpush.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/{api-serverpush,api-socketio}'),
+
+                    '<%= yeoman.dist %>/api-rest/api-rest.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
                 }
             },
 
@@ -537,3 +483,95 @@ module.exports = function (grunt) {
     ]);
 
 };
+
+
+/////////////// Helper Methods
+
+
+function mountFolder (connect, dir, options) {
+    return connect.static(require('path').resolve(dir), options);
+}
+
+function delayApiCalls (request, response, next) {
+    if (request.url.indexOf('/api') !== -1) {
+        setTimeout(function () {
+            next();
+        }, 1000);
+    } else {
+        next();
+    }
+}
+
+function httpMethods (request, response, next) {
+
+    var rawpath = request.url.split('?')[0],
+    path        = require('path').resolve(__dirname, 'demo/' + rawpath);
+
+    console.log("request method: " + JSON.stringify(request.method));
+    console.log("request url: " + JSON.stringify(request.url));
+    console.log("request path : " + JSON.stringify(path));
+
+    if ((request.method === 'PUT' || request.method === 'POST')) {
+        console.log('inside put/post');
+        request.content = '';
+        request.addListener("data", function (chunk) {
+            request.content += chunk;
+        });
+
+        request.addListener("end", function () {
+            console.log("request content: " + JSON.stringify(request.content));
+            if (fs.existsSync(path)) {
+                fs.writeFile(path, request.content, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('file saved');
+                    response.end('file was saved');
+                });
+                return;
+            }
+
+            if (request.url === '/log') {
+                var filePath = 'server/log/server.log';
+                var logData = JSON.parse(request.content);
+                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('log saved');
+                    response.end('log was saved');
+                });
+                return;
+            }
+        });
+        return;
+    }
+    next();
+}
+
+
+/**
+ * Specify concat order to concant files from the same
+ * module into a single module file
+ *
+ * @param  {string} moduleFolderPath
+ * @param  {array} filesAfterModule Files to concat inmediately after the module
+ * @return {array}                  List of files to concat
+ */
+function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
+
+    //Remove trailing slash
+    moduleFolderPath =  moduleFolderPath.replace(/\/+$/, '');
+
+    // Module definition file is always loaded first
+    var files = [moduleFolderPath + '/module.js'];
+
+    if (typeof filesAfterModule === 'object') {
+        files = files.concat(filesAfterModule);
+    }
+
+    return files.concat([
+        moduleFolderPath + '/**/*.provider.js',
+        moduleFolderPath +'/**/*.js'
+    ]);
+}

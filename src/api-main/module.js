@@ -1,4 +1,4 @@
-'use strict';
+(function() {'use strict';
 
 //////////////////////// COMMON API - MAIN //////////////////////////
 // The Main module includes other API modules:
@@ -44,3 +44,5 @@ angular.module('COMMONAPI', optionalModules.concat(['ui.router', 'AppCache', 'Ap
 
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
         }]);
+
+})();

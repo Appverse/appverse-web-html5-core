@@ -1,4 +1,4 @@
-'use strict';
+(function() { 'use strict';
 
 angular.module('AppREST')
 /**
@@ -61,3 +61,6 @@ angular.module('AppREST')
             }
         };
     }]);
+
+
+})();
