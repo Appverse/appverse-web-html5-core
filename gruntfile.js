@@ -400,7 +400,8 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('e2e', [
-        'test:e2e'
+        'dist:make',
+        'test:e2e_dist'
     ]);
 
     grunt.registerTask('dev', 'Tasks to run while developing', [
@@ -425,11 +426,8 @@ module.exports = function (grunt) {
         'jshint',
         'unit',
         'midway',
-        'clean:dist',
-        'concat',
-        'ngAnnotate',
-        'uglify',
-        'test:e2e:dist'
+        'dist:make',
+        'test:e2e_dist'
     ]);
 
     grunt.registerTask('install', [
@@ -444,6 +442,14 @@ module.exports = function (grunt) {
         'maven:deploy-src',
         'dist',
         'maven:deploy-min'
+    ]);
+
+
+    grunt.registerTask('dist:make', [
+        'clean:dist',
+        'concat',
+        'ngAnnotate',
+        'uglify'
     ]);
 
     grunt.registerTask('test:unit:watch', [
@@ -468,7 +474,7 @@ module.exports = function (grunt) {
         'exec:protractor_start',
     ]);
 
-    grunt.registerTask('test:e2e:dist', [
+    grunt.registerTask('test:e2e_dist', [
         'exec:webdriver_update',
         'connect:e2e_dist',
         'protractor_webdriver',

@@ -15,9 +15,47 @@
         </ul>
     </div>
 
+    <hr>
+
     <div ng-controller="CacheController">
         <h2>Cache</h2>
         <div> <strong>Retrieve famous stone from cache:</strong> <span id="cachedValue" cache="famousStone">{{famousStone}}</span> </div>
     </div>
+
+    <hr>
+
+    <div ng-controller="PerformanceController">
+        <h2>Performance</h2>
+        <h3>Using Multithreading for a task</h3>
+        <span ng-show="execTime != null && execTime != 0">
+            <p>Time for execution: {{ execTime }} ms.</p>
+        </span>
+        <span  class="nullable">
+            <label>Number of pooled workers:</label>
+            <select id="poolSize" ng-model="poolSize" ng-options="threadsNumber.value for threadsNumber in threadsNumbers">
+                <option value="">-- choose execution mode --</option>
+            </select>
+        </span>
+        <br/>
+
+        <button id="performanceBtn" class="btn-primary" ng-click="run()">Run</button>
+
+        <br>
+        <br>
+
+        <img style="width: 100px;float:left" src="images/angularPerformance.jpg" id="source">
+        <span class="span6" id="target"/></span>
+
+        <div style="clear:both"></div>
+
+    </div>
+
+    <hr>
+
+    <div>
+        <h2>Translation</h2>
+        <p id="translation"  translate translate-values='{"name": "Alex", "age": 14 }'>WELCOME_NAME_AGE</p>
+    </div>
+
 
 </div>
