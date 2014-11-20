@@ -13,26 +13,55 @@
 // - Logging
 /////////////////////////////////////////////////////////////////////
 
+var required = [
+    'AppRouter',
+    'AppCache',
+    'AppConfiguration',
+    'jqm',
+    'AppPerformance'
+];
 
-/* Optional modules initialization */
-var optionalModules = ['xeditable', 'ja.qr', 'vr.directives.slider', 'ui.bootstrap', 'AppDetection', 'AppREST', 'AppTranslate', 'AppModal', 'AppLogging', 'AppServerPush', 'AppSecurity', 'ngGrid', 'ui.router'];
-
-angular.forEach(optionalModules, function (element) {
-    try {
-        angular.module(element);
-    } catch (e) {
-        angular.module(element, []);
-    }
-});
-
-var dependencies = optionalModules.concat(['AppRouter', 'AppCache', 'AppConfiguration', 'jqm', 'AppPerformance']);
+var optional = [
+    'xeditable',
+    'ja.qr',
+    'vr.directives.slider',
+    'ui.bootstrap',
+    'AppDetection',
+    'AppREST',
+    'AppTranslate',
+    'AppModal',
+    'AppLogging',
+    'AppServerPush',
+    'AppSecurity',
+    'ngGrid',
+    'ui.router'
+];
 
 /* Main module */
-angular.module('COMMONAPI', dependencies)
+angular.module('COMMONAPI', getDependencies())
     .config(config);
 
 function config($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
+}
+
+function getDependencies() {
+    var dependencies = required;
+    angular.forEach(optional, function (module) {
+        if (moduleExists(module)) {
+            dependencies.push(module);
+        }
+    });
+    return dependencies;
+}
+
+function moduleExists(name) {
+    try {
+        angular.module(name);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
 
 })();

@@ -9,11 +9,11 @@
  * 1-Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
  * 2-High Performance UI directives support.
  */
-angular.module('AppPerformance', ['AppConfiguration', 'ngGrid'])
+angular.module('AppPerformance', ['AppConfiguration'])
     .run(run);
 
 
-function run ($log, PERFORMANCE_CONFIG) {
+function run ($log) {
     $log.info('AppPerformance run');
 }
 
