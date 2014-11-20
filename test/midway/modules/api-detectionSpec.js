@@ -3,7 +3,6 @@
 
 describe('Midway: Api Detection Module', function() {
 
-    var DetectionProvider;
     var Detection;
 
     beforeEach(function() {

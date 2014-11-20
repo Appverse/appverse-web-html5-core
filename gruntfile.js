@@ -131,11 +131,6 @@ module.exports = function (grunt) {
             // Concatenate all files for a module in a single module file
             modules: {
 
-                // Files using the same module are concatenated in the correct order:
-                // · 1st, module.js files are loaded as these are the ones that create the module
-                // · 2nd, provider.js files containing are loaded. This is because some modules use their own
-                // providers in their config block. Because of this, providers must be loaded prior to config blocks.
-                // · 3rd, rest of files
                 files: {
                     '<%= yeoman.dist %>/api-cache/api-cache.js':
                         moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
@@ -170,6 +165,9 @@ module.exports = function (grunt) {
 
                     '<%= yeoman.dist %>/api-rest/api-rest.js' :
                         moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
+
+                    '<%= yeoman.dist %>/api-rest/api-router.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/api-router'),
                 }
             },
 
@@ -485,7 +483,7 @@ module.exports = function (grunt) {
         'clean:coverage',
         'karma:unit',
         'karma:midway',
-        'test:e2e',
+        'test:e2e_dist',
     ]);
 
 };
@@ -569,7 +567,11 @@ function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
     //Remove trailing slash
     moduleFolderPath =  moduleFolderPath.replace(/\/+$/, '');
 
-    // Module definition file is always loaded first
+    // Files using the same module are concatenated in the correct order:
+    // · 1st, module.js files are loaded as these are the ones that create the module
+    // · 2nd, provider.js files containing are loaded. This is because some modules use their own
+    // providers in their config block. Because of this, providers must be loaded prior to config blocks.
+    // · 3rd, rest of files
     var files = [moduleFolderPath + '/module.js'];
 
     if (typeof filesAfterModule === 'object') {
