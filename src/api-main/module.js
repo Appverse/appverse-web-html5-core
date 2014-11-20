@@ -38,14 +38,26 @@ var optional = [
 ];
 
 /* Main module */
-angular.module('COMMONAPI', getDependencies())
-    .config(config);
+angular.module('COMMONAPI', generateDependencies())
+    .config(config)
+    .run(run);
 
-function config($compileProvider) {
+function config($compileProvider, $injector) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
+
+    if (moduleExists('AppLogging') && moduleExists('AppDetection')) {
+        var detectionProvider = $injector.get('DetectionProvider');
+        var formattedLoggerProvider = $injector.get('formattedLoggerProvider');
+        formattedLoggerProvider.setDetection(detectionProvider);
+    }
+
 }
 
-function getDependencies() {
+function run() {
+     console.log('commonapi run');
+}
+
+function generateDependencies() {
     var dependencies = required;
     angular.forEach(optional, function (module) {
         if (moduleExists(module)) {
@@ -63,5 +75,6 @@ function moduleExists(name) {
         return false;
     }
 }
+
 
 })();

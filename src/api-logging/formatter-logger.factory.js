@@ -1,6 +1,8 @@
 (function() { 'use strict';
 
 angular.module('AppLogging')
+    .provider("formattedLogger", FormattedLoggerProvider);
+
 
 /**
  * @ngdoc service
@@ -11,9 +13,12 @@ angular.module('AppLogging')
  * @description
  * Captures the $log service and decorate it.
  */
-.factory("formattedLogger", ["LOGGING_CONFIG", "Detection",
-    function (LOGGING_CONFIG, Detection) {
-        return function (delegatedLog) {
+function FormattedLoggerProvider () {
+
+    var detectionProvider;
+
+    this.$get = function(LOGGING_CONFIG) {
+        return function decorateLog (delegatedLog) {
 
             /**
              * @function DateTime
@@ -93,8 +98,9 @@ angular.module('AppLogging')
                             }
 
                             //                            console.log('Log Message sent to server ' + LOGGING_CONFIG.LogServerEndpoint + ' :', logData);
-                            if (Detection.isOnline) {
-                                $.post(LOGGING_CONFIG.LogServerEndpoint, JSON.stringify(logData));
+                            if (browserIsOnline()) {
+                                console.log('sending log to server');
+                                //$.post(LOGGING_CONFIG.LogServerEndpoint, JSON.stringify(logData));
                             }
                         }
                     };
@@ -121,8 +127,25 @@ angular.module('AppLogging')
             delegatedLog.debug = handleLogMessage(LOGGING_CONFIG.EnabledDebugLevel, 'DEBUG', delegatedLog.debug);
 
             return delegatedLog;
-        };
-    }]);
+        }
+    };
+
+
+    this.setDetection = function (detection) {
+        detectionProvider = detection;
+    };
+
+    function browserIsOnline() {
+        if (detectionProvider) {
+            return detectionProvider.$get().isOnline;
+        } else {
+            // if no detection service provided, return true
+            return true;
+        }
+    }
+
+
+}
 
 
 })();
