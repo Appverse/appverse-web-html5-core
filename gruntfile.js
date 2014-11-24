@@ -6,12 +6,6 @@ LIVERELOAD_PORT   = 35729,
 lrSnippet         = connectLiveReload({port: LIVERELOAD_PORT});
 
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
-
 module.exports = function (grunt) {
 
     // Load grunt tasks automatically
@@ -30,10 +24,49 @@ module.exports = function (grunt) {
         coverage: 'test/coverage',
        instrumented: 'test/coverage/instrumented'
     };
-
     try {
         yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
     } catch (e) {}
+
+    // Define files to load in the demo, its order and the way they are
+    // concatenated for distribution
+    var files = {
+        '<%= yeoman.dist %>/api-cache/api-cache.js':
+            moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
+
+        '<%= yeoman.dist %>/api-detection/api-detection.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
+                '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
+                '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
+                '<%= yeoman.app %>/api-detection/detection.provider.js',
+            ]),
+
+        '<%= yeoman.dist %>/api-logging/api-logging.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-logging'),
+
+        '<%= yeoman.dist %>/api-performance/api-performance.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-performance'),
+
+        '<%= yeoman.dist %>/api-translate/api-translate.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-translate'),
+
+        '<%= yeoman.dist %>/api-utils/api-utils.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-utils'),
+
+        '<%= yeoman.dist %>/api-serverpush/api-serverpush.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/{api-serverpush,api-socketio}'),
+
+        '<%= yeoman.dist %>/api-rest/api-rest.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
+
+        '<%= yeoman.dist %>/api-rest/api-router.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/api-router'),
+
+        '<%= yeoman.dist %>/api-main/api-main.js' :
+            moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}'),
+    };
+
+
 
     grunt.initConfig({
 
@@ -135,42 +168,7 @@ module.exports = function (grunt) {
 
             // Concatenate all files for a module in a single module file
             modules: {
-
-                files: {
-                    '<%= yeoman.dist %>/api-cache/api-cache.js':
-                        moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
-
-                    '<%= yeoman.dist %>/api-detection/api-detection.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
-                            '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
-                            '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
-                            '<%= yeoman.app %>/api-detection/detection.provider.js',
-                        ]),
-
-                    '<%= yeoman.dist %>/api-logging/api-logging.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-logging'),
-
-                    '<%= yeoman.dist %>/api-performance/api-performance.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-performance'),
-
-                    '<%= yeoman.dist %>/api-translate/api-translate.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-translate'),
-
-                    '<%= yeoman.dist %>/api-utils/api-utils.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-utils'),
-
-                    '<%= yeoman.dist %>/api-serverpush/api-serverpush.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/{api-serverpush,api-socketio}'),
-
-                    '<%= yeoman.dist %>/api-rest/api-rest.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
-
-                    '<%= yeoman.dist %>/api-rest/api-router.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-router'),
-
-                    '<%= yeoman.dist %>/api-main/api-main.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}'),
-                }
+                files: files
             },
 
             // Concatenate all modules into a full distribution
@@ -201,7 +199,6 @@ module.exports = function (grunt) {
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
             },
             dist: {
-
                 files: [{
                       expand: true,     // Enable dynamic expansion.
                       cwd: '<%= yeoman.dist %>',      // Src matches are relative to this path.
@@ -212,7 +209,6 @@ module.exports = function (grunt) {
                     }
                 ]
             }
-
         },
 
 
@@ -335,17 +331,21 @@ module.exports = function (grunt) {
                 options: {
                     livereload: LIVERELOAD_PORT
                 },
+                tasks: ['injector:js'],
                 files: [
                     '<%= yeoman.demo %>/**/*.html',
                     '<%= yeoman.demo %>/js/*.js',
                     '{.tmp,<%= yeoman.app %>}/**/*.js',
-                ]
+                ],
             }
         },
 
         open: {
             demo: {
                 url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.options.port %>'
+            },
+            demo_dist: {
+                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.e2e_dist.options.port %>'
             },
         },
 
@@ -362,6 +362,22 @@ module.exports = function (grunt) {
             }
         },
 
+        // Automatically include all src/ files in demo's html as script tags
+        injector: {
+            options: {
+                relative: false,
+                transform: function (path) {
+                    // Demo server directly mounts src folder so the reference to src is not required
+                    path = path.replace('/src/', '');
+                    return '<script src="'+ path +'"></script>';
+                }
+            },
+            js: {
+                files: {
+                    '<%= yeoman.demo %>/index.html': getAllFilesForDemo(files),
+                }
+            }
+        }
     });
 
     // -- Register tasks --
@@ -402,7 +418,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('demo:dist', 'Runs demo app with the concatenated/uglified version of appverse', [
         'dist:make',
-        'connect:e2e_dist:keepalive'
+        'connect:e2e_dist:keepalive',
+        'open:demo_dist'
     ]);
 
     grunt.registerTask('doc', [
@@ -479,8 +496,8 @@ module.exports = function (grunt) {
 };
 
 
-/////////////// Helper Methods
 
+// -- Helper Methods --
 
 function mountFolder (connect, dir, options) {
     return connect.static(require('path').resolve(dir), options);
@@ -573,3 +590,21 @@ function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
         moduleFolderPath +'/**/*.js'
     ]);
 }
+
+/**
+ * Gets a list of all the files to load as scripts.
+ *
+ * @param  {object} filesObject Files object of files structured by module
+ * @return {array}              Array of files
+ */
+function getAllFilesForDemo(filesObject) {
+    var filesList = [];
+    for( var key in filesObject ) {
+        if (filesObject.hasOwnProperty(key)) {
+           filesList = filesList.concat(filesObject[key]);
+        }
+    }
+
+    return filesList;
+}
+

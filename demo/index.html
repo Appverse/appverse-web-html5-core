@@ -32,52 +32,44 @@
         <script src="bower_components/restangular/dist/restangular.js"></script>
         <script src="bower_components/socket.io-client/dist/socket.io.js"></script>
 
-        <!-- ########## Core modules ########## -->
+        <!-- ########## Core modules: autoinjected. Check gruntfile.js ########## -->
+        <!-- injector:js -->
         <script src="api-cache/module.js"></script>
+        <script src="api-cache/cache.directive.js"></script>
         <script src="api-cache/cache.factory.js"></script>
         <script src="api-cache/idb.service.js"></script>
-        <script src="api-cache/cache.directive.js"></script>
-
-        <script src="api-configuration/module.js"></script>
-        <script src="api-configuration-loader/module.js"></script>
-        <script src="api-configuration-loader/configloader.provider.js"></script>
-        <script src="api-configuration-loader/module-config.js"></script>
-        <script src="api-configuration-default/module.js"></script>
-        <script src="api-configuration-default/constants.js"></script>
-
         <script src="api-detection/module.js"></script>
         <script src="api-detection/mobile-libraries-loader.provider.js"></script>
         <script src="api-detection/mobile-detector.provider.js"></script>
         <script src="api-detection/detection.provider.js"></script>
         <script src="api-detection/module-run.js"></script>
-
         <script src="api-logging/module.js"></script>
         <script src="api-logging/formatter-logger.provider.js"></script>
-
         <script src="api-performance/module.js"></script>
-        <script src="api-performance/webworkerpool.factory.js"></script>
         <script src="api-performance/webworker.directive.js"></script>
-
+        <script src="api-performance/webworkerpool.factory.js"></script>
         <script src="api-translate/module.js"></script>
-
-        <script src="api-rest/module.js"></script>
-        <script src="api-rest/multicast-rest.factory.js"></script>
-        <script src="api-rest/rest.factory.js"></script>
-        <script src="api-rest/rest.directive.js"></script>
-
         <script src="api-utils/module.js"></script>
-        <script src="api-utils/util.factory.js"></script>
         <script src="api-utils/base64.factory.js"></script>
-
+        <script src="api-utils/util.factory.js"></script>
         <script src="api-serverpush/module.js"></script>
-        <script src="api-serverpush/socket.factory.js"></script>
-        <script src="api-serverpush/websocket.factory.js"></script>
         <script src="api-socketio/module.js"></script>
         <script src="api-socketio/socket.provider.js"></script>
-
+        <script src="api-serverpush/socket.factory.js"></script>
+        <script src="api-serverpush/websocket.factory.js"></script>
+        <script src="api-rest/module.js"></script>
+        <script src="api-rest/multicast-rest.factory.js"></script>
+        <script src="api-rest/rest.directive.js"></script>
+        <script src="api-rest/rest.factory.js"></script>
         <script src="api-router/module.js"></script>
-
+        <script src="api-configuration-default/module.js"></script>
+        <script src="api-configuration-loader/module.js"></script>
+        <script src="api-configuration/module.js"></script>
         <script src="api-main/module.js"></script>
+        <script src="api-configuration-loader/configloader.provider.js"></script>
+        <script src="api-configuration-default/constants.js"></script>
+        <script src="api-configuration-loader/module-config.js"></script>
+        <!-- endinjector -->
 
 
         <!-- Demo app specific js -->
