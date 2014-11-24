@@ -135,9 +135,6 @@ module.exports = function (grunt) {
                     '<%= yeoman.dist %>/api-cache/api-cache.js':
                         moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
 
-                    '<%= yeoman.dist %>/api-configuration/api-configuration.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-configuration*'),
-
                     '<%= yeoman.dist %>/api-detection/api-detection.js' :
                         moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
                             '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
@@ -147,9 +144,6 @@ module.exports = function (grunt) {
 
                     '<%= yeoman.dist %>/api-logging/api-logging.js' :
                         moduleFilesToConcat('<%= yeoman.app %>/api-logging'),
-
-                    '<%= yeoman.dist %>/api-main/api-main.js' :
-                        moduleFilesToConcat('<%= yeoman.app %>/api-main'),
 
                     '<%= yeoman.dist %>/api-performance/api-performance.js' :
                         moduleFilesToConcat('<%= yeoman.app %>/api-performance'),
@@ -168,6 +162,9 @@ module.exports = function (grunt) {
 
                     '<%= yeoman.dist %>/api-rest/api-router.js' :
                         moduleFilesToConcat('<%= yeoman.app %>/api-router'),
+
+                    '<%= yeoman.dist %>/api-main/api-main.js' :
+                        moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}'),
                 }
             },
 
@@ -413,6 +410,11 @@ module.exports = function (grunt) {
         'connect:livereload',
         'open:demo',
         'watch'
+    ]);
+
+    grunt.registerTask('demo:dist', 'Runs demo app with the concatenated/uglified version of appverse', [
+        'dist:make',
+        'connect:e2e_dist:keepalive'
     ]);
 
     grunt.registerTask('doc', [

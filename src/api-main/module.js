@@ -14,17 +14,10 @@
 /////////////////////////////////////////////////////////////////////
 
 var requires = [
-    'AppRouter',
     'AppConfiguration',
-    'jqm',
-    'AppPerformance'
 ];
 
 var optional = [
-    'xeditable',
-    'ja.qr',
-    'vr.directives.slider',
-    'ui.bootstrap',
     'AppDetection',
     'AppREST',
     'AppTranslate',
@@ -32,9 +25,9 @@ var optional = [
     'AppLogging',
     'AppServerPush',
     'AppSecurity',
-    'ngGrid',
-    'ui.router',
     'AppCache',
+    'AppPerformance',
+    'AppRouter'
 ];
 
 
@@ -46,7 +39,12 @@ angular.module('COMMONAPI', generateDependencies())
     .config(config)
     .run(run);
 
-
+/**
+ * Preliminary configuration.
+ *
+ * Configures the integration between modules that need to be integrated
+ * at the config phase.
+ */
 function config($compileProvider, $injector) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
 
@@ -57,13 +55,19 @@ function config($compileProvider, $injector) {
     }
 }
 
-
+/**
+ * Main
+ *
+ * Runs integration tasks between modules that can be integrated
+ * at run phase
+ */
 function run($injector, $log, SECURITY_GENERAL) {
     if (moduleExists('AppREST')) {
         initializeRestAndSecurity($injector, $log, SECURITY_GENERAL);
         initializeRestAndCache($injector);
     }
 }
+
 
 function initializeRestAndSecurity($injector, $log,  SECURITY_GENERAL) {
     var restService = $injector.get('RESTFactory');
