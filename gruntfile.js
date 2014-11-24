@@ -13,10 +13,14 @@ lrSnippet         = connectLiveReload({port: LIVERELOAD_PORT});
 // 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
+
+    // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
+
+    // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
 
-    // configurable paths
+    // Configurable paths
     var yeomanConfig = {
         app: 'src',
         dist: 'dist',
@@ -35,6 +39,7 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
+        // Project settings
         yeoman: yeomanConfig,
 
         maven: {
@@ -358,23 +363,6 @@ module.exports = function (grunt) {
         },
 
     });
-
-    // -- Load plugins --
-
-    grunt.loadNpmTasks('grunt-docular');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-mocha');
-    grunt.loadNpmTasks('grunt-karma');
-    grunt.loadNpmTasks('grunt-bump');
-    grunt.loadNpmTasks('grunt-maven-deploy');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-notify');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-exec');
-    grunt.loadNpmTasks('grunt-protractor-webdriver');
-    grunt.loadNpmTasks('grunt-string-replace');
-    grunt.loadNpmTasks('grunt-ng-annotate');
 
     // -- Register tasks --
 
