@@ -48,6 +48,12 @@ angular.module('COMMONAPI', generateDependencies())
 function config($compileProvider, $injector) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
 
+    if (moduleExists('AppDetection')) {
+        var detectionProvider = $injector.get('DetectionProvider');
+        var configLoaderProvider = $injector.get('ConfigLoaderProvider');
+        configLoaderProvider.setDetection(detectionProvider);
+    }
+
     if (moduleExists('AppLogging') && moduleExists('AppDetection')) {
         var detectionProvider = $injector.get('DetectionProvider');
         var formattedLoggerProvider = $injector.get('formattedLoggerProvider');

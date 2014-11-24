@@ -9,10 +9,14 @@ angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider)
  * @description
  * It includes constants for all the common API components.
  */
-function ConfigLoaderProvider(DetectionProvider) {
+function ConfigLoaderProvider() {
 
     var appConfigTemp = {},
-    detection         = DetectionProvider;
+    detection         = new NoDetection();
+
+    this.setDetection = function(detectionProvider) {
+        detection = detectionProvider;
+    };
 
     this.loadDefaultConfig = function() {
         angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
@@ -82,6 +86,22 @@ function ConfigLoaderProvider(DetectionProvider) {
     this.$get = function() {
         return this;
     };
+}
+
+
+/**
+ * Used when no detection is provided
+ */
+function NoDetection() {
+
+    this.hasAppverseMobile = function() {
+        return false;
+    };
+
+    this.isMobileBrowser = function() {
+        return false;
+    };
+
 }
 
 

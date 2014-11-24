@@ -59,7 +59,7 @@ module.exports = function (grunt) {
         '<%= yeoman.dist %>/api-rest/api-rest.js' :
             moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
 
-        '<%= yeoman.dist %>/api-rest/api-router.js' :
+        '<%= yeoman.dist %>/api-router/api-router.js' :
             moduleFilesToConcat('<%= yeoman.app %>/api-router'),
 
         '<%= yeoman.dist %>/api-main/api-main.js' :
@@ -418,8 +418,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('demo:dist', 'Runs demo app with the concatenated/uglified version of appverse', [
         'dist:make',
+        'open:demo_dist',
         'connect:e2e_dist:keepalive',
-        'open:demo_dist'
     ]);
 
     grunt.registerTask('doc', [
