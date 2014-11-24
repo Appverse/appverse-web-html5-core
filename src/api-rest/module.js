@@ -2,7 +2,6 @@
 
 var requires = [
     'restangular',
-    'AppCache',
     'AppConfiguration'
 ];
 
@@ -36,7 +35,7 @@ var requires = [
 angular.module('AppREST', requires)
     .run(run);
 
-function run ($log, Restangular, CacheFactory, REST_CONFIG) {
+function run ($log, Restangular, REST_CONFIG) {
 
     Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
     Restangular.setExtraFields(REST_CONFIG.ExtraFields);
@@ -48,25 +47,7 @@ function run ($log, Restangular, CacheFactory, REST_CONFIG) {
         Restangular.addElementTransformer(transformer.route, transformer.transformer);
     }
     Restangular.setOnElemRestangularized(REST_CONFIG.OnElemRestangularized);
-    Restangular.setResponseInterceptor(
-        function (data, operation, what, url, response) {
 
-            /*
-            1-Caches response data or not according to configuration.
-             */
-            var cache = CacheFactory.getHttpCache();
-
-            if (cache) {
-                if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
-                    cache.removeAll();
-                } else if (operation === 'put') {
-                    cache.put(response.config.url, response.config.data);
-                }
-            }
-
-            return data;
-        }
-    );
     if (typeof REST_CONFIG.RequestInterceptor === 'function') {
         $log.debug('Setting RequestInterceptor');
         Restangular.setRequestInterceptor(REST_CONFIG.RequestInterceptor);

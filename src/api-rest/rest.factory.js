@@ -69,6 +69,28 @@ angular.module('AppREST')
 
         /**
          * @ngdoc method
+         * @name AppREST.factory:RESTFactory#setCache
+         * @methodOf AppREST.factory:RESTFactory
+         * @description Sets the cache. Caching also depends on REST_CONFIG
+         */
+        factory.setCache = function(cache) {
+            Restangular.setResponseInterceptor(
+                function (data, operation, what, url, response) {
+                    // Caches response data or not according to configuration.
+                    if (cache) {
+                        if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
+                            cache.removeAll();
+                        } else if (operation === 'put') {
+                            cache.put(response.config.url, response.config.data);
+                        }
+                    }
+                    return data;
+                }
+            );
+        };
+
+        /**
+         * @ngdoc method
          * @name AppREST.factory:RESTFactory#readObject
          * @methodOf AppREST.factory:RESTFactory
          * @param {String} path The item URL

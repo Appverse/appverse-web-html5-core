@@ -9,6 +9,27 @@ describe('Midway: Api Main Module', function () {
             setupRestTesting();
         });
 
+        describe('and AppCache is loaded...', function() {
+
+            beforeEach(function () {
+                // create 'fake' security and config modules
+                angular.module('AppConfiguration', []);
+
+                module(function($provide) {
+                    $provide.value('RESTFactory', {
+                        setCache : sinon.spy(),
+                        enableDefaultContentType: sinon.spy(),
+                    });
+                });
+
+                module('COMMONAPI');
+            });
+
+            it('should set an response interceptor to cache modules', inject(function(RESTFactory) {
+                RESTFactory.setCache.called.should.be.true;
+            }));
+        });
+
         describe('and AppSecurity is NOT loaded...', function() {
 
             beforeEach(function () {
@@ -22,12 +43,12 @@ describe('Midway: Api Main Module', function () {
                 });
 
                 $provide.value('Oauth_RequestWrapper', {
-                    wrapRequest : sinon.spy(),
+                    wrapRequest : sinon.stub().returns(new RestangularMock()),
                 });
             }));
 
             it('AppRest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
-                    Oauth_RequestWrapper.wrapRequest.called.should.be.false;
+                Oauth_RequestWrapper.wrapRequest.called.should.be.false;
             }));
 
             it('RESTFactory should set default headers', inject(function(Restangular) {
@@ -39,7 +60,7 @@ describe('Midway: Api Main Module', function () {
         describe('and AppSecurity is loaded...', function() {
 
             beforeEach(function () {
-                // create 'fake' security module
+                // create 'fake' security and config modules
                 angular.module('AppSecurity', []);
                 angular.module('AppConfiguration', []);
                 module('COMMONAPI');
@@ -53,7 +74,7 @@ describe('Midway: Api Main Module', function () {
                     });
 
                     $provide.value('Oauth_RequestWrapper', {
-                        wrapRequest : sinon.spy(),
+                        wrapRequest : sinon.stub().returns(new RestangularMock()),
                     });
                 }));
 
@@ -75,7 +96,7 @@ describe('Midway: Api Main Module', function () {
                     });
 
                     $provide.value('Oauth_RequestWrapper', {
-                        wrapRequest : sinon.spy(),
+                        wrapRequest : sinon.stub().returns(new RestangularMock()),
                     });
                 }));
 
@@ -96,12 +117,11 @@ describe('Midway: Api Main Module', function () {
 
     });
 
-
-
 });
 
 
 function setupRestTesting() {
+
 
     // First load the module
     module('AppREST');
@@ -109,31 +129,32 @@ function setupRestTesting() {
     // then Override real services with mocks
     module(function($provide) {
 
-        $provide.service('Restangular', function() {
-            this.setBaseUrl = sinon.spy();
-            this.setExtraFields = sinon.spy();
-            this.setParentless = sinon.spy();
-            this.setOnElemRestangularized = sinon.spy();
-            this.setResponseInterceptor = sinon.spy();
-            this.setErrorInterceptor = sinon.spy();
-            this.setRestangularFields = sinon.spy();
-            this.setMethodOverriders = sinon.spy();
-            this.setFullResponse = sinon.spy();
-            this.setRequestSuffix = sinon.spy();
-            this.setUseCannonicalId = sinon.spy();
-            this.setEncodeIds = sinon.spy();
-            this.setDefaultHeaders = sinon.spy();
-        });
+        $provide.service('Restangular', RestangularMock);
 
         $provide.constant('LOGGING_CONFIG', {});
 
         $provide.constant('CACHE_CONFIG', {});
 
+        $provide.constant('SECURITY_GENERAL', {});
+
         $provide.constant('REST_CONFIG', {
             ElementTransformer : []
         });
     });
+}
 
-
-
+function RestangularMock() {
+    this.setBaseUrl = sinon.spy();
+    this.setExtraFields = sinon.spy();
+    this.setParentless = sinon.spy();
+    this.setOnElemRestangularized = sinon.spy();
+    this.setResponseInterceptor = sinon.spy();
+    this.setErrorInterceptor = sinon.spy();
+    this.setRestangularFields = sinon.spy();
+    this.setMethodOverriders = sinon.spy();
+    this.setFullResponse = sinon.spy();
+    this.setRequestSuffix = sinon.spy();
+    this.setUseCannonicalId = sinon.spy();
+    this.setEncodeIds = sinon.spy();
+    this.setDefaultHeaders = sinon.spy();
 }
