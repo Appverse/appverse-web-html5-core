@@ -97,10 +97,10 @@ function FormattedLoggerProvider () {
                                 logData.logMessage += ' ' + JSON.stringify(args[1]);
                             }
 
-                            //                            console.log('Log Message sent to server ' + LOGGING_CONFIG.LogServerEndpoint + ' :', logData);
+                            //console.log('Log Message sent to server ' +
+                            // LOGGING_CONFIG.LogServerEndpoint + ' :', logData);
                             if (browserIsOnline()) {
-                                console.log('sending log to server');
-                                //$.post(LOGGING_CONFIG.LogServerEndpoint, JSON.stringify(logData));
+                                $.post(LOGGING_CONFIG.LogServerEndpoint, JSON.stringify(logData));
                             }
                         }
                     };
@@ -127,7 +127,7 @@ function FormattedLoggerProvider () {
             delegatedLog.debug = handleLogMessage(LOGGING_CONFIG.EnabledDebugLevel, 'DEBUG', delegatedLog.debug);
 
             return delegatedLog;
-        }
+        };
     };
 
 
@@ -137,13 +137,18 @@ function FormattedLoggerProvider () {
 
     function browserIsOnline() {
         if (detectionProvider) {
-            return detectionProvider.$get().isOnline;
+            return getDetectionService().isOnline;
         } else {
             // if no detection service provided, return true
             return true;
         }
     }
 
+    function getDetectionService() {
+        var $injector = angular.injector();
+        //invoke the $get function specifing that detectionProvider is 'this'
+        return  $injector.invoke(detectionProvider.$get, detectionProvider);
+    }
 
 }
 

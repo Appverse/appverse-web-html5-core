@@ -11,19 +11,8 @@ angular.module('AppREST')
  * Contains methods for data finding (demo).
  * This module provides basic quick standard access to a REST API.
  */
-.factory('RESTFactory', ['$log', '$q', '$http', 'Restangular', 'Oauth_RequestWrapper','REST_CONFIG', 'SECURITY_GENERAL',
-    function ($log, $q, $http, Restangular, Oauth_RequestWrapper, REST_CONFIG, SECURITY_GENERAL) {
-
-        if(SECURITY_GENERAL.securityEnabled){
-            $log.debug("REST communication is secure. Security is enabled. REST requests will be wrapped with authorization headers.");
-            Restangular = Oauth_RequestWrapper.wrapRequest(Restangular);
-        }else{
-            $log.debug("REST communication is not secure. Security is not enabled.");
-            Restangular.setDefaultHeaders(
-                {
-                    'Content-Type': REST_CONFIG.DefaultContentType
-                });
-        }
+.factory('RESTFactory', ['$log', '$q', '$http', 'Restangular','REST_CONFIG',
+    function ($log, $q, $http, Restangular,  REST_CONFIG) {
 
 
 
@@ -52,6 +41,31 @@ angular.module('AppREST')
         ////////////////////////////////////////////////////////////////////////////////////
 
         var factory = {};
+
+        /**
+         * @ngdoc method
+         * @name AppREST.factory:RESTFactory#wrapRequestWith
+         * @methodOf AppREST.factory:RESTFactory
+         * @param {object} The request wrapper
+         * @description Wraps a request.
+         * The wrapper should expose a 'wrapRequest(Restangular)' function
+         * that wraps the requests and returns the processed Restangular service
+         */
+        factory.wrapRequestsWith = function(wrapper) {
+            Restangular = wrapper.wrapRequest(Restangular);
+        };
+
+        /**
+         * @ngdoc method
+         * @name AppREST.factory:RESTFactory#wrapRequestWith
+         * @methodOf AppREST.factory:RESTFactory
+         * @description Sets the default Content-Type as header.
+         */
+        factory.enableDefaultContentType = function() {
+            Restangular.setDefaultHeaders({
+                'Content-Type': REST_CONFIG.DefaultContentType
+            });
+        };
 
         /**
          * @ngdoc method
@@ -251,11 +265,10 @@ angular.module('AppREST')
         */
         function restErrorHandler(response){
             $log.error("Error with status code", response.status);
-        };
+        }
 
+        return factory;
 
-       return factory;
     }]);
-
 
 })();

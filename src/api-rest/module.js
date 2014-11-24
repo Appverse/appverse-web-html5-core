@@ -1,10 +1,9 @@
 (function() { 'use strict';
 
-var required = [
+var requires = [
     'restangular',
     'AppCache',
-    'AppConfiguration',
-    'AppSecurity'
+    'AppConfiguration'
 ];
 
 /**
@@ -34,10 +33,10 @@ var required = [
  * The MyRestangular object has scoped properties of the Restangular on with a different
  * configuration.
  */
-angular.module('AppREST', required)
+angular.module('AppREST', requires)
     .run(run);
 
-function run ($log, Restangular, CacheFactory, Oauth_RequestWrapper, Oauth_AccessToken, REST_CONFIG, SECURITY_GENERAL) {
+function run ($log, Restangular, CacheFactory, REST_CONFIG) {
 
     Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
     Restangular.setExtraFields(REST_CONFIG.ExtraFields);
@@ -63,17 +62,6 @@ function run ($log, Restangular, CacheFactory, Oauth_RequestWrapper, Oauth_Acces
                 } else if (operation === 'put') {
                     cache.put(response.config.url, response.config.data);
                 }
-            }
-
-            /*
-             2-Retrieves bearer/oauth token from header.
-             */
-            //var tokenInHeader = response.headers(SECURITY_GENERAL.tokenResponseHeaderName);
-            var tokenInHeader = response.headers('X-XSRF-Cookie');
-            $log.debug('X-XSRF-Cookie: ' + tokenInHeader);
-            if(tokenInHeader){
-
-                Oauth_AccessToken.setFromHeader(tokenInHeader);
             }
 
             return data;

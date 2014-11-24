@@ -32,6 +32,10 @@ var settings = {
     midwayFiles : [
         'src/bower_components/jquery/dist/jquery.min.js',
         'src/bower_components/angular-load/angular-load.js',
+        'src/bower_components/angular-cache/dist/angular-cache.js',
+        'src/bower_components/angular-ui-router/release/angular-ui-router.js',
+        'src/bower_components/lodash/dist/lodash.js',
+        'src/bower_components/restangular/dist/restangular.js',
         'test/midway/**/*.js'
     ],
 };
