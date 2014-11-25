@@ -3,7 +3,7 @@
 var fs            = require('fs'),
 connectLiveReload = require('connect-livereload'),
 LIVERELOAD_PORT   = 35729,
-lrSnippet         = connectLiveReload({port: LIVERELOAD_PORT});
+liveReloadSnippet = connectLiveReload({port: LIVERELOAD_PORT});
 
 
 module.exports = function (grunt) {
@@ -68,11 +68,9 @@ module.exports = function (grunt) {
                 moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}')
             ),
         ]
-
     };
 
-
-
+    // Start Grunt config definition
     grunt.initConfig({
 
         pkg: grunt.file.readJSON('package.json'),
@@ -301,7 +299,7 @@ module.exports = function (grunt) {
                 middleware: function (connect) {
                     return [
                         delayApiCalls,
-                        lrSnippet,
+                        liveReloadSnippet,
                         mountFolder(connect, yeomanConfig.app),
                         mountFolder(connect, yeomanConfig.demo),
                         httpMethods
@@ -324,7 +322,7 @@ module.exports = function (grunt) {
                     middleware: function (connect) {
                         return [
                             delayApiCalls,
-                            lrSnippet,
+                            liveReloadSnippet,
                             mountFolder(connect, yeomanConfig.app),
                             mountFolder(connect, yeomanConfig.dist),
                             mountFolder(connect, yeomanConfig.demo,{index: 'index-dist.html'}),
@@ -342,9 +340,11 @@ module.exports = function (grunt) {
                 },
                 tasks: ['injector:js'],
                 files: [
-                    '<%= yeoman.demo %>/**/*.html',
+                    '<%= yeoman.demo %>/*.html',
+                    '<%= yeoman.demo %>/partials/*.html',
                     '<%= yeoman.demo %>/js/*.js',
-                    '{.tmp,<%= yeoman.app %>}/**/*.js',
+                    //For performance reasons only match one level
+                    '<%= yeoman.app %>/{,*/}*.js',
                 ],
             }
         },
@@ -513,7 +513,7 @@ function mountFolder (connect, dir, options) {
 }
 
 function delayApiCalls (request, response, next) {
-    if (request.url.indexOf('/api') !== -1) {
+    if (request.url.indexOf('/api/') !== -1) {
         setTimeout(function () {
             next();
         }, 1000);
