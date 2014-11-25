@@ -48,7 +48,8 @@
     "waitsFor"             : false,
     "xdescribe"            : false,
     "sinon"                : false,
-    "by"                   : false
+    "by"                   : false,
+    "define"               : false
   }
 }
 

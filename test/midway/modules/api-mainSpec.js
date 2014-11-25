@@ -3,11 +3,12 @@
 
 describe('Midway: Api Main Module', function () {
 
-    describe('when AppREST is loaded...', function() {
 
-        beforeEach(function() {
-            setupRestTesting();
-        });
+    beforeEach(function() {
+        setupMainTesting();
+    });
+
+    describe('when AppREST is loaded...', function() {
 
         describe('and AppCache is loaded...', function() {
 
@@ -112,15 +113,12 @@ describe('Midway: Api Main Module', function () {
 
         });
 
-
-
-
     });
 
 });
 
 
-function setupRestTesting() {
+function setupMainTesting() {
 
 
     // First load the module
@@ -130,6 +128,11 @@ function setupRestTesting() {
     module(function($provide) {
 
         $provide.service('Restangular', RestangularMock);
+
+        $provide.provider('ConfigLoader', function() {
+            this.setDetection = sinon.spy();
+            this.$get = function () {return this;};
+        });
 
         $provide.constant('LOGGING_CONFIG', {});
 

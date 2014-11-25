@@ -28,7 +28,7 @@ module.exports = function (grunt) {
         yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
     } catch (e) {}
 
-    // Define files to load in the demo, its order and the way they are
+    // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
         '<%= yeoman.dist %>/api-cache/api-cache.js':
@@ -36,6 +36,7 @@ module.exports = function (grunt) {
 
         '<%= yeoman.dist %>/api-detection/api-detection.js' :
             moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
+                // this order must be preseved as there are dependencies between these providers
                 '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
                 '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
                 '<%= yeoman.app %>/api-detection/detection.provider.js',
@@ -62,8 +63,12 @@ module.exports = function (grunt) {
         '<%= yeoman.dist %>/api-router/api-router.js' :
             moduleFilesToConcat('<%= yeoman.app %>/api-router'),
 
-        '<%= yeoman.dist %>/api-main/api-main.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}'),
+        '<%= yeoman.dist %>/api-main/api-main.js' : [
+            ['<%= yeoman.app %>/api-main/integrator.js'].concat(
+                moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}')
+            ),
+        ]
+
     };
 
 
@@ -161,6 +166,7 @@ module.exports = function (grunt) {
             ]
         },
 
+        // concatenate source files
         concat: {
             options: {
               sourceMap: true,
@@ -194,9 +200,12 @@ module.exports = function (grunt) {
           }
         },
 
+        // Uglifies already concatenated files
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
+                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */',
+                sourceMapIncludeSources: true,
+                sourceMapIn: '<%= yeoman.dist %>/**/*.js.map',
             },
             dist: {
                 files: [{
