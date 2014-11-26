@@ -166,9 +166,6 @@ module.exports = function (grunt) {
 
         // concatenate source files
         concat: {
-            options: {
-              sourceMap: true,
-            },
 
             // Concatenate all files for a module in a single module file
             modules: {
@@ -202,8 +199,7 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */',
-                sourceMapIncludeSources: true,
-                sourceMapIn: '<%= yeoman.dist %>/**/*.js.map',
+                sourceMap: true,
             },
             dist: {
                 files: [{
