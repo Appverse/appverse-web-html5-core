@@ -65,12 +65,16 @@ function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
         $scope.run = function () {
             total = 0;
             count = 0;
-            $("#targetCanvas").remove();
+            var targetCanvas = document.getElementById("targetCanvas");
+            if (targetCanvas) {
+                targetCanvas.parentNode.removeChild(targetCanvas);
+            }
             $scope.execTime = 0;
 
             // determine size of image
-            var imgwidth = $("#source").width();
-            var imgheight = $("#source").height();
+            var sourceImg = document.getElementById("source");
+            var imgwidth = sourceImg.width;
+            var imgheight = sourceImg.height;
 
             // create a canvas and make context available
             var targetCanvas = createTargetCanvas(imgwidth, imgheight);
@@ -79,7 +83,7 @@ function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
             // render elements
             starttime = new Date().getTime();
 
-            renderElements(imgwidth, imgheight, $("#source").get()[0], $scope.poolSize.key);
+            renderElements(imgwidth, imgheight, sourceImg, $scope.poolSize.key);
         };
 
         // defines a workpacke object that can be sent to the worker
@@ -173,11 +177,14 @@ function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
         // create the target canvas where the result will be rendered
         function createTargetCanvas(imgwidth, imgheight) {
             // create target canvas, with the correct size
-            return $("<canvas/>")
-                .attr("width", imgwidth)
-                .attr("height", imgheight)
-                .attr("id", "targetCanvas")
-                .appendTo("#target").get()[0];
+            var target = document.getElementById('target');
+            var canvas = document.createElement('canvas');
+            canvas.setAttribute('id', 'targetCanvas');
+            canvas.setAttribute('width', imgwidth);
+            canvas.setAttribute('height', imgheight);
+            target.appendChild(canvas);
+
+            return canvas;
         }
 
         // draw a rectangle on the supplied context
