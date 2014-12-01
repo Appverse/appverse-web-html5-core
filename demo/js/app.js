@@ -19,15 +19,15 @@ function CacheController ($scope, CacheFactory) {
 function BandwidthController ($scope, Detection, Chart) {
     $scope.detection = Detection;
     $scope.average = 0;
-    $scope.samplesCount = 0;
     Detection.testBandwidth();
-    Chart.init();
-    $scope.$watch('detection.bandwidth', function(value) {
-        $scope.samplesCount++;
-        Chart.update(value);
-    });
-}
 
+    // Not playing well with PhantomJS
+    // Uncomment lines below to see real-time chart
+    /*Chart.init();
+    $scope.$watch('detection.bandwidth', function(value) {
+        Chart.update(value);
+    });*/
+}
 
 function Chart() {
     var chart,
@@ -52,10 +52,6 @@ function Chart() {
         chart.render();
     };
 }
-
-
-
-
 
 function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
 
