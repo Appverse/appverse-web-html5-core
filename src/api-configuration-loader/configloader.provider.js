@@ -12,6 +12,7 @@ angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider)
 function ConfigLoaderProvider() {
 
     var appConfigTemp = {},
+    //by default, no detection is present
     detection         = new NoDetection();
 
     this.setDetection = function(detectionProvider) {
@@ -61,13 +62,17 @@ function ConfigLoaderProvider() {
     };
 
     this.addConfigFromJSON = function(jsonUrl) {
-        var ajaxResponse = $.ajax({
-            async: false,
-            url: jsonUrl,
-            dataType: "json"
-        });
 
-        var jsonData = JSON.parse(ajaxResponse.responseText);
+        // Make syncrhonous request.
+        // TODO: make asyncrhonous. Synchronous requests block the browser.
+        // Making requests asyncronous will require to manually bootstrap angular
+        // when the response is received.
+        // Another option is to let the developer inject the configuration in the config phase
+        var request = new XMLHttpRequest();
+        // `false` makes the request synchronous
+        request.open('GET', jsonUrl, false);
+        request.send(null);
+        var jsonData = JSON.parse(request.responseText);
 
         angular.forEach(jsonData, function (constantObject, constantName) {
             var appConfigObject = appConfigTemp[constantName];
