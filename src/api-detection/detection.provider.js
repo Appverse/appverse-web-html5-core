@@ -112,6 +112,7 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
     };
 
     this.startPollingBandwidth = function (interval) {
+        this.testBandwidth();
         this.isPollingBandwidth = setInterval(this.testBandwidth.bind(this), interval);
     };
 
