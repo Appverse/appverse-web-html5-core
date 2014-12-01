@@ -57,13 +57,25 @@
         <p id="translation"  translate translate-values='{"name": "Alex", "age": 14 }'>WELCOME_NAME_AGE</p>
     </div>
 
+    <hr>
 
     <div ng-controller="BandwidthController">
         <h2>Bandwidth</h2>
-        <div><span id="bandwidthValue">{{detection.bandwidth}}</span> Kbytes/s</div>
         <button id="bandwidthStartBtn"class="btn btn-primary" ng-click="detection.startPollingBandwidth(3000)">Start Polling</button>
         <button id="bandwidthStopBtn" class="btn btn-danger" ng-click="detection.stopPollingBandwidth()">Stop Polling</button>
+        <p>Sample:<span id="bandwidthValue">{{detection.bandwidth}}</span> Kbytes/s</p>
+        <div class="row">
+            <div class="col-md-8">
+                <div id="chartContainer" style="height: 300px;"></div>
+            </div>
+        </div>
+
     </div>
+
+    <hr>
+
+
+
 
 
 </div>

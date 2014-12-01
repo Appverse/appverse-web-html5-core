@@ -4,7 +4,8 @@ angular.module('demoApp', ['COMMONAPI'])
     .controller('DetectionController', DetectionController)
     .controller('CacheController', CacheController)
     .controller('PerformanceController', PerformanceController)
-    .controller('BandwidthController', BandwidthController);
+    .controller('BandwidthController', BandwidthController)
+    .service('Chart', Chart);
 
 function DetectionController ($scope, Detection) {
     $scope.isMobileText = Detection.isMobileBrowser() ? 'yes' : 'no';
@@ -15,10 +16,45 @@ function CacheController ($scope, CacheFactory) {
     CacheFactory.getScopeCache().put('famousStone', 'Rosetta');
 }
 
-function BandwidthController ($scope, Detection) {
+function BandwidthController ($scope, Detection, Chart) {
     $scope.detection = Detection;
+    $scope.average = 0;
+    $scope.samplesCount = 0;
     Detection.testBandwidth();
+    Chart.init();
+    $scope.$watch('detection.bandwidth', function(value) {
+        $scope.samplesCount++;
+        Chart.update(value);
+    });
 }
+
+
+function Chart() {
+    var chart,
+    dps        = [], // dataPoints
+    dataLength = 10; // number of dataPoints visible at any point
+
+    this.init = function() {
+        chart = new CanvasJS.Chart("chartContainer",{
+            title :{ text: "Bandwidth (MBytes/s)" },
+            data: [{
+                type: "splineArea",
+                dataPoints: dps
+            }]
+        });
+    };
+
+    this.update = function (value) {
+        dps.push({  x: new Date(),  y: value/1024 });
+        if (dps.length > dataLength) {
+            dps.shift();
+        }
+        chart.render();
+    };
+}
+
+
+
 
 
 function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
