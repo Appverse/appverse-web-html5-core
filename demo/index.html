@@ -1,0 +1,78 @@
+<!doctype html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Appverse Web HTML5 CORE Demo</title>
+        <meta name="description" content="AppVerse Core Demo Application">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+    </head>
+    <body data-ng-app="demoApp">
+
+        <ng-include src="'partials/content.html'"></ng-include>
+
+        <!-- Scripts -->
+        <script src="bower_components/angular/angular.js"></script>
+        <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+        <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+        <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+        <script src="bower_components/angular-cache/dist/angular-cache.js"></script>
+        <script src="bower_components/angular-resource/angular-resource.js"></script>
+        <script src="bower_components/angular-translate/angular-translate.min.js"></script>
+        <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+        <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
+        <script src="bower_components/lodash/dist/lodash.js"></script>
+        <script src="bower_components/restangular/dist/restangular.js"></script>
+        <script src="bower_components/socket.io-client/dist/socket.io.js"></script>
+
+        <!-- ########## Core modules: autoinjected. Check gruntfile.js ########## -->
+        <!-- injector:js -->
+        <script src="api-cache/module.js"></script>
+        <script src="api-cache/cache.directive.js"></script>
+        <script src="api-cache/cache.factory.js"></script>
+        <script src="api-cache/idb.service.js"></script>
+        <script src="api-detection/module.js"></script>
+        <script src="api-detection/mobile-libraries-loader.provider.js"></script>
+        <script src="api-detection/mobile-detector.provider.js"></script>
+        <script src="api-detection/detection.provider.js"></script>
+        <script src="api-detection/module-run.js"></script>
+        <script src="api-logging/module.js"></script>
+        <script src="api-logging/formatter-logger.provider.js"></script>
+        <script src="api-performance/module.js"></script>
+        <script src="api-performance/webworker.directive.js"></script>
+        <script src="api-performance/webworkerpool.factory.js"></script>
+        <script src="api-translate/module.js"></script>
+        <script src="api-utils/module.js"></script>
+        <script src="api-utils/base64.factory.js"></script>
+        <script src="api-utils/util.factory.js"></script>
+        <script src="api-serverpush/module.js"></script>
+        <script src="api-socketio/module.js"></script>
+        <script src="api-socketio/socket.provider.js"></script>
+        <script src="api-serverpush/socket.factory.js"></script>
+        <script src="api-serverpush/websocket.factory.js"></script>
+        <script src="api-rest/module.js"></script>
+        <script src="api-rest/multicast-rest.factory.js"></script>
+        <script src="api-rest/rest.directive.js"></script>
+        <script src="api-rest/rest.factory.js"></script>
+        <script src="api-router/module.js"></script>
+        <script src="api-main/integrator.js"></script>
+        <script src="api-configuration-default/module.js"></script>
+        <script src="api-configuration-loader/module.js"></script>
+        <script src="api-configuration/module.js"></script>
+        <script src="api-main/module.js"></script>
+        <script src="api-configuration-loader/configloader.provider.js"></script>
+        <script src="api-configuration-default/constants.js"></script>
+        <script src="api-configuration-loader/module-config.js"></script>
+        <!-- endinjector -->
+
+
+        <!-- Demo app specific js -->
+        <script src="js/canvasjs.min.js"></script>
+        <script src="js/app.js"></script>
+
+    </body>
+</html>
