@@ -17,7 +17,7 @@ function FormattedLoggerProvider () {
 
     var detectionProvider;
 
-    this.$get = function(LOGGING_CONFIG) {
+    this.$get = function($injector, LOGGING_CONFIG) {
         return function decorateLog (delegatedLog) {
 
             /**
@@ -97,10 +97,9 @@ function FormattedLoggerProvider () {
                                 logData.logMessage += ' ' + JSON.stringify(args[1]);
                             }
 
-                            //console.log('Log Message sent to server ' +
-                            // LOGGING_CONFIG.LogServerEndpoint + ' :', logData);
                             if (browserIsOnline()) {
-                                $.post(LOGGING_CONFIG.LogServerEndpoint, JSON.stringify(logData));
+                                var $http = $injector.get('$http');
+                                $http.post(LOGGING_CONFIG.LogServerEndpoint, logData);
                             }
                         }
                     };

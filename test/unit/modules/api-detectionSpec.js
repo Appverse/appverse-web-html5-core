@@ -48,9 +48,7 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        afterEach('restore original services', function() {
-            restoreOriginalDetectionServices();
-        });
+        afterEach('restore original services', restoreOriginalDetectionServices);
 
     });
 
@@ -94,9 +92,7 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        afterEach('restore original services', function() {
-            restoreOriginalDetectionServices();
-        });
+        afterEach('restore original services', restoreOriginalDetectionServices);
 
     });
 
@@ -140,9 +136,7 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        afterEach('restore original services', function() {
-            restoreOriginalDetectionServices();
-        });
+        afterEach('restore original services', restoreOriginalDetectionServices);
 
     });
 
@@ -178,7 +172,7 @@ describe('Unit: Api Detection Module', function() {
 
     /////////////// HELPER FUNCTIONS
 
-    var originalLibrariesLoader;
+    var originalLibrariesLoader, originalMobileDetector;
 
     function setupDetectionProviderTesting(mocks) {
         // Configure the service provider
@@ -195,8 +189,9 @@ describe('Unit: Api Detection Module', function() {
         // and the third element is an array of any arguments passed to the service.
         var AppDetection = angular.module('AppDetection');
         originalLibrariesLoader = AppDetection._invokeQueue[0][2][1];
-        AppDetection._invokeQueue[1][2][1] = mocks.MobileDetector;
+        originalMobileDetector  = AppDetection._invokeQueue[1][2][1];
         AppDetection._invokeQueue[0][2][1] = mocks.LibrariesLoader;
+        AppDetection._invokeQueue[1][2][1] = mocks.MobileDetector;
 
         // Initialize injector for the real and fake modules
         module('AppDetection','fakeModule');
@@ -212,6 +207,7 @@ describe('Unit: Api Detection Module', function() {
 
         var AppDetection = angular.module('AppDetection');
         AppDetection._invokeQueue[0][2][1] = originalLibrariesLoader;
+        AppDetection._invokeQueue[1][2][1] = originalMobileDetector;
     }
 
 });
