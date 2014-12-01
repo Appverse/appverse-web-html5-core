@@ -4,6 +4,7 @@ angular.module('demoApp', ['COMMONAPI'])
     .controller('DetectionController', DetectionController)
     .controller('CacheController', CacheController)
     .controller('PerformanceController', PerformanceController)
+    .controller('BandwidthController', BandwidthController);
 
 function DetectionController ($scope, Detection) {
     $scope.isMobileText = Detection.isMobileBrowser() ? 'yes' : 'no';
@@ -12,6 +13,11 @@ function DetectionController ($scope, Detection) {
 
 function CacheController ($scope, CacheFactory) {
     CacheFactory.getScopeCache().put('famousStone', 'Rosetta');
+}
+
+function BandwidthController ($scope, Detection) {
+    $scope.detection = Detection;
+    Detection.testBandwidth();
 }
 
 

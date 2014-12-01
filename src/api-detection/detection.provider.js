@@ -13,8 +13,14 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
 
     this.mobileLibrariesLoader = MobileLibrariesLoaderProvider;
     this.mobileDetector        = MobileDetectorProvider;
+    this.bandwidth             = 0;
+    this.isPollingBandwidth    = false;
+    // Injected when the detection service is created
+    this.$http                 = undefined;
 
-    this.$get = function () {
+    // Get the service
+    this.$get = function ($http) {
+        this.$http = $http;
         return this;
     };
 
@@ -97,23 +103,16 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
         this.isPollingOnlineStatus = false;
     };
 
-    this.bandwidth = 0;
-    this.isPollingBandwidth = false;
-
     this.testBandwidth = function () {
-        var jsonUrl = "resources/detection/bandwidth.json";
+        var jsonUrl = "resources/detection/bandwidth.json?bust=" +  (new Date()).getTime();
         fireEvent("onBandwidthStart");
-        var ajaxResponse = $.ajax({
-            cache: false,
-            async: false,
-            url: jsonUrl,
-            dataType: "json"
+        this.$http.get(jsonUrl).success(function(data, status, headersFn) {
+            fireEvent("onBandwidthEnd", {status:status, data: data, getResponseHeader : headersFn});
         });
-        fireEvent("onBandwidthEnd", ajaxResponse);
     };
 
     this.startPollingBandwidth = function (interval) {
-        this.isPollingBandwidth = setInterval(this.testBandwidth, interval);
+        this.isPollingBandwidth = setInterval(this.testBandwidth.bind(this), interval);
     };
 
     this.stopPollingBandwidth = function () {

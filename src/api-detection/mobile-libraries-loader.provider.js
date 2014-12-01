@@ -28,12 +28,16 @@ function MobileLibrariesLoaderProvider() {
         return this;
     };
 
+
+
+
     /**
      * Loads scripts in parallel and executes them in order
      * using 'async'. Fallsback to 'readyState' for IE<10
      * and 'defer' for older browsers
      */
     this.load = function() {
+
         var scripts    = this.scripts,
         pendingScripts = [],
         firstScript    = document.scripts[0],

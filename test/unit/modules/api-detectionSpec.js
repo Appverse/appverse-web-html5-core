@@ -73,7 +73,7 @@ describe('Unit: Api Detection Module', function() {
                 },
 
                 LibrariesLoader : function() {
-                    this.load = sinon.spy();
+                    this.load = sinon.stub();
                     this.$get = function() { return this;};
                 },
             };
@@ -119,7 +119,7 @@ describe('Unit: Api Detection Module', function() {
                 },
 
                 LibrariesLoader : function() {
-                    this.load = sinon.spy();
+                    this.load = sinon.stub();
                     this.$get = function() { return this;};
                 },
             };
@@ -149,7 +149,18 @@ describe('Unit: Api Detection Module', function() {
 
     describe('when using MobileLibrairesLoader...', function() {
 
-        beforeEach(module('AppDetection'));
+        beforeEach(function() {
+
+            // Prevent mobile libraries  from loading
+            angular.module('fakeModule', [])
+            .config( function (MobileDetectorProvider) {
+                MobileDetectorProvider.hasAppverseMobile = sinon.stub().returns(false);
+                MobileDetectorProvider.isMobileBrowser = sinon.stub().returns(false);
+            });
+            module( 'AppDetection', 'fakeModule');
+
+        });
+
 
         it ('should have default script paths', inject(function(MobileLibrariesLoader) {
 

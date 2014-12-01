@@ -38,7 +38,7 @@
         </span>
         <br/>
 
-        <button id="performanceBtn" class="btn-primary" ng-click="run()">Run</button>
+        <button id="performanceBtn" class="btn btn-primary" ng-click="run()">Run</button>
 
         <br>
         <br>
@@ -55,6 +55,14 @@
     <div>
         <h2>Translation</h2>
         <p id="translation"  translate translate-values='{"name": "Alex", "age": 14 }'>WELCOME_NAME_AGE</p>
+    </div>
+
+
+    <div ng-controller="BandwidthController">
+        <h2>Bandwidth</h2>
+        <div><span id="bandwidthValue">{{detection.bandwidth}}</span> Kbytes/s</div>
+        <button id="bandwidthStartBtn"class="btn btn-primary" ng-click="detection.startPollingBandwidth(3000)">Start Polling</button>
+        <button id="bandwidthStopBtn" class="btn btn-danger" ng-click="detection.stopPollingBandwidth()">Stop Polling</button>
     </div>
 
 

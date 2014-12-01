@@ -56,4 +56,21 @@ describe('Appverse Web Html5 core App', function() {
 
     });
 
+    describe('when checking bandwith', function() {
+
+        beforeEach(function(done) {
+            element(by.css('#bandwidthStartBtn')).click();
+            setTimeout(function() {
+                element(by.css('#bandwidthStopBtn')).click();
+                done();
+            }, 2000);
+        });
+
+        it('should show a numeric value', function() {
+            var bandwith = element(by.css('#bandwidthValue')).getText();
+            expect(bandwith).toMatch(/\d{1,}/);
+        });
+
+    });
+
 });
