@@ -1,6 +1,6 @@
 (function() { 'use strict';
 
-angular.module('AppConfigLoader').config(config);
+angular.module('AppConfigLoader')/*.config(config);
 
 config.$inject = ['ConfigLoaderProvider'];
 function config(ConfigLoaderProvider) {
@@ -9,6 +9,6 @@ function config(ConfigLoaderProvider) {
         .loadDefaultConfig()
         .loadCustomConfig()
         .overrideDefaultConfig();
-}
+}*/
 
 })();

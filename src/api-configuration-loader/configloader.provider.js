@@ -26,7 +26,10 @@ function ConfigLoaderProvider() {
         return this;
     };
 
-    this.loadCustomConfig = function() {
+    this.loadCustomConfig = function(settings) {
+        if (settings) {
+            this.settings =  settings;
+        }
         this.loadMobileConfigIfRequired();
         this.loadEnvironmentConfig();
         return this;
@@ -47,18 +50,47 @@ function ConfigLoaderProvider() {
     };
 
     this.loadEnvironmentConfig = function() {
-        this.addConfigFromJSON('resources/configuration/environment-conf.json');
+        if (this.settings && this.settings.environment) {
+            this.addConfig(this.settings.environment);
+        } else {
+            this.addConfigFromJSON('resources/configuration/environment-conf.json');
+        }
         return this;
     };
 
     this.loadAppverseMobileConfig = function() {
-        this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+        if (this.settings && this.settings.appverseMobile) {
+            this.addConfig(this.settings.appverseMobile);
+        } else {
+            this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+        }
         return this;
     };
 
     this.loadMobileBrowserConfig = function() {
-        this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+        if (this.settings && this.settings.mobileBrowser) {
+            this.addConfig(this.settings.mobileBrowser);
+        } else {
+            this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+        }
+
         return this;
+    };
+
+    this.addConfig = function(settings) {
+        angular.forEach(settings, function (constantObject, constantName) {
+            var appConfigObject = appConfigTemp[constantName];
+
+            if (appConfigObject) {
+                angular.forEach(constantObject, function (propertyValue, propertyName) {
+                    appConfigObject[propertyName] = propertyValue;
+                });
+                appConfigTemp[constantName] = appConfigObject;
+            } else {
+                appConfigTemp[constantName] = constantObject;
+            }
+        });
+
     };
 
     this.addConfigFromJSON = function(jsonUrl) {
@@ -74,19 +106,10 @@ function ConfigLoaderProvider() {
         request.send(null);
         var jsonData = JSON.parse(request.responseText);
 
-        angular.forEach(jsonData, function (constantObject, constantName) {
-            var appConfigObject = appConfigTemp[constantName];
-
-            if (appConfigObject) {
-                angular.forEach(constantObject, function (propertyValue, propertyName) {
-                    appConfigObject[propertyName] = propertyValue;
-                });
-                appConfigTemp[constantName] = appConfigObject;
-            } else {
-                appConfigTemp[constantName] = constantObject;
-            }
-        });
+        this.addConfig(jsonData);
     };
+
+
 
     this.$get = function() {
         return this;
