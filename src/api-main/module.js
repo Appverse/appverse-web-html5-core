@@ -1,72 +1,74 @@
-(function() {'use strict';
-/*global ModuleIntegrator */
+(function() {
+    'use strict';
 
-//////////////////////// COMMON API - MAIN //////////////////////////
-// The Main module includes other API modules:
-// - Bootstrap-based styling and gadgets
-// - Routing
-// - External Configuration
-// - REST Integration
-// - Cache Service
-// - ServerPush
-// - Security
-// - Internationalization
-// - Logging
-/////////////////////////////////////////////////////////////////////
+    /*global ModuleIntegrator */
 
-/**
- * Required modules (compulsory)
- */
-var requires = [
-    'AppConfiguration',
-];
+    //////////////////////// COMMON API - MAIN //////////////////////////
+    // The Main module includes other API modules:
+    // - Bootstrap-based styling and gadgets
+    // - Routing
+    // - External Configuration
+    // - REST Integration
+    // - Cache Service
+    // - ServerPush
+    // - Security
+    // - Internationalization
+    // - Logging
+    /////////////////////////////////////////////////////////////////////
 
-/**
- * Optional modules
- */
-var optional = [
-    'AppDetection',
-    'AppREST',
-    'AppTranslate',
-    'AppModal',
-    'AppLogging',
-    'AppServerPush',
-    'AppSecurity',
-    'AppCache',
-    'AppPerformance',
-    'AppRouter'
-];
+    /**
+     * Required modules (compulsory)
+     */
+    var requires = [
+        'AppConfiguration',
+    ];
 
-
-/**
- * Main module.
- * Bootstraps the application by integrating services that have any relation.
- */
-angular.module('COMMONAPI', ModuleIntegrator.generateDependencies(requires, optional))
-    .config(config)
-    .run(run);
+    /**
+     * Optional modules
+     */
+    var optional = [
+        'AppDetection',
+        'AppREST',
+        'AppTranslate',
+        'AppModal',
+        'AppLogging',
+        'AppServerPush',
+        'AppSecurity',
+        'AppCache',
+        'AppPerformance',
+        'AppRouter'
+    ];
 
 
-/**
- * Preliminary configuration.
- *
- * Configures the integration between modules that need to be integrated
- * at the config phase.
- */
-function config($compileProvider, $injector) {
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
-    ModuleIntegrator.withInjector($injector).integrateProviders();
-}
+    /**
+     * Main module.
+     * Bootstraps the application by integrating services that have any relation.
+     */
+    angular.module('COMMONAPI', ModuleIntegrator.generateDependencies(requires, optional))
+        .config(config)
+        .run(run);
 
-/**
- * Main
- *
- * Runs integration tasks between modules that can be integrated
- * at run phase
- */
-function run($injector) {
-    ModuleIntegrator.withInjector($injector).integrateServices();
-}
+
+    /**
+     * Preliminary configuration.
+     *
+     * Configures the integration between modules that need to be integrated
+     * at the config phase.
+     */
+    function config($compileProvider, $injector) {
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
+        ModuleIntegrator.withInjector($injector).integrateProviders();
+    }
+
+    /**
+     * Main
+     *
+     * Runs integration tasks between modules that can be integrated
+     * at run phase
+     */
+    function run($injector) {
+        ModuleIntegrator.withInjector($injector).integrateServices();
+    }
 
 
 })();
