@@ -1,20 +1,18 @@
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-angular.module('AppREST')
+    angular.module('AppREST').factory('RESTFactory', RESTFactory);
 
-/**
- * @ngdoc service
- * @name AppREST.factory:RESTFactory
- * @requires $log
- * @requires Restangular
- * @description
- * Contains methods for data finding (demo).
- * This module provides basic quick standard access to a REST API.
- */
-.factory('RESTFactory', ['$log', '$q', '$http', 'Restangular','REST_CONFIG',
-    function ($log, $q, $http, Restangular,  REST_CONFIG) {
-
-
+    /**
+     * @ngdoc service
+     * @name AppREST.factory:RESTFactory
+     * @requires $log
+     * @requires Restangular
+     * @description
+     * Contains methods for data finding (demo).
+     * This module provides basic quick standard access to a REST API.
+     */
+    function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {
 
         ////////////////////////////////////////////////////////////////////////////////////
         // ADVICES ABOUT PROMISES
@@ -289,8 +287,9 @@ angular.module('AppREST')
             $log.error("Error with status code", response.status);
         }
 
+
         return factory;
 
-    }]);
+    };
 
 })();

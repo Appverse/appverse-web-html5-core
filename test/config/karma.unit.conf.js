@@ -14,19 +14,29 @@ module.exports = function(config) {
 
         browsers : ['PhantomJS'],
 
-        reporters: ['progress', 'coverage', 'notify'],
+        reporters: ['progress', 'coverage', 'notify', 'junit'],
 
         preprocessors: {
             // source files, that you wanna generate coverage for
             // do not include tests or libraries
             // (these files will be instrumented by Istanbul)
-            'src/directives/*.js': ['coverage'],
-            'src/modules/*.js': ['coverage'],
+            'src/api-*/*.js': ['coverage']
         },
 
         coverageReporter: {
-          type : 'html',
-          dir : 'coverage/'
+          // specify a common output directory
+            dir: 'test/reports/coverage',
+              reporters: [
+                // reporters not supporting the `file` property
+                { type: 'html'},
+                { type: 'clover'},
+
+            ]
+        },
+
+        junitReporter: {
+          outputFile: 'test/reports/junit/unit-test-results.xml',
+          suite: ''
         }
     });
 

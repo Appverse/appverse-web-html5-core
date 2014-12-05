@@ -6,7 +6,7 @@
  * @description
  * Load default and custom settings into AppConfiguration
  */
-angular.module('AppConfigLoader',[]);
+angular.module('AppConfigLoader', ['AppUtils']);
 
 
 })();
