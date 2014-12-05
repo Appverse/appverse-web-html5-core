@@ -19,7 +19,6 @@
   "trailing": true,
   "smarttabs": true,
   "lastsemic": false,
-  "-W015": false, // disable indentation warnings,
   "maxcomplexity" : 10,
   "globals"   : {
     "alert"                : false,

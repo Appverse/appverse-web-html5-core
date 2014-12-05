@@ -1,5 +1,6 @@
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-angular.module('AppUtils', ['AppConfiguration']);
+    angular.module('AppUtils', ['AppConfiguration']);
 
 })();

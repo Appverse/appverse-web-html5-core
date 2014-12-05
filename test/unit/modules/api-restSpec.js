@@ -61,7 +61,6 @@ describe('Unit: Testing AppREST module', function () {
 
         // mock modules by creating empty ones
         angular.module('AppConfiguration', []);
-        angular.module('AppCache', []);
         angular.module('restangular', []);
 
         // Provide the dependency injector with mock empty objects
@@ -85,7 +84,9 @@ describe('Unit: Testing AppREST module', function () {
             });
 
             $provide.factory('CacheFactory', function() {
-                return {};
+                return {
+                    getHttpCache : sinon.stub()
+                };
             });
 
             $provide.factory('Oauth_RequestWrapper', function() {

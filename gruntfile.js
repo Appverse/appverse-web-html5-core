@@ -21,8 +21,8 @@ module.exports = function (grunt) {
         doc: 'doc',
         test: 'test',
         demo: 'demo',
-        coverage: 'test/coverage',
-       instrumented: 'test/coverage/instrumented'
+        testReports: 'test/reports/',
+        instrumented: 'test/reports/coverage/instrumented'
     };
     try {
         yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
@@ -147,7 +147,7 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
-            coverage : 'coverage/*',
+            testReports : '<%= yeoman.testReports %>/*',
             server: '.tmp',
             docular: 'doc'
 
@@ -463,17 +463,17 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:unit:watch', [
-        'clean:coverage',
+        'clean:testReports',
         'karma:unitAutoWatch'
     ]);
 
     grunt.registerTask('test:unit:once', [
-        'clean:coverage',
+        'clean:testReports',
         'karma:unit'
     ]);
 
     grunt.registerTask('test:midway', [
-        'clean:coverage',
+
         'karma:midway'
     ]);
 
@@ -492,7 +492,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:all', [
-        'clean:coverage',
+        'clean:testReports',
         'karma:unit',
         'karma:midway',
         'test:e2e_dist',

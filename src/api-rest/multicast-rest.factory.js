@@ -1,26 +1,27 @@
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-angular.module('AppREST')
+    angular.module('AppREST')
 
-.factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-    function ($log, Restangular, REST_CONFIG) {
-        var factory = {};
-        var multicastSpawn = REST_CONFIG.Multicast_enabled;
-        var _this = this;
+    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
+        function ($log, Restangular, REST_CONFIG) {
+            var factory = {};
+            var multicastSpawn = REST_CONFIG.Multicast_enabled;
+            var _this = this;
 
 
-        factory.readObject = function (path, params) {
-            if(params && params.length >0){
+            factory.readObject = function (path, params) {
+                if(params && params.length >0){
 
-            }else{
-                //No params. It is a normal call
-                return Restangular.one(path).get().$object;
-            }
+                }else{
+                    //No params. It is a normal call
+                    return Restangular.one(path).get().$object;
+                }
 
-        };
+            };
 
-        return factory;
-    }]);
+            return factory;
+        }]);
 
 
 })();
