@@ -147,7 +147,7 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
-            testReports : '<%= yeoman.testReports %>/*',
+            testReports : '<%= yeoman.testReports %>/**',
             server: '.tmp',
             docular: 'doc'
 
