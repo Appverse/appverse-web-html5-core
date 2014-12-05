@@ -4,6 +4,6 @@ dist
 .sass-cache
 **/bower_components
 .sonar/
-coverage/
+test/reports
 doc/
 *.log

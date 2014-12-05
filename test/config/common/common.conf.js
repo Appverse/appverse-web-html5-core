@@ -15,7 +15,6 @@ var settings = {
         'src/bower_components/angular-translate/angular-translate.js',
         'src/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
         'src/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
-        'src/api-main/integrator.js',
         'src/api-*/**/module.js',
         // Detection providers need to be loaded in this order
         'src/api-detection/mobile-libraries-loader.provider.js',

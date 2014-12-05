@@ -20,7 +20,8 @@
      * Required modules (compulsory)
      */
     var requires = [
-        'AppConfiguration',
+        'AppUtils',
+        'AppConfiguration'
     ];
 
     /**
