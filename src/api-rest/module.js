@@ -3,7 +3,8 @@
 
     var requires = [
         'restangular',
-        'AppConfiguration'
+        'AppConfiguration',
+        'AppUtils'
     ];
 
     /**
@@ -33,10 +34,13 @@
      * The MyRestangular object has scoped properties of the Restangular on with a different
      * configuration.
      */
-    angular.module('AppREST', requires)
-        .run(run);
+    angular.module('AppREST', requires).run(run);
 
-    function run ($log, Restangular, REST_CONFIG) {
+
+    function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
+
+        tryToIntegrateSecurity();
+        tryToIntegrateCache();
 
         Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
         Restangular.setExtraFields(REST_CONFIG.ExtraFields);
@@ -66,9 +70,42 @@
         Restangular.setUseCannonicalId(REST_CONFIG.UseCannonicalId);
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
 
+        function tryToIntegrateSecurity() {
+            var restFactory  = $injector.get('RESTFactory'),
+            $log             = $injector.get('$log'),
+            SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
+
+            if (ModuleSeeker.exists('AppSecurity')) {
+                var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
+                if (SECURITY_GENERAL.securityEnabled){
+                    restFactory.wrapRequestsWith(oauthRequestWrapperService);
+                    $log.debug( "REST communication is secure. Security is enabled." +
+                        " REST requests will be wrapped with authorization headers.");
+                    return;
+                }
+            }
+
+            restFactory.enableDefaultContentType();
+            $log.debug("REST communication is not secure. Security is not enabled.");
+        }
+
+        function tryToIntegrateCache() {
+            if (ModuleSeeker.exists('AppCache')) {
+                var restFactory = $injector.get('RESTFactory'),
+                CacheFactory    = $injector.get('CacheFactory'),
+                cache           = CacheFactory.getHttpCache();
+                restFactory.setCache(cache);
+            }
+        }
 
         $log.info('AppREST run');
 
     }
+
+
+
+
+
+
 
 })();
