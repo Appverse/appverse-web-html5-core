@@ -1,19 +1,19 @@
-/**
- * @ngdoc module
- * @name AppTranslate
- * @requires AppConfiguration
- * @description
- * The Internationalization module handles languages in application.
- *
- * It should be directly configurable by developers.
- *
- * WARNING:
- *
- * Items in each translations object must match to items defined in the Configuration module.
- */
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-    // Create the module with dependencies
+    /**
+     * @ngdoc module
+     * @name AppTranslate
+     * @requires AppConfiguration
+     * @description
+     * The Internationalization module handles languages in application.
+     *
+     * It should be directly configurable by developers.
+     *
+     * WARNING:
+     *
+     * Items in each translations object must match to items defined in the Configuration module.
+     */
     angular.module('AppTranslate', [
         'pascalprecht.translate',
         'AppConfiguration',
@@ -41,16 +41,15 @@
         // Decorate translate directive to change the original behaviour
         // by not removing <i> tags included in the translation text
         $provide.decorator('translateDirective',  decorateTranslateDirective);
+
     }
-    configBlock.$inject = ['$translateProvider', 'I18N_CONFIG', 'tmhDynamicLocaleProvider',
-                            '$provide'];
 
 
     function runBlock($log) {
 
         $log.info('AppTranslate run');
+
     }
-    runBlock.$inject = ['$log'];
 
 
     /**

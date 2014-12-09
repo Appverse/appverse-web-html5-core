@@ -1,27 +1,30 @@
-'use strict';
+(function() {
+    'use strict';
 
-angular.module('AppPerformance')
-/**
- * @ngdoc directive
- * @name AppPerformance.directive:webworker
- * @restrict AE
- *
- * @description
- * Establishes comm with messages to a selected web worker.
- * Allows send messages to the worker and receive results from.
- * Messages from the worker are displayed in a div.
- * Params:
- * id: id of the pre-configured worker or path to the worker's file
- * message: Message to be passed to the worker.
- *
- * @example
- <example module="AppPerformance">
- <file name="index.html">
- <p>Web Worker test</p>
- <webworker  id="101" message="Hans Walter" template=""/>
- </file>
- </example>
- */
+    angular.module('AppPerformance')
+
+
+    /**
+    * @ngdoc directive
+    * @name AppPerformance.directive:webworker
+    * @restrict AE
+    *
+    * @description
+    * Establishes comm with messages to a selected web worker.
+    * Allows send messages to the worker and receive results from.
+    * Messages from the worker are displayed in a div.
+    * Params:
+    * id: id of the pre-configured worker or path to the worker's file
+    * message: Message to be passed to the worker.
+    *
+    * @example
+    <example module="AppPerformance">
+    <file name="index.html">
+    <p>Web Worker test</p>
+    <webworker  id="101" message="Hans Walter" template=""/>
+    </file>
+    </example>
+    */
     .directive('webworker', ['$log', 'WebWorkerFactory', 'PERFORMANCE_CONFIG',
         function ($log, WebWorkerFactory, PERFORMANCE_CONFIG) {
 
@@ -59,17 +62,17 @@ angular.module('AppPerformance')
                     });
 
 
-//                    scope.$watch(function () {
-//                        return CacheFactory.getScopeCache().get(name);
-//                    }, function (newVal) {
-//                        $log.debug('Cache watch {' + name + '}:', newVal);
-//                        scope[name] = CacheFactory.getScopeCache().get(name);
-//                    });
-//
-//                    scope.$watch(name, function (newVal) {
-//                        $log.debug('Cache watch {' + name + '}:', newVal);
-//                        CacheFactory.getScopeCache().put(name, scope[name]);
-//                    });
+    //                    scope.$watch(function () {
+    //                        return CacheFactory.getScopeCache().get(name);
+    //                    }, function (newVal) {
+    //                        $log.debug('Cache watch {' + name + '}:', newVal);
+    //                        scope[name] = CacheFactory.getScopeCache().get(name);
+    //                    });
+    //
+    //                    scope.$watch(name, function (newVal) {
+    //                        $log.debug('Cache watch {' + name + '}:', newVal);
+    //                        CacheFactory.getScopeCache().put(name, scope[name]);
+    //                    });
 
 
 
@@ -126,6 +129,4 @@ angular.module('AppPerformance')
             };
         }]);
 
-
-
-
+})();

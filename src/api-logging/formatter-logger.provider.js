@@ -1,44 +1,9 @@
-'use strict';
+(function() { 'use strict';
 
-/**
- * @ngdoc module
- * @name AppLogging
- * @description
- *
- * The Logging module handles several tasks with logging:
- *
- * 1 - It applies a decorator on native $log service in module ng.
- *
- * 2 - It includes sending of log events to server-side REST service.
- *
- * WARNING
- *
- * IT IS STRONGLY RECOMMENDED TO USE THIS LOG IMPLEMENTATION AND NEVER directly to use console.log() to log debugger messages.
- * If you do not use this one, use $log instead at least...
- *
- * SERVER SIDE LOG
- *
- * To handle JavaScript errors, we needed to intercept the core AngularJS error handling and add a server-side communication aspect to it.
- *
- * DECORATOR WAY
- *
- * The $provide service (which provides all angular services) needs 2 parameters to “decorate” something:
- *
- * 1) the target service;
- *
- * 2) the callback to be executed every time someone asks for the target.
- *
- * This way, we are telling in config time to Angular that every time a service/controller/directive asks for $log instance, Angular will provide the result of the callback. As you can see, we are passing the original $log and formattedLogger (the API implementation) to the callback, and then, he returns a formattedLogger factory instance.
- */
-angular.module('AppLogging', ['AppConfiguration', 'AppDetection'])
+angular.module('AppLogging')
+    .provider("formattedLogger", FormattedLoggerProvider);
 
-.config(["$provide",
-    function ($provide) {
-        $provide.decorator("$log", ['$delegate', 'formattedLogger',
-            function ($delegate, formattedLogger) {
-                return formattedLogger($delegate);
-            }]);
-    }])
+
 /**
  * @ngdoc service
  * @name AppLogging.factory:formattedLogger
@@ -48,9 +13,12 @@ angular.module('AppLogging', ['AppConfiguration', 'AppDetection'])
  * @description
  * Captures the $log service and decorate it.
  */
-.factory("formattedLogger", ["LOGGING_CONFIG", "Detection",
-    function (LOGGING_CONFIG, Detection) {
-        return function (delegatedLog) {
+function FormattedLoggerProvider () {
+
+    var detectionProvider;
+
+    this.$get = function(LOGGING_CONFIG) {
+        return function decorateLog (delegatedLog) {
 
             /**
              * @function DateTime
@@ -129,8 +97,9 @@ angular.module('AppLogging', ['AppConfiguration', 'AppDetection'])
                                 logData.logMessage += ' ' + JSON.stringify(args[1]);
                             }
 
-                            //                            console.log('Log Message sent to server ' + LOGGING_CONFIG.LogServerEndpoint + ' :', logData);
-                            if (Detection.isOnline) {
+                            //console.log('Log Message sent to server ' +
+                            // LOGGING_CONFIG.LogServerEndpoint + ' :', logData);
+                            if (browserIsOnline()) {
                                 $.post(LOGGING_CONFIG.LogServerEndpoint, JSON.stringify(logData));
                             }
                         }
@@ -159,4 +128,29 @@ angular.module('AppLogging', ['AppConfiguration', 'AppDetection'])
 
             return delegatedLog;
         };
-    }]);
+    };
+
+
+    this.setDetection = function (detection) {
+        detectionProvider = detection;
+    };
+
+    function browserIsOnline() {
+        if (detectionProvider) {
+            return getDetectionService().isOnline;
+        } else {
+            // if no detection service provided, return true
+            return true;
+        }
+    }
+
+    function getDetectionService() {
+        var $injector = angular.injector();
+        //invoke the $get function specifing that detectionProvider is 'this'
+        return  $injector.invoke(detectionProvider.$get, detectionProvider);
+    }
+
+}
+
+
+})();

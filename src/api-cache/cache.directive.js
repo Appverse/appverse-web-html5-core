@@ -1,27 +1,28 @@
-'use strict';
+(function(){
+    'use strict';
 
-angular.module('AppCache')
-/**
- * @ngdoc directive
- * @name AppCache.directive:cache
- * @restrict B
- * @requires $log
- * @requires AppCache.factory:CacheFactory
- * 
- * @description
- * Use this directive to inject directly in dom nodes caching features for values.
- * 
- * 
- * @example
- <example module="AppCache">
-    <file name="index.html">
-        <div cache="name" />
-        <div cache cache-name="name" />
-    </file>
-</example>
- */
-.directive('cache', ['$log', 'CacheFactory',
-    function ($log, CacheFactory) {
+    angular.module('AppCache')
+
+    /**
+     * @ngdoc directive
+     * @name AppCache.directive:cache
+     * @restrict B
+     * @requires $log
+     * @requires AppCache.factory:CacheFactory
+     *
+     * @description
+     * Use this directive to inject directly in dom nodes caching features for values.
+     *
+     *
+     * @example
+     <example module="AppCache">
+        <file name="index.html">
+            <div cache="name" />
+            <div cache cache-name="name" />
+        </file>
+    </example>
+     */
+    .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
 
         return {
             link: function (scope, element, attrs) {
@@ -42,3 +43,6 @@ angular.module('AppCache')
             }
         };
     }]);
+
+
+})();

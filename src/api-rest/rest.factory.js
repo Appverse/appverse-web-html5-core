@@ -1,126 +1,18 @@
-'use strict';
+(function() {
+    'use strict';
 
-/**
- * @ngdoc module
- * @name AppREST
- * @description
- *
- * The Integrated REST module includes communication.
- *
- * It is based on Restangular.
- *
- * Params configuration are set in app-configuration file as constants.
- *
- * SERVICES CLIENT CONFIGURATION
- *
- * The common API includes configuration for one set of REST resources client (1 base URL).
- * This is the most common approach in the most of projects.
- * In order to build several sets of REST resources (several base URLs) you should
- * create scoped configurations. Please, review the below snippet:
- *
- * var MyRestangular = Restangular.withConfig(function(RestangularConfigurer) {
- * RestangularConfigurer.setDefaultHeaders({'X-Auth': 'My Name'})
- * });
- *
- * MyRestangular.one('place', 12).get();
- *
- * The MyRestangular object has scoped properties of the Restangular on with a different
- * configuration.
- */
+    angular.module('AppREST').factory('RESTFactory', RESTFactory);
 
-angular.module('AppREST', ['restangular', 'AppCache', 'AppConfiguration', 'AppSecurity'])
-
-
-.run(['$log', 'Restangular', 'CacheFactory', 'Oauth_RequestWrapper', 'Oauth_AccessToken', 'REST_CONFIG', 'SECURITY_GENERAL',
-    function ($log, Restangular, CacheFactory, Oauth_RequestWrapper, Oauth_AccessToken, REST_CONFIG, SECURITY_GENERAL) {
-
-
-        Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
-        Restangular.setExtraFields(REST_CONFIG.ExtraFields);
-        Restangular.setParentless(REST_CONFIG.Parentless);
-        var transformer;
-        for (var i = 0; i < REST_CONFIG.ElementTransformer.length; i++) {
-            $log.debug('Adding transformer');
-            transformer = REST_CONFIG.ElementTransformer[i];
-            Restangular.addElementTransformer(transformer.route, transformer.transformer);
-        }
-        Restangular.setOnElemRestangularized(REST_CONFIG.OnElemRestangularized);
-        Restangular.setResponseInterceptor(
-            function (data, operation, what, url, response) {
-
-                /*
-                1-Caches response data or not according to configuration.
-                 */
-                var cache = CacheFactory.getHttpCache();
-
-                if (cache) {
-                    if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
-                        cache.removeAll();
-                    } else if (operation === 'put') {
-                        cache.put(response.config.url, response.config.data);
-                    }
-                }
-
-                /*
-                 2-Retrieves bearer/oauth token from header.
-                 */
-                //var tokenInHeader = response.headers(SECURITY_GENERAL.tokenResponseHeaderName);
-                var tokenInHeader = response.headers('X-XSRF-Cookie');
-                $log.debug('X-XSRF-Cookie: ' + tokenInHeader);
-                if(tokenInHeader){
-
-                    Oauth_AccessToken.setFromHeader(tokenInHeader);
-                }
-
-                return data;
-            }
-        );
-        if (typeof REST_CONFIG.RequestInterceptor === 'function') {
-            $log.debug('Setting RequestInterceptor');
-            Restangular.setRequestInterceptor(REST_CONFIG.RequestInterceptor);
-        }
-        if (typeof REST_CONFIG.FullRequestInterceptor === 'function') {
-            $log.debug('Setting FullRequestInterceptor');
-            Restangular.setFullRequestInterceptor(REST_CONFIG.FullRequestInterceptor);
-        }
-        Restangular.setErrorInterceptor(REST_CONFIG.ErrorInterceptor);
-        Restangular.setRestangularFields(REST_CONFIG.RestangularFields);
-        Restangular.setMethodOverriders(REST_CONFIG.MethodOverriders);
-        Restangular.setFullResponse(REST_CONFIG.FullResponse);
-        //Restangular.setDefaultHeaders(REST_CONFIG.DefaultHeaders);
-        Restangular.setRequestSuffix(REST_CONFIG.RequestSuffix);
-        Restangular.setUseCannonicalId(REST_CONFIG.UseCannonicalId);
-        Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
-
-
-        $log.info('AppREST run');
-
-    }])
-
-/**
- * @ngdoc service
- * @name AppREST.factory:RESTFactory
- * @requires $log
- * @requires Restangular
- * @description
- * Contains methods for data finding (demo).
- * This module provides basic quick standard access to a REST API.
- */
-.factory('RESTFactory', ['$log', '$q', '$http', 'Restangular', 'Oauth_RequestWrapper','REST_CONFIG', 'SECURITY_GENERAL',
-    function ($log, $q, $http, Restangular, Oauth_RequestWrapper, REST_CONFIG, SECURITY_GENERAL) {
-
-        if(SECURITY_GENERAL.securityEnabled){
-            $log.debug("REST communication is secure. Security is enabled. REST requests will be wrapped with authorization headers.");
-            Restangular = Oauth_RequestWrapper.wrapRequest(Restangular);
-        }else{
-            $log.debug("REST communication is not secure. Security is not enabled.");
-            Restangular.setDefaultHeaders(
-                {
-                    'Content-Type': REST_CONFIG.DefaultContentType
-                });
-        }
-
-
+    /**
+     * @ngdoc service
+     * @name AppREST.factory:RESTFactory
+     * @requires $log
+     * @requires Restangular
+     * @description
+     * Contains methods for data finding (demo).
+     * This module provides basic quick standard access to a REST API.
+     */
+    function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {
 
         ////////////////////////////////////////////////////////////////////////////////////
         // ADVICES ABOUT PROMISES
@@ -147,6 +39,53 @@ angular.module('AppREST', ['restangular', 'AppCache', 'AppConfiguration', 'AppSe
         ////////////////////////////////////////////////////////////////////////////////////
 
         var factory = {};
+
+        /**
+         * @ngdoc method
+         * @name AppREST.factory:RESTFactory#wrapRequestWith
+         * @methodOf AppREST.factory:RESTFactory
+         * @param {object} The request wrapper
+         * @description Wraps a request.
+         * The wrapper should expose a 'wrapRequest(Restangular)' function
+         * that wraps the requests and returns the processed Restangular service
+         */
+        factory.wrapRequestsWith = function(wrapper) {
+            Restangular = wrapper.wrapRequest(Restangular);
+        };
+
+        /**
+         * @ngdoc method
+         * @name AppREST.factory:RESTFactory#wrapRequestWith
+         * @methodOf AppREST.factory:RESTFactory
+         * @description Sets the default Content-Type as header.
+         */
+        factory.enableDefaultContentType = function() {
+            Restangular.setDefaultHeaders({
+                'Content-Type': REST_CONFIG.DefaultContentType
+            });
+        };
+
+        /**
+         * @ngdoc method
+         * @name AppREST.factory:RESTFactory#setCache
+         * @methodOf AppREST.factory:RESTFactory
+         * @description Sets the cache. Caching also depends on REST_CONFIG
+         */
+        factory.setCache = function(cache) {
+            Restangular.setResponseInterceptor(
+                function (data, operation, what, url, response) {
+                    // Caches response data or not according to configuration.
+                    if (cache) {
+                        if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
+                            cache.removeAll();
+                        } else if (operation === 'put') {
+                            cache.put(response.config.url, response.config.data);
+                        }
+                    }
+                    return data;
+                }
+            );
+        };
 
         /**
          * @ngdoc method
@@ -346,31 +285,11 @@ angular.module('AppREST', ['restangular', 'AppCache', 'AppConfiguration', 'AppSe
         */
         function restErrorHandler(response){
             $log.error("Error with status code", response.status);
-        };
+        }
 
 
-       return factory;
-    }])
+        return factory;
 
+    };
 
-
-
-    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-        function ($log, Restangular, REST_CONFIG) {
-            var factory = {};
-            var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            var _this = this;
-
-
-            factory.readObject = function (path, params) {
-                if(params && params.length >0){
-
-                }else{
-                    //No params. It is a normal call
-                    return Restangular.one(path).get().$object;
-                }
-
-            };
-
-            return factory;
-        }]);
+})();

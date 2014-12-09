@@ -15,7 +15,14 @@ var settings = {
         'src/bower_components/angular-translate/angular-translate.js',
         'src/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
         'src/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
-        'src/modules/**/*.js',
+        'src/api-*/**/module.js',
+        // Detection providers need to be loaded in this order
+        'src/api-detection/mobile-libraries-loader.provider.js',
+        'src/api-detection/mobile-detector.provider.js',
+        'src/api-detection/detection.provider.js',
+        // The rest
+        'src/api-*/**/*.provider.js',
+        'src/api-*/**/*.js',
     ],
 
     unitFiles : [
@@ -25,6 +32,10 @@ var settings = {
     midwayFiles : [
         'src/bower_components/jquery/dist/jquery.min.js',
         'src/bower_components/angular-load/angular-load.js',
+        'src/bower_components/angular-cache/dist/angular-cache.js',
+        'src/bower_components/angular-ui-router/release/angular-ui-router.js',
+        'src/bower_components/lodash/dist/lodash.js',
+        'src/bower_components/restangular/dist/restangular.js',
         'test/midway/**/*.js'
     ],
 };

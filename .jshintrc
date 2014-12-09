@@ -19,6 +19,7 @@
   "trailing": true,
   "smarttabs": true,
   "lastsemic": false,
+  "maxcomplexity" : 10,
   "globals"   : {
     "alert"                : false,
     "Unity"                : false,
@@ -46,7 +47,8 @@
     "waitsFor"             : false,
     "xdescribe"            : false,
     "sinon"                : false,
-    "by"                   : false
+    "by"                   : false,
+    "define"               : false
   }
 }
 
