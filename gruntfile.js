@@ -15,7 +15,7 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
 
     // Configurable paths
-    var yeomanConfig = {
+    var configPaths = {
         app: 'src',
         dist: 'dist',
         doc: 'doc',
@@ -25,47 +25,47 @@ module.exports = function (grunt) {
         instrumented: 'test/reports/coverage/instrumented'
     };
     try {
-        yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
+        configPaths.app = require('./bower.json').appPath || configPaths.app;
     } catch (e) {}
 
     // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
-        '<%= yeoman.dist %>/api-cache/api-cache.js':
-            moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
+        '<%= appverse.dist %>/api-cache/api-cache.js':
+            moduleFilesToConcat('<%= appverse.app %>/api-cache'),
 
-        '<%= yeoman.dist %>/api-detection/api-detection.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
+        '<%= appverse.dist %>/api-detection/api-detection.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
-                '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
-                '<%= yeoman.app %>/api-detection/detection.provider.js',
+                '<%= appverse.app %>/api-detection/mobile-libraries-loader.provider.js',
+                '<%= appverse.app %>/api-detection/mobile-detector.provider.js',
+                '<%= appverse.app %>/api-detection/detection.provider.js',
             ]),
 
-        '<%= yeoman.dist %>/api-logging/api-logging.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-logging'),
+        '<%= appverse.dist %>/api-logging/api-logging.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-logging'),
 
-        '<%= yeoman.dist %>/api-performance/api-performance.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-performance'),
+        '<%= appverse.dist %>/api-performance/api-performance.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-performance'),
 
-        '<%= yeoman.dist %>/api-translate/api-translate.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-translate'),
+        '<%= appverse.dist %>/api-translate/api-translate.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-translate'),
 
-        '<%= yeoman.dist %>/api-utils/api-utils.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-utils'),
+        '<%= appverse.dist %>/api-utils/api-utils.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-utils'),
 
-        '<%= yeoman.dist %>/api-serverpush/api-serverpush.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/{api-serverpush,api-socketio}'),
+        '<%= appverse.dist %>/api-serverpush/api-serverpush.js' :
+            moduleFilesToConcat('<%= appverse.app %>/{api-serverpush,api-socketio}'),
 
-        '<%= yeoman.dist %>/api-rest/api-rest.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
+        '<%= appverse.dist %>/api-rest/api-rest.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-rest'),
 
-        '<%= yeoman.dist %>/api-router/api-router.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-router'),
+        '<%= appverse.dist %>/api-router/api-router.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-router'),
 
-        '<%= yeoman.dist %>/api-main/api-main.js' : [
-            ['<%= yeoman.app %>/api-main/integrator.js'].concat(
-                moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}')
+        '<%= appverse.dist %>/api-main/api-main.js' : [
+            ['<%= appverse.app %>/api-main/integrator.js'].concat(
+                moduleFilesToConcat('<%= appverse.app %>/{api-configuration*,api-main}')
             ),
         ]
     };
@@ -76,7 +76,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         // Project settings
-        yeoman: yeomanConfig,
+        appverse: configPaths,
 
         maven: {
             options: {
@@ -92,7 +92,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.app %>/',
+                    cwd:'<%= appverse.app %>/',
                     src: ['**','!bower_components/**'],
                     dest:'.'
                 }]
@@ -103,7 +103,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.dist %>/',
+                    cwd:'<%= appverse.dist %>/',
                     src: ['**'],
                     dest:'.'
                 }]
@@ -116,7 +116,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.app %>/',
+                    cwd:'<%= appverse.app %>/',
                     src: ['**','!bower_components/**'],
                     dest:'.'
                 }]
@@ -129,7 +129,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.dist %>/',
+                    cwd:'<%= appverse.dist %>/',
                     src: ['**'],
                     dest:'.'
                 }]
@@ -142,12 +142,12 @@ module.exports = function (grunt) {
                     dot: true,
                     src: [
                         '.tmp',
-                        '<%= yeoman.dist %>/**',
-                        '!<%= yeoman.dist %>/.git*'
+                        '<%= appverse.dist %>/**',
+                        '!<%= appverse.dist %>/.git*'
                     ]
                 }]
             },
-            testReports : '<%= yeoman.testReports %>/**',
+            testReports : '<%= appverse.testReports %>/**',
             server: '.tmp',
             docular: 'doc'
 
@@ -160,7 +160,7 @@ module.exports = function (grunt) {
                 force: true
             },
             all: [
-                '<%= yeoman.app %>/api-*/{,*/}*.js'
+                '<%= appverse.app %>/api-*/{,*/}*.js'
             ]
         },
 
@@ -175,9 +175,9 @@ module.exports = function (grunt) {
             // Concatenate all modules into a full distribution
             dist: {
                 src: [
-                    '<%= yeoman.dist %>/*/*.js',
+                    '<%= appverse.dist %>/*/*.js',
                 ],
-                dest: '<%= yeoman.dist %>/appverse-html5-core.js',
+                dest: '<%= appverse.dist %>/appverse-html5-core.js',
             },
         },
 
@@ -187,9 +187,9 @@ module.exports = function (grunt) {
           dist: {
             files: [{
               expand: true,
-              cwd: '<%= yeoman.dist %>',
+              cwd: '<%= appverse.dist %>',
               src: ['**/*.js', '!oldieshim.js'],
-              dest: '<%= yeoman.dist %>',
+              dest: '<%= appverse.dist %>',
               extDot : 'last'
             }]
           }
@@ -204,9 +204,9 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                       expand: true,     // Enable dynamic expansion.
-                      cwd: '<%= yeoman.dist %>',      // Src matches are relative to this path.
+                      cwd: '<%= appverse.dist %>',      // Src matches are relative to this path.
                       src: ['**/*.js'], // Actual pattern(s) to match.
-                      dest: '<%= yeoman.dist %>',   // Destination path prefix.
+                      dest: '<%= appverse.dist %>',   // Destination path prefix.
                       ext: '.min.js',   // Dest filepaths will have this extension.
                       extDot: 'last'   // Extensions in filenames begin after the last dot
                     }
@@ -217,16 +217,16 @@ module.exports = function (grunt) {
 
         karma: {
             unit: {
-                configFile: '<%= yeoman.test %>/config/karma.unit.conf.js',
+                configFile: '<%= appverse.test %>/config/karma.unit.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
             unitAutoWatch: {
-                configFile: '<%= yeoman.test %>/config/karma.unit.watch.conf.js',
+                configFile: '<%= appverse.test %>/config/karma.unit.watch.conf.js',
                 autoWatch: true
             },
             midway: {
-                configFile: '<%= yeoman.test %>/config/karma.midway.conf.js',
+                configFile: '<%= appverse.test %>/config/karma.midway.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
@@ -296,8 +296,8 @@ module.exports = function (grunt) {
                     return [
                         delayApiCalls,
                         liveReloadSnippet,
-                        mountFolder(connect, yeomanConfig.app),
-                        mountFolder(connect, yeomanConfig.demo),
+                        mountFolder(connect, configPaths.app),
+                        mountFolder(connect, configPaths.demo),
                         httpMethods
                     ];
                 }
@@ -319,9 +319,9 @@ module.exports = function (grunt) {
                         return [
                             delayApiCalls,
                             liveReloadSnippet,
-                            mountFolder(connect, yeomanConfig.app),
-                            mountFolder(connect, yeomanConfig.dist),
-                            mountFolder(connect, yeomanConfig.demo,{index: 'index-dist.html'}),
+                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.dist),
+                            mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),
                             httpMethods
                         ];
                     }
@@ -336,11 +336,11 @@ module.exports = function (grunt) {
                 },
                 tasks: ['injector:js'],
                 files: [
-                    '<%= yeoman.demo %>/*.html',
-                    '<%= yeoman.demo %>/partials/*.html',
-                    '<%= yeoman.demo %>/js/*.js',
+                    '<%= appverse.demo %>/*.html',
+                    '<%= appverse.demo %>/partials/*.html',
+                    '<%= appverse.demo %>/js/*.js',
                     //For performance reasons only match one level
-                    '<%= yeoman.app %>/{,*/}*.js',
+                    '<%= appverse.app %>/{,*/}*.js',
                 ],
             }
         },
@@ -379,7 +379,7 @@ module.exports = function (grunt) {
             },
             js: {
                 files: {
-                    '<%= yeoman.demo %>/index.html': getAllFilesForDemo(files),
+                    '<%= appverse.demo %>/index.html': getAllFilesForDemo(files),
                 }
             }
         },
@@ -388,11 +388,11 @@ module.exports = function (grunt) {
         plato: {
             main: {
                 files: {
-                    '<%= yeoman.testReports %>/plato/': [
-                        '<%= yeoman.app %>/api-*/**/*.js',
-                        '<%= yeoman.test %>/unit/**/*.js',
-                        '<%= yeoman.test %>/midway/**/*.js',
-                        '<%= yeoman.test %>/e2e/**/*.js',
+                    '<%= appverse.testReports %>/plato/': [
+                        '<%= appverse.app %>/api-*/**/*.js',
+                        '<%= appverse.test %>/unit/**/*.js',
+                        '<%= appverse.test %>/midway/**/*.js',
+                        '<%= appverse.test %>/e2e/**/*.js',
                      ]
                 }
             }
