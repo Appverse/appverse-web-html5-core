@@ -382,6 +382,20 @@ module.exports = function (grunt) {
                     '<%= yeoman.demo %>/index.html': getAllFilesForDemo(files),
                 }
             }
+        },
+
+        // Generate code analysis reports
+        plato: {
+            main: {
+                files: {
+                    '<%= yeoman.testReports %>/plato/': [
+                        '<%= yeoman.app %>/api-*/**/*.js',
+                        '<%= yeoman.test %>/unit/**/*.js',
+                        '<%= yeoman.test %>/midway/**/*.js',
+                        '<%= yeoman.test %>/e2e/**/*.js',
+                     ]
+                }
+            }
         }
     });
 
