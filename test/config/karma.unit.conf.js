@@ -1,6 +1,6 @@
 'use strict';
 
-var settings = require('./common/common.conf');
+var settings = require('./common/karma.conf');
 
 module.exports = function(config) {
 
@@ -25,7 +25,7 @@ module.exports = function(config) {
 
         coverageReporter: {
           // specify a common output directory
-            dir: 'test/reports/coverage',
+            dir: 'reports/coverage/unit',
               reporters: [
                 // reporters not supporting the `file` property
                 { type: 'html'},

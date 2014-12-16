@@ -21,9 +21,13 @@ module.exports = function (grunt) {
         doc: 'doc',
         test: 'test',
         demo: 'demo',
-        testReports: 'test/reports/',
-        instrumented: 'test/reports/coverage/instrumented'
+        reports: 'reports',
+        coverage: 'reports/coverage',
+        e2eCoverage : 'reports/coverage/e2e',
+        e2eInstrumented : 'reports/coverage/e2e/_instrumented'
     };
+
+    // If app path is defined in bower.json, use it
     try {
         configPaths.app = require('./bower.json').appPath || configPaths.app;
     } catch (e) {}
@@ -147,7 +151,7 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
-            testReports : '<%= appverse.testReports %>/**',
+            coverage : '<%= appverse.coverage %>/**',
             server: '.tmp',
             docular: 'doc'
 
@@ -214,7 +218,6 @@ module.exports = function (grunt) {
             }
         },
 
-
         karma: {
             unit: {
                 configFile: '<%= appverse.test %>/config/karma.unit.conf.js',
@@ -232,6 +235,41 @@ module.exports = function (grunt) {
             },
         },
 
+        // Runs protractor and generate coverage report for e2e tests.
+        // Unit and midway are already managedby Karma
+        protractor_coverage: {
+            options: {
+                configFile: '<%= appverse.test %>/config/protractor.e2e.conf.js',
+                coverageDir: '<%= appverse.e2eCoverage %>',
+                keepAlive: false,
+                noColor: false,
+                args: {},
+            },
+            run: {}
+        },
+
+        // After the tests have been run and the coverage has been measured and captured
+        // you want to create a report.
+        makeReport: {
+            src: '<%= appverse.e2eCoverage %>/*.json',
+            options: {
+                type: ['html', 'clover'],
+                dir: '<%= appverse.e2eCoverage %>'
+            }
+        },
+
+        // Measuring coverage from protractor tests does not work out of the box.
+        // To measure coverage Protractor coverage,
+        // all sources need to be instrumented using Istanbul
+        instrument: {
+            files: '<%= appverse.app %>/api-*/**/*.js',
+            options: {
+                lazy: true,
+                basePath: "<%= appverse.e2eInstrumented %>"
+            }
+        },
+
+        // Generate docs
         docular: {
             showDocularDocs: false,
             showAngularDocs: true,
@@ -287,38 +325,55 @@ module.exports = function (grunt) {
             }
         },
 
+        // Web server
         connect: {
+
+            // General options
             options: {
                 protocol: 'http',
                 port: 9000,
-                hostname: 'localhost',
-                middleware: function (connect) {
-                    return [
-                        delayApiCalls,
-                        liveReloadSnippet,
-                        mountFolder(connect, configPaths.app),
-                        mountFolder(connect, configPaths.demo),
-                        httpMethods
-                    ];
-                }
+                hostname: 'localhost'
             },
+
+            // For demo app in chrome
             livereload: {
                 options: {
                     port: 9000,
+                    middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            liveReloadSnippet,
+                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.demo),
+                            httpMethods
+                        ];
+                    }
                 }
             },
+
+            // For e2e tests on demo app, with coverage reporting
             e2e: {
                 options: {
-                    port: 9090,
+                    port: 9091,
+                     middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            mountFolder(connect, configPaths.e2eInstrumented + '/src'),
+                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.demo),
+                            httpMethods
+                        ];
+                    }
                 }
             },
+
+            // For e2e tests on built demo app
             e2e_dist: {
                 options: {
                     port: 9090,
                     middleware: function (connect) {
                         return [
                             delayApiCalls,
-                            liveReloadSnippet,
                             mountFolder(connect, configPaths.app),
                             mountFolder(connect, configPaths.dist),
                             mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),
@@ -355,7 +410,7 @@ module.exports = function (grunt) {
         },
 
         exec: {
-            protractor_start: 'npm run protractor',
+            protractor_start: 'npm run protractor-dist',
             webdriver_update: 'npm run update-webdriver'
         },
 
@@ -388,7 +443,7 @@ module.exports = function (grunt) {
         plato: {
             main: {
                 files: {
-                    '<%= appverse.testReports %>/plato/': [
+                    '<%= appverse.reports %>/analysis/': [
                         '<%= appverse.app %>/api-*/**/*.js',
                         '<%= appverse.test %>/unit/**/*.js',
                         '<%= appverse.test %>/midway/**/*.js',
@@ -399,11 +454,34 @@ module.exports = function (grunt) {
         }
     });
 
-    // -- Register tasks --
+
+/*---------------------------------------- TASKS DEFINITION -------------------------------------*/
+
+
+    // ------ Dist task. Builds the project -----
 
     grunt.registerTask('default', [
         'dist'
     ]);
+
+    grunt.registerTask('dist', [
+        'jshint',
+        'unit',
+        'midway',
+        'test:e2e:report',
+        'dist:make',
+        'test:e2e:dist',
+        'analysis'
+    ]);
+
+    grunt.registerTask('dist:make', [
+        'clean:dist',
+        'concat',
+        'ngAnnotate',
+        'uglify'
+    ]);
+
+    // ------ Tests tasks -----
 
     grunt.registerTask('test', [
         'test:all'
@@ -419,40 +497,83 @@ module.exports = function (grunt) {
 
     grunt.registerTask('e2e', [
         'dist:make',
-        'test:e2e_dist'
+        'test:e2e:dist'
     ]);
 
-    grunt.registerTask('dev', 'Tasks to run while developing', [
+    grunt.registerTask('test:unit:watch', [
+        'karma:unitAutoWatch'
+    ]);
+
+    grunt.registerTask('test:unit:once', [
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('test:midway', [
+        'karma:midway'
+    ]);
+
+    grunt.registerTask('test:e2e:report',  [
+        'exec:webdriver_update',
+        'connect:e2e',
+        'protractor_webdriver',
+        'instrument',
+        'protractor_coverage',
+        'makeReport'
+    ]);
+
+    grunt.registerTask('test:e2e:dist',  [
+        'exec:webdriver_update',
+        'connect:e2e_dist',
+        'protractor_webdriver',
+        'exec:protractor_start',
+    ]);
+
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'karma:unit',
+        'karma:midway',
+        'test:e2e:report',
+        'test:e2e:dist',
+    ]);
+
+    // ------ Dev tasks. To be run continously while developing -----
+
+    grunt.registerTask('dev', [
         // For now, only execute unit tests when a file changes?
         // midway and e2e are slow and do not give innmedate
         // feedback after a change
         'test:unit:watch'
     ]);
 
-    grunt.registerTask('demo', 'Runs demo app', [
+
+    // ------ Demo tasks. Starts a webserver with a demo app -----
+
+    grunt.registerTask('demo', [
         'connect:livereload',
         'open:demo',
         'watch'
     ]);
 
-    grunt.registerTask('demo:dist', 'Runs demo app with the concatenated/uglified version of appverse', [
+    grunt.registerTask('demo:dist', [
         'dist:make',
         'open:demo_dist',
         'connect:e2e_dist:keepalive',
     ]);
+
+
 
     grunt.registerTask('doc', [
         'clean:docular',
         'docular'
     ]);
 
-    grunt.registerTask('dist', [
-        'jshint',
-        'unit',
-        'midway',
-        'dist:make',
-        'test:e2e_dist'
-    ]);
+
+    // ------ Analysis tasks. Runs code analysis -----
+
+    grunt.registerTask('analysis', ['plato']);
+
+
+    // ------ Deployment tasks -----
 
     grunt.registerTask('install', [
         'clean',
@@ -468,55 +589,11 @@ module.exports = function (grunt) {
         'maven:deploy-min'
     ]);
 
-
-    grunt.registerTask('dist:make', [
-        'clean:dist',
-        'concat',
-        'ngAnnotate',
-        'uglify'
-    ]);
-
-    grunt.registerTask('test:unit:watch', [
-        'clean:testReports',
-        'karma:unitAutoWatch'
-    ]);
-
-    grunt.registerTask('test:unit:once', [
-        'clean:testReports',
-        'karma:unit'
-    ]);
-
-    grunt.registerTask('test:midway', [
-
-        'karma:midway'
-    ]);
-
-    grunt.registerTask('test:e2e', [
-        'exec:webdriver_update',
-        'connect:e2e',
-        'protractor_webdriver',
-        'exec:protractor_start',
-    ]);
-
-    grunt.registerTask('test:e2e_dist', [
-        'exec:webdriver_update',
-        'connect:e2e_dist',
-        'protractor_webdriver',
-        'exec:protractor_start',
-    ]);
-
-    grunt.registerTask('test:all', [
-        'clean:testReports',
-        'karma:unit',
-        'karma:midway',
-        'test:e2e_dist',
-    ]);
-
 };
 
 
 
-// -- Helper Methods --
+/*---------------------------------------- HELPER METHODS -------------------------------------*/
 
 function mountFolder (connect, dir, options) {
     return connect.static(require('path').resolve(dir), options);

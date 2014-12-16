@@ -23,7 +23,6 @@ function CacheController ($scope, CacheFactory) {
 function BandwidthController ($scope, Detection, Chart) {
     $scope.detection = Detection;
     $scope.average = 0;
-    Detection.testBandwidth();
 
     // Not playing well with PhantomJS
     // Uncomment lines below to see real-time chart

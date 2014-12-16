@@ -48,10 +48,10 @@
                 ...
          });
          */
-    .run(['$log', 'socket',
-        function ($log, socket) {
+    .run(['$log',
+        function ($log) {
             $log.info('AppServerPush run');
-            socket.forward('error');
+            //socket.forward('error');
         }]);
 
 })();
