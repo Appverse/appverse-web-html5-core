@@ -12,6 +12,7 @@ angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider)
 function ConfigLoaderProvider() {
 
     var appConfigTemp = {},
+    //by default, no detection is present
     detection         = new NoDetection();
 
     this.setDetection = function(detectionProvider) {
@@ -25,7 +26,10 @@ function ConfigLoaderProvider() {
         return this;
     };
 
-    this.loadCustomConfig = function() {
+    this.loadCustomConfig = function(settings) {
+        if (settings) {
+            this.settings =  settings;
+        }
         this.loadMobileConfigIfRequired();
         this.loadEnvironmentConfig();
         return this;
@@ -46,30 +50,35 @@ function ConfigLoaderProvider() {
     };
 
     this.loadEnvironmentConfig = function() {
-        this.addConfigFromJSON('resources/configuration/environment-conf.json');
+        if (this.settings && this.settings.environment) {
+            this.addConfig(this.settings.environment);
+        } else {
+            this.addConfigFromJSON('resources/configuration/environment-conf.json');
+        }
         return this;
     };
 
     this.loadAppverseMobileConfig = function() {
-        this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+        if (this.settings && this.settings.appverseMobile) {
+            this.addConfig(this.settings.appverseMobile);
+        } else {
+            this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+        }
         return this;
     };
 
     this.loadMobileBrowserConfig = function() {
-        this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+        if (this.settings && this.settings.mobileBrowser) {
+            this.addConfig(this.settings.mobileBrowser);
+        } else {
+            this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+        }
+
         return this;
     };
 
-    this.addConfigFromJSON = function(jsonUrl) {
-        var ajaxResponse = $.ajax({
-            async: false,
-            url: jsonUrl,
-            dataType: "json"
-        });
-
-        var jsonData = JSON.parse(ajaxResponse.responseText);
-
-        angular.forEach(jsonData, function (constantObject, constantName) {
+    this.addConfig = function(settings) {
+        angular.forEach(settings, function (constantObject, constantName) {
             var appConfigObject = appConfigTemp[constantName];
 
             if (appConfigObject) {
@@ -81,7 +90,26 @@ function ConfigLoaderProvider() {
                 appConfigTemp[constantName] = constantObject;
             }
         });
+
     };
+
+    this.addConfigFromJSON = function(jsonUrl) {
+
+        // Make syncrhonous request.
+        // TODO: make asyncrhonous. Synchronous requests block the browser.
+        // Making requests asyncronous will require to manually bootstrap angular
+        // when the response is received.
+        // Another option is to let the developer inject the configuration in the config phase
+        var request = new XMLHttpRequest();
+        // `false` makes the request synchronous
+        request.open('GET', jsonUrl, false);
+        request.send(null);
+        var jsonData = JSON.parse(request.responseText);
+
+        this.addConfig(jsonData);
+    };
+
+
 
     this.$get = function() {
         return this;

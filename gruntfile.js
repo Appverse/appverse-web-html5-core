@@ -15,57 +15,61 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
 
     // Configurable paths
-    var yeomanConfig = {
+    var configPaths = {
         app: 'src',
         dist: 'dist',
         doc: 'doc',
         test: 'test',
         demo: 'demo',
-        testReports: 'test/reports/',
-        instrumented: 'test/reports/coverage/instrumented'
+        reports: 'reports',
+        coverage: 'reports/coverage',
+        e2eCoverage : 'reports/coverage/e2e',
+        e2eInstrumented : 'reports/coverage/e2e/_instrumented'
     };
+
+    // If app path is defined in bower.json, use it
     try {
-        yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
+        configPaths.app = require('./bower.json').appPath || configPaths.app;
     } catch (e) {}
 
     // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
-        '<%= yeoman.dist %>/api-cache/api-cache.js':
-            moduleFilesToConcat('<%= yeoman.app %>/api-cache'),
+        '<%= appverse.dist %>/api-cache/api-cache.js':
+            moduleFilesToConcat('<%= appverse.app %>/api-cache'),
 
-        '<%= yeoman.dist %>/api-detection/api-detection.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-detection', [
+        '<%= appverse.dist %>/api-detection/api-detection.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= yeoman.app %>/api-detection/mobile-libraries-loader.provider.js',
-                '<%= yeoman.app %>/api-detection/mobile-detector.provider.js',
-                '<%= yeoman.app %>/api-detection/detection.provider.js',
+                '<%= appverse.app %>/api-detection/mobile-libraries-loader.provider.js',
+                '<%= appverse.app %>/api-detection/mobile-detector.provider.js',
+                '<%= appverse.app %>/api-detection/detection.provider.js',
             ]),
 
-        '<%= yeoman.dist %>/api-logging/api-logging.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-logging'),
+        '<%= appverse.dist %>/api-logging/api-logging.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-logging'),
 
-        '<%= yeoman.dist %>/api-performance/api-performance.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-performance'),
+        '<%= appverse.dist %>/api-performance/api-performance.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-performance'),
 
-        '<%= yeoman.dist %>/api-translate/api-translate.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-translate'),
+        '<%= appverse.dist %>/api-translate/api-translate.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-translate'),
 
-        '<%= yeoman.dist %>/api-utils/api-utils.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-utils'),
+        '<%= appverse.dist %>/api-utils/api-utils.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-utils'),
 
-        '<%= yeoman.dist %>/api-serverpush/api-serverpush.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/{api-serverpush,api-socketio}'),
+        '<%= appverse.dist %>/api-serverpush/api-serverpush.js' :
+            moduleFilesToConcat('<%= appverse.app %>/{api-serverpush,api-socketio}'),
 
-        '<%= yeoman.dist %>/api-rest/api-rest.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-rest'),
+        '<%= appverse.dist %>/api-rest/api-rest.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-rest'),
 
-        '<%= yeoman.dist %>/api-router/api-router.js' :
-            moduleFilesToConcat('<%= yeoman.app %>/api-router'),
+        '<%= appverse.dist %>/api-router/api-router.js' :
+            moduleFilesToConcat('<%= appverse.app %>/api-router'),
 
-        '<%= yeoman.dist %>/api-main/api-main.js' : [
-            ['<%= yeoman.app %>/api-main/integrator.js'].concat(
-                moduleFilesToConcat('<%= yeoman.app %>/{api-configuration*,api-main}')
+        '<%= appverse.dist %>/api-main/api-main.js' : [
+            ['<%= appverse.app %>/api-main/integrator.js'].concat(
+                moduleFilesToConcat('<%= appverse.app %>/{api-configuration*,api-main}')
             ),
         ]
     };
@@ -76,7 +80,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         // Project settings
-        yeoman: yeomanConfig,
+        appverse: configPaths,
 
         maven: {
             options: {
@@ -92,7 +96,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.app %>/',
+                    cwd:'<%= appverse.app %>/',
                     src: ['**','!bower_components/**'],
                     dest:'.'
                 }]
@@ -103,7 +107,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.dist %>/',
+                    cwd:'<%= appverse.dist %>/',
                     src: ['**'],
                     dest:'.'
                 }]
@@ -116,7 +120,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.app %>/',
+                    cwd:'<%= appverse.app %>/',
                     src: ['**','!bower_components/**'],
                     dest:'.'
                 }]
@@ -129,7 +133,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= yeoman.dist %>/',
+                    cwd:'<%= appverse.dist %>/',
                     src: ['**'],
                     dest:'.'
                 }]
@@ -142,12 +146,12 @@ module.exports = function (grunt) {
                     dot: true,
                     src: [
                         '.tmp',
-                        '<%= yeoman.dist %>/**',
-                        '!<%= yeoman.dist %>/.git*'
+                        '<%= appverse.dist %>/**',
+                        '!<%= appverse.dist %>/.git*'
                     ]
                 }]
             },
-            testReports : '<%= yeoman.testReports %>/**',
+            coverage : '<%= appverse.coverage %>/**',
             server: '.tmp',
             docular: 'doc'
 
@@ -160,15 +164,12 @@ module.exports = function (grunt) {
                 force: true
             },
             all: [
-                '<%= yeoman.app %>/api-*/{,*/}*.js'
+                '<%= appverse.app %>/api-*/{,*/}*.js'
             ]
         },
 
         // concatenate source files
         concat: {
-            options: {
-              sourceMap: true,
-            },
 
             // Concatenate all files for a module in a single module file
             modules: {
@@ -178,9 +179,9 @@ module.exports = function (grunt) {
             // Concatenate all modules into a full distribution
             dist: {
                 src: [
-                    '<%= yeoman.dist %>/*/*.js',
+                    '<%= appverse.dist %>/*/*.js',
                 ],
-                dest: '<%= yeoman.dist %>/appverse-html5-core.js',
+                dest: '<%= appverse.dist %>/appverse-html5-core.js',
             },
         },
 
@@ -190,9 +191,9 @@ module.exports = function (grunt) {
           dist: {
             files: [{
               expand: true,
-              cwd: '<%= yeoman.dist %>',
+              cwd: '<%= appverse.dist %>',
               src: ['**/*.js', '!oldieshim.js'],
-              dest: '<%= yeoman.dist %>',
+              dest: '<%= appverse.dist %>',
               extDot : 'last'
             }]
           }
@@ -202,15 +203,14 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */',
-                sourceMapIncludeSources: true,
-                sourceMapIn: '<%= yeoman.dist %>/**/*.js.map',
+                sourceMap: true,
             },
             dist: {
                 files: [{
                       expand: true,     // Enable dynamic expansion.
-                      cwd: '<%= yeoman.dist %>',      // Src matches are relative to this path.
+                      cwd: '<%= appverse.dist %>',      // Src matches are relative to this path.
                       src: ['**/*.js'], // Actual pattern(s) to match.
-                      dest: '<%= yeoman.dist %>',   // Destination path prefix.
+                      dest: '<%= appverse.dist %>',   // Destination path prefix.
                       ext: '.min.js',   // Dest filepaths will have this extension.
                       extDot: 'last'   // Extensions in filenames begin after the last dot
                     }
@@ -218,24 +218,58 @@ module.exports = function (grunt) {
             }
         },
 
-
         karma: {
             unit: {
-                configFile: '<%= yeoman.test %>/config/karma.unit.conf.js',
+                configFile: '<%= appverse.test %>/config/karma.unit.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
             unitAutoWatch: {
-                configFile: '<%= yeoman.test %>/config/karma.unit.watch.conf.js',
+                configFile: '<%= appverse.test %>/config/karma.unit.watch.conf.js',
                 autoWatch: true
             },
             midway: {
-                configFile: '<%= yeoman.test %>/config/karma.midway.conf.js',
+                configFile: '<%= appverse.test %>/config/karma.midway.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
         },
 
+        // Runs protractor and generate coverage report for e2e tests.
+        // Unit and midway are already managedby Karma
+        protractor_coverage: {
+            options: {
+                configFile: '<%= appverse.test %>/config/protractor.e2e.conf.js',
+                coverageDir: '<%= appverse.e2eCoverage %>',
+                keepAlive: false,
+                noColor: false,
+                args: {},
+            },
+            run: {}
+        },
+
+        // After the tests have been run and the coverage has been measured and captured
+        // you want to create a report.
+        makeReport: {
+            src: '<%= appverse.e2eCoverage %>/*.json',
+            options: {
+                type: ['html', 'clover'],
+                dir: '<%= appverse.e2eCoverage %>'
+            }
+        },
+
+        // Measuring coverage from protractor tests does not work out of the box.
+        // To measure coverage Protractor coverage,
+        // all sources need to be instrumented using Istanbul
+        instrument: {
+            files: '<%= appverse.app %>/api-*/**/*.js',
+            options: {
+                lazy: true,
+                basePath: "<%= appverse.e2eInstrumented %>"
+            }
+        },
+
+        // Generate docs
         docular: {
             showDocularDocs: false,
             showAngularDocs: true,
@@ -291,41 +325,58 @@ module.exports = function (grunt) {
             }
         },
 
+        // Web server
         connect: {
+
+            // General options
             options: {
                 protocol: 'http',
                 port: 9000,
-                hostname: 'localhost',
-                middleware: function (connect) {
-                    return [
-                        delayApiCalls,
-                        liveReloadSnippet,
-                        mountFolder(connect, yeomanConfig.app),
-                        mountFolder(connect, yeomanConfig.demo),
-                        httpMethods
-                    ];
-                }
+                hostname: 'localhost'
             },
+
+            // For demo app in chrome
             livereload: {
                 options: {
                     port: 9000,
+                    middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            liveReloadSnippet,
+                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.demo),
+                            httpMethods
+                        ];
+                    }
                 }
             },
+
+            // For e2e tests on demo app, with coverage reporting
             e2e: {
                 options: {
-                    port: 9090,
+                    port: 9091,
+                     middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            mountFolder(connect, configPaths.e2eInstrumented + '/src'),
+                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.demo),
+                            httpMethods
+                        ];
+                    }
                 }
             },
+
+            // For e2e tests on built demo app
             e2e_dist: {
                 options: {
                     port: 9090,
                     middleware: function (connect) {
                         return [
                             delayApiCalls,
-                            liveReloadSnippet,
-                            mountFolder(connect, yeomanConfig.app),
-                            mountFolder(connect, yeomanConfig.dist),
-                            mountFolder(connect, yeomanConfig.demo,{index: 'index-dist.html'}),
+                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.dist),
+                            mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),
                             httpMethods
                         ];
                     }
@@ -340,11 +391,11 @@ module.exports = function (grunt) {
                 },
                 tasks: ['injector:js'],
                 files: [
-                    '<%= yeoman.demo %>/*.html',
-                    '<%= yeoman.demo %>/partials/*.html',
-                    '<%= yeoman.demo %>/js/*.js',
+                    '<%= appverse.demo %>/*.html',
+                    '<%= appverse.demo %>/partials/*.html',
+                    '<%= appverse.demo %>/js/*.js',
                     //For performance reasons only match one level
-                    '<%= yeoman.app %>/{,*/}*.js',
+                    '<%= appverse.app %>/{,*/}*.js',
                 ],
             }
         },
@@ -359,7 +410,7 @@ module.exports = function (grunt) {
         },
 
         exec: {
-            protractor_start: 'npm run protractor',
+            protractor_start: 'npm run protractor-dist',
             webdriver_update: 'npm run update-webdriver'
         },
 
@@ -383,17 +434,54 @@ module.exports = function (grunt) {
             },
             js: {
                 files: {
-                    '<%= yeoman.demo %>/index.html': getAllFilesForDemo(files),
+                    '<%= appverse.demo %>/index.html': getAllFilesForDemo(files),
+                }
+            }
+        },
+
+        // Generate code analysis reports
+        plato: {
+            main: {
+                files: {
+                    '<%= appverse.reports %>/analysis/': [
+                        '<%= appverse.app %>/api-*/**/*.js',
+                        '<%= appverse.test %>/unit/**/*.js',
+                        '<%= appverse.test %>/midway/**/*.js',
+                        '<%= appverse.test %>/e2e/**/*.js',
+                     ]
                 }
             }
         }
     });
 
-    // -- Register tasks --
+
+/*---------------------------------------- TASKS DEFINITION -------------------------------------*/
+
+
+    // ------ Dist task. Builds the project -----
 
     grunt.registerTask('default', [
         'dist'
     ]);
+
+    grunt.registerTask('dist', [
+        'jshint',
+        'unit',
+        'midway',
+        'test:e2e:report',
+        'dist:make',
+        'test:e2e:dist',
+        'analysis'
+    ]);
+
+    grunt.registerTask('dist:make', [
+        'clean:dist',
+        'concat',
+        'ngAnnotate',
+        'uglify'
+    ]);
+
+    // ------ Tests tasks -----
 
     grunt.registerTask('test', [
         'test:all'
@@ -409,40 +497,83 @@ module.exports = function (grunt) {
 
     grunt.registerTask('e2e', [
         'dist:make',
-        'test:e2e_dist'
+        'test:e2e:dist'
     ]);
 
-    grunt.registerTask('dev', 'Tasks to run while developing', [
+    grunt.registerTask('test:unit:watch', [
+        'karma:unitAutoWatch'
+    ]);
+
+    grunt.registerTask('test:unit:once', [
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('test:midway', [
+        'karma:midway'
+    ]);
+
+    grunt.registerTask('test:e2e:report',  [
+        'exec:webdriver_update',
+        'connect:e2e',
+        'protractor_webdriver',
+        'instrument',
+        'protractor_coverage',
+        'makeReport'
+    ]);
+
+    grunt.registerTask('test:e2e:dist',  [
+        'exec:webdriver_update',
+        'connect:e2e_dist',
+        'protractor_webdriver',
+        'exec:protractor_start',
+    ]);
+
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'karma:unit',
+        'karma:midway',
+        'test:e2e:report',
+        'test:e2e:dist',
+    ]);
+
+    // ------ Dev tasks. To be run continously while developing -----
+
+    grunt.registerTask('dev', [
         // For now, only execute unit tests when a file changes?
         // midway and e2e are slow and do not give innmedate
         // feedback after a change
         'test:unit:watch'
     ]);
 
-    grunt.registerTask('demo', 'Runs demo app', [
+
+    // ------ Demo tasks. Starts a webserver with a demo app -----
+
+    grunt.registerTask('demo', [
         'connect:livereload',
         'open:demo',
         'watch'
     ]);
 
-    grunt.registerTask('demo:dist', 'Runs demo app with the concatenated/uglified version of appverse', [
+    grunt.registerTask('demo:dist', [
         'dist:make',
         'open:demo_dist',
         'connect:e2e_dist:keepalive',
     ]);
+
+
 
     grunt.registerTask('doc', [
         'clean:docular',
         'docular'
     ]);
 
-    grunt.registerTask('dist', [
-        'jshint',
-        'unit',
-        'midway',
-        'dist:make',
-        'test:e2e_dist'
-    ]);
+
+    // ------ Analysis tasks. Runs code analysis -----
+
+    grunt.registerTask('analysis', ['plato']);
+
+
+    // ------ Deployment tasks -----
 
     grunt.registerTask('install', [
         'clean',
@@ -458,55 +589,11 @@ module.exports = function (grunt) {
         'maven:deploy-min'
     ]);
 
-
-    grunt.registerTask('dist:make', [
-        'clean:dist',
-        'concat',
-        'ngAnnotate',
-        'uglify'
-    ]);
-
-    grunt.registerTask('test:unit:watch', [
-        'clean:testReports',
-        'karma:unitAutoWatch'
-    ]);
-
-    grunt.registerTask('test:unit:once', [
-        'clean:testReports',
-        'karma:unit'
-    ]);
-
-    grunt.registerTask('test:midway', [
-
-        'karma:midway'
-    ]);
-
-    grunt.registerTask('test:e2e', [
-        'exec:webdriver_update',
-        'connect:e2e',
-        'protractor_webdriver',
-        'exec:protractor_start',
-    ]);
-
-    grunt.registerTask('test:e2e_dist', [
-        'exec:webdriver_update',
-        'connect:e2e_dist',
-        'protractor_webdriver',
-        'exec:protractor_start',
-    ]);
-
-    grunt.registerTask('test:all', [
-        'clean:testReports',
-        'karma:unit',
-        'karma:midway',
-        'test:e2e_dist',
-    ]);
-
 };
 
 
 
-// -- Helper Methods --
+/*---------------------------------------- HELPER METHODS -------------------------------------*/
 
 function mountFolder (connect, dir, options) {
     return connect.static(require('path').resolve(dir), options);

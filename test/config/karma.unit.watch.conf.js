@@ -1,6 +1,6 @@
 'use strict';
 
-var settings = require('./common/common.conf');
+var settings = require('./common/karma.conf');
 
 module.exports = function(config) {
 

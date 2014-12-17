@@ -1,61 +1,133 @@
-<!--[if lt IE 8]>
-    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-<![endif]-->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="" href="##page-top"><img src="images/logo.png" alt="Appverse"></a>
+        </div>
 
-<div class="container">
-    <header>
-        <h1>Demo <small>Appverse Web HTML5 Core</small></h1>
-    </header>
-    <hr>
-    <div ng-controller="DetectionController">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+                <li class="page-scroll">
+                    <a href="##mobileBrowser">Detection</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="##cachedValue">Cache</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="##poolSize">Performance</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="##translation">Translation</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="##bandwidthStartBtn">Bandwidth</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <img class="img-responsive" src="images/angular.png" alt="">
+                <div class="intro-text">
+                    <span class="name">Appverse Web HTML5 Core</span>
+                    <hr class="star-light">
+                    <p class="skills">Demo showcase for e2e tests</p>
+                    <p><code>$ grunt e2e</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section>
+    <div class="container" ng-controller="DetectionController">
         <h2>Detection</h2>
-        <ul>
-            <li><strong>Mobile Browser:</strong> <span ng-cloak id="mobileBrowser">{{isMobileText}}</span></li>
-            <li><strong>Appverse Mobile:</strong> <span ng-cloak id="appverseMobile">{{hasAppverseMobile}}</span></li>
-        </ul>
+        <p><strong>Mobile Browser:</strong> <span ng-cloak id="mobileBrowser">{{isMobileText}}</span></p>
+        <p><strong>Appverse Mobile:</strong> <span ng-cloak id="appverseMobile">{{hasAppverseMobile}}</span></p>
     </div>
+</section>
 
-    <hr>
-
-    <div ng-controller="CacheController">
+<section class="success">
+    <div class="container" ng-controller="CacheController">
         <h2>Cache</h2>
-        <div> <strong>Retrieve famous stone from cache:</strong> <span id="cachedValue" cache="famousStone">{{famousStone}}</span> </div>
+        <p> <strong>Retrieve famous stone from cache:</strong> <span id="cachedValue" cache="famousStone">{{famousStone}}</span> </p>
     </div>
+</section>
 
-    <hr>
-
-    <div ng-controller="PerformanceController">
+<section>
+    <div class="container" ng-controller="PerformanceController">
         <h2>Performance</h2>
         <h3>Using Multithreading for a task</h3>
-        <span ng-show="execTime != null && execTime != 0">
-            <p>Time for execution: {{ execTime }} ms.</p>
-        </span>
-        <span  class="nullable">
-            <label>Number of pooled workers:</label>
-            <select id="poolSize" ng-model="poolSize" ng-options="threadsNumber.value for threadsNumber in threadsNumbers">
-                <option value="">-- choose execution mode --</option>
-            </select>
-        </span>
-        <br/>
 
-        <button id="performanceBtn" class="btn-primary" ng-click="run()">Run</button>
+        <div class="row">
+            <div class="col-md-6">
+                <span ng-show="execTime != null && execTime != 0">
+                    <p>Time for execution: {{ execTime }} ms.</p>
+                </span>
+                <span  class="nullable">
+                    <label>Number of pooled workers:</label>
+                    <select id="poolSize" class="form-control" ng-model="poolSize" ng-options="threadsNumber.value for threadsNumber in threadsNumbers">
+                        <option value="">-- choose execution mode --</option>
+                    </select>
+                </span>
+                <br/>
 
-        <br>
-        <br>
+                <button id="performanceBtn" class="btn btn-success btn-lg" ng-click="run()">Run</button>
+            </div>
 
-        <img style="width: 100px;float:left" src="images/angularPerformance.jpg" id="source">
-        <span class="span6" id="target"/></span>
-
-        <div style="clear:both"></div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img style="width: 200px;" src="images/angularPerformance.jpg" id="source">
+                    </div>
+                    <div class="col-md-6">
+                        <span class="span6" id="target"/></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
+</section>
 
-    <hr>
 
-    <div>
+<section class="success">
+    <div class="container">
         <h2>Translation</h2>
         <p id="translation"  translate translate-values='{"name": "Alex", "age": 14 }'>WELCOME_NAME_AGE</p>
     </div>
+</section>
 
 
-</div>
+<section>
+    <div class="container" ng-controller="BandwidthController">
+        <h2>Bandwidth</h2>
+        <button id="bandwidthStartBtn"class="btn btn-primary btn-lg" ng-click="detection.startPollingBandwidth(3000)">Start Polling</button>
+        <button id="bandwidthStopBtn" class="btn btn-danger btn-lg" ng-click="detection.stopPollingBandwidth()">Stop Polling</button>
+        <p>Sample:<span id="bandwidthValue">{{detection.bandwidth}}</span> Kbytes/s</p>
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Unstable with e2e tests in phantomjs. Enable only for real browsers in app.js -->
+                <div id="chartContainer" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</section>

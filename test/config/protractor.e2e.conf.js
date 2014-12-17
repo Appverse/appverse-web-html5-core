@@ -1,23 +1,26 @@
-exports.config = {
-  allScriptsTimeout: 11000,
+'use strict';
 
-  specs: [
-    '../e2e/*.js'
-  ],
+// Configure protractor to run e2e tests
+// and generate reports
 
-  capabilities: {
-    browserName: 'phantomjs',
-    'phantomjs.binary.path': 'node_modules/.bin/phantomjs' + (process.platform === 'win32' ? '.cmd' : ''),
-    'phantomjs.cli.args': ['--ignore-ssl-errors=true', '--web-security=false']
-  },
+var settings = require('./common/protractor.conf');
 
-  seleniumAddress: 'http://localhost:4444/wd/hub',
+settings.specs = [
+    'test/e2e/**/*.js',
+];
 
-  baseUrl: 'http://localhost:9090/',
+settings.baseUrl = 'http://localhost:9091/';
 
-  framework: 'jasmine',
+// Add junit reporting
+settings.onPrepare = function () {
+  require('jasmine-reporters');
+  var capsPromise = browser.getCapabilities();
+  capsPromise.then(function (caps) {
+      var browserName = caps.caps_.browserName.toUpperCase();
+      var browserVersion = caps.caps_.version;
+      var prePendStr = 'e2e-test-results-' + browserName + "-" + browserVersion + "-";
+      jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter("reports/junit", true, true, prePendStr));
+  });
+  };
 
-  jasmineNodeOpts: {
-    defaultTimeoutInterval: 30000
-  }
-};
+exports.config = settings;
