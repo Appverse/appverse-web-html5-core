@@ -92,11 +92,17 @@
          * @name AppREST.factory:RESTFactory#readObject
          * @methodOf AppREST.factory:RESTFactory
          * @param {String} path The item URL
+         * @param {String} successFn Optional function to be called when request is successful
+         * @param {String} errorFn Optional function to be called when request has errors
          * @description Returns a complete list from a REST resource.
          * @returns {object} List of values
          */
-        factory.readObject = function (path) {
-            return Restangular.one(path).get().$object;
+        factory.readObject = function (path, successFn, errorFn) {
+            successFn = successFn || function() {};
+            errorFn   = errorFn || function() {};
+            var promise = Restangular.one(path).get();
+            promise.then(successFn, errorFn);
+            return promise.$object;
         };
 
         /*
@@ -194,11 +200,17 @@
          * @methodOf AppREST.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} key The item key
+         * @param {String} successFn Optional function to be called when request is successful
+         * @param {String} errorFn Optional function to be called when request has errors
          * @description Returns a unique value.
          * @returns {object} An item value
          */
-        factory.readListItem = function (path, key) {
-            return Restangular.one(path, key).get().$object;
+        factory.readListItem = function (path, key, successFn, errorFn) {
+            successFn = successFn || function() {};
+            errorFn   = errorFn || function() {};
+            var promise = Restangular.one(path, key).get();
+            promise.then(successFn, errorFn);
+            return promise.$object;
         };
 
 

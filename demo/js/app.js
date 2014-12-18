@@ -6,6 +6,7 @@ angular.module('demoApp', ['COMMONAPI'])
     .controller('CacheController', CacheController)
     .controller('PerformanceController', PerformanceController)
     .controller('BandwidthController', BandwidthController)
+    .controller('RestController', RestController)
     .service('Chart', Chart);
 
 
@@ -56,6 +57,10 @@ function Chart() {
         chart.render();
     };
 }
+
+function RestController ($scope) {
+
+};
 
 
 function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
