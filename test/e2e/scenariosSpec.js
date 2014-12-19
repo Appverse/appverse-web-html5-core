@@ -79,6 +79,7 @@ describe('Appverse Web Html5 core App', function() {
         it('some data has been loaded and shown', function() {
             expect(element.all(by.repeater('book in mybooks')).count()).toBeGreaterThan(0);
         });
+
     });
 
 });

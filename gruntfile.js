@@ -535,7 +535,6 @@ module.exports = function (grunt) {
         'clean:coverage',
         'karma:unit',
         'karma:midway',
-        'test:e2e:report',
         'test:e2e:dist',
     ]);
 

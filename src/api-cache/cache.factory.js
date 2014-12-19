@@ -3,22 +3,6 @@
 
     angular.module('AppCache')
 
-
-    .factory('CacheFactory', [
-        '$angularCacheFactory',
-        '$http',
-        'CACHE_CONFIG',
-        '$log',
-        function($angularCacheFactory, $http, CACHE_CONFIG, $log) {
-
-            var factory = {
-                _scopeCache: null,
-                _browserCache: null,
-                _httpCache: null
-            };
-        }
-    ])
-
     /**
      * @ngdoc service
      * @name AppCache.service:CacheFactory
