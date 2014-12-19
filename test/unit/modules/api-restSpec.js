@@ -63,8 +63,6 @@ describe('Unit: Testing AppREST module', function () {
 
         describe('when request is resolved with success..', function() {
 
-            var $rootScope;
-
             beforeEach('mock RESTFactory to return success', module(function($provide) {
                 $provide.service('RESTFactory', function() {
                     this.enableDefaultContentType = sinon.spy();

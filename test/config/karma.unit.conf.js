@@ -35,7 +35,7 @@ module.exports = function(config) {
         },
 
         junitReporter: {
-          outputFile: 'test/reports/junit/unit-test-results.xml',
+          outputFile: 'reports/junit/unit-test-results.xml',
           suite: ''
         }
     });

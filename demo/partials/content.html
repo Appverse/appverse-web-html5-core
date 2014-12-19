@@ -139,16 +139,21 @@
 
 
 <section id="rest" class="success">
-    <div class="container">
+    <div class="container" ng-controller="RestController">
         <h2>REST</h2>
-        <h3>Load Books with directive</h3>
+        <h3>Load Books with rest directive</h3>
 
         <div rest rest-path="data/books.json" rest-name="mybooks"></div>
         <alert ng-show="mybooksLoading" class="alert-warning">Loading books…</alert>
         <alert ng-show="mybooksError" class="alert-error">Error loading books</alert>
 
-        <ul>
+        <ul id="books">
             <li ng-repeat="book in mybooks">{{book}}</li>
+        </ul>
+
+        <h3>Load Books with Rest Factory</h3>
+        <ul>
+            <li ng-if="book.language" ng-repeat="book in factoryBooks">{{book.language}}</li>
         </ul>
 
     </div>

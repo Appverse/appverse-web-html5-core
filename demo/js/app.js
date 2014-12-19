@@ -58,9 +58,11 @@ function Chart() {
     };
 }
 
-function RestController ($scope) {
+function RestController ($scope, RESTFactory) {
 
-};
+    $scope.factoryBooks = RESTFactory.readObject('data/books.json');
+
+}
 
 
 function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {

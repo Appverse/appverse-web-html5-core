@@ -442,6 +442,9 @@ module.exports = function (grunt) {
         // Generate code analysis reports
         plato: {
             main: {
+                options : {
+                    jshint : grunt.file.readJSON('.jshintrc')
+                },
                 files: {
                     '<%= appverse.reports %>/analysis/': [
                         '<%= appverse.app %>/api-*/**/*.js',
