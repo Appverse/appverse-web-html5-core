@@ -7,8 +7,7 @@
         function ($log, Restangular, REST_CONFIG) {
             var factory = {};
             var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            var _this = this;
-
+            $log.debug('Multicast Enabled : ' + multicastSpawn);
 
             factory.readObject = function (path, params) {
                 if(params && params.length >0){

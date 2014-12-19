@@ -14,12 +14,14 @@
      *
      * WARNING
      *
-     * IT IS STRONGLY RECOMMENDED TO USE THIS LOG IMPLEMENTATION AND NEVER directly to use console.log() to log debugger messages.
+     * IT IS STRONGLY RECOMMENDED TO USE THIS LOG IMPLEMENTATION AND NEVER directly
+     * to use console.log() to log debugger messages.
      * If you do not use this one, use $log instead at least...
      *
      * SERVER SIDE LOG
      *
-     * To handle JavaScript errors, we needed to intercept the core AngularJS error handling and add a server-side communication aspect to it.
+     * To handle JavaScript errors, we needed to intercept the core AngularJS
+     * error handling and add a server-side communication aspect to it.
      *
      * DECORATOR WAY
      *
@@ -29,10 +31,14 @@
      *
      * 2) the callback to be executed every time someone asks for the target.
      *
-     * This way, we are telling in config time to Angular that every time a service/controller/directive asks for $log instance, Angular will provide the result of the callback. As you can see, we are passing the original $log and formattedLogger (the API implementation) to the callback, and then, he returns a formattedLogger factory instance.
+     * This way, we are telling in config time to Angular that every time
+     * a service/controller/directive asks for $log instance,
+     * Angular will provide the result of the callback.
+     * As you can see, we are passing the original $log
+     * and formattedLogger (the API implementation) to the callback,
+     * and then, he returns a formattedLogger factory instance.
      */
     angular.module('AppLogging', ['AppConfiguration'])
-
         .config(["$provide",  function ($provide) {
             $provide.decorator("$log", ['$delegate', 'formattedLogger',
                 function ($delegate, formattedLogger) {

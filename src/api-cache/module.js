@@ -22,13 +22,18 @@
      *
      * WARNING - IndexedDB Usage:
      *
-     * IndexedDB works both online and offline, allowing for client-side storage of large amounts of structured data, in-order key retrieval, searches over the values stored, and the option to store multiple values per key.
+     * IndexedDB works both online and offline, allowing for client-side storage of large amounts of
+     * structured data, in-order key retrieval, searches over the values stored, and the option to
+     *  store multiple values per key.
      *
      * With IndexedDB, all calls are asynchronous and all interactions happen within a transaction.
      *
-     * Consider Same-origin policy constraints when accessing the IDB. This module creates a standard default IDB for the application domain.
+     * Consider Same-origin policy constraints when accessing the IDB.
+     * This module creates a standard default IDB for the application domain.
      *
-     * In order to make easiest as possible usage of the API two methods have been defined. The below example shows how to use these object to build custom queries to the IDB considering the initialization parameters:
+     * In order to make easiest as possible usage of the API two methods have been defined.
+     * The below example shows how to use these object to build custom queries to the IDB
+     * considering the initialization parameters:
      * <pre>
      *  function (param){
      *      var queryBuilder = CacheFactory.getIDBQueryBuilder();
@@ -45,7 +50,7 @@
     angular.module('AppCache', ['ng', 'AppConfiguration', 'jmdobry.angular-cache', 'ngResource'])
         .run(run);
 
-    function run($log, CacheFactory, CACHE_CONFIG, IDBService) {
+    function run($log, CacheFactory, CACHE_CONFIG) {
 
         $log.info('AppCache run');
 

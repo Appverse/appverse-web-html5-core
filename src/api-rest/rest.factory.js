@@ -34,7 +34,8 @@
         //      console.log("Error with status code", response.status);
         //  });
         // 2-HANDLING LISTS
-        //The best option for doing CRUD operations with a list, is to actually use the "real" list, and not the promise.
+        // The best option for doing CRUD operations with a list,
+        // is to actually use the "real" list, and not the promise.
         // It makes it easy to interact with it.
         ////////////////////////////////////////////////////////////////////////////////////
 
@@ -147,8 +148,9 @@
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
-         * per each record: route, reqParams, parentResource and restangular Collection. These fields add a lot of weight
-         * to the retrieved JSON structure. So, we need the lightest as possible data weight.
+         * per each record: route, reqParams, parentResource and restangular Collection.
+         * These fields add a lot of weight to the retrieved JSON structure.
+         * So, we need the lightest as possible data weight.
          * This method uses the $http AngularJS service. So, Restangular object settings are not applicable.
          * @returns {object} Promise with a large data structure
          */
@@ -167,8 +169,9 @@
          * @param {String} paths An array with URLs for each resource
          * @description Returns a combined result from several REST resources in chained promises.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
-         * per each record: route, reqParams, parentResource and restangular Collection. These fields add a lot of weight
-         * to the retrieved JSON structure. So, we need the lightest as possible data weight.
+         * per each record: route, reqParams, parentResource and restangular Collection.
+         * These fields add a lot of weight to the retrieved JSON structure.
+         * So, we need the lightest as possible data weight.
          * This method uses the $http AngularJS service. So, Restangular object settings are not applicable.
          * @returns {object} Promise with a large data structure
          */
@@ -181,7 +184,7 @@
                factory.readBatch(path).then(function (data) {
                        deferred.resolve(data);
                    },
-                   function (error) {
+                   function () {
                        deferred.reject();
                    });
 
@@ -302,6 +305,6 @@
 
         return factory;
 
-    };
+    }
 
 })();

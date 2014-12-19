@@ -191,7 +191,8 @@ https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
     /*
       try multiple transports
       defaults to true
-      When Socket.IO reconnects and it keeps failing over and over again, should it try all available transports when it finally gives up.
+      When Socket.IO reconnects and it keeps failing over and over again,
+      should it try all available transports when it finally gives up.
       */
     TryMultipleTransports: true,
     /*
@@ -203,7 +204,9 @@ https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
     /*
       reconnection delay
       defaults to 500 ms
-      The initial timeout to start a reconnect, this is increased using an exponential back off algorithm each time a new reconnection attempt has been made.
+      The initial timeout to start a reconnect,
+      this is increased using an exponential back off algorithm each
+      time a new reconnection attempt has been made.
       */
     ReconnectionDelay: 1000,
     /*
@@ -215,7 +218,8 @@ https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
     /*
       max reconnection attempts
       defaults to 10
-      How many times should Socket.IO attempt to reconnect with the server after a a dropped connection. After this we will emit the reconnect_failed event.
+      How many times should Socket.IO attempt to reconnect with the server after a a dropped connection.
+      After this we will emit the reconnect_failed event.
       */
     MaxReconnectionAttempts: 5,
     /*
@@ -248,14 +252,18 @@ https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
 REST MODULE CONFIGURATION
 This section contains the ccnfiguration for the REST module.
 This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
-So, all configuration params are based on its configuration (https://github.com/mgonto/restangular#configuring-restangular).
-Future updates of Restangular imply review of this section in order to keep consistency between config and the module.
+So, all configuration params are based on its configuration
+(https://github.com/mgonto/restangular#configuring-restangular).
+Future updates of Restangular imply review of this section in order
+to keep consistency between config and the module.
  */
 .constant('REST_CONFIG', {
     /*
     The base URL for all calls to your API.
     For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
-    The default baseUrl is an empty string which resolves to the same url that AngularJS is running, so you can also set an absolute url like http://api.example.com/api/v1 if you need do set another domain.
+    The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
+    so you can also set an absolute url like http://api.example.com/api/v1
+    if you need do set another domain.
     */
     BaseUrl: '/api/v1',
 
@@ -345,7 +353,8 @@ Future updates of Restangular imply review of this section in order to keep cons
     /*
     The fullRequestInterceptor is similar to the requestInterceptor but more powerful.
     It lets you change the element, the request parameters and the headers as well.
-    It's a function that receives the same as the requestInterceptor plus the headers and the query parameters (in that order).
+    It's a function that receives the same as the requestInterceptor
+    plus the headers and the query parameters (in that order).
     It must return an object with the following properties:
     headers: The headers to send
     params: The request parameters to send
@@ -381,8 +390,10 @@ Future updates of Restangular imply review of this section in order to keep cons
     selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
     URL to an item, you can just leave it blank. Defaults to href
     Also all of Restangular methods and functions are configurable through restangularFields property.
-    All of these fields except for id and selfLink are handled by Restangular, so most of the time you won't change them.
-    You can configure the name of the property that will be binded to all of this fields by setting restangularFields property.
+    All of these fields except for id and selfLink are handled by Restangular,
+    so most of the time you won't change them.
+    You can configure the name of the property that will be binded to all
+    of this fields by setting restangularFields property.
     */
     RestangularFields: {
         id: 'id',

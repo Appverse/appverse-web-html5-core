@@ -160,6 +160,7 @@ module.exports = function (grunt) {
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
+                reporter: require('jshint-stylish'),
                 //Show failures but do not stop the task
                 force: true
             },

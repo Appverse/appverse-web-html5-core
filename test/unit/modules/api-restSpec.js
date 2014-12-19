@@ -115,9 +115,11 @@ describe('Unit: Testing AppREST module', function () {
                 $rootScope.mybooksError.should.be.true;
             }));
 
-            it("loading state should be true when the request is not resolved yet", inject(function($compile, $rootScope) {
-                $rootScope.mybooksLoading.should.be.false;
-            }));
+            it("loading state should be true when the request is not resolved yet",
+                inject(function($compile, $rootScope) {
+                    $rootScope.mybooksLoading.should.be.false;
+                })
+            );
 
         });
 

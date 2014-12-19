@@ -1,8 +1,6 @@
 (function() {
     'use strict';
 
-    /*global ModuleIntegrator */
-
     //////////////////////// COMMON API - MAIN //////////////////////////
     // The Main module includes other API modules:
     // - Bootstrap-based styling and gadgets

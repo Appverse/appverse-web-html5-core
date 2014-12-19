@@ -31,7 +31,8 @@
             return {
                 restrict: 'E', //E = element, A = attribute, C = class, M = comment
                 scope: {
-                    //(required) set the worker id in configuration or the complete path if it is not included in config.
+                    //(required) set the worker id in configuration or the complete path
+                    //if it is not included in config.
                     workerid: '@',
                     //(required) set the message to be passed to the worker
                     message: '@',
@@ -85,7 +86,7 @@
                         scope.workerid = workerid;
                         scope.template = template || PERFORMANCE_CONFIG.webworker_Message_template;
                         initWorker(scope.workerid, message);
-                    };
+                    }
 
                     /**
                      * @function
@@ -119,7 +120,7 @@
                                 element.html(html);
                                 $compile(element.contents())(scope);
                             });
-                    };
+                    }
 
 
                     $scope.$on('$destroy', function(event) {
