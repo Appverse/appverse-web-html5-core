@@ -165,6 +165,7 @@ module.exports = function (grunt) {
                 force: true
             },
             all: [
+
                 '<%= appverse.app %>/api-*/{,*/}*.js'
             ]
         },
@@ -342,7 +343,6 @@ module.exports = function (grunt) {
                     port: 9000,
                     middleware: function (connect) {
                         return [
-                            delayApiCalls,
                             liveReloadSnippet,
                             mountFolder(connect, configPaths.app),
                             mountFolder(connect, configPaths.demo),
@@ -358,7 +358,6 @@ module.exports = function (grunt) {
                     port: 9091,
                      middleware: function (connect) {
                         return [
-                            delayApiCalls,
                             mountFolder(connect, configPaths.e2eInstrumented + '/src'),
                             mountFolder(connect, configPaths.app),
                             mountFolder(connect, configPaths.demo),
@@ -374,7 +373,6 @@ module.exports = function (grunt) {
                     port: 9090,
                     middleware: function (connect) {
                         return [
-                            delayApiCalls,
                             mountFolder(connect, configPaths.app),
                             mountFolder(connect, configPaths.dist),
                             mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),

@@ -1,14 +1,24 @@
 (function() { 'use strict';
 
 
+// Define app components
+// For configuration, see bootstrap.js
+
 angular.module('demoApp', ['COMMONAPI'])
     .controller('DetectionController', DetectionController)
     .controller('CacheController', CacheController)
     .controller('PerformanceController', PerformanceController)
     .controller('BandwidthController', BandwidthController)
     .controller('RestController', RestController)
-    .service('Chart', Chart);
+    .service('Chart', Chart)
+    .run(run);
 
+// This is the app's main run block. Perform initializations here
+function run(BackendMock) {
+    // When setting REST_CONFIG.BackendMock = true
+    // we need to define mocked responses.
+    BackendMock.defineResponses();
+}
 
 function DetectionController ($scope, Detection) {
     $scope.isMobileText = Detection.isMobileBrowser() ? 'yes' : 'no';
@@ -59,9 +69,7 @@ function Chart() {
 }
 
 function RestController ($scope, RESTFactory) {
-
-    $scope.factoryBooks = RESTFactory.readObject('data/books.json');
-
+    $scope.factoryBooks = RESTFactory.readObject('books.json');
 }
 
 

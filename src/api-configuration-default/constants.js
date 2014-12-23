@@ -459,7 +459,16 @@ to keep consistency between config and the module.
     /*
      *
      */
-    DefaultContentType: 'application/json'
+    DefaultContentType: 'application/json',
+
+    /**
+     * If true, it will mock backend $http calls
+     * by decorating the default "real" $http service with a mocked
+     * one from angular-mocks.
+     * (remember to include the  angular-mocks.js script if this option is set to true)
+     * @type {Boolean}
+     */
+    MockBackend: false
 })
 
 .constant('AD_CONFIG', {

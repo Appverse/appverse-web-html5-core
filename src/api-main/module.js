@@ -53,7 +53,15 @@
      * Configures the integration between modules that need to be integrated
      * at the config phase.
      */
-    function config($compileProvider, $injector, ModuleSeekerProvider) {
+    function config($compileProvider, $injector, $provide, ModuleSeekerProvider, REST_CONFIG) {
+
+        //Mock backend if necessary
+        if (REST_CONFIG.MockBackend) {
+            console.log('You are using a mocked backend!');
+            $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
+        }
+
+        // sanitize hrefs
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
 
         // Integrate modules that have a dependency

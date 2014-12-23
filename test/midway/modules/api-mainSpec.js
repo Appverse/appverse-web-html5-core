@@ -110,6 +110,59 @@ describe('Midway: Api REST Module', function () {
 
     });
 
+
+});
+
+
+describe('REST_CONFIG.MockBackend is enabled...', function() {
+
+    beforeEach(module(function($provide) {
+        $provide.constant('REST_CONFIG', {
+            ElementTransformer : [],
+            MockBackend : true
+        });
+        $provide.constant('LOGGING_CONFIG', {});
+        $provide.constant('CACHE_CONFIG', {});
+        $provide.provider('ConfigLoader', function() {
+            this.setDetection = sinon.spy();
+            this.$get = sinon.spy();
+        } );
+        $provide.value('$httpBackend', {});
+    }));
+
+    beforeEach(module('COMMONAPI'));
+
+
+    it('$httpBackend should be mocked', inject(function($httpBackend) {
+        should.exist($httpBackend.whenGET);
+    }));
+
+});
+
+
+describe('REST_CONFIG.MockBackend is DISABLED...', function() {
+
+    beforeEach(module(function($provide) {
+        $provide.constant('REST_CONFIG', {
+            ElementTransformer : [],
+            MockBackend : false
+        });
+        $provide.constant('LOGGING_CONFIG', {});
+        $provide.constant('CACHE_CONFIG', {});
+        $provide.provider('ConfigLoader', function() {
+            this.setDetection = sinon.spy();
+            this.$get = sinon.spy();
+        } );
+        $provide.value('$httpBackend', {});
+    }));
+
+    beforeEach(module('COMMONAPI'));
+
+
+    it('$httpBackend should be mocked', inject(function($httpBackend) {
+        should.not.exist($httpBackend.whenGET);
+    }));
+
 });
 
 

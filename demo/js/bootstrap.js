@@ -55,7 +55,7 @@ AppInit.setConfig({
             "ForceNewConnection": false
         },
         "REST_CONFIG": {
-            "BaseUrl": "/",
+            "BaseUrl": "api",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {
@@ -78,7 +78,8 @@ AppInit.setConfig({
             "DefaultHeaders": {},
             "RequestSuffix": ".json",
             "UseCannonicalId": false,
-            "EncodeIds": true
+            "EncodeIds": true,
+            "MockBackend" : true
         },
         "AD_CONFIG": {
             "ConsumerKey": "",
@@ -126,7 +127,7 @@ AppInit.setConfig({
             "ForceNewConnection": false
         },
         "REST_CONFIG": {
-            "BaseUrl": "/",
+            "BaseUrl": "api",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {
@@ -149,7 +150,8 @@ AppInit.setConfig({
             "DefaultHeaders": {},
             "RequestSuffix": ".json",
             "UseCannonicalId": false,
-            "EncodeIds": true
+            "EncodeIds": true,
+            "MockBackend" : true
         }
     },
 
@@ -215,7 +217,7 @@ AppInit.setConfig({
             "WS_SUPPORTED": "HTML5 Websockets specification is supported in this browser."
         },
         "REST_CONFIG": {
-            "BaseUrl": "/",
+            "BaseUrl": "api",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {
@@ -238,7 +240,8 @@ AppInit.setConfig({
             "DefaultHeaders": {},
             "RequestSuffix": ".json",
             "UseCannonicalId": false,
-            "EncodeIds": true
+            "EncodeIds": true,
+            "MockBackend" : true
         }
     }
 });
