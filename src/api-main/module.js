@@ -44,7 +44,8 @@
      * Bootstraps the application by integrating services that have any relation.
      */
     angular.module('COMMONAPI', generateDependencies(requires, optional))
-        .config(config);
+        .config(config)
+        .run(run);
 
 
     /**
@@ -57,7 +58,7 @@
 
         //Mock backend if necessary
         if (REST_CONFIG.MockBackend) {
-            console.log('You are using a mocked backend!');
+
             $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
         }
 
@@ -75,6 +76,12 @@
                 formattedLoggerProvider.setDetection(detectionProvider);
             }
 
+        }
+    }
+
+    function run($log, REST_CONFIG) {
+        if (REST_CONFIG.MockBackend) {
+            $log.debug('REST: You are using a MOCKED backend!');
         }
     }
 

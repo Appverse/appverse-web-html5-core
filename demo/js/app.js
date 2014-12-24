@@ -10,15 +10,8 @@ angular.module('demoApp', ['COMMONAPI'])
     .controller('PerformanceController', PerformanceController)
     .controller('BandwidthController', BandwidthController)
     .controller('RestController', RestController)
-    .service('Chart', Chart)
-    .run(run);
+    .service('Chart', Chart);
 
-// This is the app's main run block. Perform initializations here
-function run(BackendMock) {
-    // When setting REST_CONFIG.BackendMock = true
-    // we need to define mocked responses.
-    BackendMock.defineResponses();
-}
 
 function DetectionController ($scope, Detection) {
     $scope.isMobileText = Detection.isMobileBrowser() ? 'yes' : 'no';
