@@ -5,22 +5,16 @@
 
     /**
      * @ngdoc directive
-     * @name AppCache.directive:cache
-     * @restrict B
+     * @name cache
+     * @restrict A
      * @requires $log
-     * @requires AppCache.factory:CacheFactory
+     * @requires CacheFactory
      *
      * @description
      * Use this directive to inject directly in dom nodes caching features for values.
-     *
-     *
-     * @example
-     <example module="AppCache">
-        <file name="index.html">
-            <div cache="name" />
-            <div cache cache-name="name" />
-        </file>
-    </example>
+     * Use ``` <div cache="name"></div> ``` to fill the node with the cached value of "name"
+     * and updates the value in cache when the "name" model changes.
+     * You can also use "cache-name" instead of "cache" to specify the model name.
      */
     .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
 

@@ -275,8 +275,8 @@ module.exports = function (grunt) {
         // Generate docs
         docular: {
             showDocularDocs: false,
-            showAngularDocs: true,
-            docular_webapp_target: "doc",
+            showAngularDocs: false,
+            docular_webapp_target: '<%= appverse.doc %>',
             groups: [
                 {
                     groupTitle: 'Appverse HTML5',
@@ -284,32 +284,33 @@ module.exports = function (grunt) {
                     groupIcon: 'icon-beer',
                     sections: [
                         {
-                            id: "commonapi",
-                            title: "Common API",
+                            id: "core",
+                            title: "Core API",
                             showSource: true,
-                            scripts: ["src/modules", "src/directives"
-                            ],
+                            scripts: ["src/api-*/**/*.js"],
                             docs: ["ngdocs/commonapi"],
                             rank: {}
                         }
                     ]
-                }, {
+                }, /*{
                     groupTitle: 'Angular jQM',
                     groupId: 'angular-jqm',
                     groupIcon: 'icon-mobile-phone',
                     sections: [
                         {
                             id: "jqmapi",
-                            title: "API",
-                            showSource: true,
-                            scripts: ["src/angular-jqm.js"
-                            ],
-                            docs: ["ngdocs/jqmapi"],
-                            rank: {}
+                            title: "Jquery Mobile API",
+                            scripts: ["src/angular-jqm.js"]
                         }
                     ]
-                }
+                }*/
             ]
+        },
+
+
+        // Web server for documentation
+        docularserver: {
+            targetDir: '<%= appverse.doc %>'
         },
 
         bump: {

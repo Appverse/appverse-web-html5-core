@@ -35,16 +35,16 @@
      * The below example shows how to use these object to build custom queries to the IDB
      * considering the initialization parameters:
      * <pre>
-     *  function (param){
-     *      var queryBuilder = CacheFactory.getIDBQueryBuilder();
-     *      var objStore = CacheFactory.getIDBObjectStore();
-     *      var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
-     *      objStore.each(myQuery).then(function(cursor){
-     *          $scope.key = cursor.key;
-     *          $scope.value = cursor.value;
-     *      });
-     *  }
-     * </pre>
+       function (param){
+           var queryBuilder = CacheFactory.getIDBQueryBuilder();
+           var objStore = CacheFactory.getIDBObjectStore();
+           var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
+           objStore.each(myQuery).then(function(cursor){
+               $scope.key = cursor.key;
+               $scope.value = cursor.value;
+           });
+       }
+      </pre>
      */
 
     angular.module('AppCache', ['ng', 'AppConfiguration', 'jmdobry.angular-cache', 'ngResource'])

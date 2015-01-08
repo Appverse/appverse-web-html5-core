@@ -6,11 +6,13 @@
     /**
      * @ngdoc service
      * @name AppCache.service:CacheFactory
+     *
      * @requires $angularCacheFactory
      * @requires $http
      * @requires CACHE_CONFIG
+     *
      * @description
-     * Contains methods for cache management.
+     * Returns an object that exposes methods for cache management.
      */
     function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
 
@@ -22,11 +24,13 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#setScopeCache
-         * @methodOf AppCache.service:CacheFactory
+         * @name CacheFactory#setScopeCache
+         * @memberOf CacheFactory
+         *
          * @param {number} duration Items expire after this time.
          * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
          * If you don't want $http's default cache to store every response.
+         *
          * @description Configure the scope cache.
          */
         factory.setScopeCache = function(duration, capacity) {
@@ -39,8 +43,9 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#getScopeCache
-         * @methodOf AppCache.service:CacheFactory
+         * @name CacheFactory#getScopeCache
+         * @methodOf CacheFactory
+         *
          * @description getScopeCache is the singleton that CacheFactory
          * manages as a local cache created with $angularCacheFactory,
          * which is what we return from the service.
@@ -113,8 +118,9 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#setDefaultHttpCacheStorage
-         * @methodOf AppCache.service:CacheFactory
+         * @name CacheFactory#setDefaultHttpCacheStorage
+         * @methodOf CacheFactory
+         *
          * @param {number} duration items expire after this time.
          * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
          * @description Default cache configuration for $http service
@@ -172,14 +178,16 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#getHttpCache
-         * @methodOf AppCache.service:CacheFactory
+         * @name CacheFactory#getHttpCache
+         * @methodOf CacheFactory
          * @description Returns the httpcache object in factory
          * @returns httpcache object
          */
         factory.getHttpCache = function() {
             return factory._httpCache;
         };
+
+
 
         return factory;
     }
