@@ -92,7 +92,15 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <!-- endbuild -->    
 ```
 
+
 * Add the `appverse-web-html5-core` module to your Angular module list (e.g. in a main app.js file: `angular.module('yourMainModule',['COMMONAPI'])`)
+
+* On your main.scss file add the following line on the begining of the dile
+
+```scss
+@import '../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap';
+```
+
 
 
 ## License
