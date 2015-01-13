@@ -1,10 +1,11 @@
 /**
+ * @ngdoc object
+ * @name  AppInit
+ * @module  COMMONAPI
+ * @description
  * This file includes functionality to initialize settings in an appverse-web-html5 app
  * Just call the initalization code after having loaded angular and the configuration module:
- *
- * AppInit.setConfig(settings).bootstrap()
- *
- * @return {object} AppInit
+ * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
 var AppInit = AppInit || (function(angular) { 'use strict';
 

@@ -22,7 +22,6 @@
         /**
          * @ngdoc method
          * @name CacheFactory#setScopeCache
-         * @memberOf CacheFactory
          *
          * @param {number} duration Items expire after this time.
          * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
@@ -41,7 +40,6 @@
         /**
          * @ngdoc method
          * @name CacheFactory#getScopeCache
-         * @methodOf CacheFactory
          *
          * @description getScopeCache is the singleton that CacheFactory
          * manages as a local cache created with $angularCacheFactory,
@@ -50,17 +48,17 @@
          *
          * The newly created cache object has the following set of methods:
          *
-         * {object} info() — Returns id, size, and options of cache.
+         * * {object} info() — Returns id, size, and options of cache.
          *
-         * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
+         * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
          *
-         * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
+         * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
          *
-         * {void} remove({string} key) — Removes a key-value pair from the cache.
+         * * {void} remove({string} key) — Removes a key-value pair from the cache.
          *
-         * {void} removeAll() — Removes all cached values.
+         * * {void} removeAll() — Removes all cached values.
          *
-         * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+         * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
          */
         factory.getScopeCache = function() {
             return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
@@ -68,7 +66,9 @@
         };
 
         /**
-         @function
+         @ngdoc function
+         @name CacheFactory#setBrowserStorage
+
          @param type Type of storage ( 1 local | 2 session).
          @param maxAgeInit
          @param cacheFlushIntervalInit
@@ -85,9 +85,8 @@
          Infinity, NaN - Will be replaced with null.
          undefined, Function - Will be removed.
          The returned object supports the following set of methods:
-         {void} $reset() - Clears the Storage in one go.
+         * {void} $reset() - Clears the Storage in one go.
          */
-
         factory.setBrowserStorage = function(
             type,
             maxAgeInit,
@@ -116,7 +115,6 @@
         /**
          * @ngdoc method
          * @name CacheFactory#setDefaultHttpCacheStorage
-         * @methodOf CacheFactory
          *
          * @param {number} duration items expire after this time.
          * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
@@ -183,8 +181,6 @@
         factory.getHttpCache = function() {
             return factory._httpCache;
         };
-
-
 
         return factory;
     }

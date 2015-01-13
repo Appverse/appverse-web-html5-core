@@ -13,15 +13,24 @@
 
     /**
      * @ngdoc provider
-     * @name AppDetection.provider:MobileLibrariesLoader
+     * @name MobileLibrariesLoader
+     * @module AppDetection
      * @description
      * Loads libraries targeted at mobile devices
      */
     function MobileLibrariesLoaderProvider() {
 
         /**
-         * Array of script paths to be loaded
-         * @type {[type]}
+         * @ngdoc property
+         * @name MobileLibrariesLoader#scripts
+         * @type {array}
+         * @description Array of script paths to be loaded. Defaults to: <pre><code>
+         * var defaults = [
+         *   'bower_components/angular-touch/angular-touch.js',
+         *   'bower_components/angular-animate/angular-animate.js',
+         *   'bower_components/angular-route/angular-route.js',
+         *   'angular-jqm.js',
+         *  ]; </code></pre>
          */
         this.scripts = defaults;
 
@@ -29,10 +38,11 @@
             return this;
         };
 
-
-
-
         /**
+         * @ngdoc method
+         * @name MobileLibrariesLoader#load
+         *
+         * @description
          * Loads scripts in parallel and executes them in order
          * using 'async'.
          * Fallsback to 'readyState' for IE<10

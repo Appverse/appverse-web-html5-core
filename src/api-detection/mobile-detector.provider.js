@@ -5,8 +5,10 @@
         .provider('MobileDetector', MobileDetectorProvider);
 
     /**
-     * @ngdoc service
-     * @name AppDetection.provider:Detection
+     * @ngdoc provider
+     * @name MobileDetector
+     * @module AppDetection
+     *
      * @description
      * Detects if the browser is mobile
      */
@@ -16,10 +18,20 @@
             return this;
         };
 
+        /**
+         * @ngdoc method
+         * @name MobileDetector#hasAppverseMobile
+         * @return {Boolean}
+         */
         this.hasAppverseMobile = function() {
             return hasUnity() && unityHasOSInfo();
         };
 
+        /**
+         * @ngdoc method
+         * @name MobileDetector#isMobileBrowser
+         * @return {Boolean}
+         */
         this.isMobileBrowser = function (customAgent) {
             var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
             return agentContainsMobileKeyword(agent);

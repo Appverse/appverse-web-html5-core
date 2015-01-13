@@ -5,7 +5,8 @@
 
     /**
      * @ngdoc service
-     * @name AppREST.factory:RESTFactory
+     * @name RESTFactory
+     * @module AppREST
      * @requires $log
      * @requires Restangular
      * @description
@@ -43,8 +44,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#wrapRequestWith
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#wrapRequestWith
+         *
          * @param {object} The request wrapper
          * @description Wraps a request.
          * The wrapper should expose a 'wrapRequest(Restangular)' function
@@ -56,8 +57,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#wrapRequestWith
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#wrapRequestWith
+         *
          * @description Sets the default Content-Type as header.
          */
         factory.enableDefaultContentType = function() {
@@ -68,8 +69,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#setCache
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#setCache
+         *
          * @description Sets the cache. Caching also depends on REST_CONFIG
          */
         factory.setCache = function(cache) {
@@ -90,8 +91,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readObject
+         *
          * @param {String} path The item URL
          * @param {String} successFn Optional function to be called when request is successful
          * @param {String} errorFn Optional function to be called when request has errors
@@ -115,8 +116,8 @@
          */
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readList
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readList
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -129,8 +130,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readList
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readList
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -143,8 +144,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readBatch
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readBatch
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -164,8 +165,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readParallelMultipleBatch
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readParallelMultipleBatch
+         *
          * @param {String} paths An array with URLs for each resource
          * @description Returns a combined result from several REST resources in chained promises.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -199,8 +200,8 @@
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readListItem
+         *
          * @param {String} path The item URL
          * @param {String} key The item key
          * @param {String} successFn Optional function to be called when request is successful
@@ -219,8 +220,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readListItems
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#readListItems
+         *
          * @param {String} path The item URL
          * @param {String} keys The item keys array
          * @description Returns a unique value.
@@ -233,8 +234,8 @@
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#createListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#createListItem
+         *
          * @param {String} path The item URL
          * @param {object} newData The item to be created
          * @param {object} callback The function for callbacking
@@ -248,8 +249,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#updateObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#updateObject
+         *
          * @param {String} path The item URL
          * @param {object} newData The item to be updated
          * @param {object} callback The function for callbacking
@@ -263,8 +264,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#deleteListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#deleteListItem
+         *
          * @param {String} path The item URL
          * @param {object} key The item key to be deleted
          * @param {object} callback The function for callbacking
@@ -280,8 +281,8 @@
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#deleteObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name RESTFactory#deleteObject
+         *
          * @param {String} path The item URL
          * @param {object} callback The function for callbacking
          * @description Deletes an item from a list.

@@ -3,6 +3,7 @@
 /**
  * @ngdoc module
  * @name AppDetection
+ *
  * @description
  * Provides browser and network detection.
  */

@@ -5,7 +5,8 @@
 
     /**
      * @ngdoc service
-     * @name AppServerPush.factory:SocketFactory
+     * @name SocketFactory
+     * @module AppServerPush
      * @requires $rootScope
      * @requires socket
      *
@@ -26,8 +27,7 @@
 
         /**
              @ngdoc method
-             @name AppServerPush.factory:SocketFactory#listen
-             @methodOf AppServerPush.factory:SocketFactory
+             @name SocketFactory#listen
              @param {string} eventName The name of the event/channel to be listened
              The communication is bound to rootScope.
              @param {object} callback The function to be passed as callback.
@@ -46,8 +46,8 @@
 
         /**
              @ngdoc method
-             @name AppServerPush.factory:SocketFactory#sendMessage
-             @methodOf AppServerPush.factory:SocketFactory
+             @name SocketFactory#sendMessage
+
              @param {string} eventName The name of the event/channel to be sent to server
              @param {object} scope The scope object to be bound to the listening.
              The communication will be cancelled when the scope is destroyed.
@@ -68,8 +68,8 @@
 
         /**
              @ngdoc method
-             @name AppServerPush.factory:SocketFactory#unsubscribeCommunication
-             @methodOf AppServerPush.factory:SocketFactory
+             @name SocketFactory#unsubscribeCommunication
+
              @param {object} callback The function to be passed as callback.
              @description Cancels all communications to server.
              The communication will be cancelled without regarding other consideration.

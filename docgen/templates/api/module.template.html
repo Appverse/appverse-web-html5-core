@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>
-  {% if doc.title %}{$ doc.title | marked $}{% else %}{$ doc.name | code $}{% endif %}
+  {% if doc.title %}{$ doc.title | marked $}{% else %}{$ doc.name + ' module' $}{% endif %}
 </h1>
 
 {$ doc.description | marked $}

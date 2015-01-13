@@ -1,7 +1,8 @@
 "use strict";
 
-var ncp = require('ncp').ncp;
-var path = require('canonical-path');
+var ncp = require('ncp').ncp,
+path    = require('canonical-path'),
+Promise = require('promise');
 
 
 /**
@@ -20,15 +21,18 @@ module.exports = function copyAssetsProcessor(log, readFilesProcessor, writeFile
     $process: function() {
       var source = path.resolve(readFilesProcessor.basePath, this.source);
       var destination = path.resolve(writeFilesProcessor.outputFolder, this.destination);
-      ncp.limit = 16;
-      log.debug(source);
-      log.debug(destination);
-      return ncp(source, destination, function (err) {
-        if (err) {
-          return log.error(err);
-        }
-        log.debug('assets copied');
+
+      return new Promise(function (fulfill, reject) {
+        ncp(source, destination, function (err) {
+          if (err) {
+            reject(err);
+            return log.error(err);
+          }
+          log.debug('assets copied');
+          fulfill();
+        });
       });
+
     }
   };
 };

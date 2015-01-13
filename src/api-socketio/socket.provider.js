@@ -5,7 +5,8 @@
 
     /**
      * @ngdoc provider
-     * @name AppSocketIO.provider:socket
+     * @name socket
+     * @module AppSocketIO
      * @description
      * This provider provides the appserverpush module with the SocketIO
      * client object from pre-existing configuration in application.

@@ -3,11 +3,12 @@
 angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider);
 
 /**
- * @ngdoc module
- * @name AppConfiguration.provider:ConfigLoader
- * @requires AppDetection
+ * @ngdoc provider
+ * @name ConfigLoader
+ * @module AppConfigLoader
+ *
  * @description
- * It includes constants for all the common API components.
+ * Loads configuration parameters int the AppConfiguration module.
  */
 function ConfigLoaderProvider() {
 
@@ -15,10 +16,22 @@ function ConfigLoaderProvider() {
     //by default, no detection is present
     detection         = new NoDetection();
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#setDetection
+     * @param {object} detectionProvider Detection provider from app detection
+     */
     this.setDetection = function(detectionProvider) {
         detection = detectionProvider;
     };
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#loadDefaultConfig
+     *
+     * @description Loads the default config from AppConfigDefault
+     * @return {object} the service instance
+     */
     this.loadDefaultConfig = function() {
         angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
             appConfigTemp[element[2][0]] = element[2][1];
@@ -26,6 +39,13 @@ function ConfigLoaderProvider() {
         return this;
     };
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#loadCustomConfig
+     *
+     * @description Loads custom config specified by the developer, for desktop and mobile environments
+     * @return {object} the service instance
+     */
     this.loadCustomConfig = function(settings) {
         if (settings) {
             this.settings =  settings;
@@ -35,11 +55,18 @@ function ConfigLoaderProvider() {
         return this;
     };
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#overrideDefaultConfig
+     *
+     * @description Overrides the default config with the loaded custom config
+     */
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
             angular.module('AppConfiguration').constant(propertyName, propertyValue);
         });
     };
+
 
     this.loadMobileConfigIfRequired = function() {
         if (detection.hasAppverseMobile()) {

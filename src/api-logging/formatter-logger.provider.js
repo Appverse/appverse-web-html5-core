@@ -1,18 +1,20 @@
 (function() { 'use strict';
 
-angular.module('AppLogging')
-    .provider("formattedLogger", FormattedLoggerProvider);
-
-
 /**
- * @ngdoc service
- * @name AppLogging.factory:formattedLogger
+ * @ngdoc provider
+ * @name formattedLogger
+ * @module AppLogging
+ *
+ * @description
+ * Captures the $log service and decorate it.
+ *
  * @requires LOGGING_CONFIG
  * @requires Detection
  * @param {Object} delegatedLog desc
- * @description
- * Captures the $log service and decorate it.
  */
+angular.module('AppLogging')
+    .provider("formattedLogger", FormattedLoggerProvider);
+
 function FormattedLoggerProvider () {
 
     var detectionProvider;

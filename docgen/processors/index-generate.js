@@ -3,16 +3,17 @@
 /**
  * Generates an index file for the docs
  */
-module.exports = function indexGenerateProcessor() {
+module.exports = function indexGenerateProcessor(moduleMap) {
   return {
     deployments: [],
     $validate: {},
     $runAfter: ['adding-extra-docs'],
     $runBefore: ['extra-docs-added'],
     $process: function(docs) {
-
       var modules = [];
+
       docs.forEach(function(doc) {
+        require('util').debug(doc.memberof);
         if (doc.docType === 'module') {
           modules.push(doc);
         }
@@ -22,6 +23,20 @@ module.exports = function indexGenerateProcessor() {
     }
   };
 };
+
+/*
+function generateMenuHierarchy(docs) {
+  var tree = {};
+  var types = [];
+
+  docs.forEach(function(doc) {
+    if (doc.docType === 'module') {
+      modules.push(doc);
+    }
+  });
+}
+*/
+
 
 function createIndex(modules) {
   return {

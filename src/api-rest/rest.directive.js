@@ -6,7 +6,8 @@
 
     /**
      * @ngdoc directive
-     * @name AppREST.directive:rest
+     * @name rest
+     * @module AppREST
      * @restrict A
      *
      * @description

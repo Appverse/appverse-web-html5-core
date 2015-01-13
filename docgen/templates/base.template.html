@@ -9,8 +9,12 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <!-- Optional Bootstrap theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <!-- Google Font -->
+    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     <!-- Own Css -->
     <link rel="stylesheet" href="assets/css/docs.css">
+    <!-- Css for code highlighting -->
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/docco.min.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -21,7 +25,7 @@
   <body ng-app="docs">
 
     <!-- Navbar -->
-    <nav class="navbar navbar-default navbar-static-top">
+    <nav class="navbar navbar-default navbar-static-top horizontal-gradient">
       <div class="container">
         <div class="navbar-header">
           <!-- Button for showing links in mobile view -->
@@ -31,11 +35,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="index.html">Appverse Documentation</a>
+          <a class="navbar-brand" href="index.html">
+            <img src="assets/images/logo.png" alt="Appverse documentation">
+          </a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html">Docs Home</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -46,15 +52,36 @@
         <div class="row">
           <!-- Side menu -->
           <div class="col-md-3">
-            <ul>
-            {% for module in docs %}
-              <li>{$ module.id | link(module.name, module, doc) $}</li>
-            {% endfor %}
-            </ul>
+
+            <div class="gray-links no-underline-links">
+              <ul class="no-list-style higher-lis">
+              {% for aDoc in docs %}
+                {% if aDoc.docType == 'module' %}
+                  <li>
+                    <span class="bigger-size">
+                      {$ aDoc.id | link(aDoc.name, aDoc, doc) $}
+                    </span>
+                    <ul class="no-list-style list-less-left-padding">
+                    {% for componentGroup in aDoc.componentGroups %}
+                    <li>
+                      {$ (componentGroup.groupType + 's') | code $}
+                      <ul class="no-list-style">
+                        {% for component in componentGroup.components %}
+                          <li>{$ component.id | link(component.name, component) $}</li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                    {% endfor %}
+                    </ul>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              </ul>
+            </div>
+
           </div>
           <!-- View placeholder -->
           <div class="col-md-9">
-            <h2>Modules overview</h2>
             {% block content %}
             {% endblock %}
           </div>
@@ -67,7 +94,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Latest compiled and minified Bootstrap JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-
+    <!-- For code highlighting -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>
 

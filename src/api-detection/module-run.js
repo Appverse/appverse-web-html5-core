@@ -5,10 +5,10 @@ angular.module('AppDetection')
 
 /**
  * @doc function
- * @name AppDetection.run:Detection
- * @description
+ * @name AppDetection#run
  *
- * Run block for AppDetection. Contains methods for browser and network detection.
+ * @description
+ * Run block for AppDetection. Initializes the whole module
  */
 function run($log, Detection, $rootScope, $window) {
     $log.info('AppDetection run');

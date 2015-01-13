@@ -28,7 +28,7 @@ module.exports = new Package('appverse-dgeni', [
 .config(function(computeIdsProcessor, createDocMessage, getAliases) {
   computeIdsProcessor.idTemplates.push({
     docTypes: ['controller', 'provider', 'service', 'directive', 'input', 'object', 'function', 'filter', 'type' ],
-    idTemplate: '${module}-${docType}-${name}',
+    idTemplate: 'module:${module}.${docType}:${name}',
     getAliases: getAliases
   });
 })
@@ -76,8 +76,8 @@ module.exports = new Package('appverse-dgeni', [
     getAliases: getAliases
   });
 
-  // Set logging level
-  log.level = 'silly';
+  // Set logging level [errors, info, debug, silly]
+  log.level = 'debug';
 
   // Specify the base path used when resolving relative paths to source and output files
   readFilesProcessor.basePath = path.resolve(__dirname, '..');
@@ -86,7 +86,7 @@ module.exports = new Package('appverse-dgeni', [
   readFilesProcessor.sourceFiles = [
     {
       // Process all js files in `src` and its subfolders ...
-      include: 'src/api-cache/*.js',
+      include: 'src/api-*/**/*.js',
       // ... except for this one!
       exclude: 'src/angular-jqm.js',
       // When calculating the relative path to these files use this as the base path.

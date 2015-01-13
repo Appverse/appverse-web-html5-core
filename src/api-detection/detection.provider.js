@@ -5,9 +5,14 @@ angular.module('AppDetection')
 
 /**
  * @ngdoc provider
- * @name AppDetection.provider:Detection
+ * @name Detection
+ * @module  AppDetection
+ *
  * @description
  * Contains methods for browser and network detection.
+ *
+ * @requires  MobileDetectorProvider
+ * @requires  MobileLibrariesLoaderProvider
  */
 function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvider) {
 
@@ -24,10 +29,20 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
         return this;
     };
 
+    /**
+     * @ngdoc method
+     * @name  AppDetection#hasAppverseMobile
+     * @return {Boolean} Whether the application has Appverse mobile or not
+     */
     this.hasAppverseMobile = function() {
         return this.mobileDetector.hasAppverseMobile();
     };
 
+    /**
+     * @ngdoc method
+     * @name  AppDetection#isMobileBrowser
+     * @return {Boolean} Whether the application is running on a mobile browser
+     */
     this.isMobileBrowser = function() {
         return this.mobileDetector.isMobileBrowser();
     };
@@ -78,8 +93,8 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
 
     /**
      * @ngdoc method
-     * @name AppDetection.provider:Detection#testOnlineStatus
-     * @methodOf AppDetection.provider:Detection
+     * @name Detection#testOnlineStatus
+     *
      * @param {String} path The item URL
      * @description Tries to fetch a file on the server and fire events for fail and success.
      */
@@ -89,8 +104,8 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
 
     /**
      * @ngdoc method
-     * @name AppDetection.provider:Detection#startPollingOnlineStatus
-     * @methodOf AppDetection.provider:Detection
+     * @name Detection#startPollingOnlineStatus
+     *
      * @param {number} interval Time in milliseconds
      * @description Tries to fetch a file on the server at regular intervals and fire events for fail and success.
      */
@@ -98,11 +113,21 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
         this.isPollingOnlineStatus = setInterval(this.testOnlineStatus, interval);
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#stopPollingOnlineStatus
+     *
+     * @description Stops fetching the file from the server.
+     */
     this.stopPollingOnlineStatus = function () {
         clearInterval(this.isPollingOnlineStatus);
         this.isPollingOnlineStatus = false;
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#testBandwidth
+     */
     this.testBandwidth = function () {
         var jsonUrl = "resources/detection/bandwidth.json?bust=" +  (new Date()).getTime();
         fireEvent("onBandwidthStart");
@@ -111,11 +136,23 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
         });
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#startPollingBandwidth
+     *
+     * @param {number} interval Time in milliseconds
+     */
     this.startPollingBandwidth = function (interval) {
         this.testBandwidth();
         this.isPollingBandwidth = setInterval(this.testBandwidth.bind(this), interval);
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#stopPollingBandwidth
+     *
+     * @param {number} interval Time in milliseconds
+     */
     this.stopPollingBandwidth = function () {
         clearInterval(this.isPollingBandwidth);
         this.isPollingBandwidth = false;

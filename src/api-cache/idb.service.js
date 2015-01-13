@@ -6,12 +6,14 @@
     /**
      * @ngdoc service
      * @name IDBService
+     * @module  AppCache
+     *
      * @description
      * This service has been planned to be used as a simple HTML5's indexedDB specification with the commonAPI.
      * A pre-configured data structure has been included to be used for common purposes:
-     * Data Structure Name: 'default'
-     * Fields: Id, Title, Body, Tags, Updated.
-     * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
+     * * Data Structure Name: 'default'
+     * * Fields: Id, Title, Body, Tags, Updated.
+     * * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
      */
     .service('IDBService', ['$q', '$log', function($q, $log) {
         var setUp = false;
@@ -19,10 +21,9 @@
 
         var service = {};
 
-        /**
+         /**
          * @ngdoc method
-         * @name IDBServiceB#init
-         * @methodOf IDBService
+         * @name IDBService#init
          * @description Initialize the default Indexed DB in browser if supported
          */
         function init() {
@@ -75,7 +76,6 @@
         /**
          * @ngdoc method
          * @name IDBService#isSupported
-         * @methodOf IDBService
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
         service.isSupported = function() {
@@ -85,7 +85,6 @@
         /**
          * @ngdoc method
          * @name IDBService#deleteDefault
-         * @methodOf IDBService
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
@@ -102,7 +101,6 @@
         /**
          * @ngdoc method
          * @name IDBService#getDefault
-         * @methodOf IDBService
          * @param {string} storeName The asssigned name of the store object.
          * @description Retrieves the record with the passed ID
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -126,7 +124,6 @@
         /**
          * @ngdoc method
          * @name IDBService#getDefaults
-         * @methodOf IDBService
          * @description Retrieves the set with ALL the records in the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
@@ -166,7 +163,6 @@
         /**
          * @ngdoc method
          * @name IDBService#ready
-         * @methodOf IDBService
          * @description This flag is true if the IDB has been successfully initializated.
          */
         service.ready = function() {
@@ -176,7 +172,6 @@
         /**
          * @ngdoc method
          * @name IDBService#saveDefault
-         * @methodOf IDBService
          * @param {string} item The record to be stored
          * @description Saves a record with the given structure into the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -224,7 +219,7 @@
         /**
          * @ngdoc method
          * @name IDBService#item
-         * @methodOf IDBService
+         *
          * @param {int} id The ID of the record to be stored
          * @param {string} title The name for record to be stored
          * @param {string} body The description of the record to be stored

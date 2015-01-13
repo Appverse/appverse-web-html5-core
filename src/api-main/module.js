@@ -40,8 +40,19 @@
 
 
     /**
-     * Main module.
-     * Bootstraps the application by integrating services that have any relation.
+     * @ngdoc module
+     * @name  COMMONAPI
+     * @description Main module. Bootstraps the application by integrating services that have any relation.
+     * It will automatically intialize any of these modules, whose scripts have been loaded:
+     * * Bootstrap-based styling and gadgets
+     * * Routing
+     * * External Configuration
+     * * REST Integration
+     * * Cache Service
+     * * ServerPush
+     * * Security
+     * * Internationalization
+     * * Logging
      */
     angular.module('COMMONAPI', generateDependencies(requires, optional))
         .config(config);

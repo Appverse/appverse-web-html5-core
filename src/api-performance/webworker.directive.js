@@ -6,7 +6,8 @@
 
     /**
     * @ngdoc directive
-    * @name AppPerformance.directive:webworker
+    * @name webworker
+    * @module AppPerformance
     * @restrict AE
     *
     * @description
