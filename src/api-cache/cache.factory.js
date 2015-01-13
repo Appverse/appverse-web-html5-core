@@ -5,11 +5,8 @@
 
     /**
      * @ngdoc service
-     * @name AppCache.service:CacheFactory
-     *
-     * @requires $angularCacheFactory
-     * @requires $http
-     * @requires CACHE_CONFIG
+     * @name CacheFactory
+     * @module AppCache
      *
      * @description
      * Returns an object that exposes methods for cache management.

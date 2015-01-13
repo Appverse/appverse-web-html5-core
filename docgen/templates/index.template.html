@@ -1,0 +1,8 @@
+{% extends "base.template.html" %}
+{% block content %}
+    {% for module in doc.modules %}
+      <h3>{$ module.id | link(module.name, module) $}</h3>
+      {$ module.description | firstParagraph | marked $}
+      {$ module.services $}
+    {% endfor %}
+{% endblock %}

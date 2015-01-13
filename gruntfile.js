@@ -154,7 +154,7 @@ module.exports = function (grunt) {
             },
             coverage : '<%= appverse.coverage %>/**',
             server: '.tmp',
-            docular: 'doc'
+            doc: 'doc'
 
         },
 
@@ -388,7 +388,22 @@ module.exports = function (grunt) {
                         ];
                     }
                 }
-            }
+            },
+
+            // Docs
+            doc: {
+                options: {
+                    port: 9999,
+                    keepalive : true,
+                    middleware: function (connect) {
+                        return [
+                            require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
+                            mountFolder(connect, configPaths.doc),
+
+                        ];
+                    }
+                }
+            },
         },
 
         watch: {
@@ -569,12 +584,23 @@ module.exports = function (grunt) {
         'connect:e2e_dist:keepalive',
     ]);
 
-
+    // ------ Analysis tasks. Doc tasks -----
 
     grunt.registerTask('doc', [
-        'clean:docular',
-        'docular'
+        'clean:doc',
+        'docgen'
     ]);
+
+    grunt.registerTask('docgen', 'Generates docs', function() {
+        var Dgeni = require('dgeni'),
+        packages  = [require('./docgen/package')],
+        dgeni     = new Dgeni(packages),
+        done      = this.async();
+        dgeni.generate().then(function(docs) {
+            console.log(docs.length, 'docs generated');
+            done();
+        });
+    });
 
 
     // ------ Analysis tasks. Runs code analysis -----

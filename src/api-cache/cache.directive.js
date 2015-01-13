@@ -6,8 +6,9 @@
     /**
      * @ngdoc directive
      * @name cache
+     * @module  AppCache
      * @restrict A
-     * @requires $log
+     *
      * @requires CacheFactory
      *
      * @description
