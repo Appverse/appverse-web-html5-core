@@ -62,7 +62,7 @@ function Chart() {
 }
 
 function RestController ($scope, RESTFactory) {
-    $scope.factoryBooks = RESTFactory.readList('books.json');
+    $scope.factoryBooks = RESTFactory.readList('books');
 }
 
 
