@@ -345,6 +345,7 @@ module.exports = function (grunt) {
                     port: 9000,
                     middleware: function (connect) {
                         return [
+                            delayApiCalls,
                             liveReloadSnippet,
                             mountFolder(connect, configPaths.src),
                             mountFolder(connect, configPaths.bowerComponents),
@@ -361,6 +362,7 @@ module.exports = function (grunt) {
                     port: 9091,
                      middleware: function (connect) {
                         return [
+                            delayApiCalls,
                             mountFolder(connect, configPaths.e2eInstrumented + '/src'),
                             mountFolder(connect, configPaths.src),
                             mountFolder(connect, configPaths.bowerComponents),
