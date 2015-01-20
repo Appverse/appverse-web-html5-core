@@ -16,11 +16,13 @@ module.exports = function (grunt) {
 
     // Configurable paths
     var configPaths = {
-        app: 'src',
+        src: 'src',
+        bowerComponents : 'bower_components',
         dist: 'dist',
         doc: 'doc',
         test: 'test',
         demo: 'demo',
+        testsConfig: 'config/test',
         reports: 'reports',
         coverage: 'reports/coverage',
         e2eCoverage : 'reports/coverage/e2e',
@@ -29,47 +31,47 @@ module.exports = function (grunt) {
 
     // If app path is defined in bower.json, use it
     try {
-        configPaths.app = require('./bower.json').appPath || configPaths.app;
+        configPaths.src = require('./bower.json').appPath || configPaths.src;
     } catch (e) {}
 
     // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
         '<%= appverse.dist %>/api-cache/api-cache.js':
-            moduleFilesToConcat('<%= appverse.app %>/api-cache'),
+            moduleFilesToConcat('<%= appverse.src %>/api-cache'),
 
         '<%= appverse.dist %>/api-detection/api-detection.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-detection', [
+            moduleFilesToConcat('<%= appverse.src %>/api-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.app %>/api-detection/mobile-libraries-loader.provider.js',
-                '<%= appverse.app %>/api-detection/mobile-detector.provider.js',
-                '<%= appverse.app %>/api-detection/detection.provider.js',
+                '<%= appverse.src %>/api-detection/mobile-libraries-loader.provider.js',
+                '<%= appverse.src %>/api-detection/mobile-detector.provider.js',
+                '<%= appverse.src %>/api-detection/detection.provider.js',
             ]),
 
         '<%= appverse.dist %>/api-logging/api-logging.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-logging'),
+            moduleFilesToConcat('<%= appverse.src %>/api-logging'),
 
         '<%= appverse.dist %>/api-performance/api-performance.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-performance'),
+            moduleFilesToConcat('<%= appverse.src %>/api-performance'),
 
         '<%= appverse.dist %>/api-translate/api-translate.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-translate'),
+            moduleFilesToConcat('<%= appverse.src %>/api-translate'),
 
         '<%= appverse.dist %>/api-utils/api-utils.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-utils'),
+            moduleFilesToConcat('<%= appverse.src %>/api-utils'),
 
         '<%= appverse.dist %>/api-serverpush/api-serverpush.js' :
-            moduleFilesToConcat('<%= appverse.app %>/{api-serverpush,api-socketio}'),
+            moduleFilesToConcat('<%= appverse.src %>/{api-serverpush,api-socketio}'),
 
         '<%= appverse.dist %>/api-rest/api-rest.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-rest'),
+            moduleFilesToConcat('<%= appverse.src %>/api-rest'),
 
         '<%= appverse.dist %>/api-router/api-router.js' :
-            moduleFilesToConcat('<%= appverse.app %>/api-router'),
+            moduleFilesToConcat('<%= appverse.src %>/api-router'),
 
         '<%= appverse.dist %>/api-main/api-main.js' : [
-            ['<%= appverse.app %>/api-main/integrator.js'].concat(
-                moduleFilesToConcat('<%= appverse.app %>/{api-configuration*,api-main}')
+            ['<%= appverse.src %>/api-main/integrator.js'].concat(
+                moduleFilesToConcat('<%= appverse.src %>/{api-configuration*,api-main}')
             ),
         ]
     };
@@ -96,7 +98,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= appverse.app %>/',
+                    cwd:'<%= appverse.src %>/',
                     src: ['**','!bower_components/**'],
                     dest:'.'
                 }]
@@ -120,7 +122,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= appverse.app %>/',
+                    cwd:'<%= appverse.src %>/',
                     src: ['**','!bower_components/**'],
                     dest:'.'
                 }]
@@ -161,12 +163,12 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: '.jshintrc',
                 reporter: require('jshint-stylish'),
+                ignores : ['<%= appverse.src %>/angular-jqm.js'],
                 //Show failures but do not stop the task
                 force: true
             },
             all: [
-
-                '<%= appverse.app %>/api-*/{,*/}*.js'
+                '<%= appverse.src %>/{,*/}*.js'
             ]
         },
 
@@ -222,16 +224,16 @@ module.exports = function (grunt) {
 
         karma: {
             unit: {
-                configFile: '<%= appverse.test %>/config/karma.unit.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.unit.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
             unitAutoWatch: {
-                configFile: '<%= appverse.test %>/config/karma.unit.watch.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.unit.watch.conf.js',
                 autoWatch: true
             },
             midway: {
-                configFile: '<%= appverse.test %>/config/karma.midway.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.midway.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
@@ -241,7 +243,7 @@ module.exports = function (grunt) {
         // Unit and midway are already managedby Karma
         protractor_coverage: {
             options: {
-                configFile: '<%= appverse.test %>/config/protractor.e2e.conf.js',
+                configFile: '<%= appverse.testsConfig %>/protractor.e2e.conf.js',
                 coverageDir: '<%= appverse.e2eCoverage %>',
                 keepAlive: false,
                 noColor: false,
@@ -264,7 +266,7 @@ module.exports = function (grunt) {
         // To measure coverage Protractor coverage,
         // all sources need to be instrumented using Istanbul
         instrument: {
-            files: '<%= appverse.app %>/api-*/**/*.js',
+            files: '<%= appverse.src %>/**/*.js',
             options: {
                 lazy: true,
                 basePath: "<%= appverse.e2eInstrumented %>"
@@ -344,7 +346,8 @@ module.exports = function (grunt) {
                     middleware: function (connect) {
                         return [
                             liveReloadSnippet,
-                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.src),
+                            mountFolder(connect, configPaths.bowerComponents),
                             mountFolder(connect, configPaths.demo),
                             httpMethods
                         ];
@@ -359,7 +362,8 @@ module.exports = function (grunt) {
                      middleware: function (connect) {
                         return [
                             mountFolder(connect, configPaths.e2eInstrumented + '/src'),
-                            mountFolder(connect, configPaths.app),
+                            mountFolder(connect, configPaths.src),
+                            mountFolder(connect, configPaths.bowerComponents),
                             mountFolder(connect, configPaths.demo),
                             httpMethods
                         ];
@@ -373,7 +377,9 @@ module.exports = function (grunt) {
                     port: 9090,
                     middleware: function (connect) {
                         return [
-                            mountFolder(connect, configPaths.app),
+                            delayApiCalls,
+                            mountFolder(connect, configPaths.src),
+                            mountFolder(connect, configPaths.bowerComponents),
                             mountFolder(connect, configPaths.dist),
                             mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),
                             httpMethods
@@ -394,7 +400,7 @@ module.exports = function (grunt) {
                     '<%= appverse.demo %>/partials/*.html',
                     '<%= appverse.demo %>/js/*.js',
                     //For performance reasons only match one level
-                    '<%= appverse.app %>/{,*/}*.js',
+                    '<%= appverse.src %>/{,*/}*.js',
                 ],
             }
         },
@@ -408,7 +414,10 @@ module.exports = function (grunt) {
             },
         },
 
+        // Execute commands that cannot be specified with tasks
         exec: {
+            // These commands are defined in package.json for
+            // automatic resoultion of any binary included in node_modules/
             protractor_start: 'npm run protractor-dist',
             webdriver_update: 'npm run update-webdriver'
         },
@@ -446,7 +455,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     '<%= appverse.reports %>/analysis/': [
-                        '<%= appverse.app %>/api-*/**/*.js',
+                        '<%= appverse.src %>/**/*.js',
                         '<%= appverse.test %>/unit/**/*.js',
                         '<%= appverse.test %>/midway/**/*.js',
                         '<%= appverse.test %>/e2e/**/*.js',
@@ -487,6 +496,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', [
         'test:all'
+    ]);
+
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'karma:unit',
+        'karma:midway',
+        'test:e2e:dist',
     ]);
 
     grunt.registerTask('unit', [
@@ -530,13 +546,6 @@ module.exports = function (grunt) {
         'exec:protractor_start',
     ]);
 
-    grunt.registerTask('test:all', [
-        'clean:coverage',
-        'karma:unit',
-        'karma:midway',
-        'test:e2e:dist',
-    ]);
-
     // ------ Dev tasks. To be run continously while developing -----
 
     grunt.registerTask('dev', [
@@ -560,8 +569,6 @@ module.exports = function (grunt) {
         'open:demo_dist',
         'connect:e2e_dist:keepalive',
     ]);
-
-
 
     grunt.registerTask('doc', [
         'clean:docular',
