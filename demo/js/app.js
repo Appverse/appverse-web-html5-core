@@ -1,6 +1,9 @@
 (function() { 'use strict';
 
 
+// Define app components
+// For configuration, see bootstrap.js
+
 angular.module('demoApp', ['COMMONAPI'])
     .controller('DetectionController', DetectionController)
     .controller('CacheController', CacheController)
@@ -59,9 +62,7 @@ function Chart() {
 }
 
 function RestController ($scope, RESTFactory) {
-
-    $scope.factoryBooks = RESTFactory.readList('data/books.json');
-
+    $scope.factoryBooks = RESTFactory.readList('books');
 }
 
 
