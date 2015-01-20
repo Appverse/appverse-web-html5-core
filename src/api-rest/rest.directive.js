@@ -2,6 +2,8 @@
     'use strict';
 
     angular.module('AppREST')
+    .directive('rest', restDirective);
+
     /**
      * @ngdoc directive
      * @name AppREST.directive:rest
@@ -18,50 +20,51 @@
        </file>
      </example>
      */
-    .directive('rest', ['$log', 'Restangular',
-        function ($log, Restangular) {
+    function restDirective ($log, RESTFactory) {
+        return {
+            link: function (scope, element, attrs) {
 
-            return {
-                link: function (scope, element, attrs) {
+                var defaultName = 'restData',
+                    loadingSuffix = 'Loading',
+                    errorSuffix = 'Error',
+                    name = attrs.restName || defaultName,
+                    path = attrs.rest || attrs.restPath;
 
-                    var defaultName = 'restData',
-                        loadingSuffix = 'Loading',
-                        errorSuffix = 'Error',
-                        name = attrs.restName || defaultName,
-                        path = attrs.rest || attrs.restPath;
+                $log.debug('rest directive');
 
-                    $log.debug('rest directive');
+                scope[name + loadingSuffix] = true;
+                element.html(attrs.restLoadingText || "");
 
-                    scope[name + loadingSuffix] = true;
-                    element.html(attrs.restLoadingText || "");
+                scope.$watchCollection(function () {
+                    return [path, name, attrs.restErrorText, attrs.restLoadingText];
+                }, function (newCollection, oldCollection, scope) {
+                    $log.debug('REST watch ' + name + ':', newCollection);
+                    scope[name + errorSuffix] = false;
 
-                    scope.$watchCollection(function () {
-                        return [path, name, attrs.restErrorText, attrs.restLoadingText];
-                    }, function (newCollection, oldCollection, scope) {
-                        $log.debug('REST watch ' + name + ':', newCollection);
-                        scope[name + errorSuffix] = false;
+                    var object;
+                    if (attrs.restId) {
+                        object = RESTFactory.readListItem(path, attrs.restId, onSuccess, onError);
+                    } else {
+                        object = RESTFactory.readObject(path, onSuccess, onError);
+                    }
 
-                        var object;
-                        if (attrs.restId) {
-                            object = Restangular.one(path, attrs.restId);
-                        } else {
-                            object = Restangular.one(path);
-                        }
+                    function onSuccess(data) {
+                        $log.debug('get data', data);
+                        element.html("");
+                        scope[name] = data;
+                        scope[name + loadingSuffix] = false;
+                    }
 
-                        object.get().then(function (data) {
-                            $log.debug('get data', data);
-                            element.html("");
-                            scope[name] = data;
-                            scope[name + loadingSuffix] = false;
-                        }, function errorCallback() {
-                            element.html(attrs.restErrorText || "");
-                            scope[name + loadingSuffix] = false;
-                            scope[name + errorSuffix] = true;
-                        });
-                    });
-                }
-            };
-        }]);
+                    function onError() {
+                        element.html(attrs.restErrorText || "");
+                        scope[name + loadingSuffix] = false;
+                        scope[name + errorSuffix] = true;
+                    }
+
+                });
+            }
+        };
+    }
 
 
 })();

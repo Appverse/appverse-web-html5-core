@@ -14,6 +14,6 @@
      * with the socket object wrapping the SocketIO client. This is initializated according
      * to the pre-existing external configuration.
      */
-    angular.module('AppSocketIO', ['AppConfiguration'])
+    angular.module('AppSocketIO', ['AppConfiguration']);
 
 })();

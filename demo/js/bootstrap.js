@@ -55,7 +55,7 @@ AppInit.setConfig({
             "ForceNewConnection": false
         },
         "REST_CONFIG": {
-            "BaseUrl": "/api/v1",
+            "BaseUrl": "/",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {
@@ -126,7 +126,7 @@ AppInit.setConfig({
             "ForceNewConnection": false
         },
         "REST_CONFIG": {
-            "BaseUrl": "/api/v1",
+            "BaseUrl": "/",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {
@@ -213,6 +213,32 @@ AppInit.setConfig({
             "WS_FAILED_CONNECTION": "Failed to open a Websocket connection",
             "WS_NOT_SUPPORTED": "HTML5 Websockets specification is not supported in this browser.",
             "WS_SUPPORTED": "HTML5 Websockets specification is supported in this browser."
+        },
+        "REST_CONFIG": {
+            "BaseUrl": "/",
+            "ExtraFields": [],
+            "ParentLess": false,
+            "NoCacheHttpMethods": {
+                "get": false,
+                "post": true,
+                "put": false,
+                "delete": true,
+                "option": false
+            },
+            "ElementTransformer": [],
+            "RequestInterceptor": null,
+            "FullRequestInterceptor": null,
+            "RestangularFields": {
+                "id": "id",
+                "route": "route"
+            },
+            "MethodOverriders": [],
+            "DefaultRequestParams": {},
+            "FullResponse": false,
+            "DefaultHeaders": {},
+            "RequestSuffix": ".json",
+            "UseCannonicalId": false,
+            "EncodeIds": true
         }
     }
 });

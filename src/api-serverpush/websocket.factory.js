@@ -27,13 +27,13 @@
 
                 if(factory.ws) {
                     return;
-                };
+                }
 
                 var ws;
                 if ('WebSocket' in window) {
                     ws = new WebSocket(url);
                 } else if ('MozWebSocket' in window) {
-                    ws = new MozWebSocket(url);
+                    ws = new window.MozWebSocket(url);
                 }
                 ws.onopen = function () {
                     if (ws !== null) {

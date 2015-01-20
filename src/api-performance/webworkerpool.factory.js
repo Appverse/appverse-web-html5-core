@@ -39,14 +39,14 @@
          * @methodOf AppPerformance.service:WebWorkerFactory
          * @param {number} workerData WorkerData object with information of the task to be executed
          * @param {object} workerTasks Array with a group of WorkerTask objects for the same WorkerData
-         * @param {string} params Optional Parameters to alter each worker in the pool
          * @description
-         * Runs a group of parallelized tasks 
-         * Run a set of workers according to the pre-defined data in configuration (id, type, size in pool and worker file).
+         * Runs a group of parallelized tasks
+         * Run a set of workers according to the pre-defined data in configuration
+         * (id, type, size in pool and worker file).
          * Pe-definition in configuration is mandatory.
          * The group of tasks are up to the caller.
          */
-        factory.runParallelTasksGroup = function (workerData, workerTasks, params) {
+        factory.runParallelTasksGroup = function (workerData, workerTasks) {
             this.workerData = workerData;
 
 
@@ -85,8 +85,7 @@
          */
         factory.runTask = function (workerId, message, callback) {
 
-
-            var pool = new WorkerPool(factory._poolSize);
+            var pool = new factory.WorkerPool(factory._poolSize);
             pool.init();
 
             /*
@@ -98,7 +97,7 @@
             if(factory._authorizedWorkersOnly){
                 if(workerId){
                     //Get data from configuration for the worker from the provided ID
-                    workerData = getWorkerFromId(workerId);
+                    workerData = factory.getWorkerFromId(workerId);
                 }else{
                     //NO VALID WORKER ID ERROR
                     $log.error("NO VALID WORKER ID ERROR");
@@ -107,7 +106,7 @@
                 //If any provided worker is allowed the workerId arg is the complete path to the worker file
                 //The ID is not important here
                 if(workerId){
-                    workerData = new WorkerData(1001, 'dedicated', workerId)
+                    workerData = new WorkerData(1001, 'dedicated', workerId);
                 }else{
                     //NO VALID WORKER ID ERROR
                     $log.error("NO VALID WORKER ID ERROR");
@@ -115,14 +114,14 @@
             }
 
             if(workerData) {
-                pool = new WorkerPool(workerData.poolSize);
+                pool = new factory.WorkerPool(workerData.poolSize);
                 /*
                  Create the worker task for the pool (only one task, passed N times):
                  workerName: File of the worker
                  callback: Register the supplied function as callback
                  message: The last argument will be used to send a message to the worker
                  */
-                workerTask = new WorkerTask(workerData, callback, message);
+                workerTask = new factory.WorkerTask(workerData, callback, message);
                 // Pass the worker task object to the execution pool.
                 // The default behavior is create one task for each thread in the pool.
                 for(var i = 0; i < factory._poolSize; i++){
@@ -156,7 +155,7 @@
                 for (var i = 0 ; i < _this.size ; i++) {
                     _this.workerQueue.push(new WorkerThread(_this));
                 }
-            }
+            };
 
 
             this.addWorkerTask = function(workerTask) {
@@ -168,7 +167,7 @@
                     // If there are not free workers the task is put in queue
                     _this.taskQueue.push(workerTask);
                 }
-            }
+            };
 
 
             //Execute the queued task. If empty, put the task to the queue.
@@ -180,7 +179,7 @@
                 } else {
                     _this.taskQueue.push(workerThread);
                 }
-            }
+            };
 
         };
 
@@ -193,21 +192,22 @@
 
             //Execute the task
             this.run = function(workerTask) {
-                _this.workerTask = workerTask
+                _this.workerTask = workerTask;
 
                 //Create a new web worker
-                if (_this.workerTask.script!= null) {
+                if (_this.workerTask.script != null) {
                     /*
                      Creation of workers.
                      For both dedicated and shared workers, you can also attach to the
                      message event handler event type by using the addEventListener method.
                      */
+                    var worker;
                     if(workerTask.type == PERFORMANCE_CONFIG.webworker_dedicated_literal){
-                        var worker = new Worker(_this.workerTask.script);
+                        worker = new Worker(_this.workerTask.script);
                         worker.addEventListener('message', _this.OnWorkerMessageHandler, false);
                         worker.postMessage(_this.workerTask.startMessage);
                     }else if(workerTask.type == PERFORMANCE_CONFIG.webworker_shared_literal){
-                        var worker = new SharedWorker(_this.workerTask.script);
+                        worker = new SharedWorker(_this.workerTask.script);
                         worker.port.addEventListener('message', _this.OnWorkerMessageHandler, false);
                         worker.port.postMessage(_this.workerTask.startMessage);
                     }else{
@@ -215,7 +215,7 @@
                         $log.error("NO VALID WORKER TYPE");
                     }
                 }
-            }
+            };
 
             //We assume we only get a single callback from a worker as a handler
             //It also indicates the end of this worker.
@@ -225,8 +225,8 @@
 
                 // We should use a separate thread to add the worker
                 _this.parentPool.freeWorkerThread(_this);
-            }
-        };
+            };
+        }
 
 
         //The task to run
@@ -254,12 +254,12 @@
             this.type = type;
             this.poolSize = poolSize;
             this.file = worker;
-        };
+        }
 
         WorkerData.prototype.toString = function(){
             return "ID: " + this.id + "|TYPE: " + this.type + "|POOL SIZE: " + this.poolSize + "|FILE: " + this.file;
 
-        }
+        };
 
         //Extract worker information from configuration
         factory.getWorkerFromId = function (workerId, poolSize){
@@ -284,8 +284,8 @@
 
             var workerData = new WorkerData(this.id, this.type, this.poolSize, this.file);
 
-            return workerData
-        }
+            return workerData;
+        };
 
         return factory;
     }
