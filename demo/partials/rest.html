@@ -1,0 +1,20 @@
+<header class="appverse-header">
+    <h1><i class="fa fa-fw fa-cloud-download"></i>Appverse REST</h1>
+</header>
+
+
+<h1>REST</h1>
+<h2>Load Books with rest directive</h2>
+
+<div rest rest-path="data/books.json" rest-name="mybooks"></div>
+<alert ng-show="mybooksLoading" class="alert-warning">Loading books…</alert>
+<alert ng-show="mybooksError" class="alert-error">Error loading books</alert>
+
+<ul id="books">
+    <li ng-repeat="book in mybooks">{{book}}</li>
+</ul>
+
+<h2>Load Books with Rest Factory</h2>
+<ul>
+    <li ng-if="book.language" ng-repeat="book in factoryBooks">{{book.language}}</li>
+</ul>

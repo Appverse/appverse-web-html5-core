@@ -243,7 +243,6 @@ AppInit.setConfig({
     }
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Bootstrap the application
@@ -258,4 +257,6 @@ AppInit.setConfig({
 |
 */
 AppInit.bootstrap('demoApp');
+
+
 
