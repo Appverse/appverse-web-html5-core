@@ -22,6 +22,7 @@ module.exports = function (grunt) {
         doc: 'doc',
         test: 'test',
         demo: 'demo',
+        testsConfig: 'config/test',
         reports: 'reports',
         coverage: 'reports/coverage',
         e2eCoverage : 'reports/coverage/e2e',
@@ -223,16 +224,16 @@ module.exports = function (grunt) {
 
         karma: {
             unit: {
-                configFile: '<%= appverse.test %>/config/karma.unit.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.unit.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
             unitAutoWatch: {
-                configFile: '<%= appverse.test %>/config/karma.unit.watch.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.unit.watch.conf.js',
                 autoWatch: true
             },
             midway: {
-                configFile: '<%= appverse.test %>/config/karma.midway.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.midway.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
@@ -242,7 +243,7 @@ module.exports = function (grunt) {
         // Unit and midway are already managedby Karma
         protractor_coverage: {
             options: {
-                configFile: '<%= appverse.test %>/config/protractor.e2e.conf.js',
+                configFile: '<%= appverse.testsConfig %>/protractor.e2e.conf.js',
                 coverageDir: '<%= appverse.e2eCoverage %>',
                 keepAlive: false,
                 noColor: false,
@@ -415,7 +416,10 @@ module.exports = function (grunt) {
             },
         },
 
+        // Execute commands that cannot be specified with tasks
         exec: {
+            // These commands are defined in package.json for
+            // automatic resoultion of any binary included in node_modules/
             protractor_start: 'npm run protractor-dist',
             webdriver_update: 'npm run update-webdriver'
         },
@@ -496,6 +500,13 @@ module.exports = function (grunt) {
         'test:all'
     ]);
 
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'karma:unit',
+        'karma:midway',
+        'test:e2e:dist',
+    ]);
+
     grunt.registerTask('unit', [
         'test:unit:once'
     ]);
@@ -537,13 +548,6 @@ module.exports = function (grunt) {
         'exec:protractor_start',
     ]);
 
-    grunt.registerTask('test:all', [
-        'clean:coverage',
-        'karma:unit',
-        'karma:midway',
-        'test:e2e:dist',
-    ]);
-
     // ------ Dev tasks. To be run continously while developing -----
 
     grunt.registerTask('dev', [
@@ -567,8 +571,6 @@ module.exports = function (grunt) {
         'open:demo_dist',
         'connect:e2e_dist:keepalive',
     ]);
-
-
 
     grunt.registerTask('doc', [
         'clean:docular',
