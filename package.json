@@ -77,6 +77,6 @@
     "test": "grunt test",
     "update-webdriver": "webdriver-manager update --standalone",
     "run-webdriver": "webdriver-manager start --standalone",
-    "protractor-dist": "protractor test/config/protractor.e2e.dist.conf.js"
+    "protractor-dist": "protractor config/test/protractor.e2e.dist.conf.js"
   }
 }
