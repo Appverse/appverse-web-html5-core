@@ -1,4 +1,5 @@
 <header class="appverse-header horizontal-gradient">
+    <ng-include src="'partials/logo.html'"></ng-include>
     <h1><i class="fa fa-fw fa-database"></i>Cache</h1>
 </header>
 
@@ -38,6 +39,34 @@
 <section>
     <div class="section-content" ng-controller="SimpleIDBController">
         <h2>IndexedDB Demo</h2>
+        <p>Insert a new note in IndexDB</p>
+        <form ng-submit="saveNote()">
+            <span class="input input-350px">
+                <input required ng-model="note.title" class="appverse-input-field " type="text" id="title">
+                <label class="appverse-input-label" for="title">
+                    <span class="appverse-input-label-content">Title</span>
+                </label>
+            </span>
+
+            <span class="input input-350px">
+                <input required ng-model="note.body" class="appverse-input-field" type="text" id="body">
+                <label class="appverse-input-label" for="body">
+                    <span class="appverse-input-label-content">Description</span>
+                </label>
+            </span>
+
+            <span class="input input-350px">
+                <input ng-model="tagString" class="appverse-input-field" type="text" id="tags">
+                <label class="appverse-input-label" for="tags">
+                    <span class="appverse-input-label-content">Tags</span>
+                </label>
+            </span>
+            <button id="saveNoteButton" class="btn btn-primary">Create/Update</button>
+            <button class="btn" ng-click="clearForm()">Clear Form for a new Note</button>
+        </form>
+        <br>
+        <br>
+        
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -60,35 +89,12 @@
                     <td class="notetitle" ng-click="loadNote(note.key)">{{note.title}}</td>
                     <td class="notebody">{{note.body}}</td>
                     <td>{{note.updated| dateFormat}}</td>
-                    <td><a class="btn btn-danger" ng-click="deleteNote(note.key)">Delete</a></td>
+                    <td><a class="btn btn-danger btn-small" ng-click="deleteNote(note.key)">Delete</a></td>
                 </tr>
             </tbody>
         </table>
 
-        <form ng-submit="saveNote()">
-            <span class="input input-350px">
-                <input required ng-model="note.title" class="appverse-input-field " type="text" id="title">
-                <label class="appverse-input-label" for="title">
-                    <span class="appverse-input-label-content">Title</span>
-                </label>
-            </span>
 
-            <span class="input input-350px">
-                <input required ng-model="note.body" class="appverse-input-field" type="text" id="body">
-                <label class="appverse-input-label" for="body">
-                    <span class="appverse-input-label-content">Description</span>
-                </label>
-            </span>
-
-            <span class="input input-350px">
-                <input ng-model="tagString" class="appverse-input-field" type="text" id="tags">
-                <label class="appverse-input-label" for="tags">
-                    <span class="appverse-input-label-content">Description</span>
-                </label>
-            </span>
-            <button id="saveNoteButton" class="btn btn-primary">Create/Update</button>
-            <button class="btn" ng-click="clearForm()">Clear Form for a new Note</button>
-        </form>
 
     </div>
 </section>

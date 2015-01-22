@@ -91,9 +91,6 @@ describe('Appverse Web Html5 core App', function() {
 
     });
 
-
-
-
     describe('when getting Rest data', function() {
 
         beforeEach(function() {

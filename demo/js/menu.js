@@ -94,6 +94,7 @@ if ( typeof define === 'function' && define.amd ) {
         content = document.querySelector( '.content-wrap' ),
         openbtn = document.getElementById( 'open-button' ),
         closebtn = document.getElementById( 'close-button' ),
+        menuNav = document.getElementById('menuNav'),
         isOpen = false;
 
     function init() {
@@ -107,12 +108,22 @@ if ( typeof define === 'function' && define.amd ) {
         }
 
         // close the menu element if the target it´s not the menu element or one of its descendants..
-        content.addEventListener( 'click', function(ev) {
-            var target = ev.target;
-            if( isOpen && target !== openbtn ) {
-                toggleMenu();
-            }
-        } );
+        content.addEventListener( 'click', attemptClose );
+
+        // close menu if any of its links is clicked
+        menuNav.addEventListener('click', function(event) {
+          if ( event.target.nodeName === 'a' || event.target.nodeName === 'span' ||
+               event.target.nodeName === 'A' || event.target.nodeName === 'SPAN') {
+            toggleMenu();
+          }
+        });
+    }
+
+    function attemptClose(ev) {
+      var target = ev.target;
+      if( isOpen && target !== openbtn ) {
+        toggleMenu();
+      }
     }
 
     function toggleMenu() {
