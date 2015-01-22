@@ -1,0 +1,40 @@
+<header class="appverse-header horizontal-gradient">
+    <h1><i class="fa fa-fw fa-bolt"></i>Performance</h1>
+</header>
+
+<section>
+    <div class="section-content">
+        <h2>Performance</h2>
+        <h3>Using Multithreading for a task</h3>
+
+        <div class="row">
+            <div class="col-md-6">
+                <span ng-show="execTime != null && execTime != 0">
+                    <p>Time for execution: {{ execTime }} ms.</p>
+                </span>
+                <span  class="nullable">
+                    <label>Number of pooled workers:</label>
+                    <select id="poolSize" class="form-control" ng-model="poolSize" ng-options="threadsNumber.value for threadsNumber in threadsNumbers">
+                        <option value="">-- choose execution mode --</option>
+                    </select>
+                </span>
+                <br/>
+
+                <button id="performanceBtn" class="btn btn-primary" ng-click="run()">Run</button>
+            </div>
+
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img style="width: 200px;" src="images/angularPerformance.jpg" id="source">
+                    </div>
+                    <div class="col-md-6">
+                        <span class="span6" id="target"/></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+

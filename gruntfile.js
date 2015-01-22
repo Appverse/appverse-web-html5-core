@@ -599,6 +599,44 @@ module.exports = function (grunt) {
         'maven:deploy-min'
     ]);
 
+    // -------- Special task for websockets demo ---------
+
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
+
+        var http = require('http');
+        var server = http.createServer(function handler () {});
+
+        // Never end grunt task
+        this.async();
+
+        server.listen(8080, function() {
+            console.log('Websockets Server is listening on port 8080');
+        });
+
+        var WebSocketServer = require('websocket').server;
+
+        var wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false });
+
+        wsServer.on('request', function(request) {
+            var connection = request.accept('', request.origin);
+            console.log(' Connection accepted from peer ' + connection.remoteAddress);
+
+            var sendInterval = setInterval(function () {
+                var payLoad = Number(Math.random() * 100).toFixed(0);
+                connection.sendUTF(payLoad);
+                console.log('Sent: ' + payLoad);
+            }, 1000);
+
+            connection.on('close', function(reasonCode, description) {
+                clearInterval(sendInterval);
+                console.log('Peer ' + connection.remoteAddress + ' disconnected.');
+                console.log('Closing Reason: ' + reasonCode);
+                console.log('Closing Description: ' + description);
+            });
+        });
+
+    });
+
 };
 
 

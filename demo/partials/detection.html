@@ -1,14 +1,25 @@
-<section class="success">
-    <div class="container" ng-controller="CacheController">
-        <h2>Cache</h2>
-        <p> <strong>Retrieve famous stone from cache:</strong> <span id="cachedValue" cache="famousStone">{{famousStone}}</span> </p>
+<header class="appverse-header horizontal-gradient">
+    <h1><i class="fa fa-fw fa-tablet"></i>Detection</h1>
+</header>
+
+<section>
+    <div class="section-content">
+        <h2>Detect Device</h2>
+        <p><strong>Mobile Browser:</strong> <span ng-cloak id="mobileBrowser">{{isMobileText}}</span></p>
     </div>
 </section>
 
 
+<section>
+    <div class="section-content">
+        <h2>Detect Appverse Mobile</h2>
+        <p><strong>Appverse Mobile library loaded:</strong> <span ng-cloak id="appverseMobile">{{hasAppverseMobile}}</span></p>
+    </div>
+</section>
+
 
 <section>
-    <div class="container" ng-controller="BandwidthController">
+    <div class="section-content">
         <h2>Bandwidth</h2>
         <button id="bandwidthStartBtn"class="btn btn-primary btn-lg" ng-click="detection.startPollingBandwidth(3000)">Start Polling</button>
         <button id="bandwidthStopBtn" class="btn btn-danger btn-lg" ng-click="detection.stopPollingBandwidth()">Stop Polling</button>
@@ -21,5 +32,3 @@
         </div>
     </div>
 </section>
-
-

@@ -12,8 +12,6 @@
     "grunt-bump": "0.0.15",
     "grunt-concurrent": "~0.3.0",
     "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-coffee": "~0.7.0",
-    "grunt-contrib-compass": "~0.5.0",
     "grunt-contrib-concat": "^0.5.0",
     "grunt-contrib-connect": "0.7.1",
     "grunt-contrib-copy": "~0.4.1",
@@ -66,7 +64,8 @@
     "protractor": "0.24.2",
     "sinon": "^1.11.1",
     "sinon-chai": "^2.6.0",
-    "time-grunt": "~0.1.0"
+    "time-grunt": "~0.1.0",
+    "websocket": "^1.0.17"
   },
   "engines": {
     "node": ">=0.8.0"

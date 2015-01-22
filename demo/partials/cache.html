@@ -1,0 +1,96 @@
+<header class="appverse-header horizontal-gradient">
+    <h1><i class="fa fa-fw fa-database"></i>Cache</h1>
+</header>
+
+<section>
+    <div class="section-content">
+        <h2>Getting a single value from cache</h2>
+        <p>
+            <strong>Retrieve famous stone from cache:</strong>
+            <span id="cachedValue" cache="famousStone">{{famousStone}}</span>
+        </p>
+    </div>
+</section>
+
+<section>
+    <div class="section-content">
+        <h2>Syncing two states through cache</h2>
+
+        <p>Try changing state 1 input values and see how they are synced with state 2.</p>
+
+        <div class="tabs tabs-style-linebox">
+            <nav>
+                <ul>
+                    <li ng-class="{ 'tab-current': $state.includes('cache.state1') }">
+                        <a ui-sref=".state1"><span>State 1</span></a>
+                    </li>
+                    <li ng-class="{ 'tab-current': $state.includes('cache.state2') }">
+                        <a ui-sref=".state2"><span>State 2</span></a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="tab-pane active" ui-view autoscroll="false"></div>
+        </div>
+    </div>
+</section>
+
+
+<section>
+    <div class="section-content" ng-controller="SimpleIDBController">
+        <h2>IndexedDB Demo</h2>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Title
+                        <a ng-click="sortBy = 'title'" class="glyphicon glyphicon-chevron-down"></a><a ng-click="sortBy = '-title'" class="glyphicon glyphicon-chevron-up"></a>
+                    </th>
+                    <th>
+                        Description
+                        <a ng-click="sortBy = 'body'" class="glyphicon glyphicon-chevron-down"></a><a ng-click="sortBy = '-body'" class="glyphicon glyphicon-chevron-up"></a>
+                    </th>
+                    <th>
+                        Updated
+                        <a ng-click="sortBy = 'updated'" class="glyphicon glyphicon-chevron-down"></a><a ng-click="sortBy = '-updated'" class="glyphicon glyphicon-chevron-up"></a>
+                    </th><th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="note in notes| filter: filter | orderBy: sortBy">
+                    <td class="notetitle" ng-click="loadNote(note.key)">{{note.title}}</td>
+                    <td class="notebody">{{note.body}}</td>
+                    <td>{{note.updated| dateFormat}}</td>
+                    <td><a class="btn btn-danger" ng-click="deleteNote(note.key)">Delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <form ng-submit="saveNote()">
+            <span class="input input-350px">
+                <input required ng-model="note.title" class="appverse-input-field " type="text" id="title">
+                <label class="appverse-input-label" for="title">
+                    <span class="appverse-input-label-content">Title</span>
+                </label>
+            </span>
+
+            <span class="input input-350px">
+                <input required ng-model="note.body" class="appverse-input-field" type="text" id="body">
+                <label class="appverse-input-label" for="body">
+                    <span class="appverse-input-label-content">Description</span>
+                </label>
+            </span>
+
+            <span class="input input-350px">
+                <input ng-model="tagString" class="appverse-input-field" type="text" id="tags">
+                <label class="appverse-input-label" for="tags">
+                    <span class="appverse-input-label-content">Description</span>
+                </label>
+            </span>
+            <button id="saveNoteButton" class="btn btn-primary">Create/Update</button>
+            <button class="btn" ng-click="clearForm()">Clear Form for a new Note</button>
+        </form>
+
+    </div>
+</section>
+
+

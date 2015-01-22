@@ -469,6 +469,7 @@ to keep consistency between config and the module.
 
 .constant('I18N_CONFIG', {
     PreferredLocale: 'en-US',
+    LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
     DetectLocale: true
 })
 

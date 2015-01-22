@@ -6,12 +6,12 @@
         <title>Appverse Web HTML5 CORE Demo</title>
         <meta name="description" content="AppVerse Core Demo Application">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="favicon.ico">
 
         <!-- Reset CSS -->
         <link href="css/normalize.css" rel="stylesheet">
 
         <!-- Custom CSS -->
-        <link href="css/base.css" rel="stylesheet">
         <link href="css/showcase.css" rel="stylesheet">
 
         <!-- Custom Fonts -->
@@ -36,12 +36,7 @@
                         <a href="/"><i class="fa fa-fw fa-home"></i><span>Home</span></a>
                         <hr>
                         <h3><i class="fa fa-fw fa-gear"></i> <span>Core Module</span></h3>
-                        <a href="#mobileBrowser"><i class="fa fa-fw fa-tablet"></i><span>Detection</span></a>
-                        <a href="#cachedValue"><i class="fa fa-fw fa-database"></i><span>Cache</span></a>
-                        <a href="#poolSize"><i class="fa fa-fw fa-bolt"></i><span>Performance</span></a>
-                        <a href="#translation"><i class="fa fa-fw fa-language"></i><span>Translation</span></a>
-                        <a href="#bandwidthStartBtn"><i class="fa fa-fw fa-area-chart"></i><span>Bandwidth</span></a>
-                        <a href="#rest"><i class="fa fa-fw fa-cloud-download"></i><span>REST</span></a>
+                        <ng-include src="'partials/core-modules-links.html'"></ng-include>
                         <hr>
                         <h3><a href="#rest"><i class="fa fa-fw fa-user"></i><span>UI</span></a></h3>
                         <hr>
@@ -52,10 +47,7 @@
             </div>
             <div class="content-wrap">
                 <div class="content">
-
-                    <div ui-view class="myslide" autoscroll="false"></div>
-                    <ng-include src="'partials/content.html'"></ng-include>
-
+                    <div ui-view autoscroll="false"></div>
                 </div>
             </div>
         </div>
@@ -117,7 +109,8 @@
         <!-- endinjector -->
 
         <!-- Demo app specific js -->
-        <script src="js/canvasjs.min.js"></script>
+        <script src="js/vendor/canvasjs.min.js"></script>
+        <script src="js/vendor/modernizr.min.js"></script>
         <script src="js/app.js"></script>
         <script src="js/menu.js"></script>
         <script src="js/states.js"></script>
