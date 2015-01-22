@@ -26,9 +26,6 @@
             return this;
         };
 
-
-
-
         /**
          * Loads scripts in parallel and executes them in order
          * using 'async'.
