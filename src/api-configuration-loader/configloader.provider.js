@@ -15,8 +15,10 @@ function ConfigLoaderProvider() {
     //by default, no detection is present
     detection         = new NoDetection();
 
-    this.setDetection = function(detectionProvider) {
-        detection = detectionProvider;
+    this.load = function(settings) {
+        this.loadDefaultConfig()
+            .loadCustomConfig(settings)
+            .overrideDefaultConfig();
     };
 
     this.loadDefaultConfig = function() {
@@ -34,6 +36,8 @@ function ConfigLoaderProvider() {
         this.loadEnvironmentConfig();
         return this;
     };
+
+
 
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
@@ -109,7 +113,9 @@ function ConfigLoaderProvider() {
         this.addConfig(jsonData);
     };
 
-
+    this.setDetection = function(detectionProvider) {
+        detection = detectionProvider;
+    };
 
     this.$get = function() {
         return this;

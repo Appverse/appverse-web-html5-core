@@ -10,6 +10,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
     var settings;
 
+    var mainModuleName;
+
     function setConfig(settingsObject) {
         settings = settingsObject;
         angular.module('AppConfigLoader').config(loadConfig);
@@ -17,21 +19,29 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     }
 
     function bootstrap(appMainModule) {
+        var moduleName = appMainModule || mainModuleName;
         angular.element(document).ready(function() {
-            angular.bootstrap(document, [appMainModule]);
+            angular.bootstrap(document, [moduleName]);
         });
     }
 
+    function setMainModuleName(name) {
+        mainModuleName = name;
+    }
+
+    function getMainModule() {
+        return angular.module(mainModuleName);
+    }
+
     function loadConfig(ConfigLoaderProvider) {
-        ConfigLoaderProvider
-            .loadDefaultConfig()
-            .loadCustomConfig(settings)
-            .overrideDefaultConfig();
+        ConfigLoaderProvider.load(settings);
     }
 
     return {
-        setConfig: setConfig,
-        bootstrap: bootstrap
+        setMainModuleName : setMainModuleName,
+        setConfig : setConfig,
+        bootstrap : bootstrap,
+        getMainModule : getMainModule
     };
 
 })(angular);

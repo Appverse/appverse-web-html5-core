@@ -65,7 +65,7 @@ AppInit.setConfig({
         },
         "WEBSOCKETS_CONFIG": {
             "WS_ECHO_URL": "ws://echo.websocket.org",
-            "WS_CPU_URL": "ws://localhost:8080",
+            "WS_CPU_URL": "ws://localhost:8080/websocket/services/websocket/statistics/get/cpuload",
             "WS_CPU_INTERVAL": 30,
             "WS_CONNECTED": "Connected",
             "WS_DISCONNECTED": "Disconnected",
@@ -102,11 +102,13 @@ AppInit.setConfig({
             "DefaultHeaders": {},
             "RequestSuffix": ".json",
             "UseCannonicalId": false,
-            "EncodeIds": true
+            "EncodeIds": true,
+            "MockBackend" : true
         }
     },
 
     // Settings to use when Appverse Mobile is loaded
+    // Will override environment values
     appverseMobile: {
         "LOGGING_CONFIG": {
             "ServerEnabled": false,
@@ -142,44 +144,11 @@ AppInit.setConfig({
             "AutoConnect": true,
             "FlashPolicyPort": "",
             "ForceNewConnection": false
-        },
-        "REST_CONFIG": {
-            "BaseUrl": "api",
-            "ExtraFields": [],
-            "ParentLess": false,
-            "NoCacheHttpMethods": {
-                "get": false,
-                "post": true,
-                "put": false,
-                "delete": true,
-                "option": false
-            },
-            "ElementTransformer": [],
-            "RequestInterceptor": null,
-            "FullRequestInterceptor": null,
-            "RestangularFields": {
-                "id": "id",
-                "route": "route"
-            },
-            "MethodOverriders": [],
-            "DefaultRequestParams": {},
-            "FullResponse": false,
-            "DefaultHeaders": {},
-            "RequestSuffix": ".json",
-            "UseCannonicalId": false,
-            "EncodeIds": true
-        },
-        "AD_CONFIG": {
-            "ConsumerKey": "",
-            "ConsumerSecret": ""
-        },
-        "I18N_CONFIG": {
-            "PreferredLocale": "en-GB",
-            "DetectLocale": true
         }
     },
 
     //Settings to use when mobile browser is detected
+    // Will override environment values
     mobileBrowser: {
         "LOGGING_CONFIG": {
             "ServerEnabled": false,
@@ -219,6 +188,50 @@ AppInit.setConfig({
 
 /*
 |--------------------------------------------------------------------------
+| App name
+|--------------------------------------------------------------------------
+| The name of the main module of the app. If using autobootstrap
+| remember to include ng-app="demoApp" in your html
+|
+*/
+AppInit.setMainModuleName('demoApp');
+
+
+/*
+|--------------------------------------------------------------------------
+| App Run block
+|--------------------------------------------------------------------------
+| Perform initializations app services here.
+|
+| If using mocked backend, define resposes here...
+|
+*/
+AppInit.getMainModule().run(function($httpBackend) {
+
+    //define mocked backend calls here
+    $httpBackend.whenGET('api/books.json').respond([
+        {
+            "id":"01",
+            "language": "Javsa",
+            "edition": "third",
+            "author": "Herbert Schildt"
+        },
+        {
+            "id":"07",
+            "language": "C++",
+            "edition": "second",
+            "author": "E.Balagurusamy"
+        }
+    ]);
+
+    // do not mock any calls different than api/*
+    $httpBackend.whenGET(/^(?!api\/)/).passThrough();
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
 | Bootstrap the application
 |--------------------------------------------------------------------------
 |
@@ -230,7 +243,12 @@ AppInit.setConfig({
 | More info: https://docs.angularjs.org/guide/bootstrap
 |
 */
-AppInit.bootstrap('demoApp');
+AppInit.bootstrap();
+
+
+
+
+
 
 
 

@@ -2,6 +2,9 @@
 (function() { 'use strict';
 
 
+// Define app components
+// For configuration, see bootstrap.js
+
 angular.module('demoApp', ['COMMONAPI'])
     .controller('DetectionController', DetectionController)
     .controller('CacheController', CacheController)
@@ -99,7 +102,7 @@ function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService,
 
 
 function RestController ($scope, RESTFactory) {
-    $scope.factoryBooks = RESTFactory.readObject('books');
+    $scope.factoryBooks = RESTFactory.readList('books');
 }
 
 
@@ -389,7 +392,6 @@ function Chart() {
     };
 
     this.update = function (value) {
-        console.log(dps.length);
         this.addPointAsXandYcoordinates(new Date(), value);
         if (dps.length > options.visiblePoints) {
             dps.shift();

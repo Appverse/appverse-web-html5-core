@@ -44,7 +44,8 @@
      * Bootstraps the application by integrating services that have any relation.
      */
     angular.module('COMMONAPI', generateDependencies(requires, optional))
-        .config(config);
+        .config(config)
+        .run(run);
 
 
     /**
@@ -53,7 +54,15 @@
      * Configures the integration between modules that need to be integrated
      * at the config phase.
      */
-    function config($compileProvider, $injector, ModuleSeekerProvider) {
+    function config($compileProvider, $injector, $provide, ModuleSeekerProvider, REST_CONFIG) {
+
+        //Mock backend if necessary
+        if (REST_CONFIG.MockBackend) {
+
+            $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
+        }
+
+        // sanitize hrefs
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
 
         // Integrate modules that have a dependency
@@ -67,6 +76,12 @@
                 formattedLoggerProvider.setDetection(detectionProvider);
             }
 
+        }
+    }
+
+    function run($log, REST_CONFIG) {
+        if (REST_CONFIG.MockBackend) {
+            $log.debug('REST: You are using a MOCKED backend!');
         }
     }
 
