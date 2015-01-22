@@ -163,7 +163,6 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: '.jshintrc',
                 reporter: require('jshint-stylish'),
-                ignores : ['<%= appverse.src %>/angular-jqm.js'],
                 //Show failures but do not stop the task
                 force: true
             },
@@ -291,21 +290,6 @@ module.exports = function (grunt) {
                             scripts: ["src/modules", "src/directives"
                             ],
                             docs: ["ngdocs/commonapi"],
-                            rank: {}
-                        }
-                    ]
-                }, {
-                    groupTitle: 'Angular jQM',
-                    groupId: 'angular-jqm',
-                    groupIcon: 'icon-mobile-phone',
-                    sections: [
-                        {
-                            id: "jqmapi",
-                            title: "API",
-                            showSource: true,
-                            scripts: ["src/angular-jqm.js"
-                            ],
-                            docs: ["ngdocs/jqmapi"],
                             rank: {}
                         }
                     ]

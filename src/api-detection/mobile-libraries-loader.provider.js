@@ -7,8 +7,7 @@
     var defaults = [
         'bower_components/angular-touch/angular-touch.js',
         'bower_components/angular-animate/angular-animate.js',
-        'bower_components/angular-route/angular-route.js',
-        'angular-jqm.js',
+        'bower_components/angular-route/angular-route.js'
     ];
 
     /**
