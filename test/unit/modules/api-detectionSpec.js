@@ -143,7 +143,29 @@ describe('Unit: Api Detection Module', function() {
 
     describe('when using MobileLibrairesLoader...', function() {
 
+        var mockBaseUrlSetter = function() {
+            this.$get = function() {
+                return this;
+            };
+            this.setBasePath = sinon.stub().returns(this);
+            this.inUrl = sinon.stub().returns('bower_components/angular-touch/angular-touch.js');
+        };
+
         beforeEach(function() {
+
+            // Provide mocked constants
+            module(function ($provide) {
+
+
+                $provide.constant('PROJECT_DATA', {
+                    VendorLibrariesBaseUrl : 'bower_components'
+                });
+                $provide.constant('DETECTION_CONFIG', {
+                    mobileVendorLibraries : ['angular-touch/angular-touch.js']
+                });
+
+
+            });
 
             // Prevent mobile libraries  from loading
             angular.module('fakeModule', [])
@@ -152,8 +174,12 @@ describe('Unit: Api Detection Module', function() {
                 MobileDetectorProvider.isMobileBrowser = sinon.stub().returns(false);
             });
             module( 'AppDetection', 'fakeModule');
-
         });
+
+
+        beforeEach(module(function ($provide) {
+            $provide.provider('BaseUrlSetter', mockBaseUrlSetter);
+        }));
 
 
         it ('should have default script paths', inject(function(MobileLibrariesLoader) {

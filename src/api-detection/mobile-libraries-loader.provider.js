@@ -4,23 +4,22 @@
     angular.module('AppDetection')
         .provider('MobileLibrariesLoader', MobileLibrariesLoaderProvider);
 
-    var defaults = [
-        'bower_components/angular-touch/angular-touch.js'
-    ];
-
     /**
      * @ngdoc provider
      * @name AppDetection.provider:MobileLibrariesLoader
      * @description
      * Loads libraries targeted at mobile devices
      */
-    function MobileLibrariesLoaderProvider() {
+    function MobileLibrariesLoaderProvider(BaseUrlSetterProvider, PROJECT_DATA, DETECTION_CONFIG) {
+
+        var defaultMobileLibsUrls = DETECTION_CONFIG.mobileVendorLibraries || [],
+        setBasePath               =  BaseUrlSetterProvider.setBasePath(PROJECT_DATA.VendorLibrariesBaseUrl).inUrl;
 
         /**
          * Array of script paths to be loaded
-         * @type {[type]}
+         * @type {array}
          */
-        this.scripts = defaults;
+        this.scripts = defaultMobileLibsUrls.map(setBasePath);
 
         this.$get = function() {
             return this;

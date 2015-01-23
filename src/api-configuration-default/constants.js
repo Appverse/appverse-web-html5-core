@@ -15,7 +15,22 @@ All data are auto-explained because their names ;)
     Team: 'GFT Appverse Web',
     URL: '',
     LoginViewPath: '/login',
-    myUrl: ''
+    myUrl: '',
+    VendorLibrariesBaseUrl: 'bower_components'
+})
+
+/*
+DETECTION MODULE CONFIGURATION
+*/
+.constant('DETECTION_CONFIG', {
+    /*
+    Defines a list of scripts to load
+    when a mobile enviroment is detected.
+    These libraries are relative to PROJECT_DATA.VendorLibrariesBaseUrl
+     */
+    mobileVendorLibraries : [
+        'angular-touch/angular-touch.js'
+    ]
 })
 
 /*
