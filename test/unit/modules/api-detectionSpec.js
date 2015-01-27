@@ -68,12 +68,7 @@ describe('Unit: Api Detection Module', function() {
                     };
 
                     this.$get = function() { return this;};
-                },
-
-                LibrariesLoader : function() {
-                    this.load = sinon.stub();
-                    this.$get = function() { return this;};
-                },
+                }
             };
 
             setupDetectionProviderTesting(mocks);
@@ -83,12 +78,6 @@ describe('Unit: Api Detection Module', function() {
         it ('hasAppverseMobile() should be true', function() {
 
             DetectionProvider.hasAppverseMobile().should.be.true;
-
-        });
-
-        it ('mobile libraries should be loaded', function() {
-
-            DetectionProvider.mobileLibrariesLoader.load.called.should.be.true;
 
         });
 
@@ -112,12 +101,7 @@ describe('Unit: Api Detection Module', function() {
                     };
 
                     this.$get = function() { return this;};
-                },
-
-                LibrariesLoader : function() {
-                    this.load = sinon.stub();
-                    this.$get = function() { return this;};
-                },
+                }
             };
 
             setupDetectionProviderTesting(mocks);
@@ -130,72 +114,14 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        it ('mobile libraries should be loaded', function() {
-
-            Detection.mobileLibrariesLoader.load.called.should.be.true;
-
-        });
-
         afterEach('restore original services', restoreOriginalDetectionServices);
-
-    });
-
-
-    describe('when using MobileLibrairesLoader...', function() {
-
-        var mockBaseUrlSetter = function() {
-            this.$get = function() {
-                return this;
-            };
-            this.setBasePath = sinon.stub().returns(this);
-            this.inUrl = sinon.stub().returns('bower_components/angular-touch/angular-touch.js');
-        };
-
-        beforeEach(function() {
-
-            // Provide mocked constants
-            module(function ($provide) {
-
-
-                $provide.constant('PROJECT_DATA', {
-                    VendorLibrariesBaseUrl : 'bower_components'
-                });
-                $provide.constant('DETECTION_CONFIG', {
-                    mobileVendorLibraries : ['angular-touch/angular-touch.js']
-                });
-
-
-            });
-
-            // Prevent mobile libraries  from loading
-            angular.module('fakeModule', [])
-            .config( function (MobileDetectorProvider) {
-                MobileDetectorProvider.hasAppverseMobile = sinon.stub().returns(false);
-                MobileDetectorProvider.isMobileBrowser = sinon.stub().returns(false);
-            });
-            module( 'AppDetection', 'fakeModule');
-        });
-
-
-        beforeEach(module(function ($provide) {
-            $provide.provider('BaseUrlSetter', mockBaseUrlSetter);
-        }));
-
-
-        it ('should have default script paths', inject(function(MobileLibrariesLoader) {
-
-            MobileLibrariesLoader.scripts.should.eql([
-                'bower_components/angular-touch/angular-touch.js'
-            ]);
-
-        }));
 
     });
 
 
     /////////////// HELPER FUNCTIONS
 
-    var originalLibrariesLoader, originalMobileDetector;
+    var originalMobileDetector;
 
     function setupDetectionProviderTesting(mocks) {
         // Configure the service provider
@@ -211,10 +137,8 @@ describe('Unit: Api Detection Module', function() {
         // the second is the method on the provider to use
         // and the third element is an array of any arguments passed to the service.
         var AppDetection = angular.module('AppDetection');
-        originalLibrariesLoader = AppDetection._invokeQueue[0][2][1];
-        originalMobileDetector  = AppDetection._invokeQueue[1][2][1];
-        AppDetection._invokeQueue[0][2][1] = mocks.LibrariesLoader;
-        AppDetection._invokeQueue[1][2][1] = mocks.MobileDetector;
+        originalMobileDetector  = AppDetection._invokeQueue[0][2][1];
+        AppDetection._invokeQueue[0][2][1] = mocks.MobileDetector;
 
         // Initialize injector for the real and fake modules
         module('AppDetection','fakeModule');
@@ -229,8 +153,7 @@ describe('Unit: Api Detection Module', function() {
     function restoreOriginalDetectionServices() {
 
         var AppDetection = angular.module('AppDetection');
-        AppDetection._invokeQueue[0][2][1] = originalLibrariesLoader;
-        AppDetection._invokeQueue[1][2][1] = originalMobileDetector;
+        AppDetection._invokeQueue[0][2][1] = originalMobileDetector;
     }
 
 });

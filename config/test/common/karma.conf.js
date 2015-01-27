@@ -17,7 +17,6 @@ var settings = {
         'bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
         'src/api-*/**/module.js',
         // Detection providers need to be loaded in this order
-        'src/api-detection/mobile-libraries-loader.provider.js',
         'src/api-detection/mobile-detector.provider.js',
         'src/api-detection/detection.provider.js',
         // The rest

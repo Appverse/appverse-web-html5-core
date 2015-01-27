@@ -43,7 +43,6 @@ module.exports = function (grunt) {
         '<%= appverse.dist %>/api-detection/api-detection.js' :
             moduleFilesToConcat('<%= appverse.src %>/api-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.src %>/api-detection/mobile-libraries-loader.provider.js',
                 '<%= appverse.src %>/api-detection/mobile-detector.provider.js',
                 '<%= appverse.src %>/api-detection/detection.provider.js',
             ]),
