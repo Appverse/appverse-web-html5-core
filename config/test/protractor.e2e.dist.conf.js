@@ -14,7 +14,6 @@ settings.specs = [
 // TODO: remove Phantomjs and use real browsers with Vagrant
 settings.capabilities = {
     browserName: 'phantomjs',
-    //'phantomjs.binary.path': 'node_modules/.bin/phantomjs' + (process.platform === 'win32' ? '.cmd' : ''),
     'phantomjs.binary.path': require('phantomjs').path,
     'phantomjs.cli.args': ['--ignore-ssl-errors=true', '--web-security=false']
 };
