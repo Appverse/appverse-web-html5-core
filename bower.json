@@ -1,7 +1,7 @@
 {
   "name": "appverse-web-html5-core",
   "description": "Appverse web html5 core module.",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "main": "src/angular-jqm.js",
   "dependencies": {
     "angular": "1.2.20",
@@ -34,19 +34,18 @@
     "angular": "1.2.20"
   },
   "ignore": [
-    "**/.*",
-    "node_modules",
-    "docs",
     "bower_components",
+    "config",
+    "demo",
+    "doc",
+    "node_modules",
+    "reports",
+    "src",
     "test",
-    "Gruntfile.js",
-    "angus-site",
-    "docs-generation",
-    "appverse-html5-examples",
-    "karma.conf.js",
-    "karma-e2e.conf.js",
+    "**/.*",
+    "gruntfile.js"
     "package.json",
     "sonar-project.properties",
-    "changelog.js"
+    "changelog.js",
   ]
 }
