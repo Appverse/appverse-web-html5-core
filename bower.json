@@ -43,9 +43,9 @@
     "src",
     "test",
     "**/.*",
-    "gruntfile.js"
+    "gruntfile.js",
     "package.json",
     "sonar-project.properties",
-    "changelog.js",
+    "changelog.js"
   ]
 }
