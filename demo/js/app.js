@@ -299,12 +299,13 @@ function WebSocketsController($scope, $log, WebSocketFactory, Chart, WEBSOCKETS_
     $scope.wsSupported = Modernizr.websockets;
     $scope.wsIsSupportedMessage = WEBSOCKETS_CONFIG.WS_SUPPORTED;
     $scope.wsIsNotSupportedMessage = WEBSOCKETS_CONFIG.WS_NOT_SUPPORTED;
-
+    $scope.status = 'No connection.';
     $scope.realTimeStats = {};
     $scope.realTimeStats.running = false;
 
     $scope.realTimeStats.start = function(){
         $scope.realTimeStats.running = true;
+        $scope.status = 'Connecting...';
 
         Chart
             .inElementWithId('chartContainer')
@@ -314,12 +315,14 @@ function WebSocketsController($scope, $log, WebSocketFactory, Chart, WEBSOCKETS_
 
         WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
         WebSocketFactory.connect(WEBSOCKETS_CONFIG.WS_CPU_URL);
+        initWebSocketFactoryEvents();
     };
 
     $scope.realTimeStats.stop = function() {
         $scope.realTimeStats.running = false;
         Chart.clearPoints();
         WebSocketFactory.disconnect();
+        $scope.status = 'Disconnecting...';
     };
 
     function updateChartWhenNewDataArrives(message) {
@@ -328,6 +331,21 @@ function WebSocketsController($scope, $log, WebSocketFactory, Chart, WEBSOCKETS_
         }
     }
 
+    function initWebSocketFactoryEvents() {
+        WebSocketFactory.ws.onopen = function (event) {
+            $log.debug(event);
+            WebSocketFactory.ws.send('');
+            $scope.status = 'Connection opened!';
+            $scope.$digest();
+        };
+
+        WebSocketFactory.ws.onclose = function (event) {
+            $log.debug(event);
+            $scope.status = 'Connection closed.';
+            WebSocketFactory.ws = null;
+            $scope.$digest();
+        };
+    }
 }
 
 
