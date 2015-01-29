@@ -20,6 +20,10 @@ AppInit.setConfig({
     // Application general environment
     // Overrides defaults and mobile settings
     environment: {
+
+        "PROJECT_DATA" : {
+            "VendorLibrariesBaseUrl": '/',
+        },
         "LOGGING_CONFIG": {
             "ServerEnabled": false,
             "EnabledLogLevel": true,

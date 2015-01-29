@@ -122,6 +122,8 @@ describe('REST_CONFIG.MockBackend is enabled...', function() {
             MockBackend : true
         });
         $provide.constant('LOGGING_CONFIG', {});
+        $provide.constant('PROJECT_DATA', {});
+        $provide.constant('DETECTION_CONFIG', {});
         $provide.constant('CACHE_CONFIG', {});
         $provide.provider('ConfigLoader', function() {
             this.setDetection = sinon.spy();
@@ -131,7 +133,6 @@ describe('REST_CONFIG.MockBackend is enabled...', function() {
     }));
 
     beforeEach(module('COMMONAPI'));
-
 
     it('$httpBackend should be mocked', inject(function($httpBackend) {
         should.exist($httpBackend.whenGET);
@@ -148,6 +149,8 @@ describe('REST_CONFIG.MockBackend is DISABLED...', function() {
             MockBackend : false
         });
         $provide.constant('LOGGING_CONFIG', {});
+        $provide.constant('PROJECT_DATA', {});
+        $provide.constant('DETECTION_CONFIG', {});
         $provide.constant('CACHE_CONFIG', {});
         $provide.provider('ConfigLoader', function() {
             this.setDetection = sinon.spy();
@@ -157,7 +160,6 @@ describe('REST_CONFIG.MockBackend is DISABLED...', function() {
     }));
 
     beforeEach(module('COMMONAPI'));
-
 
     it('$httpBackend should be mocked', inject(function($httpBackend) {
         should.not.exist($httpBackend.whenGET);
@@ -180,6 +182,10 @@ function setupMainTesting() {
             this.setDetection = sinon.spy();
             this.$get = function () {return this;};
         });
+
+        $provide.constant('PROJECT_DATA', {});
+
+        $provide.constant('DETECTION_CONFIG', {});
 
         $provide.constant('LOGGING_CONFIG', {});
 

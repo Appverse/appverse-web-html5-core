@@ -9,9 +9,7 @@ angular.module('AppDetection')
  * @description
  * Contains methods for browser and network detection.
  */
-function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvider) {
-
-    this.mobileLibrariesLoader = MobileLibrariesLoaderProvider;
+function DetectionProvider (MobileDetectorProvider) {
     this.mobileDetector        = MobileDetectorProvider;
     this.bandwidth             = 0;
     this.isPollingBandwidth    = false;
@@ -34,7 +32,7 @@ function DetectionProvider (MobileLibrariesLoaderProvider, MobileDetectorProvide
 
     // Do some initialization
     if (this.hasAppverseMobile() || this.isMobileBrowser()) {
-        this.mobileLibrariesLoader.load();
+        // Do something for mobile...
     } else {
         angular.module('jqm', []);
     }

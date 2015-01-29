@@ -6,7 +6,7 @@
  * @description
  * Provides browser and network detection.
  */
-angular.module('AppDetection', []);
+angular.module('AppDetection', ['AppUtils']);
 
 
 })();

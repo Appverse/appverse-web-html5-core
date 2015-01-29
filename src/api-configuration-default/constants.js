@@ -15,8 +15,10 @@ All data are auto-explained because their names ;)
     Team: 'GFT Appverse Web',
     URL: '',
     LoginViewPath: '/login',
-    myUrl: ''
+    myUrl: '',
+    VendorLibrariesBaseUrl: 'bower_components'
 })
+
 
 /*
 LOGGING MODULE CONFIGURATION
