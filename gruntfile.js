@@ -602,6 +602,7 @@ module.exports = function (grunt) {
     grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
 
         var http = require('http');
+        var CpuUsage = require('./config/grunt-tasks/cpu-usage');
         var server = http.createServer(function handler () {});
 
         // Never end grunt task
@@ -615,12 +616,14 @@ module.exports = function (grunt) {
 
         var wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false });
 
+        var cpuUsage = new CpuUsage();
+
         wsServer.on('request', function(request) {
             var connection = request.accept('', request.origin);
             console.log(' Connection accepted from peer ' + connection.remoteAddress);
 
             var sendInterval = setInterval(function () {
-                var payLoad = Number(Math.random() * 100).toFixed(0);
+                var payLoad = (cpuUsage.get() * 100).toFixed(0);
                 connection.sendUTF(payLoad);
                 console.log('Sent: ' + payLoad);
             }, 1000);

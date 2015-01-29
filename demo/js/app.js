@@ -310,7 +310,7 @@ function WebSocketsController($scope, $log, WebSocketFactory, Chart, WEBSOCKETS_
         Chart
             .inElementWithId('chartContainer')
             .setTitle('CPU load')
-            .setOptions({visiblePoints: 200})
+            .setOptions({visiblePoints: 100})
             .init();
 
         WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
