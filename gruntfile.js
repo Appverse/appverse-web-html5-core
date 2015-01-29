@@ -43,7 +43,6 @@ module.exports = function (grunt) {
         '<%= appverse.dist %>/api-detection/api-detection.js' :
             moduleFilesToConcat('<%= appverse.src %>/api-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.src %>/api-detection/mobile-libraries-loader.provider.js',
                 '<%= appverse.src %>/api-detection/mobile-detector.provider.js',
                 '<%= appverse.src %>/api-detection/detection.provider.js',
             ]),
@@ -163,7 +162,6 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: '.jshintrc',
                 reporter: require('jshint-stylish'),
-                ignores : ['<%= appverse.src %>/angular-jqm.js'],
                 //Show failures but do not stop the task
                 force: true
             },
@@ -294,21 +292,6 @@ module.exports = function (grunt) {
                             rank: {}
                         }
                     ]
-                }, {
-                    groupTitle: 'Angular jQM',
-                    groupId: 'angular-jqm',
-                    groupIcon: 'icon-mobile-phone',
-                    sections: [
-                        {
-                            id: "jqmapi",
-                            title: "API",
-                            showSource: true,
-                            scripts: ["src/angular-jqm.js"
-                            ],
-                            docs: ["ngdocs/jqmapi"],
-                            rank: {}
-                        }
-                    ]
                 }
             ]
         },
@@ -362,7 +345,6 @@ module.exports = function (grunt) {
                     port: 9091,
                      middleware: function (connect) {
                         return [
-                            delayApiCalls,
                             mountFolder(connect, configPaths.e2eInstrumented + '/src'),
                             mountFolder(connect, configPaths.src),
                             mountFolder(connect, configPaths.bowerComponents),
@@ -379,7 +361,6 @@ module.exports = function (grunt) {
                     port: 9090,
                     middleware: function (connect) {
                         return [
-                            delayApiCalls,
                             mountFolder(connect, configPaths.src),
                             mountFolder(connect, configPaths.bowerComponents),
                             mountFolder(connect, configPaths.dist),
@@ -598,6 +579,47 @@ module.exports = function (grunt) {
         'dist',
         'maven:deploy-min'
     ]);
+
+    // -------- Special task for websockets demo ---------
+
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
+
+        var http = require('http');
+        var CpuUsage = require('./config/grunt-tasks/cpu-usage');
+        var server = http.createServer(function handler () {});
+
+        // Never end grunt task
+        this.async();
+
+        server.listen(8080, function() {
+            console.log('Websockets Server is listening on port 8080');
+        });
+
+        var WebSocketServer = require('websocket').server;
+
+        var wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false });
+
+        var cpuUsage = new CpuUsage();
+
+        wsServer.on('request', function(request) {
+            var connection = request.accept('', request.origin);
+            console.log(' Connection accepted from peer ' + connection.remoteAddress);
+
+            var sendInterval = setInterval(function () {
+                var payLoad = (cpuUsage.get() * 100).toFixed(0);
+                connection.sendUTF(payLoad);
+                console.log('Sent: ' + payLoad);
+            }, 1000);
+
+            connection.on('close', function(reasonCode, description) {
+                clearInterval(sendInterval);
+                console.log('Peer ' + connection.remoteAddress + ' disconnected.');
+                console.log('Closing Reason: ' + reasonCode);
+                console.log('Closing Description: ' + description);
+            });
+        });
+
+    });
 
 };
 

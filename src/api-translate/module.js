@@ -32,7 +32,7 @@
             prefix: 'resources/i18n/',
             suffix: '.json'
         };
-        var locationPattern = 'resources/i18n/angular/angular-locale_{{locale}}.js';
+        var locationPattern = I18N_CONFIG.LocaleFilePattern;
 
         $translateProvider.useStaticFilesLoader(filesConfig);
         $translateProvider.preferredLanguage(I18N_CONFIG.PreferredLocale);

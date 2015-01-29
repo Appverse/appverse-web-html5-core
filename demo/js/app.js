@@ -1,3 +1,4 @@
+/* global CanvasJS */
 (function() { 'use strict';
 
 
@@ -7,24 +8,19 @@
 angular.module('demoApp', ['COMMONAPI'])
     .controller('DetectionController', DetectionController)
     .controller('CacheController', CacheController)
+    .controller('SimpleIDBController', SimpleIDBController)
     .controller('PerformanceController', PerformanceController)
-    .controller('BandwidthController', BandwidthController)
     .controller('RestController', RestController)
-    .service('Chart', Chart);
+    .controller('I18nController', I18nController)
+    .controller('WebSocketsController', WebSocketsController)
+    .service('Chart', Chart)
+    .filter('dateFormat', DateFormatFilter);
 
 
-function DetectionController ($scope, Detection) {
+function DetectionController ($scope, Detection, Chart) {
     $scope.isMobileText = Detection.isMobileBrowser() ? 'yes' : 'no';
     $scope.hasAppverseMobile = Detection.hasAppverseMobile() ? 'yes' : 'no';
-}
 
-
-function CacheController ($scope, CacheFactory) {
-    CacheFactory.getScopeCache().put('famousStone', 'Rosetta');
-}
-
-
-function BandwidthController ($scope, Detection, Chart) {
     $scope.detection = Detection;
     $scope.average = 0;
 
@@ -37,29 +33,73 @@ function BandwidthController ($scope, Detection, Chart) {
 }
 
 
-function Chart() {
-    var chart,
-    dps        = [], // dataPoints
-    dataLength = 10; // number of dataPoints visible at any point
+function CacheController ($scope, CacheFactory) {
+    CacheFactory.getScopeCache().put('famousStone', 'Rosetta');
+}
 
-    this.init = function() {
-        chart = new CanvasJS.Chart("chartContainer",{
-            title :{ text: "Bandwidth (MBytes/s)" },
-            data: [{
-                type: "splineArea",
-                dataPoints: dps
-            }]
+
+function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService, CACHE_CONFIG) {
+
+    if ($stateParams.key) {
+        IDBService.getDefault(Number($stateParams.key)).then(function (note) {
+            $scope.note = note;
+            $scope.tagString = "";
+            if (note.tags.length) $scope.tagString = note.tags.join(",");
+        });
+    }
+
+
+    $scope.clearForm = function () {
+        $scope.note.title = "";
+        $scope.note.body = "";
+        $scope.tagString = "";
+        $scope.note.id = ""
+    };
+
+    $scope.saveNote = function () {
+
+        var item = new IDBService.item(
+            $scope.note.id,
+            $scope.note.title,
+            $scope.note.body,
+            //$scope.note.tags
+            $scope.tagString
+
+        );
+
+        IDBService.saveDefault(item).then(function () {
+            getNotes();
+        });
+
+    };
+
+    function getNotes() {
+        IDBService.getDefaults().then(function (res) {
+            $scope.notes = res;
+        });
+    }
+
+    $scope.loadNote = function (key) {
+        IDBService.getDefault(key).then(function (note) {
+            $scope.note = note;
+            $scope.tagString = note.tags;
+            $scope.noteSelected = true;
         });
     };
 
-    this.update = function (value) {
-        dps.push({  x: new Date(),  y: value/1024 });
-        if (dps.length > dataLength) {
-            dps.shift();
-        }
-        chart.render();
+    $scope.deleteNote = function (key) {
+        IDBService.deleteDefault(key).then(function () {
+            getNotes();
+        });
     };
+
+    if (IDBService.isSupported()) {
+        getNotes();
+    } else {
+        $log.error("The HTML5 spec for Indexed DB is not supported in ths browser.");
+    }
 }
+
 
 function RestController ($scope, RESTFactory) {
     $scope.factoryBooks = RESTFactory.readList('books');
@@ -251,6 +291,161 @@ function PerformanceController ($scope, $log, $q, WebWorkerPoolFactory) {
         targetContext.fillStyle = "rgba(" + colors + ",1)";
         targetContext.fill();
     }
+}
+
+function WebSocketsController($scope, $log, WebSocketFactory, Chart, WEBSOCKETS_CONFIG) {
+
+    $scope.showButton = true;
+    $scope.wsSupported = Modernizr.websockets;
+    $scope.wsIsSupportedMessage = WEBSOCKETS_CONFIG.WS_SUPPORTED;
+    $scope.wsIsNotSupportedMessage = WEBSOCKETS_CONFIG.WS_NOT_SUPPORTED;
+    $scope.status = 'No connection.';
+    $scope.realTimeStats = {};
+    $scope.realTimeStats.running = false;
+
+    $scope.realTimeStats.start = function(){
+        $scope.realTimeStats.running = true;
+        $scope.status = 'Connecting...';
+
+        Chart
+            .inElementWithId('chartContainer')
+            .setTitle('CPU load')
+            .setOptions({visiblePoints: 100})
+            .init();
+
+        WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
+        WebSocketFactory.connect(WEBSOCKETS_CONFIG.WS_CPU_URL);
+        initWebSocketFactoryEvents();
+    };
+
+    $scope.realTimeStats.stop = function() {
+        $scope.realTimeStats.running = false;
+        Chart.clearPoints();
+        WebSocketFactory.disconnect();
+        $scope.status = 'Disconnecting...';
+    };
+
+    function updateChartWhenNewDataArrives(message) {
+        if (message != WEBSOCKETS_CONFIG.WS_CONNECTED) {
+            Chart.update(message);
+        }
+    }
+
+    function initWebSocketFactoryEvents() {
+        WebSocketFactory.ws.onopen = function (event) {
+            $log.debug(event);
+            WebSocketFactory.ws.send('');
+            $scope.status = 'Connection opened!';
+            $scope.$digest();
+        };
+
+        WebSocketFactory.ws.onclose = function (event) {
+            $log.debug(event);
+            $scope.status = 'Connection closed.';
+            WebSocketFactory.ws = null;
+            $scope.$digest();
+        };
+    }
+}
+
+
+function I18nController($scope, $translate, tmhDynamicLocale) {
+    $scope.now = new Date();
+    $scope.name = 'Alex';
+    $scope.age = '14';
+
+    $scope.setLocale = function (locale) {
+        $translate.uses(locale);
+        tmhDynamicLocale.set(locale.toLowerCase());
+    };
+}
+
+
+function Chart() {
+    var chart,
+    dps        = [], // dataPoints
+    title      = "",
+    elementId  = null,
+    options    = {
+        // number of dataPoints visible at any point
+        visiblePoints : 200
+    };
+
+    this.inElementWithId = function(id) {
+        elementId = id;
+        return this;
+    };
+
+    this.setTitle = function(text) {
+        title = text;
+        return this;
+    };
+
+    this.setOptions = function(newOptions) {
+        Object.keys(newOptions).forEach(function (optionName) {
+            options[optionName] = newOptions[optionName];
+        });
+        return this;
+    };
+
+    this.init = function() {
+        this.initEmptyData();
+        chart = new CanvasJS.Chart(elementId,{
+            title :{ text: title },
+            data: [{
+                type: "line",
+                dataPoints: dps
+            }]
+        });
+        this.update(0);
+        return this;
+    };
+
+    this.initEmptyData = function() {
+        for (var i = 0;  i < options.visiblePoints; i++) {
+            var date = new Date();
+            var previousTime = date.setTime(date.getTime() - ((options.visiblePoints - i)  * 1000));
+            this.addPointAsXandYcoordinates(previousTime, 0);
+        }
+    };
+
+    this.update = function (value) {
+        this.addPointAsXandYcoordinates(new Date(), value);
+        if (dps.length > options.visiblePoints) {
+            dps.shift();
+        }
+        chart.render();
+    };
+
+    this.clearPoints = function() {
+        dps = [];
+    };
+
+    this.addPointAsXandYcoordinates = function(x, y) {
+        dps.push({  x: x,  y: Number(y) });
+    };
+}
+
+function DateFormatFilter() {
+    return function (input) {
+        if (!input)
+            return "";
+        input = new Date(input);
+        var res = (input.getMonth() + 1) + "/" + input.getDate() + "/" + input.getFullYear() + " ";
+        var hour = input.getHours();
+        var ampm = "AM";
+        if (hour === 12)
+            ampm = "PM";
+        if (hour > 12) {
+            hour -= 12;
+            ampm = "PM";
+        }
+        var minute = input.getMinutes() + 1;
+        if (minute < 10)
+            minute = "0" + minute;
+        res += hour + ":" + minute + " " + ampm;
+        return res;
+    };
 }
 
 

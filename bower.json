@@ -2,7 +2,7 @@
   "name": "appverse-web-html5-core",
   "description": "Appverse web html5 core module.",
   "version": "0.3.0",
-  "main": "src/angular-jqm.js",
+  "main": "dist/api-main/api-main.min.js",
   "dependencies": {
     "angular": "1.2.20",
     "json3": "3.2.4",

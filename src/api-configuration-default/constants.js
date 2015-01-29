@@ -15,8 +15,10 @@ All data are auto-explained because their names ;)
     Team: 'GFT Appverse Web',
     URL: '',
     LoginViewPath: '/login',
-    myUrl: ''
+    myUrl: '',
+    VendorLibrariesBaseUrl: 'bower_components'
 })
+
 
 /*
 LOGGING MODULE CONFIGURATION
@@ -478,6 +480,7 @@ to keep consistency between config and the module.
 
 .constant('I18N_CONFIG', {
     PreferredLocale: 'en-US',
+    LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
     DetectLocale: true
 })
 
