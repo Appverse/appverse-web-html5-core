@@ -103,7 +103,10 @@ describe('Unit: Testing api-translate', function() { 'use strict';
 
         // AppConfiguration module mocked by creating it again
         angular.module('AppConfiguration', [])
-            .constant('I18N_CONFIG', { PreferredLocale : 'en_US' });
+            .constant('I18N_CONFIG', {
+                PreferredLocale : 'en_US',
+                LocaleFilePattern: 'resources/i18n/angular/angular-locale_{{locale}}.js',
+            });
 
         // Get reference to providers.
         // Providers cannot be mocked using $provide like services or factories as they are not

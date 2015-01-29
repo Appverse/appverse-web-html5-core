@@ -105,6 +105,84 @@ AppInit.setConfig({
             "EncodeIds": true,
             "MockBackend" : true
         }
+    },
+
+    // Settings to use when Appverse Mobile is loaded
+    // Will override environment values
+    appverseMobile: {
+        "LOGGING_CONFIG": {
+            "ServerEnabled": false,
+            "EnabledLogLevel": true,
+            "EnabledErrorLevel": true,
+            "EnabledDebugLevel": false,
+            "EnabledWarnLevel": true,
+            "EnabledInfoLevel": true,
+            "LogDateTimeFormat": "%Y-%M-%d %h:%m:%s:%z",
+            "LogTextFormat": ""
+        },
+        "CACHE_CONFIG": {
+            "ScopeCache_duration": 10000,
+            "ScopeCache_capacity": 10,
+            "BrowserStorageCache_Enabled": true,
+            "BrowserStorage_type": "2",
+            "HttpCache_Enabled": true,
+            "HttpCache_duration": 20000,
+            "HttpCache_capacity": 10,
+            "IndexedDBCache_Enabled": false
+        },
+        "SERVERPUSH_CONFIG": {
+            "BaseUrl": "http://localhost:3000",
+            "ListenedPort": "3000",
+            "Resource": "socket.io",
+            "ConnectTimeout": "10000",
+            "TryMultipleTransports": true,
+            "Reconnect": true,
+            "ReconnectionDelay": 1000,
+            "ReconnectionLimit": "Infinity",
+            "MaxReconnectionAttempts": 5,
+            "SyncDisconnectOnUnload": false,
+            "AutoConnect": true,
+            "FlashPolicyPort": "",
+            "ForceNewConnection": false
+        }
+    },
+
+    //Settings to use when mobile browser is detected
+    // Will override environment values
+    mobileBrowser: {
+        "LOGGING_CONFIG": {
+            "ServerEnabled": false,
+            "EnabledLogLevel": true,
+            "EnabledErrorLevel": true,
+            "EnabledDebugLevel": false,
+            "EnabledWarnLevel": true,
+            "EnabledInfoLevel": true
+        },
+        "CACHE_CONFIG": {
+            "ScopeCache_duration": 10000,
+            "ScopeCache_capacity": 10,
+            "BrowserStorageCache_Enabled": true,
+            "BrowserStorage_type": "2",
+            "HttpCache_Enabled": true,
+            "HttpCache_duration": 20000,
+            "HttpCache_capacity": 10,
+            "IndexedDBCache_Enabled": false
+        },
+        "SERVERPUSH_CONFIG": {
+            "BaseUrl": "http://localhost:3000",
+            "ListenedPort": "3000",
+            "Resource": "socket.io",
+            "ConnectTimeout": "10000",
+            "TryMultipleTransports": true,
+            "Reconnect": true,
+            "ReconnectionDelay": 1000,
+            "ReconnectionLimit": "Infinity",
+            "MaxReconnectionAttempts": 5,
+            "SyncDisconnectOnUnload": false,
+            "AutoConnect": true,
+            "FlashPolicyPort": "",
+            "ForceNewConnection": false
+        }
     }
 });
 
@@ -166,6 +244,8 @@ AppInit.getMainModule().run(function($httpBackend) {
 |
 */
 AppInit.bootstrap();
+
+
 
 
 
