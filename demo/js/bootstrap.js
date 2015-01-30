@@ -107,7 +107,7 @@ AppInit.setConfig({
             "RequestSuffix": ".json",
             "UseCannonicalId": false,
             "EncodeIds": true,
-            "MockBackend" : true
+            "MockBackend" : false
         }
     },
 
@@ -207,29 +207,10 @@ AppInit.setMainModuleName('demoApp');
 |--------------------------------------------------------------------------
 | Perform initializations app services here.
 |
-| If using mocked backend, define resposes here...
+| If using mocked backend, define httpBackend mocks here...
 |
 */
-AppInit.getMainModule().run(function($httpBackend) {
-
-    //define mocked backend calls here
-    $httpBackend.whenGET('api/books.json').respond([
-        {
-            "id":"01",
-            "language": "Javsa",
-            "edition": "third",
-            "author": "Herbert Schildt"
-        },
-        {
-            "id":"07",
-            "language": "C++",
-            "edition": "second",
-            "author": "E.Balagurusamy"
-        }
-    ]);
-
-    // do not mock any calls different than api/*
-    $httpBackend.whenGET(/^(?!api\/)/).passThrough();
+AppInit.getMainModule().run(function() {
 
 });
 

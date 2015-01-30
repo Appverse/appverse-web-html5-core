@@ -26,5 +26,14 @@
         <ul>
             <li ng-if="book.language" ng-repeat="book in factoryBooks">{{book.language}}</li>
         </ul>
+
+
+        <h2>Try to load a missing resource and result in error</h2>
+
+        <div rest rest-path="missing_resource"
+             rest-name="missing_resource"
+             rest-loading-text="Loading 'missing_resource' &nbsp;<i class='fa fa-refresh fa-spin'></i>"
+             rest-error-text="<i class='fa fa-exclamation-circle red'></i> Error while loading 'missing_resource'">
+        </div>
     </div>
 </section>
