@@ -608,8 +608,7 @@ module.exports = function (grunt) {
             var sendInterval = setInterval(function () {
                 var payLoad = (cpuUsage.get() * 100).toFixed(0);
                 connection.sendUTF(payLoad);
-                console.log('Sent: ' + payLoad);
-            }, 1000);
+            }, 100);
 
             connection.on('close', function(reasonCode, description) {
                 clearInterval(sendInterval);
