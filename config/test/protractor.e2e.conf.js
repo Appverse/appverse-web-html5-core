@@ -12,7 +12,7 @@ settings.specs = [
 settings.baseUrl = 'http://localhost:9091/';
 
 // Add junit reporting
-/*settings.onPrepare = function () {
+settings.onPrepare = function () {
   require('jasmine-reporters');
   var capsPromise = browser.getCapabilities();
   capsPromise.then(function (caps) {
@@ -21,6 +21,6 @@ settings.baseUrl = 'http://localhost:9091/';
       var prePendStr = 'e2e-test-results-' + browserName + "-" + browserVersion + "-";
       jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter("reports/junit", true, true, prePendStr));
   });
-};*/
+};
 
 exports.config = settings;

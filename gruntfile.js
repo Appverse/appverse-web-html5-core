@@ -445,6 +445,10 @@ module.exports = function (grunt) {
                      ]
                 }
             }
+        },
+
+        concurrent: {
+            dist: ['jshint', 'unit', 'midway','test:e2e:report', 'analysis']
         }
     });
 
@@ -459,13 +463,13 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('dist', [
-        'jshint',
-        'unit',
-        'midway',
-        'test:e2e:report',
+        'concurrent:dist',
+        'make_dist_and_test'
+    ]);
+
+    grunt.registerTask('make_dist_and_test', [
         'dist:make',
         'test:e2e:dist',
-        'analysis'
     ]);
 
     grunt.registerTask('dist:make', [
@@ -483,9 +487,9 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:all', [
         'clean:coverage',
-        'karma:unit',
-        'karma:midway',
-        'test:e2e:dist',
+        'unit',
+        'midway',
+        'e2e',
     ]);
 
     grunt.registerTask('unit', [
@@ -608,8 +612,7 @@ module.exports = function (grunt) {
             var sendInterval = setInterval(function () {
                 var payLoad = (cpuUsage.get() * 100).toFixed(0);
                 connection.sendUTF(payLoad);
-                console.log('Sent: ' + payLoad);
-            }, 1000);
+            }, 100);
 
             connection.on('close', function(reasonCode, description) {
                 clearInterval(sendInterval);

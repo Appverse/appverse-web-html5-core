@@ -310,7 +310,7 @@ function WebSocketsController($scope, $log, WebSocketFactory, Chart, WEBSOCKETS_
         Chart
             .inElementWithId('chartContainer')
             .setTitle('CPU load')
-            .setOptions({visiblePoints: 100})
+            .setOptions({visiblePoints: 200, latencyMilliseconds: 100})
             .init();
 
         WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
@@ -391,10 +391,16 @@ function Chart() {
     this.init = function() {
         this.initEmptyData();
         chart = new CanvasJS.Chart(elementId,{
+            backgroundColor: "#212121",
             title :{ text: title },
+            axisY:{
+                minimum: 0,
+                maximum: 100
+            },
             data: [{
-                type: "line",
-                dataPoints: dps
+                type: "column",
+                color: "green",
+                dataPoints: dps,
             }]
         });
         this.update(0);
@@ -404,7 +410,7 @@ function Chart() {
     this.initEmptyData = function() {
         for (var i = 0;  i < options.visiblePoints; i++) {
             var date = new Date();
-            var previousTime = date.setTime(date.getTime() - ((options.visiblePoints - i)  * 1000));
+            var previousTime = date.setTime(date.getTime() - ((options.visiblePoints - i)  * options.latencyMilliseconds));
             this.addPointAsXandYcoordinates(previousTime, 0);
         }
     };
