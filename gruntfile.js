@@ -1,357 +1,277 @@
 'use strict';
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
+var fs            = require('fs'),
+connectLiveReload = require('connect-livereload'),
+LIVERELOAD_PORT   = 35729,
+liveReloadSnippet = connectLiveReload({port: LIVERELOAD_PORT});
+
 
 module.exports = function (grunt) {
+
+    // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
+
+    // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
 
-    // configurable paths
-    var yeomanConfig = {
-        app: 'src',
+    // Configurable paths
+    var configPaths = {
+        src: 'src',
+        bowerComponents : 'bower_components',
         dist: 'dist',
         doc: 'doc',
         test: 'test',
-        coverage: 'test/coverage',
-	instrumented: 'test/coverage/instrumented'
+        demo: 'demo',
+        testsConfig: 'config/test',
+        reports: 'reports',
+        coverage: 'reports/coverage',
+        e2eCoverage : 'reports/coverage/e2e',
+        e2eInstrumented : 'reports/coverage/e2e/_instrumented'
     };
 
+    // If app path is defined in bower.json, use it
     try {
-        yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
+        configPaths.src = require('./bower.json').appPath || configPaths.src;
     } catch (e) {}
 
-    grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
-		yeoman: yeomanConfig,
-		maven: {
-			options: {
-                goal:'install',
-				groupId: 'org.appverse.web.framework.modules.frontend.html5',
-				repositoryId: 'my-nexus',
-				releaseRepository: 'url'
+    // Define file to load in the demo, ordering and the way they are
+    // concatenated for distribution
+    var files = {
+        '<%= appverse.dist %>/api-cache/api-cache.js':
+            moduleFilesToConcat('<%= appverse.src %>/api-cache'),
 
-			},
-			'install-src': {
-				options: {
-					classifier: 'sources'
-				},
-				files: [{
-                    expand: true,
-					cwd:'<%= yeoman.app %>/',
-					src: ['**','!bower_components/**'],
-					dest:'.'
-				}]
-			},
-			'install-min': {
-				options: {
-					classifier: 'min'
-				},
-				files: [{
-                    expand: true,
-					cwd:'<%= yeoman.dist %>/',
-					src: ['**'],
-					dest:'.'
-				}]
-			},
-			'deploy-src': {
-				options: {
-					goal:'deploy',
-					url: '<%= releaseRepository %>',
-					classifier: 'sources'
-				},
-				files: [{
-                    expand: true,
-					cwd:'<%= yeoman.app %>/',
-					src: ['**','!bower_components/**'],
-					dest:'.'
-				}]
-			},
-			'deploy-min': {
-				options: {
-					goal:'deploy',
-					url: '<%= releaseRepository %>',
-					classifier: 'min'
-				},
-				files: [{
-                    expand: true,
-					cwd:'<%= yeoman.dist %>/',
-					src: ['**'],
-					dest:'.'
-				}]
-			}
-		},
-        autoprefixer: {
-            options: ['last 1 version'],
-            tmp: {
+        '<%= appverse.dist %>/api-detection/api-detection.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-detection', [
+                // this order must be preseved as there are dependencies between these providers
+                '<%= appverse.src %>/api-detection/mobile-detector.provider.js',
+                '<%= appverse.src %>/api-detection/detection.provider.js',
+            ]),
+
+        '<%= appverse.dist %>/api-logging/api-logging.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-logging'),
+
+        '<%= appverse.dist %>/api-performance/api-performance.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-performance'),
+
+        '<%= appverse.dist %>/api-translate/api-translate.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-translate'),
+
+        '<%= appverse.dist %>/api-utils/api-utils.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-utils'),
+
+        '<%= appverse.dist %>/api-serverpush/api-serverpush.js' :
+            moduleFilesToConcat('<%= appverse.src %>/{api-serverpush,api-socketio}'),
+
+        '<%= appverse.dist %>/api-rest/api-rest.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-rest'),
+
+        '<%= appverse.dist %>/api-router/api-router.js' :
+            moduleFilesToConcat('<%= appverse.src %>/api-router'),
+
+        '<%= appverse.dist %>/api-main/api-main.js' : [
+            ['<%= appverse.src %>/api-main/integrator.js'].concat(
+                moduleFilesToConcat('<%= appverse.src %>/{api-configuration*,api-main}')
+            ),
+        ]
+    };
+
+    // Start Grunt config definition
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        // Project settings
+        appverse: configPaths,
+
+        maven: {
+            options: {
+                goal:'install',
+                groupId: 'org.appverse.web.framework.modules.frontend.html5',
+                repositoryId: 'my-nexus',
+                releaseRepository: 'url'
+
+            },
+            'install-src': {
+                options: {
+                    classifier: 'sources'
+                },
                 files: [{
                     expand: true,
-                    cwd: '.tmp/styles/',
-                    src: '**/*.css',
-                    dest: '.tmp/styles/'
+                    cwd:'<%= appverse.src %>/',
+                    src: ['**','!bower_components/**'],
+                    dest:'.'
                 }]
             },
-            styles: {
+            'install-min': {
+                options: {
+                    classifier: 'min'
+                },
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.app %>/styles/',
-                    src: '**/*.css',
-                    dest: '.tmp/styles/'
+                    cwd:'<%= appverse.dist %>/',
+                    src: ['**'],
+                    dest:'.'
+                }]
+            },
+            'deploy-src': {
+                options: {
+                    goal:'deploy',
+                    url: '<%= releaseRepository %>',
+                    classifier: 'sources'
+                },
+                files: [{
+                    expand: true,
+                    cwd:'<%= appverse.src %>/',
+                    src: ['**','!bower_components/**'],
+                    dest:'.'
+                }]
+            },
+            'deploy-min': {
+                options: {
+                    goal:'deploy',
+                    url: '<%= releaseRepository %>',
+                    classifier: 'min'
+                },
+                files: [{
+                    expand: true,
+                    cwd:'<%= appverse.dist %>/',
+                    src: ['**'],
+                    dest:'.'
                 }]
             }
         },
+
         clean: {
             dist: {
                 files: [{
                     dot: true,
                     src: [
                         '.tmp',
-                        '<%= yeoman.dist %>/**',
-                        '!<%= yeoman.dist %>/.git*'
+                        '<%= appverse.dist %>/**',
+                        '!<%= appverse.dist %>/.git*'
                     ]
                 }]
             },
-            coverage : 'coverage/*',
+            coverage : '<%= appverse.coverage %>/**',
             server: '.tmp',
-	    docular: 'doc'
+            docular: 'doc'
 
         },
+
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
-                //Show errors but do not fail the task
+                reporter: require('jshint-stylish'),
+                //Show failures but do not stop the task
                 force: true
             },
             all: [
-                '<%= yeoman.app %>/directives/{,*/}*.js',
-                '<%= yeoman.app %>/modules/{,*/}*.js',
+                '<%= appverse.src %>/{,*/}*.js'
             ]
         },
-        coffee: {
-            options: {
-                sourceMap: true,
-                sourceRoot: ''
-            },
-            app: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/scripts',
-                    src: '**/*.coffee',
-                    dest: '.tmp/scripts',
-                    ext: '.js'
-                }]
-            },
-            test: {
-                files: [{
-                    expand: true,
-                    cwd: 'test/spec',
-                    src: '{,*/}*.coffee',
-                    dest: '.tmp/spec',
-                    ext: '.js'
-                }]
-            }
-        },
-        compass: {
-            options: {
-                sassDir: '<%= yeoman.app %>/styles',
-                cssDir: '.tmp/styles',
-                generatedImagesDir: '.tmp/images/generated',
-                imagesDir: '<%= yeoman.app %>/images',
-                javascriptsDir: '<%= yeoman.app %>/scripts',
-                fontsDir: '<%= yeoman.app %>/styles/fonts',
-                importPath: '<%= yeoman.app %>/bower_components',
-                httpImagesPath: '/images',
-                httpGeneratedImagesPath: '/images/generated',
-                httpFontsPath: '/styles/fonts',
-                relativeAssets: false
-            },
-            dist: {
-                options: {
-                    debugInfo: false
-                }
-            },
-            server: {
-                options: {
-                    debugInfo: true
-                }
-            }
-        },
+
+        // concatenate source files
         concat: {
-            options: {
-              separator: ';',
+
+            // Concatenate all files for a module in a single module file
+            modules: {
+                files: files
             },
+
+            // Concatenate all modules into a full distribution
             dist: {
-              src: [
-                        '<%= yeoman.app %>/bower_components/angular-cache/dist/angular-cache.js',
-                        '<%= yeoman.app %>/modules/api-cache.js',
-                        '<%= yeoman.app %>/modules/api-configuration.js',
-                        '<%= yeoman.app %>/modules/api-detection.js',
-                        '<%= yeoman.app %>/modules/api-logging.js',
-                        '<%= yeoman.app %>/modules/api-main.js',
-                        '<%= yeoman.app %>/bower_components/lodash/dist/lodash.underscore.js',
-                        '<%= yeoman.app %>/bower_components/restangular/dist/restangular.js',
-                        '<%= yeoman.app %>/modules/api-rest.js',
-                        '<%= yeoman.app %>/bower_components/socket.io-client/dist/socket.io.js',    
-                        '<%= yeoman.app %>/modules/api-serverpush.js',
-                        '<%= yeoman.app %>/modules/api-translate.js',
-                        '<%= yeoman.app %>/bower_components/angular-translate/angular-translate.js',
-                        '<%= yeoman.app %>/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
-                        '<%= yeoman.app %>/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
-                        '<%= yeoman.app %>/modules/api-utils.js',
-                        '<%= yeoman.app %>/directives/cache-directives.js',
-                        '<%= yeoman.app %>/directives/rest-directives.js',
-                        '<%= yeoman.app %>/modules/api-performance.js'
-                   ],
-              dest: '<%= yeoman.dist %>/appverse-html5-core.js',
+                src: [
+                    '<%= appverse.dist %>/*/*.js',
+                ],
+                dest: '<%= appverse.dist %>/appverse-html5-core.js',
             },
         },
+
+        // ng-annotate tries to make the code safe for minification automatically
+        // by using the Angular long form for dependency injection.
+        ngAnnotate: {
+          dist: {
+            files: [{
+              expand: true,
+              cwd: '<%= appverse.dist %>',
+              src: ['**/*.js', '!oldieshim.js'],
+              dest: '<%= appverse.dist %>',
+              extDot : 'last'
+            }]
+          }
+        },
+
+        // Uglifies already concatenated files
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */'
+                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */',
+                sourceMap: true,
             },
-            dist: {
-	    	files: {
-
-                    '<%= yeoman.dist %>/angular-jqm.min.js':['<%= yeoman.app %>/angular-jqm.js'],
-					'<%= yeoman.dist %>/modules/api-cache.min.js':['<%= yeoman.app %>/modules/api-cache.js'],
-					'<%= yeoman.dist %>/modules/api-configuration.min.js':['<%= yeoman.app %>/modules/api-configuration.js'],
-					'<%= yeoman.dist %>/modules/api-detection.min.js':['<%= yeoman.app %>/modules/api-detection.js'],
-					'<%= yeoman.dist %>/modules/api-logging.min.js':['<%= yeoman.app %>/modules/api-logging.js'],
-					'<%= yeoman.dist %>/modules/api-main.min.js':['<%= yeoman.app %>/modules/api-main.js'],
-					'<%= yeoman.dist %>/modules/api-performance.min.js':['<%= yeoman.app %>/modules/api-performance.js'],
-					'<%= yeoman.dist %>/modules/api-rest.min.js':['<%= yeoman.app %>/modules/api-rest.js'],
-					'<%= yeoman.dist %>/modules/api-serverpush.min.js':['<%= yeoman.app %>/modules/api-serverpush.js'],
-					'<%= yeoman.dist %>/modules/api-translate.min.js':['<%= yeoman.app %>/modules/api-translate.js'],
-					'<%= yeoman.dist %>/modules/api-utils.min.js':['<%= yeoman.app %>/modules/api-utils.js'],
-					'<%= yeoman.dist %>/directives/cache-directives.min.js':['<%= yeoman.app %>/directives/cache-directives.js'],
-					'<%= yeoman.dist %>/directives/rest-directives.min.js':['<%= yeoman.app %>/directives/rest-directives.js'],
-					'<%= yeoman.dist %>/directives/webworker-directives.min.js':['<%= yeoman.app %>/directives/webworker-directives.js'],
-
-                    '<%= yeoman.dist %>/appverse-html5-core.min.js':['<%= yeoman.dist %>/appverse-html5-core.js']
-                   
-                }
-            }
-        },
-        htmlmin: {
-            dist: {
-                options: {
-                    removeComments: true,
-                    removeCommentsFromCDATA: true,
-                    removeCDATASectionsFromCDATA: true,
-                    collapseWhitespace: true,
-                    //                    conservativeCollapse: true,
-                    collapseBooleanAttributes: true,
-                    removeAttributeQuotes: false,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true,
-                    removeEmptyAttributes: true,
-                    removeOptionalTags: true,
-                    keepClosingSlash: true,
-                },
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.dist %>',
-                    src: [
-                        '*.html',
-                        'views/**/*.html',
-                        'template/**/*.html'
-                    ],
-                    dest: '<%= yeoman.dist %>'
-                }]
-            }
-        },
-        // Put files not handled in other tasks here
-        copy: {
             dist: {
                 files: [{
-                    expand: true,
-                    dot: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        '*.{ico,png,txt}',
-                        '.htaccess',
-                        'api/**',
-                        'images/{,*/}*.{gif,webp}',
-                        'resources/**',
-                        'styles/fonts/*',
-                        'styles/images/*',
-                        '*.html',
-                        'views/**/*.html',
-                        'template/**/*.html'
-                    ]
-                }, {
-                    expand: true,
-                    cwd: '.tmp/images',
-                    dest: '<%= yeoman.dist %>/images',
-                    src: [
-                        'generated/*'
-                    ]
-                }, {
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/bower_components/angular-i18n',
-                    dest: '<%= yeoman.dist %>/resources/i18n/angular',
-                    src: [
-                        '*en-us.js',
-                        '*es-es.js',
-                        '*ja-jp.js',
-                        '*ar-eg.js'
-                    ]
-                }]
-            },
-            styles: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/styles',
-                dest: '.tmp/styles',
-                src: '**/*.css'
-            },
-            i18n: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/bower_components/angular-i18n',
-                dest: '.tmp/resources/i18n/angular',
-                src: [
-                    '*en-us.js',
-                    '*es-es.js',
-                    '*ja-jp.js',
-                    '*ar-eg.js'
+                      expand: true,     // Enable dynamic expansion.
+                      cwd: '<%= appverse.dist %>',      // Src matches are relative to this path.
+                      src: ['**/*.js'], // Actual pattern(s) to match.
+                      dest: '<%= appverse.dist %>',   // Destination path prefix.
+                      ext: '.min.js',   // Dest filepaths will have this extension.
+                      extDot: 'last'   // Extensions in filenames begin after the last dot
+                    }
                 ]
-            },
-            png: {
-                expand: true,
-                cwd: '<%= yeoman.app %>',
-                dest: '<%= yeoman.dist %>',
-                src: 'images/**/*.png'
             }
         },
+
         karma: {
             unit: {
-                configFile: '<%= yeoman.test %>/config/karma.unit.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.unit.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
             unitAutoWatch: {
-                configFile: '<%= yeoman.test %>/config/karma.unit.watch.conf.js',
+                configFile: '<%= appverse.testsConfig %>/karma.unit.watch.conf.js',
                 autoWatch: true
             },
+            midway: {
+                configFile: '<%= appverse.testsConfig %>/karma.midway.conf.js',
+                autoWatch: false,
+                singleRun: true
+            },
         },
-        cdnify: {
-            dist: {
-                html: ['<%= yeoman.dist %>/*.html']
+
+        // Runs protractor and generate coverage report for e2e tests.
+        // Unit and midway are already managedby Karma
+        protractor_coverage: {
+            options: {
+                configFile: '<%= appverse.testsConfig %>/protractor.e2e.conf.js',
+                coverageDir: '<%= appverse.e2eCoverage %>',
+                keepAlive: false,
+                noColor: false,
+                args: {},
+            },
+            run: {}
+        },
+
+        // After the tests have been run and the coverage has been measured and captured
+        // you want to create a report.
+        makeReport: {
+            src: '<%= appverse.e2eCoverage %>/*.json',
+            options: {
+                type: ['html', 'clover'],
+                dir: '<%= appverse.e2eCoverage %>'
             }
         },
-        ngAnnotate: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '.tmp/concat/scripts',
-                    src: '*.js',
-                    dest: '.tmp/concat/scripts'
-                }]
+
+        // Measuring coverage from protractor tests does not work out of the box.
+        // To measure coverage Protractor coverage,
+        // all sources need to be instrumented using Istanbul
+        instrument: {
+            files: '<%= appverse.src %>/**/*.js',
+            options: {
+                lazy: true,
+                basePath: "<%= appverse.e2eInstrumented %>"
             }
         },
+
+        // Generate docs
         docular: {
             showDocularDocs: false,
             showAngularDocs: true,
@@ -372,24 +292,10 @@ module.exports = function (grunt) {
                             rank: {}
                         }
                     ]
-                }, {
-                    groupTitle: 'Angular jQM',
-                    groupId: 'angular-jqm',
-                    groupIcon: 'icon-mobile-phone',
-                    sections: [
-                        {
-                            id: "jqmapi",
-                            title: "API",
-                            showSource: true,
-                            scripts: ["src/angular-jqm.js"
-                            ],
-                            docs: ["ngdocs/jqmapi"],
-                            rank: {}
-                        }
-                    ]
                 }
             ]
         },
+
         bump: {
             options: {
               files: ['package.json', 'bower.json'],
@@ -405,74 +311,431 @@ module.exports = function (grunt) {
               gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
         },
-		// Unit tests.
-		nodeunit: {
-			tests: ['test/**/*_test.js']
-		}
+
+        // Web server
+        connect: {
+
+            // General options
+            options: {
+                protocol: 'http',
+                port: 9000,
+                hostname: 'localhost'
+            },
+
+            // For demo app in chrome
+            livereload: {
+                options: {
+                    port: 9000,
+                    middleware: function (connect) {
+                        return [
+                            delayApiCalls,
+                            liveReloadSnippet,
+                            mountFolder(connect, configPaths.src),
+                            mountFolder(connect, configPaths.bowerComponents),
+                            mountFolder(connect, configPaths.demo),
+                            httpMethods
+                        ];
+                    }
+                }
+            },
+
+            // For e2e tests on demo app, with coverage reporting
+            e2e: {
+                options: {
+                    port: 9091,
+                     middleware: function (connect) {
+                        return [
+                            mountFolder(connect, configPaths.e2eInstrumented + '/src'),
+                            mountFolder(connect, configPaths.src),
+                            mountFolder(connect, configPaths.bowerComponents),
+                            mountFolder(connect, configPaths.demo),
+                            httpMethods
+                        ];
+                    }
+                }
+            },
+
+            // For e2e tests on built demo app
+            e2e_dist: {
+                options: {
+                    port: 9090,
+                    middleware: function (connect) {
+                        return [
+                            mountFolder(connect, configPaths.src),
+                            mountFolder(connect, configPaths.bowerComponents),
+                            mountFolder(connect, configPaths.dist),
+                            mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),
+                            httpMethods
+                        ];
+                    }
+                }
+            }
+        },
+
+        watch: {
+            livereload: {
+                options: {
+                    livereload: LIVERELOAD_PORT
+                },
+                tasks: ['injector:js'],
+                files: [
+                    '<%= appverse.demo %>/*.html',
+                    '<%= appverse.demo %>/partials/*.html',
+                    '<%= appverse.demo %>/js/*.js',
+                    //For performance reasons only match one level
+                    '<%= appverse.src %>/{,*/}*.js',
+                ],
+            }
+        },
+
+        open: {
+            demo: {
+                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.options.port %>'
+            },
+            demo_dist: {
+                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.e2e_dist.options.port %>'
+            },
+        },
+
+        // Execute commands that cannot be specified with tasks
+        exec: {
+            // These commands are defined in package.json for
+            // automatic resoultion of any binary included in node_modules/
+            protractor_start: 'npm run protractor-dist',
+            webdriver_update: 'npm run update-webdriver'
+        },
+
+        protractor_webdriver: {
+            start: {
+                options: {
+                    command: 'node_modules/.bin/webdriver-manager start --standalone'
+                }
+            }
+        },
+
+        // Automatically include all src/ files in demo's html as script tags
+        injector: {
+            options: {
+                relative: false,
+                transform: function (path) {
+                    // Demo server directly mounts src folder so the reference to src is not required
+                    path = path.replace('/src/', '');
+                    return '<script src="'+ path +'"></script>';
+                }
+            },
+            js: {
+                files: {
+                    '<%= appverse.demo %>/index.html': getAllFilesForDemo(files),
+                }
+            }
+        },
+
+        // Generate code analysis reports
+        plato: {
+            main: {
+                options : {
+                    jshint : grunt.file.readJSON('.jshintrc')
+                },
+                files: {
+                    '<%= appverse.reports %>/analysis/': [
+                        '<%= appverse.src %>/**/*.js',
+                        '<%= appverse.test %>/unit/**/*.js',
+                        '<%= appverse.test %>/midway/**/*.js',
+                        '<%= appverse.test %>/e2e/**/*.js',
+                     ]
+                }
+            }
+        },
+
+        concurrent: {
+            dist: ['jshint', 'unit', 'midway','test:e2e:report', 'analysis']
+        }
     });
 
-    // -- Load plugins --
 
-	grunt.loadNpmTasks('grunt-docular');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-bump');	
-	grunt.loadNpmTasks('grunt-mocha');
-    	grunt.loadNpmTasks('grunt-karma');
-    	grunt.loadNpmTasks('grunt-bump');
-    	grunt.loadNpmTasks('grunt-maven-deploy');
-    	grunt.loadNpmTasks('grunt-contrib-concat');
-
-    // -- Register tasks --
-
-    grunt.registerTask('doc', [
-		'clean:docular',
-        'docular'
-    ]);
-
-	grunt.registerTask('test',[
-		'test:unit:watch'
-	]);
-
-    grunt.registerTask('test:unit', [
-        'clean:coverage',
-        'karma:unit'
-	]);
+/*---------------------------------------- TASKS DEFINITION -------------------------------------*/
 
 
-    grunt.registerTask('test:unit:watch', [
-        'clean:coverage',
-        'karma:unitAutoWatch'
-    ]);
-
-    grunt.registerTask('dist', [
-        'jshint',
-        'test:unit',
-        'clean:dist',
-        'autoprefixer',
-        'copy:dist',
-        'cdnify',
-        'ngAnnotate',
-        'concat:dist',
-        'uglify',
-        'htmlmin'
-    ]);
-
-    grunt.registerTask('install', [
-        'clean',
-		'maven:install-src',
-		'dist',
-        'maven:install-min'
-    ]);
-
-	grunt.registerTask('deploy', [
-        'clean',
-		'maven:deploy-src',
-		'dist',
-        'maven:deploy-min'
-    ]);
+    // ------ Dist task. Builds the project -----
 
     grunt.registerTask('default', [
         'dist'
     ]);
 
+    grunt.registerTask('dist', [
+        'concurrent:dist',
+        'make_dist_and_test'
+    ]);
+
+    grunt.registerTask('make_dist_and_test', [
+        'dist:make',
+        'test:e2e:dist',
+    ]);
+
+    grunt.registerTask('dist:make', [
+        'clean:dist',
+        'concat',
+        'ngAnnotate',
+        'uglify'
+    ]);
+
+    // ------ Tests tasks -----
+
+    grunt.registerTask('test', [
+        'test:all'
+    ]);
+
+    grunt.registerTask('test:all', [
+        'clean:coverage',
+        'unit',
+        'midway',
+        'e2e',
+    ]);
+
+    grunt.registerTask('unit', [
+        'test:unit:once'
+    ]);
+
+    grunt.registerTask('midway', [
+        'test:midway'
+    ]);
+
+    grunt.registerTask('e2e', [
+        'dist:make',
+        'test:e2e:dist'
+    ]);
+
+    grunt.registerTask('test:unit:watch', [
+        'karma:unitAutoWatch'
+    ]);
+
+    grunt.registerTask('test:unit:once', [
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('test:midway', [
+        'karma:midway'
+    ]);
+
+    grunt.registerTask('test:e2e:report',  [
+        'exec:webdriver_update',
+        'connect:e2e',
+        'protractor_webdriver',
+        'instrument',
+        'protractor_coverage',
+        'makeReport'
+    ]);
+
+    grunt.registerTask('test:e2e:dist',  [
+        'exec:webdriver_update',
+        'connect:e2e_dist',
+        'protractor_webdriver',
+        'exec:protractor_start',
+    ]);
+
+    // ------ Dev tasks. To be run continously while developing -----
+
+    grunt.registerTask('dev', [
+        // For now, only execute unit tests when a file changes?
+        // midway and e2e are slow and do not give innmedate
+        // feedback after a change
+        'test:unit:watch'
+    ]);
+
+
+    // ------ Demo tasks. Starts a webserver with a demo app -----
+
+    grunt.registerTask('demo', [
+        'connect:livereload',
+        'open:demo',
+        'watch'
+    ]);
+
+    grunt.registerTask('demo:dist', [
+        'dist:make',
+        'open:demo_dist',
+        'connect:e2e_dist:keepalive',
+    ]);
+
+    grunt.registerTask('doc', [
+        'clean:docular',
+        'docular'
+    ]);
+
+
+    // ------ Analysis tasks. Runs code analysis -----
+
+    grunt.registerTask('analysis', ['plato']);
+
+
+    // ------ Deployment tasks -----
+
+    grunt.registerTask('install', [
+        'clean',
+        'maven:install-src',
+        'dist',
+        'maven:install-min'
+    ]);
+
+    grunt.registerTask('deploy', [
+        'clean',
+        'maven:deploy-src',
+        'dist',
+        'maven:deploy-min'
+    ]);
+
+    // -------- Special task for websockets demo ---------
+
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
+
+        var http = require('http');
+        var CpuUsage = require('./config/grunt-tasks/cpu-usage');
+        var server = http.createServer(function handler () {});
+
+        // Never end grunt task
+        this.async();
+
+        server.listen(8080, function() {
+            console.log('Websockets Server is listening on port 8080');
+        });
+
+        var WebSocketServer = require('websocket').server;
+
+        var wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false });
+
+        var cpuUsage = new CpuUsage();
+
+        wsServer.on('request', function(request) {
+            var connection = request.accept('', request.origin);
+            console.log(' Connection accepted from peer ' + connection.remoteAddress);
+
+            var sendInterval = setInterval(function () {
+                var payLoad = (cpuUsage.get() * 100).toFixed(0);
+                connection.sendUTF(payLoad);
+            }, 100);
+
+            connection.on('close', function(reasonCode, description) {
+                clearInterval(sendInterval);
+                console.log('Peer ' + connection.remoteAddress + ' disconnected.');
+                console.log('Closing Reason: ' + reasonCode);
+                console.log('Closing Description: ' + description);
+            });
+        });
+
+    });
+
 };
+
+
+
+/*---------------------------------------- HELPER METHODS -------------------------------------*/
+
+function mountFolder (connect, dir, options) {
+    return connect.static(require('path').resolve(dir), options);
+}
+
+function delayApiCalls (request, response, next) {
+    if (request.url.indexOf('/api/') !== -1) {
+        setTimeout(function () {
+            next();
+        }, 1000);
+    } else {
+        next();
+    }
+}
+
+function httpMethods (request, response, next) {
+
+    var rawpath = request.url.split('?')[0],
+    path        = require('path').resolve(__dirname, 'demo/' + rawpath);
+
+    console.log("request method: " + JSON.stringify(request.method));
+    console.log("request url: " + JSON.stringify(request.url));
+    console.log("request path : " + JSON.stringify(path));
+
+    if ((request.method === 'PUT' || request.method === 'POST')) {
+        console.log('inside put/post');
+        request.content = '';
+        request.addListener("data", function (chunk) {
+            request.content += chunk;
+        });
+
+        request.addListener("end", function () {
+            console.log("request content: " + JSON.stringify(request.content));
+            if (fs.existsSync(path)) {
+                fs.writeFile(path, request.content, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('file saved');
+                    response.end('file was saved');
+                });
+                return;
+            }
+
+            if (request.url === '/log') {
+                var filePath = 'server/log/server.log';
+                var logData = JSON.parse(request.content);
+                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('log saved');
+                    response.end('log was saved');
+                });
+                return;
+            }
+        });
+        return;
+    }
+    next();
+}
+
+
+/**
+ * Specify concat order to concant files from the same
+ * module into a single module file
+ *
+ * @param  {string} moduleFolderPath
+ * @param  {array} filesAfterModule Files to concat inmediately after the module
+ * @return {array}                  List of files to concat
+ */
+function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
+
+    //Remove trailing slash
+    moduleFolderPath =  moduleFolderPath.replace(/\/+$/, '');
+
+    // Files using the same module are concatenated in the correct order:
+    // · 1st, module.js files are loaded as these are the ones that create the module
+    // · 2nd, provider.js files containing are loaded. This is because some modules use their own
+    // providers in their config block. Because of this, providers must be loaded prior to config blocks.
+    // · 3rd, rest of files
+    var files = [moduleFolderPath + '/module.js'];
+
+    if (typeof filesAfterModule === 'object') {
+        files = files.concat(filesAfterModule);
+    }
+
+    return files.concat([
+        moduleFolderPath + '/**/*.provider.js',
+        moduleFolderPath +'/**/*.js'
+    ]);
+}
+
+/**
+ * Gets a list of all the files to load as scripts.
+ *
+ * @param  {object} filesObject Files object of files structured by module
+ * @return {array}              Array of files
+ */
+function getAllFilesForDemo(filesObject) {
+    var filesList = [];
+    for( var key in filesObject ) {
+        if (filesObject.hasOwnProperty(key)) {
+           filesList = filesList.concat(filesObject[key]);
+        }
+    }
+
+    return filesList;
+}
+

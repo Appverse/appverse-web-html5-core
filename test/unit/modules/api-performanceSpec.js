@@ -5,7 +5,7 @@ describe('Unit: Testing AppPerformance module', function () {
 
     beforeEach(setupPerformanceTesting);
 
-    it('should contain a WebWorkerPoolFactory factory',
+    it('should contain a WebWorkerFactory factory',
         inject(function (WebWorkerPoolFactory) {
             expect(WebWorkerPoolFactory).to.be.an.object;
         })

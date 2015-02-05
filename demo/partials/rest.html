@@ -1,0 +1,39 @@
+<header class="appverse-header horizontal-gradient">
+    <ng-include src="'partials/logo.html'"></ng-include>
+    <h1><i class="fa fa-fw fa-cloud-download"></i>Appverse REST</h1>
+</header>
+
+<section>
+    <div class="section-content">
+        <h2>Load Books with rest directive</h2>
+
+        <div rest rest-path="books"
+             rest-name="mybooks"
+             rest-loading-text="Loading books &nbsp;<i class='fa fa-refresh fa-spin'></i>"
+             rest-error-text="Error while loading books">
+        </div>
+
+        <ul id="books">
+            <li ng-repeat="book in mybooks">
+                <h3>{{book.language}}</h3>
+                <p><strong>Author</strong>: {{book.author}}</p>
+                <p><strong>REF</strong>: {{book.id}}</p>
+                <p><strong>Edition</strong>: {{book.edition}}</p>
+            </li>
+        </ul>
+
+        <h2>Load Languages with Rest Factory</h2>
+        <ul>
+            <li ng-if="book.language" ng-repeat="book in factoryBooks">{{book.language}}</li>
+        </ul>
+
+
+        <h2>Try to load a missing resource and result in error</h2>
+
+        <div rest rest-path="missing_resource"
+             rest-name="missing_resource"
+             rest-loading-text="Loading 'missing_resource' &nbsp;<i class='fa fa-refresh fa-spin'></i>"
+             rest-error-text="<i class='fa fa-exclamation-circle red'></i> Error while loading 'missing_resource'">
+        </div>
+    </div>
+</section>

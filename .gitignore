@@ -1,9 +1,9 @@
 node_modules
-dist
+bower_components
 .tmp
 .sass-cache
-**/bower_components
 .sonar/
-coverage/
+reports
 doc/
-
+*.log
+demo/index*.TMP
