@@ -1,15 +1,15 @@
-(function(angular) {
+(function (angular) {
     'use strict';
 
     angular.module('AppUtils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     function BaseUrlSetterProvider() {
-        this.$get = function() {
+        this.$get = function () {
             return this;
         };
 
-        this.setBasePath = function(basePath) {
+        this.setBasePath = function (basePath) {
             return new BaseUrlSetter(basePath);
         };
     }
@@ -27,11 +27,11 @@
 
         basePath = basePath.trim(basePath);
 
-        this.$get = function() {
+        this.$get = function () {
             return this;
-        }
+        };
 
-        this.inUrl = function(url) {
+        this.inUrl = function (url) {
             url = url.trim(url);
             if (endsWithSlash(basePath)) {
                 basePath = sliceLastChar(basePath);
@@ -42,16 +42,16 @@
             return basePath + '/' + url;
         };
 
-        function endsWithSlash (path) {
+        function endsWithSlash(path) {
             return (path.slice(-1) === '/');
         }
 
-        function startsWithSlash (path) {
-            return (path.slice(0,1) === '/');
+        function startsWithSlash(path) {
+            return (path.slice(0, 1) === '/');
         }
 
         function sliceLastChar(path) {
-            return path.slice(0,-1);
+            return path.slice(0, -1);
         }
 
         function sliceFirstChar(path) {
