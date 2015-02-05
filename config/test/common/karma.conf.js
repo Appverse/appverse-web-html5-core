@@ -2,11 +2,11 @@
 
 var settings = {
 
-    basePath : '../../',
+    basePath: '../../',
 
     frameworks: ['mocha', 'chai', 'sinon'],
 
-    commonFiles : [
+    commonFiles: [
         'bower_components/angular/angular.js',
         'bower_components/angular-route/angular-route.js',
         'bower_components/angular-cookies/angular-cookies.js',
@@ -24,12 +24,11 @@ var settings = {
         'src/api-*/**/*.js',
     ],
 
-    unitFiles : [
+    unitFiles: [
         'test/unit/**/*.js'
     ],
 
-    midwayFiles : [
-        'bower_components/angular-load/angular-load.js',
+    midwayFiles: [
         'bower_components/angular-cache/dist/angular-cache.js',
         'bower_components/angular-ui-router/release/angular-ui-router.js',
         'bower_components/lodash/dist/lodash.js',
@@ -39,7 +38,7 @@ var settings = {
 };
 
 
-function Configurator () {
+function Configurator() {
     this._files = [];
     this.basePath = settings.basePath;
     this.frameworks = settings.frameworks;
@@ -63,4 +62,3 @@ Configurator.prototype.files = function (specificFiles) {
 };
 
 module.exports = new Configurator();
-
