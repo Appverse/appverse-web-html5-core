@@ -1,36 +1,36 @@
 {
-    "name": "appverse-web-html5-core",
-    "description": "Appverse web html5 core module.",
-    "version": "0.3.1",
-    "main": "dist/api-main/api-main.min.js",
-    "dependencies": {
-        "angular": "~1.2.20",
-        "json3": "3.2.4",
-        "es5-shim": "2.0.8",
-        "angular-cookies": "~1.2.20",
-        "angular-sanitize": "~1.2.20",
-        "angular-bootstrap": "~0.11.0",
-        "angular-ui-router": "0.2.8-bowratic-tedium",
-        "angular-translate": "~1.1.1",
-        "angular-translate-loader-static-files": "~0.1.6",
-        "angular-i18n": "1.0.8",
-        "angular-dynamic-locale": "~0.1.17",
-        "angular-resource": "~1.2.20",
-        "restangular": "~1.2.0",
-        "modernizr": "~2.6.1",
-        "angular-cache": "~2.3.3",
-        "socket.io-client": "~0.9.16",
-        "angular-route": "~1.2.20",
-        "grunt-contrib-concat": "~0.5.0",
-        "angular-touch": "~1.2.20",
-        "angular-animate": "~1.2.20",
-        "bootstrap-sass-official": "~3.3.1"
-    },
-    "devDependencies": {
-        "angular-mocks": "~1.2.20",
-        "angular-scenario": "~1.2.20"
-    },
-    "ignore": [
+  "name": "appverse-web-html5-core",
+  "description": "Appverse web html5 core module.",
+  "version": "0.3.1",
+  "main": "dist/api-main/api-main.min.js",
+  "dependencies": {
+    "angular": "~1.2.20",
+    "json3": "3.2.4",
+    "es5-shim": "2.0.8",
+    "angular-cookies": "~1.2.20",
+    "angular-sanitize": "~1.2.20",
+    "angular-bootstrap": "~0.11.0",
+    "angular-ui-router": "0.2.8-bowratic-tedium",
+    "angular-translate": "~1.1.1",
+    "angular-translate-loader-static-files": "~0.1.6",
+    "angular-i18n": "1.0.8",
+    "angular-dynamic-locale": "~0.1.17",
+    "angular-resource": "~1.2.20",
+    "restangular": "~1.2.0",
+    "modernizr": "~2.6.1",
+    "angular-cache": "~2.3.3",
+    "socket.io-client": "~0.9.16",
+    "angular-route": "~1.2.20",
+    "grunt-contrib-concat": "~0.5.0",
+    "angular-touch": "~1.2.20",
+    "angular-animate": "~1.2.20",
+    "bootstrap-sass-official": "~3.3.1"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.2.20",
+    "angular-scenario": "~1.2.20"
+  },
+  "ignore": [
     "bower_components",
     "config",
     "demo",
@@ -45,7 +45,7 @@
     "sonar-project.properties",
     "changelog.js"
   ],
-    "resolutions": {
-        "angular": "~1.2.20"
-    }
+  "resolutions": {
+    "angular": "~1.2.20"
+  }
 }
