@@ -19,7 +19,7 @@
     run.$inject = ["$log"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     angular.module('AppPerformance')
@@ -62,12 +62,9 @@
                 },
                 priority: 1000,
                 terminal: true,
-                compile: function(element, attr, linker) {
-
-                },
+                compile: function () {},
                 link: function postLink(scope, element, attrs) {
                     var workerid = attrs.id;
-                    var passedMessage = attrs.message;
                     var template = attrs.template;
 
                     scope.$watch(function () {
@@ -84,17 +81,17 @@
                     });
 
 
-    //                    scope.$watch(function () {
-    //                        return CacheFactory.getScopeCache().get(name);
-    //                    }, function (newVal) {
-    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-    //                        scope[name] = CacheFactory.getScopeCache().get(name);
-    //                    });
-    //
-    //                    scope.$watch(name, function (newVal) {
-    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-    //                        CacheFactory.getScopeCache().put(name, scope[name]);
-    //                    });
+                    //                    scope.$watch(function () {
+                    //                        return CacheFactory.getScopeCache().get(name);
+                    //                    }, function (newVal) {
+                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
+                    //                        scope[name] = CacheFactory.getScopeCache().get(name);
+                    //                    });
+                    //
+                    //                    scope.$watch(name, function (newVal) {
+                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
+                    //                        CacheFactory.getScopeCache().put(name, scope[name]);
+                    //                    });
 
 
 
@@ -131,27 +128,23 @@
                      * template and produces a template function, which can then be used to link scope and
                      * the template together.
                      */
-                    function compileTemplate() {
+                    function compileTemplate($http, $templateCache, $compile) {
                         $http.get(scope.template, {
-                            //This allows you can get the template again by consuming the
-                            //$templateCache service directly.
-                            cache: $templateCache
-                        })
+                                //This allows you can get the template again by consuming the
+                                //$templateCache service directly.
+                                cache: $templateCache
+                            })
                             .success(function (html) {
                                 element.html(html);
                                 $compile(element.contents())(scope);
                             });
                     }
-
-
-                    $scope.$on('$destroy', function(event) {
-
-                    });
                 }
             };
         }]);
 
 })();
+
 (function() {
     'use strict';
 
