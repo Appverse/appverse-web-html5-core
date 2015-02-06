@@ -2060,7 +2060,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     run.$inject = ["$log"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     angular.module('AppPerformance')
@@ -2103,12 +2103,9 @@ var AppInit = AppInit || (function(angular) { 'use strict';
                 },
                 priority: 1000,
                 terminal: true,
-                compile: function(element, attr, linker) {
-
-                },
+                compile: function () {},
                 link: function postLink(scope, element, attrs) {
                     var workerid = attrs.id;
-                    var passedMessage = attrs.message;
                     var template = attrs.template;
 
                     scope.$watch(function () {
@@ -2125,17 +2122,17 @@ var AppInit = AppInit || (function(angular) { 'use strict';
                     });
 
 
-    //                    scope.$watch(function () {
-    //                        return CacheFactory.getScopeCache().get(name);
-    //                    }, function (newVal) {
-    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-    //                        scope[name] = CacheFactory.getScopeCache().get(name);
-    //                    });
-    //
-    //                    scope.$watch(name, function (newVal) {
-    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-    //                        CacheFactory.getScopeCache().put(name, scope[name]);
-    //                    });
+                    //                    scope.$watch(function () {
+                    //                        return CacheFactory.getScopeCache().get(name);
+                    //                    }, function (newVal) {
+                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
+                    //                        scope[name] = CacheFactory.getScopeCache().get(name);
+                    //                    });
+                    //
+                    //                    scope.$watch(name, function (newVal) {
+                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
+                    //                        CacheFactory.getScopeCache().put(name, scope[name]);
+                    //                    });
 
 
 
@@ -2172,27 +2169,23 @@ var AppInit = AppInit || (function(angular) { 'use strict';
                      * template and produces a template function, which can then be used to link scope and
                      * the template together.
                      */
-                    function compileTemplate() {
+                    function compileTemplate($http, $templateCache, $compile) {
                         $http.get(scope.template, {
-                            //This allows you can get the template again by consuming the
-                            //$templateCache service directly.
-                            cache: $templateCache
-                        })
+                                //This allows you can get the template again by consuming the
+                                //$templateCache service directly.
+                                cache: $templateCache
+                            })
                             .success(function (html) {
                                 element.html(html);
                                 $compile(element.contents())(scope);
                             });
                     }
-
-
-                    $scope.$on('$destroy', function(event) {
-
-                    });
                 }
             };
         }]);
 
 })();
+
 (function() {
     'use strict';
 
@@ -3592,18 +3585,18 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     angular.module('AppUtils', ['AppConfiguration']);
 
 })();
-(function(angular) {
+(function (angular) {
     'use strict';
 
     angular.module('AppUtils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     function BaseUrlSetterProvider() {
-        this.$get = function() {
+        this.$get = function () {
             return this;
         };
 
-        this.setBasePath = function(basePath) {
+        this.setBasePath = function (basePath) {
             return new BaseUrlSetter(basePath);
         };
     }
@@ -3621,11 +3614,11 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         basePath = basePath.trim(basePath);
 
-        this.$get = function() {
+        this.$get = function () {
             return this;
-        }
+        };
 
-        this.inUrl = function(url) {
+        this.inUrl = function (url) {
             url = url.trim(url);
             if (endsWithSlash(basePath)) {
                 basePath = sliceLastChar(basePath);
@@ -3636,16 +3629,16 @@ var AppInit = AppInit || (function(angular) { 'use strict';
             return basePath + '/' + url;
         };
 
-        function endsWithSlash (path) {
+        function endsWithSlash(path) {
             return (path.slice(-1) === '/');
         }
 
-        function startsWithSlash (path) {
-            return (path.slice(0,1) === '/');
+        function startsWithSlash(path) {
+            return (path.slice(0, 1) === '/');
         }
 
         function sliceLastChar(path) {
-            return path.slice(0,-1);
+            return path.slice(0, -1);
         }
 
         function sliceFirstChar(path) {
@@ -3658,6 +3651,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
 
 })(angular);
+
 (function(angular) {
     'use strict';
 
