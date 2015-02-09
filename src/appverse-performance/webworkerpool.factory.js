@@ -1,13 +1,13 @@
 (function() {
     'use strict';
 
-    angular.module('AppPerformance')
+    angular.module('appverse.performance')
         .factory('WebWorkerPoolFactory', WebWorkerPoolFactory);
 
 
     /**
      * @ngdoc service
-     * @name AppPerformance.service:WebWorkerFactory
+     * @name appverse.performance.service:WebWorkerFactory
      * @requires $log
      * @requires PERFORMANCE_CONFIG
      * @description
@@ -35,8 +35,8 @@
 
         /**
          * @ngdoc method
-         * @name AppPerformance.service:WebWorkerFactory#runTasksGroup
-         * @methodOf AppPerformance.service:WebWorkerFactory
+         * @name appverse.performance.service:WebWorkerFactory#runTasksGroup
+         * @methodOf appverse.performance.service:WebWorkerFactory
          * @param {number} workerData WorkerData object with information of the task to be executed
          * @param {object} workerTasks Array with a group of WorkerTask objects for the same WorkerData
          * @description
@@ -74,8 +74,8 @@
 
         /**
          * @ngdoc method
-         * @name AppPerformance.service:WebWorkerFactory#passMessage
-         * @methodOf AppPerformance.service:WebWorkerFactory
+         * @name appverse.performance.service:WebWorkerFactory#passMessage
+         * @methodOf appverse.performance.service:WebWorkerFactory
          * @param {number} id of the called worker
          * @param {object} function as callback
          * @param {string} message to be passed to the worker

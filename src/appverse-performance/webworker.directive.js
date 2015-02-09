@@ -1,12 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('AppPerformance')
+    angular.module('appverse.performance')
 
 
     /**
     * @ngdoc directive
-    * @name AppPerformance.directive:webworker
+    * @name appverse.performance.directive:webworker
     * @restrict AE
     *
     * @description
@@ -18,7 +18,7 @@
     * message: Message to be passed to the worker.
     *
     * @example
-    <example module="AppPerformance">
+    <example module="appverse.performance">
     <file name="index.html">
     <p>Web Worker test</p>
     <webworker  id="101" message="Hans Walter" template=""/>

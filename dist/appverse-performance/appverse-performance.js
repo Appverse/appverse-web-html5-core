@@ -3,18 +3,18 @@
 
     /**
      * @ngdoc module
-     * @name AppPerformance
+     * @name appverse.performance
      * @requires AppConfiguration
      * @description
-     * The AppPerformance provides services to handle usage of several performance elements:
+     * The appverse.performance provides services to handle usage of several performance elements:
      * 1-Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
      * 2-High Performance UI directives support.
      */
-    angular.module('AppPerformance', ['AppConfiguration'])
+    angular.module('appverse.performance', ['AppConfiguration'])
         .run(run);
 
     function run ($log) {
-        $log.info('AppPerformance run');
+        $log.info('appverse.performance run');
     }
     run.$inject = ["$log"];
 
@@ -22,12 +22,12 @@
 (function () {
     'use strict';
 
-    angular.module('AppPerformance')
+    angular.module('appverse.performance')
 
 
     /**
     * @ngdoc directive
-    * @name AppPerformance.directive:webworker
+    * @name appverse.performance.directive:webworker
     * @restrict AE
     *
     * @description
@@ -39,7 +39,7 @@
     * message: Message to be passed to the worker.
     *
     * @example
-    <example module="AppPerformance">
+    <example module="appverse.performance">
     <file name="index.html">
     <p>Web Worker test</p>
     <webworker  id="101" message="Hans Walter" template=""/>
@@ -148,13 +148,13 @@
 (function() {
     'use strict';
 
-    angular.module('AppPerformance')
+    angular.module('appverse.performance')
         .factory('WebWorkerPoolFactory', WebWorkerPoolFactory);
 
 
     /**
      * @ngdoc service
-     * @name AppPerformance.service:WebWorkerFactory
+     * @name appverse.performance.service:WebWorkerFactory
      * @requires $log
      * @requires PERFORMANCE_CONFIG
      * @description
@@ -182,8 +182,8 @@
 
         /**
          * @ngdoc method
-         * @name AppPerformance.service:WebWorkerFactory#runTasksGroup
-         * @methodOf AppPerformance.service:WebWorkerFactory
+         * @name appverse.performance.service:WebWorkerFactory#runTasksGroup
+         * @methodOf appverse.performance.service:WebWorkerFactory
          * @param {number} workerData WorkerData object with information of the task to be executed
          * @param {object} workerTasks Array with a group of WorkerTask objects for the same WorkerData
          * @description
@@ -221,8 +221,8 @@
 
         /**
          * @ngdoc method
-         * @name AppPerformance.service:WebWorkerFactory#passMessage
-         * @methodOf AppPerformance.service:WebWorkerFactory
+         * @name appverse.performance.service:WebWorkerFactory#passMessage
+         * @methodOf appverse.performance.service:WebWorkerFactory
          * @param {number} id of the called worker
          * @param {object} function as callback
          * @param {string} message to be passed to the worker

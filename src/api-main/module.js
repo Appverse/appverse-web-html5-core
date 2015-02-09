@@ -34,7 +34,7 @@
         'appverse.serverPush',
         'AppSecurity',
         'AppCache',
-        'AppPerformance',
+        'appverse.performance',
         'appverse.router'
     ];
 

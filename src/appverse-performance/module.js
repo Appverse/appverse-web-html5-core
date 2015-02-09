@@ -3,18 +3,18 @@
 
     /**
      * @ngdoc module
-     * @name AppPerformance
+     * @name appverse.performance
      * @requires AppConfiguration
      * @description
-     * The AppPerformance provides services to handle usage of several performance elements:
+     * The appverse.performance provides services to handle usage of several performance elements:
      * 1-Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
      * 2-High Performance UI directives support.
      */
-    angular.module('AppPerformance', ['AppConfiguration'])
+    angular.module('appverse.performance', ['AppConfiguration'])
         .run(run);
 
     function run ($log) {
-        $log.info('AppPerformance run');
+        $log.info('appverse.performance run');
     }
 
 })();

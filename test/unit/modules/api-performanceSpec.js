@@ -1,7 +1,7 @@
 /*jshint expr:true */
 "use strict";
 
-describe('Unit: Testing AppPerformance module', function () {
+describe('Unit: Testing appverse.performance module', function () {
 
     beforeEach(setupPerformanceTesting);
 
@@ -19,7 +19,7 @@ describe('Unit: Testing AppPerformance module', function () {
         mockDependencies();
 
         // Load the module to be tested
-        module("AppPerformance");
+        module("appverse.performance");
     }
 
     function mockDependencies() {
