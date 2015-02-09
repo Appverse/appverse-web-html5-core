@@ -3,7 +3,7 @@
 
     /**
     * @ngdoc module
-    * @name AppServerPush
+    * @name appverse.serverPush
     * @description
     * This module handles server data communication when it pushes them to the client
     * exposing the factory SocketFactory, which is an API for instantiating sockets
@@ -18,12 +18,12 @@
     *
     * The current release of socket.io is 0.9.10.
     *
-    * The module AppServerPush is included in the main module.
+    * The module appverse.serverPush is included in the main module.
     *
-    * The private module appverse.socket.io simply wraps SocketIO API to be used by AppServerPush.
+    * The private module appverse.socket.io simply wraps SocketIO API to be used by appverse.serverPush.
     *
-    * So, AppServerPush is ready to integrate other Server Push approaches (e.g. Atmosphere) only by including
-    * a new module and injecting it to AppServerPush.
+    * So, appverse.serverPush is ready to integrate other Server Push approaches (e.g. Atmosphere) only by including
+    * a new module and injecting it to appverse.serverPush.
     *
     *
     * NOTE ABOUT CLIENT DEPENDENCIES WITH SOCKET.IO
@@ -39,7 +39,7 @@
     *
     * That is the reason it is not a dependency handled by bower.
     */
-    angular.module('AppServerPush', ['appverse.socket.io', 'AppConfiguration'])
+    angular.module('appverse.serverPush', ['appverse.socket.io', 'AppConfiguration'])
     /*
          To make socket error events available across an app, in one of the controllers:
 
@@ -50,7 +50,7 @@
          */
     .run(['$log',
         function ($log) {
-            $log.info('AppServerPush run');
+            $log.info('appverse.serverPush run');
             //socket.forward('error');
         }]);
 

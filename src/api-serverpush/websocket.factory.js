@@ -1,11 +1,11 @@
 (function() {
     'use strict';
 
-    angular.module('AppServerPush')
+    angular.module('appverse.serverPush')
 
     /**
      * @ngdoc service
-     * @name AppServerPush.factory:WebSocketService
+     * @name appverse.serverPush.factory:WebSocketService
      * @requires $log
      * @requires $window
      * @requires WEBSOCKETS_CONFIG
@@ -18,8 +18,8 @@
 
             /**
                 @ngdoc method
-                @name AppServerPush.factory:WebSocketFactory#connect
-                @methodOf AppServerPush.factory:WebSocketFactory
+                @name appverse.serverPush.factory:WebSocketFactory#connect
+                @methodOf appverse.serverPush.factory:WebSocketFactory
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
@@ -64,8 +64,8 @@
 
             /**
                 @ngdoc method
-                @name AppServerPush.factory:WebSocketFactory#send
-                @methodOf AppServerPush.factory:WebSocketFactory
+                @name appverse.serverPush.factory:WebSocketFactory#send
+                @methodOf appverse.serverPush.factory:WebSocketFactory
                 @param {object} message Message payload in JSON format.
                 @description Send a message to the ws server.
             */
@@ -75,8 +75,8 @@
             };
             /**
                 @ngdoc method
-                @name AppServerPush.factory:WebSocketFactory#subscribe
-                @methodOf AppServerPush.factory:WebSocketFactory
+                @name appverse.serverPush.factory:WebSocketFactory#subscribe
+                @methodOf appverse.serverPush.factory:WebSocketFactory
                 @param {object} callback .
                 @description Retrieve the currentcallback of the endpoint connection.
             */
@@ -86,8 +86,8 @@
 
             /**
                 @ngdoc method
-                @name AppServerPush.factory:WebSocketFactory#disconnect
-                @methodOf AppServerPush.factory:WebSocketFactory
+                @name appverse.serverPush.factory:WebSocketFactory#disconnect
+                @methodOf appverse.serverPush.factory:WebSocketFactory
                 @param {string} itemId The id of the item
                 @description Close the WebSocket connection.
             */
@@ -99,8 +99,8 @@
 
              /**
                 @ngdoc method
-                @name AppServerPush.factory:WebSocketFactory#status
-                @methodOf AppServerPush.factory:WebSocketFactory
+                @name appverse.serverPush.factory:WebSocketFactory#status
+                @methodOf appverse.serverPush.factory:WebSocketFactory
                 @param {string} itemId The id of the item
                 @description WebSocket connection status.
             */
@@ -113,8 +113,8 @@
 
             /**
                 @ngdoc method
-                @name AppServerPush.factory:WebSocketFactory#statusAsText
-                @methodOf AppServerPush.factory:WebSocketFactory
+                @name appverse.serverPush.factory:WebSocketFactory#statusAsText
+                @methodOf appverse.serverPush.factory:WebSocketFactory
                 @param {string} itemId The id of the item
                 @description Returns WebSocket connection status as text.
             */

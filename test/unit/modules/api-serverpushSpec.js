@@ -2,7 +2,7 @@
 
 "use strict";
 
-describe('Unit: Testing AppServerPush module', function () {
+describe('Unit: Testing appverse.serverPush module', function () {
 
     beforeEach(setupServerPushTesting);
 
@@ -18,7 +18,7 @@ describe('Unit: Testing AppServerPush module', function () {
         mockDependencies();
 
         // Load the module to be tested and initialized a mocked socketIo
-        module('AppServerPush', function(socketProvider) {
+        module('appverse.serverPush', function(socketProvider) {
             socketProvider.ioSocket({
                 on : sinon.spy()
             });

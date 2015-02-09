@@ -74,7 +74,7 @@ run.$inject = ["$log"];
         'appverse.translate',
         'AppModal',
         'AppLogging',
-        'AppServerPush',
+        'appverse.serverPush',
         'AppSecurity',
         'AppCache',
         'AppPerformance',
