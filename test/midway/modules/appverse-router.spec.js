@@ -9,8 +9,8 @@ describe('Midway: Api Route Module', function () { 'use strict';
     };
 
     beforeEach(function () {
-        module = angular.module('AppRouter');
-        deps = module.value('AppRouter').requires;
+        module = angular.module('appverse.router');
+        deps = module.value('appverse.router').requires;
     });
 
     it('should be registered', function () {

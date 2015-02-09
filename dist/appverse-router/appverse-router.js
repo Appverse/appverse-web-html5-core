@@ -7,7 +7,7 @@
      * @requires ui.router
      * @description Adds routing capabilities to the application
      */
-    angular.module('AppRouter', ['ui.router'])
+    angular.module('appverse.router', ['ui.router'])
 
     .run(['$rootScope', '$state', '$stateParams',
             function ($rootScope, $state, $stateParams) {

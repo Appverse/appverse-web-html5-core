@@ -78,7 +78,7 @@ run.$inject = ["$log"];
         'AppSecurity',
         'AppCache',
         'AppPerformance',
-        'AppRouter'
+        'appverse.router'
     ];
 
 

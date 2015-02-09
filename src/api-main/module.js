@@ -35,7 +35,7 @@
         'AppSecurity',
         'AppCache',
         'AppPerformance',
-        'AppRouter'
+        'appverse.router'
     ];
 
 
