@@ -1,220 +1,11 @@
 (function() {
     'use strict';
 
-    var requires = [
-        'restangular',
-        'AppConfiguration',
-        'appverse.utils'
-    ];
-
-    /**
-     * @ngdoc module
-     * @name AppREST
-     * @description
-     *
-     * The Integrated REST module includes communication.
-     *
-     * It is based on Restangular.
-     *
-     * Params configuration are set in app-configuration file as constants.
-     *
-     * SERVICES CLIENT CONFIGURATION
-     *
-     * The common API includes configuration for one set of REST resources client (1 base URL).
-     * This is the most common approach in the most of projects.
-     * In order to build several sets of REST resources (several base URLs) you should
-     * create scoped configurations. Please, review the below snippet:
-     *
-     * var MyRestangular = Restangular.withConfig(function(RestangularConfigurer) {
-     * RestangularConfigurer.setDefaultHeaders({'X-Auth': 'My Name'})
-     * });
-     *
-     * MyRestangular.one('place', 12).get();
-     *
-     * The MyRestangular object has scoped properties of the Restangular on with a different
-     * configuration.
-     */
-    angular.module('AppREST', requires).run(run);
-
-
-    function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
-
-        tryToIntegrateSecurity();
-        tryToIntegrateCache();
-
-        Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
-        Restangular.setExtraFields(REST_CONFIG.ExtraFields);
-        Restangular.setParentless(REST_CONFIG.Parentless);
-        var transformer;
-        for (var i = 0; i < REST_CONFIG.ElementTransformer.length; i++) {
-            $log.debug('Adding transformer');
-            transformer = REST_CONFIG.ElementTransformer[i];
-            Restangular.addElementTransformer(transformer.route, transformer.transformer);
-        }
-        Restangular.setOnElemRestangularized(REST_CONFIG.OnElemRestangularized);
-
-        if (typeof REST_CONFIG.RequestInterceptor === 'function') {
-            $log.debug('Setting RequestInterceptor');
-            Restangular.setRequestInterceptor(REST_CONFIG.RequestInterceptor);
-        }
-        if (typeof REST_CONFIG.FullRequestInterceptor === 'function') {
-            $log.debug('Setting FullRequestInterceptor');
-            Restangular.setFullRequestInterceptor(REST_CONFIG.FullRequestInterceptor);
-        }
-        Restangular.setErrorInterceptor(REST_CONFIG.ErrorInterceptor);
-        Restangular.setRestangularFields(REST_CONFIG.RestangularFields);
-        Restangular.setMethodOverriders(REST_CONFIG.MethodOverriders);
-        Restangular.setFullResponse(REST_CONFIG.FullResponse);
-        //Restangular.setDefaultHeaders(REST_CONFIG.DefaultHeaders);
-        Restangular.setRequestSuffix(REST_CONFIG.RequestSuffix);
-        Restangular.setUseCannonicalId(REST_CONFIG.UseCannonicalId);
-        Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
-
-        function tryToIntegrateSecurity() {
-            var restFactory  = $injector.get('RESTFactory'),
-            $log             = $injector.get('$log'),
-            SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
-
-            if (ModuleSeeker.exists('AppSecurity')) {
-                var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
-                if (SECURITY_GENERAL.securityEnabled){
-                    restFactory.wrapRequestsWith(oauthRequestWrapperService);
-                    $log.debug( "REST communication is secure. Security is enabled." +
-                        " REST requests will be wrapped with authorization headers.");
-                    return;
-                }
-            }
-
-            restFactory.enableDefaultContentType();
-            $log.debug("REST communication is not secure. Security is not enabled.");
-        }
-
-        function tryToIntegrateCache() {
-            if (ModuleSeeker.exists('AppCache')) {
-                var restFactory = $injector.get('RESTFactory'),
-                CacheFactory    = $injector.get('CacheFactory'),
-                cache           = CacheFactory.getHttpCache();
-                restFactory.setCache(cache);
-            }
-        }
-
-        $log.info('AppREST run');
-
-    }
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
-
-
-
-
-
-
-
-})();
-(function() {
-    'use strict';
-
-    angular.module('AppREST')
-
-    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-        function ($log, Restangular, REST_CONFIG) {
-            var factory = {};
-            var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            $log.debug('Multicast Enabled : ' + multicastSpawn);
-
-            factory.readObject = function (path, params) {
-                if(params && params.length >0){
-
-                }else{
-                    //No params. It is a normal call
-                    return Restangular.one(path).get().$object;
-                }
-
-            };
-
-            return factory;
-        }]);
-
-
-})();
-(function() {
-    'use strict';
-
-    angular.module('AppREST')
-    .directive('rest', restDirective);
-
-    /**
-     * @ngdoc directive
-     * @name AppREST.directive:rest
-     * @restrict A
-     *
-     * @description
-     * Retrieves JSON data
-     *
-     * @example
-     <example module="AppREST">
-       <file name="index.html">
-         <p>REST test</p>
-         <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
-       </file>
-     </example>
-     */
-    function restDirective ($log, RESTFactory) {
-        return {
-            link: function (scope, element, attrs) {
-
-                var defaultName = 'restData',
-                    loadingSuffix = 'Loading',
-                    errorSuffix = 'Error',
-                    name = attrs.restName || defaultName,
-                    path = attrs.rest || attrs.restPath;
-
-                $log.debug('rest directive');
-
-                scope[name + loadingSuffix] = true;
-                element.html(attrs.restLoadingText || "");
-
-                scope.$watchCollection(function () {
-                    return [path, name, attrs.restErrorText, attrs.restLoadingText];
-                }, function (newCollection, oldCollection, scope) {
-                    $log.debug('REST watch ' + name + ':', newCollection);
-                    scope[name + errorSuffix] = false;
-
-                    var object;
-                    if (attrs.restId) {
-                        object = RESTFactory.readListItem(path, attrs.restId, onSuccess, onError);
-                    } else {
-                        object = RESTFactory.readObject(path, onSuccess, onError);
-                    }
-
-                    function onSuccess(data) {
-                        $log.debug('get data', data);
-                        element.html("");
-                        scope[name] = data;
-                        scope[name + loadingSuffix] = false;
-                    }
-
-                    function onError() {
-                        element.html(attrs.restErrorText || "");
-                        scope[name + loadingSuffix] = false;
-                        scope[name + errorSuffix] = true;
-                    }
-
-                });
-            }
-        };
-    }
-    restDirective.$inject = ["$log", "RESTFactory"];
-
-
-})();
-(function() {
-    'use strict';
-
-    angular.module('AppREST').factory('RESTFactory', RESTFactory);
+    angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
 
     /**
      * @ngdoc service
-     * @name AppREST.factory:RESTFactory
+     * @name appverse.rest.factory:RESTFactory
      * @requires $log
      * @requires Restangular
      * @description
@@ -252,8 +43,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#wrapRequestWith
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {object} The request wrapper
          * @description Wraps a request.
          * The wrapper should expose a 'wrapRequest(Restangular)' function
@@ -265,8 +56,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#wrapRequestWith
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
+         * @methodOf appverse.rest.factory:RESTFactory
          * @description Sets the default Content-Type as header.
          */
         factory.enableDefaultContentType = function() {
@@ -277,8 +68,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#setCache
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#setCache
+         * @methodOf appverse.rest.factory:RESTFactory
          * @description Sets the cache. Caching also depends on REST_CONFIG
          */
         factory.setCache = function(cache) {
@@ -299,8 +90,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readObject
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} successFn Optional function to be called when request is successful
          * @param {String} errorFn Optional function to be called when request has errors
@@ -324,8 +115,8 @@
          */
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readList
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readList
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -338,8 +129,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readList
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readList
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -352,8 +143,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readBatch
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readBatch
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -373,8 +164,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readParallelMultipleBatch
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readParallelMultipleBatch
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} paths An array with URLs for each resource
          * @description Returns a combined result from several REST resources in chained promises.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -408,8 +199,8 @@
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readListItem
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} key The item key
          * @param {String} successFn Optional function to be called when request is successful
@@ -428,8 +219,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readListItems
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readListItems
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} keys The item keys array
          * @description Returns a unique value.
@@ -442,8 +233,8 @@
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#createListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#createListItem
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} newData The item to be created
          * @param {object} callback The function for callbacking
@@ -457,8 +248,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#updateObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#updateObject
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} newData The item to be updated
          * @param {object} callback The function for callbacking
@@ -472,8 +263,8 @@
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#deleteListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#deleteListItem
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} key The item key to be deleted
          * @param {object} callback The function for callbacking
@@ -489,8 +280,8 @@
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#deleteObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#deleteObject
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} callback The function for callbacking
          * @description Deletes an item from a list.
@@ -515,6 +306,5 @@
         return factory;
 
     }
-    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();

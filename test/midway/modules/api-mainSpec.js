@@ -45,7 +45,7 @@ describe('Midway: Api REST Module', function () {
             });
         }));
 
-        it('AppRest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
+        it('appverse.rest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
             Oauth_RequestWrapper.wrapRequest.called.should.be.false;
         }));
 
@@ -98,7 +98,7 @@ describe('Midway: Api REST Module', function () {
                 });
             }));
 
-            it('AppRest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
+            it('appverse.rest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
                 Oauth_RequestWrapper.wrapRequest.called.should.be.false;
             }));
 
@@ -171,7 +171,7 @@ describe('REST_CONFIG.MockBackend is DISABLED...', function() {
 function setupMainTesting() {
 
     // First load the module
-    module('AppREST');
+    module('appverse.rest');
 
     // then Override real services with mocks
     module(function($provide) {

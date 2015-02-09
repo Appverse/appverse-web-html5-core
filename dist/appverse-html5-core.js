@@ -1106,7 +1106,7 @@ run.$inject = ["$log"];
      */
     var optional = [
         'AppDetection',
-        'AppREST',
+        'appverse.rest',
         'appverse.translate',
         'AppModal',
         'AppLogging',
@@ -2491,7 +2491,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
     /**
      * @ngdoc module
-     * @name AppREST
+     * @name appverse.rest
      * @description
      *
      * The Integrated REST module includes communication.
@@ -2516,7 +2516,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      * The MyRestangular object has scoped properties of the Restangular on with a different
      * configuration.
      */
-    angular.module('AppREST', requires).run(run);
+    angular.module('appverse.rest', requires).run(run);
 
 
     function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
@@ -2580,7 +2580,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
             }
         }
 
-        $log.info('AppREST run');
+        $log.info('appverse.rest run');
 
     }
     run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
@@ -2595,7 +2595,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('AppREST')
+    angular.module('appverse.rest')
 
     .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
         function ($log, Restangular, REST_CONFIG) {
@@ -2621,19 +2621,19 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('AppREST')
+    angular.module('appverse.rest')
     .directive('rest', restDirective);
 
     /**
      * @ngdoc directive
-     * @name AppREST.directive:rest
+     * @name appverse.rest.directive:rest
      * @restrict A
      *
      * @description
      * Retrieves JSON data
      *
      * @example
-     <example module="AppREST">
+     <example module="appverse.rest">
        <file name="index.html">
          <p>REST test</p>
          <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
@@ -2692,11 +2692,11 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('AppREST').factory('RESTFactory', RESTFactory);
+    angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
 
     /**
      * @ngdoc service
-     * @name AppREST.factory:RESTFactory
+     * @name appverse.rest.factory:RESTFactory
      * @requires $log
      * @requires Restangular
      * @description
@@ -2734,8 +2734,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#wrapRequestWith
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {object} The request wrapper
          * @description Wraps a request.
          * The wrapper should expose a 'wrapRequest(Restangular)' function
@@ -2747,8 +2747,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#wrapRequestWith
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
+         * @methodOf appverse.rest.factory:RESTFactory
          * @description Sets the default Content-Type as header.
          */
         factory.enableDefaultContentType = function() {
@@ -2759,8 +2759,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#setCache
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#setCache
+         * @methodOf appverse.rest.factory:RESTFactory
          * @description Sets the cache. Caching also depends on REST_CONFIG
          */
         factory.setCache = function(cache) {
@@ -2781,8 +2781,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readObject
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} successFn Optional function to be called when request is successful
          * @param {String} errorFn Optional function to be called when request has errors
@@ -2806,8 +2806,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
          */
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readList
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readList
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -2820,8 +2820,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readList
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readList
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -2834,8 +2834,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readBatch
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readBatch
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -2855,8 +2855,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readParallelMultipleBatch
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readParallelMultipleBatch
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} paths An array with URLs for each resource
          * @description Returns a combined result from several REST resources in chained promises.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -2890,8 +2890,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readListItem
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} key The item key
          * @param {String} successFn Optional function to be called when request is successful
@@ -2910,8 +2910,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#readListItems
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#readListItems
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {String} keys The item keys array
          * @description Returns a unique value.
@@ -2924,8 +2924,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#createListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#createListItem
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} newData The item to be created
          * @param {object} callback The function for callbacking
@@ -2939,8 +2939,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#updateObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#updateObject
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} newData The item to be updated
          * @param {object} callback The function for callbacking
@@ -2954,8 +2954,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
         /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#deleteListItem
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#deleteListItem
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} key The item key to be deleted
          * @param {object} callback The function for callbacking
@@ -2971,8 +2971,8 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
        /**
          * @ngdoc method
-         * @name AppREST.factory:RESTFactory#deleteObject
-         * @methodOf AppREST.factory:RESTFactory
+         * @name appverse.rest.factory:RESTFactory#deleteObject
+         * @methodOf appverse.rest.factory:RESTFactory
          * @param {String} path The item URL
          * @param {object} callback The function for callbacking
          * @description Deletes an item from a list.

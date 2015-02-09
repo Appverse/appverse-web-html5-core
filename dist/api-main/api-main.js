@@ -70,7 +70,7 @@ run.$inject = ["$log"];
      */
     var optional = [
         'AppDetection',
-        'AppREST',
+        'appverse.rest',
         'appverse.translate',
         'AppModal',
         'AppLogging',

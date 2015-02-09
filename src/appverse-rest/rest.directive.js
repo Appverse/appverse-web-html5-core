@@ -1,19 +1,19 @@
 (function() {
     'use strict';
 
-    angular.module('AppREST')
+    angular.module('appverse.rest')
     .directive('rest', restDirective);
 
     /**
      * @ngdoc directive
-     * @name AppREST.directive:rest
+     * @name appverse.rest.directive:rest
      * @restrict A
      *
      * @description
      * Retrieves JSON data
      *
      * @example
-     <example module="AppREST">
+     <example module="appverse.rest">
        <file name="index.html">
          <p>REST test</p>
          <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />

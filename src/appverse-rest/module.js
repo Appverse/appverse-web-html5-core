@@ -9,7 +9,7 @@
 
     /**
      * @ngdoc module
-     * @name AppREST
+     * @name appverse.rest
      * @description
      *
      * The Integrated REST module includes communication.
@@ -34,7 +34,7 @@
      * The MyRestangular object has scoped properties of the Restangular on with a different
      * configuration.
      */
-    angular.module('AppREST', requires).run(run);
+    angular.module('appverse.rest', requires).run(run);
 
 
     function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
@@ -98,7 +98,7 @@
             }
         }
 
-        $log.info('AppREST run');
+        $log.info('appverse.rest run');
 
     }
 

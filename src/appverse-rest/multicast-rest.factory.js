@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('AppREST')
+    angular.module('appverse.rest')
 
     .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
         function ($log, Restangular, REST_CONFIG) {

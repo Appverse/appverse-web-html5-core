@@ -1,7 +1,7 @@
 /*jshint expr:true */
 "use strict";
 
-describe('Unit: Testing AppREST module', function () {
+describe('Unit: Testing appverse.rest module', function () {
 
     beforeEach(setupRestTesting);
 
@@ -134,7 +134,7 @@ describe('Unit: Testing AppREST module', function () {
         mockDependencies();
 
         // Load the module to be tested
-        module("AppREST");
+        module("appverse.rest");
     }
 
     function mockDependencies() {
