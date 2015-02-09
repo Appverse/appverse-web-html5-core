@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc module
-     * @name AppCache
+     * @name appverse.cache
      * @requires AppConfiguration
      * @description
      * The Cache module includes several types of cache.
@@ -47,12 +47,12 @@
      * </pre>
      */
 
-    angular.module('AppCache', ['ng', 'AppConfiguration', 'jmdobry.angular-cache', 'ngResource'])
+    angular.module('appverse.cache', ['ng', 'AppConfiguration', 'jmdobry.angular-cache', 'ngResource'])
         .run(run);
 
     function run($log, CacheFactory, CACHE_CONFIG) {
 
-        $log.info('AppCache run');
+        $log.info('appverse.cache run');
 
         /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {

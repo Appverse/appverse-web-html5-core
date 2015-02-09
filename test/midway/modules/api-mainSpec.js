@@ -1,13 +1,13 @@
 /*jshint expr:true */
 'use strict';
 
-describe('Midway: Api REST Module', function () {
+describe('MIDWAY | Api REST Module : ', function () {
 
     beforeEach(function() {
         setupMainTesting();
     });
 
-    describe('when AppCache is loaded...', function() {
+    describe('when appverse.cache is loaded...', function() {
 
         beforeEach(function () {
             // create 'fake' security and config modules
@@ -20,7 +20,7 @@ describe('Midway: Api REST Module', function () {
                 });
             });
 
-            module('AppCache');
+            module('appverse.cache');
         });
 
         it('should set an response interceptor to cache modules', inject(function(RESTFactory) {
@@ -32,6 +32,7 @@ describe('Midway: Api REST Module', function () {
 
         beforeEach(function () {
             angular.module('AppConfiguration', []);
+            module('appverse.cache');
             module('COMMONAPI');
         });
 
@@ -61,6 +62,7 @@ describe('Midway: Api REST Module', function () {
             // create 'fake' security and config modules
             angular.module('AppSecurity', []);
             angular.module('AppConfiguration', []);
+            module('appverse.cache');
             module('COMMONAPI');
         });
 

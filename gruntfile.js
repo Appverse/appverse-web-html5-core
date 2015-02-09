@@ -37,8 +37,8 @@ module.exports = function (grunt) {
     // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
-        '<%= appverse.dist %>/api-cache/api-cache.js':
-            moduleFilesToConcat('<%= appverse.src %>/api-cache'),
+        '<%= appverse.dist %>/appverse-cache/appverse-cache.js':
+            moduleFilesToConcat('<%= appverse.src %>/appverse-cache'),
 
         '<%= appverse.dist %>/api-detection/api-detection.js' :
             moduleFilesToConcat('<%= appverse.src %>/api-detection', [

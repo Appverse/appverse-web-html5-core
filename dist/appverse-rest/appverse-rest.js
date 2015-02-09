@@ -90,7 +90,7 @@
         }
 
         function tryToIntegrateCache() {
-            if (ModuleSeeker.exists('AppCache')) {
+            if (ModuleSeeker.exists('appverse.cache')) {
                 var restFactory = $injector.get('RESTFactory'),
                 CacheFactory    = $injector.get('CacheFactory'),
                 cache           = CacheFactory.getHttpCache();

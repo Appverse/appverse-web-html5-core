@@ -1,21 +1,21 @@
 (function(){
     'use strict';
 
-    angular.module('AppCache')
+    angular.module('appverse.cache')
 
     /**
      * @ngdoc directive
-     * @name AppCache.directive:cache
+     * @name appverse.cache.directive:cache
      * @restrict B
      * @requires $log
-     * @requires AppCache.factory:CacheFactory
+     * @requires appverse.cache.factory:CacheFactory
      *
      * @description
      * Use this directive to inject directly in dom nodes caching features for values.
      *
      *
      * @example
-     <example module="AppCache">
+     <example module="appverse.cache">
         <file name="index.html">
             <div cache="name" />
             <div cache cache-name="name" />

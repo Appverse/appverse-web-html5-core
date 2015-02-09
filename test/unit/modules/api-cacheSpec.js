@@ -1,7 +1,7 @@
 /*jshint expr:true */
 "use strict";
 
-describe('Unit: Testing AppCache module', function () {
+describe('Unit: Testing appverse.cache module', function () {
 
     beforeEach(setupCacheTesting);
 
@@ -24,7 +24,7 @@ describe('Unit: Testing AppCache module', function () {
         mockDependencies();
 
         // Load the module to be tested
-        module("AppCache");
+        module("appverse.cache");
     }
 
     function mockDependencies() {

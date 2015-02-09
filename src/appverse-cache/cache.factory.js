@@ -1,11 +1,11 @@
 (function() {
     'use strict';
 
-    angular.module('AppCache').factory('CacheFactory', CacheFactory);
+    angular.module('appverse.cache').factory('CacheFactory', CacheFactory);
 
     /**
      * @ngdoc service
-     * @name AppCache.service:CacheFactory
+     * @name appverse.cache.service:CacheFactory
      * @requires $angularCacheFactory
      * @requires $http
      * @requires CACHE_CONFIG
@@ -22,8 +22,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#setScopeCache
-         * @methodOf AppCache.service:CacheFactory
+         * @name appverse.cache.service:CacheFactory#setScopeCache
+         * @methodOf appverse.cache.service:CacheFactory
          * @param {number} duration Items expire after this time.
          * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
          * If you don't want $http's default cache to store every response.
@@ -39,8 +39,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#getScopeCache
-         * @methodOf AppCache.service:CacheFactory
+         * @name appverse.cache.service:CacheFactory#getScopeCache
+         * @methodOf appverse.cache.service:CacheFactory
          * @description getScopeCache is the singleton that CacheFactory
          * manages as a local cache created with $angularCacheFactory,
          * which is what we return from the service.
@@ -113,8 +113,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#setDefaultHttpCacheStorage
-         * @methodOf AppCache.service:CacheFactory
+         * @name appverse.cache.service:CacheFactory#setDefaultHttpCacheStorage
+         * @methodOf appverse.cache.service:CacheFactory
          * @param {number} duration items expire after this time.
          * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
          * @description Default cache configuration for $http service
@@ -172,8 +172,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:CacheFactory#getHttpCache
-         * @methodOf AppCache.service:CacheFactory
+         * @name appverse.cache.service:CacheFactory#getHttpCache
+         * @methodOf appverse.cache.service:CacheFactory
          * @description Returns the httpcache object in factory
          * @returns httpcache object
          */

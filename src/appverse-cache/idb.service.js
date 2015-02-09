@@ -1,11 +1,11 @@
 (function() {
     'use strict';
 
-    angular.module('AppCache')
+    angular.module('appverse.cache')
 
     /**
      * @ngdoc service
-     * @name AppCache.service:IDBService
+     * @name appverse.cache.service:IDBService
      * @description
      * This service has been planned to be used as a simple HTML5's indexedDB specification with the commonAPI.
      * A pre-configured data structure has been included to be used for common purposes:
@@ -21,8 +21,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#init
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#init
+         * @methodOf appverse.cache.service:SimpleIDB
          * @description Initialize the default Indexed DB in browser if supported
          */
         function init() {
@@ -74,8 +74,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#isSupported
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#isSupported
+         * @methodOf appverse.cache.service:SimpleIDB
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
         service.isSupported = function() {
@@ -84,8 +84,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#deleteDefault
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#deleteDefault
+         * @methodOf appverse.cache.service:SimpleIDB
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
@@ -101,8 +101,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#getDefault
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#getDefault
+         * @methodOf appverse.cache.service:SimpleIDB
          * @param {string} storeName The asssigned name of the store object.
          * @description Retrieves the record with the passed ID
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -125,8 +125,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#getDefaults
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#getDefaults
+         * @methodOf appverse.cache.service:SimpleIDB
          * @description Retrieves the set with ALL the records in the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
@@ -165,8 +165,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#ready
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#ready
+         * @methodOf appverse.cache.service:SimpleIDB
          * @description This flag is true if the IDB has been successfully initializated.
          */
         service.ready = function() {
@@ -175,8 +175,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#saveDefault
-         * @methodOf AppCache.service:SimpleIDB
+         * @name appverse.cache.service:SimpleIDB#saveDefault
+         * @methodOf appverse.cache.service:SimpleIDB
          * @param {string} item The record to be stored
          * @description Saves a record with the given structure into the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -223,8 +223,8 @@
 
         /**
          * @ngdoc method
-         * @name AppCache.service:SimpleIDB#item
-         * @methodOf AppCache.service:item
+         * @name appverse.cache.service:SimpleIDB#item
+         * @methodOf appverse.cache.service:item
          * @param {int} id The ID of the record to be stored
          * @param {string} title The name for record to be stored
          * @param {string} body The description of the record to be stored
