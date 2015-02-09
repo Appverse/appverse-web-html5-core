@@ -35,7 +35,7 @@ describe('Appverse Web Html5 core App', function() {
                 setTimeout(function() {
                     element(by.css('#bandwidthStopBtn')).click();
                     done();
-                }, 2000);
+                }, 1000);
             });
 
             it('should show a numeric value', function() {
@@ -99,6 +99,19 @@ describe('Appverse Web Html5 core App', function() {
 
         it('some data has been loaded and shown', function() {
             expect(element.all(by.repeater('book in mybooks')).count()).toBeGreaterThan(0);
+        });
+
+    });
+
+    describe('when navigating to /#websockets', function() {
+
+        beforeEach(function() {
+            browser.get('#websockets');
+        });
+
+        it('should have a chart container', function() {
+            var chartContainer = element(by.css('#chartContainer'));
+            expect(chartContainer).not.toBeUndefined();
         });
 
     });

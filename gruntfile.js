@@ -652,10 +652,6 @@ function httpMethods (request, response, next) {
     var rawpath = request.url.split('?')[0],
     path        = require('path').resolve(__dirname, 'demo/' + rawpath);
 
-    console.log("request method: " + JSON.stringify(request.method));
-    console.log("request url: " + JSON.stringify(request.url));
-    console.log("request path : " + JSON.stringify(path));
-
     if ((request.method === 'PUT' || request.method === 'POST')) {
         console.log('inside put/post');
         request.content = '';
