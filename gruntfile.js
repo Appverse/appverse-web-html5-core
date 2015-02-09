@@ -56,8 +56,8 @@ module.exports = function (grunt) {
         '<%= appverse.dist %>/api-translate/api-translate.js' :
             moduleFilesToConcat('<%= appverse.src %>/api-translate'),
 
-        '<%= appverse.dist %>/api-utils/api-utils.js' :
-            moduleFilesToConcat('<%= appverse.src %>/api-utils'),
+        '<%= appverse.dist %>/appverse-utils/appverse-utils.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),
 
         '<%= appverse.dist %>/api-serverpush/api-serverpush.js' :
             moduleFilesToConcat('<%= appverse.src %>/{api-serverpush,api-socketio}'),
@@ -518,6 +518,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:e2e:report',  [
+        'injector:js',
         'exec:webdriver_update',
         'connect:e2e',
         'protractor_webdriver',
@@ -527,6 +528,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:e2e:dist',  [
+        'injector:js',
         'exec:webdriver_update',
         'connect:e2e_dist',
         'protractor_webdriver',
@@ -546,6 +548,7 @@ module.exports = function (grunt) {
     // ------ Demo tasks. Starts a webserver with a demo app -----
 
     grunt.registerTask('demo', [
+        'injector:js',
         'connect:livereload',
         'open:demo',
         'watch'
