@@ -89,7 +89,7 @@ describe('Unit: Testing api-translate', function() { 'use strict';
         mockDependencies();
 
         // Load the module to be tested
-        module('AppTranslate');
+        module('appverse.translate');
 
         // ...and trigger all the above
         inject();

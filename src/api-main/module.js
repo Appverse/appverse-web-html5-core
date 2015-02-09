@@ -28,7 +28,7 @@
     var optional = [
         'AppDetection',
         'AppREST',
-        'AppTranslate',
+        'appverse.translate',
         'AppModal',
         'AppLogging',
         'AppServerPush',

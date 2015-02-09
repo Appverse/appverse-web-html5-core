@@ -53,8 +53,8 @@ module.exports = function (grunt) {
         '<%= appverse.dist %>/api-performance/api-performance.js' :
             moduleFilesToConcat('<%= appverse.src %>/api-performance'),
 
-        '<%= appverse.dist %>/api-translate/api-translate.js' :
-            moduleFilesToConcat('<%= appverse.src %>/api-translate'),
+        '<%= appverse.dist %>/appverse-translate/appverse-translate.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-translate'),
 
         '<%= appverse.dist %>/appverse-utils/appverse-utils.js' :
             moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),

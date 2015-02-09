@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc module
-     * @name AppTranslate
+     * @name appverse.translate
      * @requires AppConfiguration
      * @description
      * The Internationalization module handles languages in application.
@@ -14,14 +14,14 @@
      *
      * Items in each translations object must match to items defined in the Configuration module.
      */
-    angular.module('AppTranslate', [
+    angular.module('appverse.translate', [
         'pascalprecht.translate',
         'AppConfiguration',
         'tmh.dynamicLocale'
     ])
 
     // Get module and set config and run blocks
-    //angular.module('AppTranslate')
+    //angular.module('appverse.translate')
     .config(configBlock)
     .run(runBlock);
 
@@ -47,7 +47,7 @@
 
     function runBlock($log) {
 
-        $log.info('AppTranslate run');
+        $log.info('appverse.translate run');
 
     }
 
