@@ -60,7 +60,7 @@ module.exports = function (grunt) {
             moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),
 
         '<%= appverse.dist %>/api-serverpush/api-serverpush.js' :
-            moduleFilesToConcat('<%= appverse.src %>/{api-serverpush,api-socketio}'),
+            moduleFilesToConcat('<%= appverse.src %>/{api-serverpush,appverse-socketio}'),
 
         '<%= appverse.dist %>/api-rest/api-rest.js' :
             moduleFilesToConcat('<%= appverse.src %>/api-rest'),

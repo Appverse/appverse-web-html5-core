@@ -1,11 +1,11 @@
 (function() {
     'use strict';
 
-    angular.module('AppSocketIO')
+    angular.module('appverse.socket.io')
 
     /**
      * @ngdoc provider
-     * @name AppSocketIO.provider:socket
+     * @name appverse.socket.io.provider:socket
      * @description
      * This provider provides the appserverpush module with the SocketIO
      * client object from pre-existing configuration in application.

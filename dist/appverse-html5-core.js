@@ -3045,7 +3045,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     *
     * The module AppServerPush is included in the main module.
     *
-    * The private module AppSocketIO simply wraps SocketIO API to be used by AppServerPush.
+    * The private module appverse.socket.io simply wraps SocketIO API to be used by AppServerPush.
     *
     * So, AppServerPush is ready to integrate other Server Push approaches (e.g. Atmosphere) only by including
     * a new module and injecting it to AppServerPush.
@@ -3064,7 +3064,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     *
     * That is the reason it is not a dependency handled by bower.
     */
-    angular.module('AppServerPush', ['AppSocketIO', 'AppConfiguration'])
+    angular.module('AppServerPush', ['appverse.socket.io', 'AppConfiguration'])
     /*
          To make socket error events available across an app, in one of the controllers:
 
@@ -3085,28 +3085,28 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
     //////////////////////////////////////////////////////////////////////////////
     // COMMON API - 0.1
-    // PRIVATE MODULE (AppSocketIO)
+    // PRIVATE MODULE (appverse.socket.io)
     ////////////////////////////////////////////////////////////////////////////
 
     /**
      * @ngdoc module
-     * @name AppSocketIO
+     * @name appverse.socket.io
      * @description
      * Private module implementing SocketIO. It provides the common API module AppServerpush
      * with the socket object wrapping the SocketIO client. This is initializated according
      * to the pre-existing external configuration.
      */
-    angular.module('AppSocketIO', ['AppConfiguration']);
+    angular.module('appverse.socket.io', ['AppConfiguration']);
 
 })();
 (function() {
     'use strict';
 
-    angular.module('AppSocketIO')
+    angular.module('appverse.socket.io')
 
     /**
      * @ngdoc provider
-     * @name AppSocketIO.provider:socket
+     * @name appverse.socket.io.provider:socket
      * @description
      * This provider provides the appserverpush module with the SocketIO
      * client object from pre-existing configuration in application.

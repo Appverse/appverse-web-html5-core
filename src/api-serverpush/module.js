@@ -20,7 +20,7 @@
     *
     * The module AppServerPush is included in the main module.
     *
-    * The private module AppSocketIO simply wraps SocketIO API to be used by AppServerPush.
+    * The private module appverse.socket.io simply wraps SocketIO API to be used by AppServerPush.
     *
     * So, AppServerPush is ready to integrate other Server Push approaches (e.g. Atmosphere) only by including
     * a new module and injecting it to AppServerPush.
@@ -39,7 +39,7 @@
     *
     * That is the reason it is not a dependency handled by bower.
     */
-    angular.module('AppServerPush', ['AppSocketIO', 'AppConfiguration'])
+    angular.module('AppServerPush', ['appverse.socket.io', 'AppConfiguration'])
     /*
          To make socket error events available across an app, in one of the controllers:
 
