@@ -5,7 +5,7 @@ describe('Unit: Testing moduleSeeker ', function () {
 
     var moduleSeeker;
 
-    beforeEach('register the module', module('AppUtils'));
+    beforeEach('register the module', module('appverse.utils'));
 
     beforeEach('inject ModuleSeeker', inject(function(ModuleSeeker) {
         moduleSeeker = ModuleSeeker;
@@ -22,7 +22,7 @@ describe('Unit: Testing moduleSeeker ', function () {
     describe('when a module exists...', function() {
 
         it('should return true', function() {
-            moduleSeeker.exists('AppUtils').should.be.true;
+            moduleSeeker.exists('appverse.utils').should.be.true;
         });
 
     });
@@ -36,7 +36,7 @@ describe('Unit: Testing Relative URL generator ', function () {
 
         var BaseUrlSetter;
 
-        beforeEach('register the module', module('AppUtils'));
+        beforeEach('register the module', module('appverse.utils'));
 
         beforeEach('inject BaseUrlSetter', inject(function(_BaseUrlSetter_) {
             BaseUrlSetter = _BaseUrlSetter_;

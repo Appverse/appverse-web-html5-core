@@ -18,7 +18,7 @@
      * Required modules (compulsory)
      */
     var requires = [
-        'AppUtils',
+        'appverse.utils',
         'AppConfiguration'
     ];
 
@@ -95,7 +95,7 @@
         return dependencies;
     }
 
-    // TODO: this function is already defined in AppUtils but cannot be used
+    // TODO: this function is already defined in appverse.utils but cannot be used
     // when declaring a module as we can't inject anything yet. We must have a way
     // to call this function before being inside the angular environment. Global maybe?
     function moduleExists(name) {

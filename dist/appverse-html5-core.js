@@ -577,7 +577,7 @@
  * @description
  * Provides browser and network detection.
  */
-angular.module('AppDetection', ['AppUtils']);
+angular.module('AppDetection', ['appverse.utils']);
 
 
 })();
@@ -1054,7 +1054,7 @@ angular.module('AppConfigDefault', ['$browser']);
  * @description
  * Load default and custom settings into AppConfiguration
  */
-angular.module('AppConfigLoader', ['AppUtils']);
+angular.module('AppConfigLoader', ['appverse.utils']);
 
 
 })();
@@ -1097,7 +1097,7 @@ run.$inject = ["$log"];
      * Required modules (compulsory)
      */
     var requires = [
-        'AppUtils',
+        'appverse.utils',
         'AppConfiguration'
     ];
 
@@ -1176,7 +1176,7 @@ run.$inject = ["$log"];
         return dependencies;
     }
 
-    // TODO: this function is already defined in AppUtils but cannot be used
+    // TODO: this function is already defined in appverse.utils but cannot be used
     // when declaring a module as we can't inject anything yet. We must have a way
     // to call this function before being inside the angular environment. Global maybe?
     function moduleExists(name) {
@@ -2486,7 +2486,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     var requires = [
         'restangular',
         'AppConfiguration',
-        'AppUtils'
+        'appverse.utils'
     ];
 
     /**
@@ -3582,13 +3582,13 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('AppUtils', ['AppConfiguration']);
+    angular.module('appverse.utils', ['AppConfiguration']);
 
 })();
 (function (angular) {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     function BaseUrlSetterProvider() {
@@ -3604,7 +3604,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     /**
      * @ngdoc service
      * @name BaseUrlSetter
-     * @module AppUtils
+     * @module appverse.utils
      * @description
      * Preprends a url with a base path
      */
@@ -3655,11 +3655,11 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function(angular) {
     'use strict';
 
-    angular.module('AppUtils').provider('ModuleSeeker', ModuleSeeker);
+    angular.module('appverse.utils').provider('ModuleSeeker', ModuleSeeker);
 
     /**
      * @ngdoc service
-     * @name AppUtils.provider:ModuleSeeker
+     * @name appverse.utils.provider:ModuleSeeker
      * @description
      * Seeks and check existance of modules
      */
@@ -3689,7 +3689,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
 
     .factory('Base64', function () {
         var keyStr = 'ABCDEFGHIJKLMNOP' +
@@ -3781,7 +3781,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
 
     /**
      * @ngdoc object

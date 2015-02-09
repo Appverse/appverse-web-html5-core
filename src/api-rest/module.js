@@ -4,7 +4,7 @@
     var requires = [
         'restangular',
         'AppConfiguration',
-        'AppUtils'
+        'appverse.utils'
     ];
 
     /**

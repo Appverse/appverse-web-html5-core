@@ -1,7 +1,7 @@
 (function (angular) {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     function BaseUrlSetterProvider() {
@@ -17,7 +17,7 @@
     /**
      * @ngdoc service
      * @name BaseUrlSetter
-     * @module AppUtils
+     * @module appverse.utils
      * @description
      * Preprends a url with a base path
      */

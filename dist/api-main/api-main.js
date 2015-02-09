@@ -18,7 +18,7 @@ angular.module('AppConfigDefault', ['$browser']);
  * @description
  * Load default and custom settings into AppConfiguration
  */
-angular.module('AppConfigLoader', ['AppUtils']);
+angular.module('AppConfigLoader', ['appverse.utils']);
 
 
 })();
@@ -61,7 +61,7 @@ run.$inject = ["$log"];
      * Required modules (compulsory)
      */
     var requires = [
-        'AppUtils',
+        'appverse.utils',
         'AppConfiguration'
     ];
 
@@ -140,7 +140,7 @@ run.$inject = ["$log"];
         return dependencies;
     }
 
-    // TODO: this function is already defined in AppUtils but cannot be used
+    // TODO: this function is already defined in appverse.utils but cannot be used
     // when declaring a module as we can't inject anything yet. We must have a way
     // to call this function before being inside the angular environment. Global maybe?
     function moduleExists(name) {

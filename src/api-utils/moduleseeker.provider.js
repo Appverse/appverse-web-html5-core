@@ -1,11 +1,11 @@
 (function(angular) {
     'use strict';
 
-    angular.module('AppUtils').provider('ModuleSeeker', ModuleSeeker);
+    angular.module('appverse.utils').provider('ModuleSeeker', ModuleSeeker);
 
     /**
      * @ngdoc service
-     * @name AppUtils.provider:ModuleSeeker
+     * @name appverse.utils.provider:ModuleSeeker
      * @description
      * Seeks and check existance of modules
      */

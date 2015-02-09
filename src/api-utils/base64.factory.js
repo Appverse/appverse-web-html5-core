@@ -2,7 +2,7 @@
 (function() {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
 
     .factory('Base64', function () {
         var keyStr = 'ABCDEFGHIJKLMNOP' +

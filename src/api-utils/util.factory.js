@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
 
     /**
      * @ngdoc object

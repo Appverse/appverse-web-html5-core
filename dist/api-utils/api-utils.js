@@ -1,13 +1,13 @@
 (function() {
     'use strict';
 
-    angular.module('AppUtils', ['AppConfiguration']);
+    angular.module('appverse.utils', ['AppConfiguration']);
 
 })();
 (function (angular) {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     function BaseUrlSetterProvider() {
@@ -23,7 +23,7 @@
     /**
      * @ngdoc service
      * @name BaseUrlSetter
-     * @module AppUtils
+     * @module appverse.utils
      * @description
      * Preprends a url with a base path
      */
@@ -74,11 +74,11 @@
 (function(angular) {
     'use strict';
 
-    angular.module('AppUtils').provider('ModuleSeeker', ModuleSeeker);
+    angular.module('appverse.utils').provider('ModuleSeeker', ModuleSeeker);
 
     /**
      * @ngdoc service
-     * @name AppUtils.provider:ModuleSeeker
+     * @name appverse.utils.provider:ModuleSeeker
      * @description
      * Seeks and check existance of modules
      */
@@ -108,7 +108,7 @@
 (function() {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
 
     .factory('Base64', function () {
         var keyStr = 'ABCDEFGHIJKLMNOP' +
@@ -200,7 +200,7 @@
 (function() {
     'use strict';
 
-    angular.module('AppUtils')
+    angular.module('appverse.utils')
 
     /**
      * @ngdoc object
