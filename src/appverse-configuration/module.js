@@ -2,16 +2,16 @@
 
 /**
  * @ngdoc module
- * @name AppConfiguration
+ * @name appverse.configuration
  * @requires AppDetection
  * @description
  * It includes constants for all the common API components.
  */
-angular.module('AppConfiguration', ['AppConfigLoader'])
+angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
 
 function run($log) {
-    $log.info('AppConfiguration run');
+    $log.info('appverse.configuration run');
 }
 
 })();

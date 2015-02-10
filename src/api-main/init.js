@@ -14,7 +14,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
     function setConfig(settingsObject) {
         settings = settingsObject;
-        angular.module('AppConfigLoader').config(loadConfig);
+        angular.module('appverse.configuration.loader').config(loadConfig);
         return AppInit;
     }
 

@@ -140,7 +140,7 @@ describe('Unit: Testing appverse.rest module', function () {
     function mockDependencies() {
 
         // mock modules by creating empty ones
-        angular.module('AppConfiguration', []);
+        angular.module('appverse.configuration', []);
         angular.module('restangular', []);
 
         // Provide the dependency injector with mock empty objects

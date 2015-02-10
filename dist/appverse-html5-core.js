@@ -299,7 +299,7 @@ run.$inject = ["$log", "Detection", "$rootScope", "$window"];
      * and formattedLogger (the API implementation) to the callback,
      * and then, he returns a formattedLogger factory instance.
      */
-    angular.module('AppLogging', ['AppConfiguration'])
+    angular.module('AppLogging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {
             $provide.decorator("$log", ['$delegate', 'formattedLogger',
                 function ($delegate, formattedLogger) {
@@ -463,49 +463,6 @@ function FormattedLoggerProvider () {
 
 
 })();
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name AppConfigDefault
- * @requires $browser
- * @description
- * This module defines default settings.
- */
-angular.module('AppConfigDefault', ['$browser']);
-
-})();
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name AppConfigLoader
- * @description
- * Load default and custom settings into AppConfiguration
- */
-angular.module('AppConfigLoader', ['appverse.utils']);
-
-
-})();
-
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name AppConfiguration
- * @requires AppDetection
- * @description
- * It includes constants for all the common API components.
- */
-angular.module('AppConfiguration', ['AppConfigLoader'])
-    .run(run);
-
-function run($log) {
-    $log.info('AppConfiguration run');
-}
-run.$inject = ["$log"];
-
-})();
 (function() {
     'use strict';
 
@@ -527,7 +484,7 @@ run.$inject = ["$log"];
      */
     var requires = [
         'appverse.utils',
-        'AppConfiguration'
+        'appverse.configuration'
     ];
 
     /**
@@ -622,11 +579,54 @@ run.$inject = ["$log"];
 
 (function() { 'use strict';
 
-angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider);
+/**
+ * @ngdoc module
+ * @name appverse.configuration.default
+ * @requires $browser
+ * @description
+ * This module defines default settings.
+ */
+angular.module('appverse.configuration.default', ['$browser']);
+
+})();
+(function() { 'use strict';
 
 /**
  * @ngdoc module
- * @name AppConfiguration.provider:ConfigLoader
+ * @name appverse.configuration.loader
+ * @description
+ * Load default and custom settings into appverse.configuration
+ */
+angular.module('appverse.configuration.loader', ['appverse.utils']);
+
+
+})();
+
+(function() { 'use strict';
+
+/**
+ * @ngdoc module
+ * @name appverse.configuration
+ * @requires AppDetection
+ * @description
+ * It includes constants for all the common API components.
+ */
+angular.module('appverse.configuration', ['appverse.configuration.loader'])
+    .run(run);
+
+function run($log) {
+    $log.info('appverse.configuration run');
+}
+run.$inject = ["$log"];
+
+})();
+(function() { 'use strict';
+
+angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
+
+/**
+ * @ngdoc module
+ * @name appverse.configuration.provider:ConfigLoader
  * @requires AppDetection
  * @description
  * It includes constants for all the common API components.
@@ -644,7 +644,7 @@ function ConfigLoaderProvider() {
     };
 
     this.loadDefaultConfig = function() {
-        angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
+        angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
             appConfigTemp[element[2][0]] = element[2][1];
         });
         return this;
@@ -663,7 +663,7 @@ function ConfigLoaderProvider() {
 
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
-            angular.module('AppConfiguration').constant(propertyName, propertyValue);
+            angular.module('appverse.configuration').constant(propertyName, propertyValue);
         });
     };
 
@@ -763,9 +763,57 @@ function NoDetection() {
 
 })();
 
+/**
+ * This file includes functionality to initialize settings in an appverse-web-html5 app
+ * Just call the initalization code after having loaded angular and the configuration module:
+ *
+ * AppInit.setConfig(settings).bootstrap()
+ *
+ * @return {object} AppInit
+ */
+var AppInit = AppInit || (function(angular) { 'use strict';
+
+    var settings;
+
+    var mainModuleName;
+
+    function setConfig(settingsObject) {
+        settings = settingsObject;
+        angular.module('appverse.configuration.loader').config(loadConfig);
+        return AppInit;
+    }
+
+    function bootstrap(appMainModule) {
+        var moduleName = appMainModule || mainModuleName;
+        angular.element(document).ready(function() {
+            angular.bootstrap(document, [moduleName]);
+        });
+    }
+
+    function setMainModuleName(name) {
+        mainModuleName = name;
+    }
+
+    function getMainModule() {
+        return angular.module(mainModuleName);
+    }
+
+    function loadConfig(ConfigLoaderProvider) {
+        ConfigLoaderProvider.load(settings);
+    }
+    loadConfig.$inject = ["ConfigLoaderProvider"];
+
+    return {
+        setMainModuleName : setMainModuleName,
+        setConfig : setConfig,
+        bootstrap : bootstrap,
+        getMainModule : getMainModule
+    };
+
+})(angular);
 (function() { 'use strict';
 
-angular.module('AppConfigDefault')
+angular.module('appverse.configuration.default')
 
 /*
 PROJECT CONFIGURATION
@@ -1420,61 +1468,13 @@ WEBSOCKETS MODULE CONFIGURATION
 });
 
 })();
-/**
- * This file includes functionality to initialize settings in an appverse-web-html5 app
- * Just call the initalization code after having loaded angular and the configuration module:
- *
- * AppInit.setConfig(settings).bootstrap()
- *
- * @return {object} AppInit
- */
-var AppInit = AppInit || (function(angular) { 'use strict';
-
-    var settings;
-
-    var mainModuleName;
-
-    function setConfig(settingsObject) {
-        settings = settingsObject;
-        angular.module('AppConfigLoader').config(loadConfig);
-        return AppInit;
-    }
-
-    function bootstrap(appMainModule) {
-        var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function() {
-            angular.bootstrap(document, [moduleName]);
-        });
-    }
-
-    function setMainModuleName(name) {
-        mainModuleName = name;
-    }
-
-    function getMainModule() {
-        return angular.module(mainModuleName);
-    }
-
-    function loadConfig(ConfigLoaderProvider) {
-        ConfigLoaderProvider.load(settings);
-    }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
-
-    return {
-        setMainModuleName : setMainModuleName,
-        setConfig : setConfig,
-        bootstrap : bootstrap,
-        getMainModule : getMainModule
-    };
-
-})(angular);
 (function() {
     'use strict';
 
     /**
      * @ngdoc module
      * @name appverse.cache
-     * @requires AppConfiguration
+     * @requires appverse.configuration
      * @description
      * The Cache module includes several types of cache.
      *
@@ -1517,7 +1517,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      * </pre>
      */
 
-    angular.module('appverse.cache', ['ng', 'AppConfiguration', 'jmdobry.angular-cache', 'ngResource'])
+    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])
         .run(run);
 
     function run($log, CacheFactory, CACHE_CONFIG) {
@@ -2045,13 +2045,13 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     /**
      * @ngdoc module
      * @name appverse.performance
-     * @requires AppConfiguration
+     * @requires appverse.configuration
      * @description
      * The appverse.performance provides services to handle usage of several performance elements:
      * 1-Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
      * 2-High Performance UI directives support.
      */
-    angular.module('appverse.performance', ['AppConfiguration'])
+    angular.module('appverse.performance', ['appverse.configuration'])
         .run(run);
 
     function run ($log) {
@@ -2485,7 +2485,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 
     var requires = [
         'restangular',
-        'AppConfiguration',
+        'appverse.configuration',
         'appverse.utils'
     ];
 
@@ -3064,7 +3064,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     *
     * That is the reason it is not a dependency handled by bower.
     */
-    angular.module('appverse.serverPush', ['appverse.socket.io', 'AppConfiguration'])
+    angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
     /*
          To make socket error events available across an app, in one of the controllers:
 
@@ -3096,7 +3096,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      * with the socket object wrapping the SocketIO client. This is initializated according
      * to the pre-existing external configuration.
      */
-    angular.module('appverse.socket.io', ['AppConfiguration']);
+    angular.module('appverse.socket.io', ['appverse.configuration']);
 
 })();
 (function() {
@@ -3467,7 +3467,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     /**
      * @ngdoc module
      * @name appverse.translate
-     * @requires AppConfiguration
+     * @requires appverse.configuration
      * @description
      * The Internationalization module handles languages in application.
      *
@@ -3479,7 +3479,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     angular.module('appverse.translate', [
         'pascalprecht.translate',
-        'AppConfiguration',
+        'appverse.configuration',
         'tmh.dynamicLocale'
     ])
 
@@ -3582,7 +3582,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
 (function() {
     'use strict';
 
-    angular.module('appverse.utils', ['AppConfiguration']);
+    angular.module('appverse.utils', ['appverse.configuration']);
 
 })();
 (function (angular) {

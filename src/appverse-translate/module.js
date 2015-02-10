@@ -4,7 +4,7 @@
     /**
      * @ngdoc module
      * @name appverse.translate
-     * @requires AppConfiguration
+     * @requires appverse.configuration
      * @description
      * The Internationalization module handles languages in application.
      *
@@ -16,7 +16,7 @@
      */
     angular.module('appverse.translate', [
         'pascalprecht.translate',
-        'AppConfiguration',
+        'appverse.configuration',
         'tmh.dynamicLocale'
     ])
 

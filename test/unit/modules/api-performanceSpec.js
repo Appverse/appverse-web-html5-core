@@ -25,7 +25,7 @@ describe('Unit: Testing appverse.performance module', function () {
     function mockDependencies() {
 
         // mock modules by creating empty ones
-        angular.module('AppConfiguration', []);
+        angular.module('appverse.configuration', []);
         angular.module('ngGrid', []);
 
         // Provide the dependency injector with mock empty objects

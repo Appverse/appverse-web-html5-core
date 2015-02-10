@@ -38,7 +38,7 @@
      * and formattedLogger (the API implementation) to the callback,
      * and then, he returns a formattedLogger factory instance.
      */
-    angular.module('AppLogging', ['AppConfiguration'])
+    angular.module('AppLogging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {
             $provide.decorator("$log", ['$delegate', 'formattedLogger',
                 function ($delegate, formattedLogger) {

@@ -39,7 +39,7 @@
     *
     * That is the reason it is not a dependency handled by bower.
     */
-    angular.module('appverse.serverPush', ['appverse.socket.io', 'AppConfiguration'])
+    angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
     /*
          To make socket error events available across an app, in one of the controllers:
 
@@ -71,7 +71,7 @@
      * with the socket object wrapping the SocketIO client. This is initializated according
      * to the pre-existing external configuration.
      */
-    angular.module('appverse.socket.io', ['AppConfiguration']);
+    angular.module('appverse.socket.io', ['appverse.configuration']);
 
 })();
 (function() {

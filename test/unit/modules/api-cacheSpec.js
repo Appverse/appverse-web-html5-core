@@ -30,7 +30,7 @@ describe('Unit: Testing appverse.cache module', function () {
     function mockDependencies() {
 
         // mock modules by creating empty ones
-        angular.module('AppConfiguration', []);
+        angular.module('appverse.configuration', []);
         angular.module('jmdobry.angular-cache', []);
 
         // Provide the dependency injector with mock empty objects

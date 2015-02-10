@@ -2,11 +2,11 @@
 
 /**
  * @ngdoc module
- * @name AppConfigDefault
+ * @name appverse.configuration.default
  * @requires $browser
  * @description
  * This module defines default settings.
  */
-angular.module('AppConfigDefault', ['$browser']);
+angular.module('appverse.configuration.default', ['$browser']);
 
 })();

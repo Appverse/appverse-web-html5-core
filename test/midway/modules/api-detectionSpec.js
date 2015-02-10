@@ -7,7 +7,7 @@ describe('Midway: Api Detection Module', function() {
 
     beforeEach(function() {
 
-        angular.module('AppConfiguration', []);
+        angular.module('appverse.configuration', []);
 
         module(function ($provide) {
             $provide.constant('PROJECT_DATA', {

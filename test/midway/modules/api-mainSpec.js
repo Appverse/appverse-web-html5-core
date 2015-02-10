@@ -11,7 +11,7 @@ describe('MIDWAY | Api REST Module : ', function () {
 
         beforeEach(function () {
             // create 'fake' security and config modules
-            angular.module('AppConfiguration', []);
+            angular.module('appverse.configuration', []);
 
             module(function($provide) {
                 $provide.value('RESTFactory', {
@@ -31,7 +31,7 @@ describe('MIDWAY | Api REST Module : ', function () {
     describe('when AppSecurity is NOT loaded...', function() {
 
         beforeEach(function () {
-            angular.module('AppConfiguration', []);
+            angular.module('appverse.configuration', []);
             module('appverse.cache');
             module('COMMONAPI');
         });
@@ -61,7 +61,7 @@ describe('MIDWAY | Api REST Module : ', function () {
         beforeEach(function () {
             // create 'fake' security and config modules
             angular.module('AppSecurity', []);
-            angular.module('AppConfiguration', []);
+            angular.module('appverse.configuration', []);
             module('appverse.cache');
             module('COMMONAPI');
         });

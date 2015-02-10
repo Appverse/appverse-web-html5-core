@@ -1,46 +1,3 @@
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name AppConfigDefault
- * @requires $browser
- * @description
- * This module defines default settings.
- */
-angular.module('AppConfigDefault', ['$browser']);
-
-})();
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name AppConfigLoader
- * @description
- * Load default and custom settings into AppConfiguration
- */
-angular.module('AppConfigLoader', ['appverse.utils']);
-
-
-})();
-
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name AppConfiguration
- * @requires AppDetection
- * @description
- * It includes constants for all the common API components.
- */
-angular.module('AppConfiguration', ['AppConfigLoader'])
-    .run(run);
-
-function run($log) {
-    $log.info('AppConfiguration run');
-}
-run.$inject = ["$log"];
-
-})();
 (function() {
     'use strict';
 
@@ -62,7 +19,7 @@ run.$inject = ["$log"];
      */
     var requires = [
         'appverse.utils',
-        'AppConfiguration'
+        'appverse.configuration'
     ];
 
     /**
@@ -157,11 +114,54 @@ run.$inject = ["$log"];
 
 (function() { 'use strict';
 
-angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider);
+/**
+ * @ngdoc module
+ * @name appverse.configuration.default
+ * @requires $browser
+ * @description
+ * This module defines default settings.
+ */
+angular.module('appverse.configuration.default', ['$browser']);
+
+})();
+(function() { 'use strict';
 
 /**
  * @ngdoc module
- * @name AppConfiguration.provider:ConfigLoader
+ * @name appverse.configuration.loader
+ * @description
+ * Load default and custom settings into appverse.configuration
+ */
+angular.module('appverse.configuration.loader', ['appverse.utils']);
+
+
+})();
+
+(function() { 'use strict';
+
+/**
+ * @ngdoc module
+ * @name appverse.configuration
+ * @requires AppDetection
+ * @description
+ * It includes constants for all the common API components.
+ */
+angular.module('appverse.configuration', ['appverse.configuration.loader'])
+    .run(run);
+
+function run($log) {
+    $log.info('appverse.configuration run');
+}
+run.$inject = ["$log"];
+
+})();
+(function() { 'use strict';
+
+angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
+
+/**
+ * @ngdoc module
+ * @name appverse.configuration.provider:ConfigLoader
  * @requires AppDetection
  * @description
  * It includes constants for all the common API components.
@@ -179,7 +179,7 @@ function ConfigLoaderProvider() {
     };
 
     this.loadDefaultConfig = function() {
-        angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
+        angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
             appConfigTemp[element[2][0]] = element[2][1];
         });
         return this;
@@ -198,7 +198,7 @@ function ConfigLoaderProvider() {
 
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
-            angular.module('AppConfiguration').constant(propertyName, propertyValue);
+            angular.module('appverse.configuration').constant(propertyName, propertyValue);
         });
     };
 
@@ -298,9 +298,57 @@ function NoDetection() {
 
 })();
 
+/**
+ * This file includes functionality to initialize settings in an appverse-web-html5 app
+ * Just call the initalization code after having loaded angular and the configuration module:
+ *
+ * AppInit.setConfig(settings).bootstrap()
+ *
+ * @return {object} AppInit
+ */
+var AppInit = AppInit || (function(angular) { 'use strict';
+
+    var settings;
+
+    var mainModuleName;
+
+    function setConfig(settingsObject) {
+        settings = settingsObject;
+        angular.module('appverse.configuration.loader').config(loadConfig);
+        return AppInit;
+    }
+
+    function bootstrap(appMainModule) {
+        var moduleName = appMainModule || mainModuleName;
+        angular.element(document).ready(function() {
+            angular.bootstrap(document, [moduleName]);
+        });
+    }
+
+    function setMainModuleName(name) {
+        mainModuleName = name;
+    }
+
+    function getMainModule() {
+        return angular.module(mainModuleName);
+    }
+
+    function loadConfig(ConfigLoaderProvider) {
+        ConfigLoaderProvider.load(settings);
+    }
+    loadConfig.$inject = ["ConfigLoaderProvider"];
+
+    return {
+        setMainModuleName : setMainModuleName,
+        setConfig : setConfig,
+        bootstrap : bootstrap,
+        getMainModule : getMainModule
+    };
+
+})(angular);
 (function() { 'use strict';
 
-angular.module('AppConfigDefault')
+angular.module('appverse.configuration.default')
 
 /*
 PROJECT CONFIGURATION
@@ -955,51 +1003,3 @@ WEBSOCKETS MODULE CONFIGURATION
 });
 
 })();
-/**
- * This file includes functionality to initialize settings in an appverse-web-html5 app
- * Just call the initalization code after having loaded angular and the configuration module:
- *
- * AppInit.setConfig(settings).bootstrap()
- *
- * @return {object} AppInit
- */
-var AppInit = AppInit || (function(angular) { 'use strict';
-
-    var settings;
-
-    var mainModuleName;
-
-    function setConfig(settingsObject) {
-        settings = settingsObject;
-        angular.module('AppConfigLoader').config(loadConfig);
-        return AppInit;
-    }
-
-    function bootstrap(appMainModule) {
-        var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function() {
-            angular.bootstrap(document, [moduleName]);
-        });
-    }
-
-    function setMainModuleName(name) {
-        mainModuleName = name;
-    }
-
-    function getMainModule() {
-        return angular.module(mainModuleName);
-    }
-
-    function loadConfig(ConfigLoaderProvider) {
-        ConfigLoaderProvider.load(settings);
-    }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
-
-    return {
-        setMainModuleName : setMainModuleName,
-        setConfig : setConfig,
-        bootstrap : bootstrap,
-        getMainModule : getMainModule
-    };
-
-})(angular);

@@ -1,6 +1,6 @@
 (function() { 'use strict';
 
-angular.module('AppConfigDefault')
+angular.module('appverse.configuration.default')
 
 /*
 PROJECT CONFIGURATION

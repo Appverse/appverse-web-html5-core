@@ -1,10 +1,10 @@
 (function() { 'use strict';
 
-angular.module('AppConfigLoader').provider('ConfigLoader', ConfigLoaderProvider);
+angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
 
 /**
  * @ngdoc module
- * @name AppConfiguration.provider:ConfigLoader
+ * @name appverse.configuration.provider:ConfigLoader
  * @requires AppDetection
  * @description
  * It includes constants for all the common API components.
@@ -22,7 +22,7 @@ function ConfigLoaderProvider() {
     };
 
     this.loadDefaultConfig = function() {
-        angular.forEach(angular.module('AppConfigDefault')._invokeQueue, function (element) {
+        angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
             appConfigTemp[element[2][0]] = element[2][1];
         });
         return this;
@@ -41,7 +41,7 @@ function ConfigLoaderProvider() {
 
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
-            angular.module('AppConfiguration').constant(propertyName, propertyValue);
+            angular.module('appverse.configuration').constant(propertyName, propertyValue);
         });
     };
 

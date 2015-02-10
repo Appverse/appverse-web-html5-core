@@ -19,7 +19,7 @@
      */
     var requires = [
         'appverse.utils',
-        'AppConfiguration'
+        'appverse.configuration'
     ];
 
     /**

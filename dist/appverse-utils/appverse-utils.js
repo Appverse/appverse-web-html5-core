@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('appverse.utils', ['AppConfiguration']);
+    angular.module('appverse.utils', ['appverse.configuration']);
 
 })();
 (function (angular) {
