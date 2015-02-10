@@ -1,17 +1,17 @@
 (function() { 'use strict';
 
-angular.module('AppDetection')
+angular.module('appverse.detection')
     .run(run);
 
 /**
  * @doc function
- * @name AppDetection.run:Detection
+ * @name appverse.detection.run:Detection
  * @description
  *
- * Run block for AppDetection. Contains methods for browser and network detection.
+ * Run block for appverse.detection. Contains methods for browser and network detection.
  */
 function run($log, Detection, $rootScope, $window) {
-    $log.info('AppDetection run');
+    $log.info('appverse.detection run');
 
     if ($window.addEventListener) {
         $window.addEventListener("online", function () {

@@ -26,7 +26,7 @@
      * Optional modules
      */
     var optional = [
-        'AppDetection',
+        'appverse.detection',
         'appverse.rest',
         'appverse.translate',
         'AppModal',
@@ -66,7 +66,7 @@
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
 
         // Integrate modules that have a dependency
-        if (ModuleSeekerProvider.exists('AppDetection')) {
+        if (ModuleSeekerProvider.exists('appverse.detection')) {
             var detectionProvider = $injector.get('DetectionProvider');
             var configLoaderProvider = $injector.get('ConfigLoaderProvider');
             configLoaderProvider.setDetection(detectionProvider);
@@ -142,7 +142,7 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
 /**
  * @ngdoc module
  * @name appverse.configuration
- * @requires AppDetection
+ * @requires appverse.detection
  * @description
  * It includes constants for all the common API components.
  */
@@ -162,7 +162,7 @@ angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigL
 /**
  * @ngdoc module
  * @name appverse.configuration.provider:ConfigLoader
- * @requires AppDetection
+ * @requires appverse.detection
  * @description
  * It includes constants for all the common API components.
  */

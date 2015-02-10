@@ -136,12 +136,12 @@ describe('Unit: Api Detection Module', function() {
         // The first is the provider that will invoke the service,
         // the second is the method on the provider to use
         // and the third element is an array of any arguments passed to the service.
-        var AppDetection = angular.module('AppDetection');
-        originalMobileDetector  = AppDetection._invokeQueue[0][2][1];
-        AppDetection._invokeQueue[0][2][1] = mocks.MobileDetector;
+        var appverseDetection = angular.module('appverse.detection');
+        originalMobileDetector  = appverseDetection._invokeQueue[0][2][1];
+        appverseDetection._invokeQueue[0][2][1] = mocks.MobileDetector;
 
         // Initialize injector for the real and fake modules
-        module('AppDetection','fakeModule');
+        module('appverse.detection','fakeModule');
 
         // Kickstart the injector
         // and get reference to the Detection Service
@@ -151,9 +151,8 @@ describe('Unit: Api Detection Module', function() {
     }
 
     function restoreOriginalDetectionServices() {
-
-        var AppDetection = angular.module('AppDetection');
-        AppDetection._invokeQueue[0][2][1] = originalMobileDetector;
+        var appverseDetection = angular.module('appverse.detection');
+        appverseDetection._invokeQueue[0][2][1] = originalMobileDetector;
     }
 
 });

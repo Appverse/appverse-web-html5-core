@@ -1,11 +1,11 @@
 (function() { 'use strict';
 
-angular.module('AppDetection')
+angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
 
 /**
  * @ngdoc provider
- * @name AppDetection.provider:Detection
+ * @name appverse.detection.provider:Detection
  * @description
  * Contains methods for browser and network detection.
  */
@@ -76,8 +76,8 @@ function DetectionProvider (MobileDetectorProvider) {
 
     /**
      * @ngdoc method
-     * @name AppDetection.provider:Detection#testOnlineStatus
-     * @methodOf AppDetection.provider:Detection
+     * @name appverse.detection.provider:Detection#testOnlineStatus
+     * @methodOf appverse.detection.provider:Detection
      * @param {String} path The item URL
      * @description Tries to fetch a file on the server and fire events for fail and success.
      */
@@ -87,8 +87,8 @@ function DetectionProvider (MobileDetectorProvider) {
 
     /**
      * @ngdoc method
-     * @name AppDetection.provider:Detection#startPollingOnlineStatus
-     * @methodOf AppDetection.provider:Detection
+     * @name appverse.detection.provider:Detection#startPollingOnlineStatus
+     * @methodOf appverse.detection.provider:Detection
      * @param {number} interval Time in milliseconds
      * @description Tries to fetch a file on the server at regular intervals and fire events for fail and success.
      */

@@ -18,7 +18,7 @@ describe('Midway: Api Detection Module', function() {
             });
         });
 
-        module('AppDetection');
+        module('appverse.detection');
     });
 
     describe('when the provider is injected', function() {

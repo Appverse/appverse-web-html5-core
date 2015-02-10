@@ -1,12 +1,12 @@
 (function() {
     'use strict';
 
-    angular.module('AppDetection')
+    angular.module('appverse.detection')
         .provider('MobileDetector', MobileDetectorProvider);
 
     /**
      * @ngdoc service
-     * @name AppDetection.provider:Detection
+     * @name appverse.detection.provider:Detection
      * @description
      * Detects if the browser is mobile
      */

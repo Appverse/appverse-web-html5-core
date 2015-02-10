@@ -26,7 +26,7 @@
      * Optional modules
      */
     var optional = [
-        'AppDetection',
+        'appverse.detection',
         'appverse.rest',
         'appverse.translate',
         'AppModal',
@@ -66,7 +66,7 @@
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
 
         // Integrate modules that have a dependency
-        if (ModuleSeekerProvider.exists('AppDetection')) {
+        if (ModuleSeekerProvider.exists('appverse.detection')) {
             var detectionProvider = $injector.get('DetectionProvider');
             var configLoaderProvider = $injector.get('ConfigLoaderProvider');
             configLoaderProvider.setDetection(detectionProvider);

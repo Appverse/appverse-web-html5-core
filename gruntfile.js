@@ -40,11 +40,11 @@ module.exports = function (grunt) {
         '<%= appverse.dist %>/appverse-cache/appverse-cache.js':
             moduleFilesToConcat('<%= appverse.src %>/appverse-cache'),
 
-        '<%= appverse.dist %>/api-detection/api-detection.js' :
-            moduleFilesToConcat('<%= appverse.src %>/api-detection', [
+        '<%= appverse.dist %>/appverse-detection/appverse-detection.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.src %>/api-detection/mobile-detector.provider.js',
-                '<%= appverse.src %>/api-detection/detection.provider.js',
+                '<%= appverse.src %>/appverse-detection/mobile-detector.provider.js',
+                '<%= appverse.src %>/appverse-detection/detection.provider.js',
             ]),
 
         '<%= appverse.dist %>/api-logging/api-logging.js' :

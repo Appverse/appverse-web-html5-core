@@ -5,7 +5,7 @@ angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigL
 /**
  * @ngdoc module
  * @name appverse.configuration.provider:ConfigLoader
- * @requires AppDetection
+ * @requires appverse.detection
  * @description
  * It includes constants for all the common API components.
  */

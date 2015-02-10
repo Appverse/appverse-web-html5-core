@@ -3,7 +3,7 @@
 /**
  * @ngdoc module
  * @name appverse.configuration
- * @requires AppDetection
+ * @requires appverse.detection
  * @description
  * It includes constants for all the common API components.
  */

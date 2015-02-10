@@ -2,11 +2,11 @@
 
 /**
  * @ngdoc module
- * @name AppDetection
+ * @name appverse.detection
  * @description
  * Provides browser and network detection.
  */
-angular.module('AppDetection', ['appverse.utils']);
+angular.module('appverse.detection', ['appverse.utils']);
 
 
 })();
