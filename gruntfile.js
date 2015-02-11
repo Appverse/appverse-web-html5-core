@@ -39,31 +39,40 @@ module.exports = function (grunt) {
     // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
-        '<%= appverse.dist %>/api-cache/api-cache.js': moduleFilesToConcat('<%= appverse.src %>/api-cache'),
+        '<%= appverse.dist %>/appverse-cache/appverse-cache.js':
+            moduleFilesToConcat('<%= appverse.src %>/appverse-cache'),
 
-        '<%= appverse.dist %>/api-detection/api-detection.js': moduleFilesToConcat('<%= appverse.src %>/api-detection', [
+        '<%= appverse.dist %>/appverse-detection/appverse-detection.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-detection', [
                 // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.src %>/api-detection/mobile-detector.provider.js',
-                '<%= appverse.src %>/api-detection/detection.provider.js',
+                '<%= appverse.src %>/appverse-detection/mobile-detector.provider.js',
+                '<%= appverse.src %>/appverse-detection/detection.provider.js',
             ]),
 
-        '<%= appverse.dist %>/api-logging/api-logging.js': moduleFilesToConcat('<%= appverse.src %>/api-logging'),
+        '<%= appverse.dist %>/appverse-logging/appverse-logging.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-logging'),
 
-        '<%= appverse.dist %>/api-performance/api-performance.js': moduleFilesToConcat('<%= appverse.src %>/api-performance'),
+        '<%= appverse.dist %>/appverse-performance/appverse-performance.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-performance'),
 
-        '<%= appverse.dist %>/api-translate/api-translate.js': moduleFilesToConcat('<%= appverse.src %>/api-translate'),
+        '<%= appverse.dist %>/appverse-translate/appverse-translate.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-translate'),
 
-        '<%= appverse.dist %>/api-utils/api-utils.js': moduleFilesToConcat('<%= appverse.src %>/api-utils'),
+        '<%= appverse.dist %>/appverse-utils/appverse-utils.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),
 
-        '<%= appverse.dist %>/api-serverpush/api-serverpush.js': moduleFilesToConcat('<%= appverse.src %>/{api-serverpush,api-socketio}'),
+        '<%= appverse.dist %>/appverse-serverpush/appverse-serverpush.js' :
+            moduleFilesToConcat('<%= appverse.src %>/{appverse-serverpush,appverse-socketio}'),
 
-        '<%= appverse.dist %>/api-rest/api-rest.js': moduleFilesToConcat('<%= appverse.src %>/api-rest'),
+        '<%= appverse.dist %>/appverse-rest/appverse-rest.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-rest'),
 
-        '<%= appverse.dist %>/api-router/api-router.js': moduleFilesToConcat('<%= appverse.src %>/api-router'),
+        '<%= appverse.dist %>/appverse-router/appverse-router.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-router'),
 
-        '<%= appverse.dist %>/api-main/api-main.js': [
-            ['<%= appverse.src %>/api-main/integrator.js'].concat(
-                moduleFilesToConcat('<%= appverse.src %>/{api-configuration*,api-main}')
+        '<%= appverse.dist %>/appverse/appverse.js' : [
+            ['<%= appverse.src %>/appverse/integrator.js'].concat(
+                moduleFilesToConcat('<%= appverse.src %>/{appverse-configuration*,appverse}')
             ),
         ]
     };
@@ -513,6 +522,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:e2e:report', [
+        'injector:js',
         'instrument',
         'exec:webdriver_update',
         'connect:e2e',
@@ -522,6 +532,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:e2e:dist', [
+        'injector:js',
         'exec:webdriver_update',
         'connect:e2e_dist',
         'protractor_webdriver',
@@ -541,6 +552,7 @@ module.exports = function (grunt) {
     // ------ Demo tasks. Starts a webserver with a demo app -----
 
     grunt.registerTask('demo', [
+        'injector:js',
         'connect:livereload',
         'open:demo',
         'watch'
@@ -646,10 +658,6 @@ function httpMethods(request, response, next) {
 
     var rawpath = request.url.split('?')[0],
         path = require('path').resolve(__dirname, 'demo/' + rawpath);
-
-    console.log("request method: " + JSON.stringify(request.method));
-    console.log("request url: " + JSON.stringify(request.url));
-    console.log("request path : " + JSON.stringify(path));
 
     if ((request.method === 'PUT' || request.method === 'POST')) {
         console.log('inside put/post');

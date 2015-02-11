@@ -1,7 +1,7 @@
 /*jshint expr:true */
 "use strict";
 
-describe('Unit: Testing AppREST module', function () {
+describe('Unit: Testing appverse.rest module', function () {
 
     beforeEach(setupRestTesting);
 
@@ -134,13 +134,13 @@ describe('Unit: Testing AppREST module', function () {
         mockDependencies();
 
         // Load the module to be tested
-        module("AppREST");
+        module("appverse.rest");
     }
 
     function mockDependencies() {
 
         // mock modules by creating empty ones
-        angular.module('AppConfiguration', []);
+        angular.module('appverse.configuration', []);
         angular.module('restangular', []);
 
         // Provide the dependency injector with mock empty objects

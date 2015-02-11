@@ -15,13 +15,15 @@ var settings = {
         'bower_components/angular-translate/angular-translate.js',
         'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
         'bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
-        'src/api-*/**/module.js',
+        'src/appverse-*/**/module.js',
         // Detection providers need to be loaded in this order
-        'src/api-detection/mobile-detector.provider.js',
-        'src/api-detection/detection.provider.js',
+        'src/appverse-detection/mobile-detector.provider.js',
+        'src/appverse-detection/detection.provider.js',
         // The rest
-        'src/api-*/**/*.provider.js',
-        'src/api-*/**/*.js',
+        'src/appverse-*/**/*.provider.js',
+        'src/appverse-*/**/*.js',
+
+        'src/appverse/*.js'
     ],
 
     unitFiles: [

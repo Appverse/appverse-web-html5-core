@@ -89,7 +89,7 @@ describe('Unit: Testing api-translate', function() { 'use strict';
         mockDependencies();
 
         // Load the module to be tested
-        module('AppTranslate');
+        module('appverse.translate');
 
         // ...and trigger all the above
         inject();
@@ -101,8 +101,8 @@ describe('Unit: Testing api-translate', function() { 'use strict';
      */
     function mockDependencies() {
 
-        // AppConfiguration module mocked by creating it again
-        angular.module('AppConfiguration', [])
+        // appverse.configuration module mocked by creating it again
+        angular.module('appverse.configuration', [])
             .constant('I18N_CONFIG', {
                 PreferredLocale : 'en_US',
                 LocaleFilePattern: 'resources/i18n/angular/angular-locale_{{locale}}.js',

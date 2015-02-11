@@ -1,17 +1,17 @@
 /*jshint expr:true */
 'use strict';
 
-describe('Midway: Api REST Module', function () {
+describe('MIDWAY | Api REST Module : ', function () {
 
     beforeEach(function() {
         setupMainTesting();
     });
 
-    describe('when AppCache is loaded...', function() {
+    describe('when appverse.cache is loaded...', function() {
 
         beforeEach(function () {
             // create 'fake' security and config modules
-            angular.module('AppConfiguration', []);
+            angular.module('appverse.configuration', []);
 
             module(function($provide) {
                 $provide.value('RESTFactory', {
@@ -20,7 +20,7 @@ describe('Midway: Api REST Module', function () {
                 });
             });
 
-            module('AppCache');
+            module('appverse.cache');
         });
 
         it('should set an response interceptor to cache modules', inject(function(RESTFactory) {
@@ -28,11 +28,11 @@ describe('Midway: Api REST Module', function () {
         }));
     });
 
-    describe('when AppSecurity is NOT loaded...', function() {
+    describe('when appverse.security is NOT loaded...', function() {
 
         beforeEach(function () {
-            angular.module('AppConfiguration', []);
-            module('COMMONAPI');
+            angular.module('appverse.configuration', []);
+            module('appverse');
         });
 
         beforeEach(module(function($provide) {
@@ -45,7 +45,8 @@ describe('Midway: Api REST Module', function () {
             });
         }));
 
-        it('AppRest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
+        it('appverse.rest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
+
             Oauth_RequestWrapper.wrapRequest.called.should.be.false;
         }));
 
@@ -55,13 +56,14 @@ describe('Midway: Api REST Module', function () {
 
     });
 
-    describe('when AppSecurity is loaded...', function() {
+    describe('when appverse.security is loaded...', function() {
 
         beforeEach(function () {
             // create 'fake' security and config modules
-            angular.module('AppSecurity', []);
-            angular.module('AppConfiguration', []);
-            module('COMMONAPI');
+            angular.module('appverse.security', []);
+            angular.module('appverse.configuration', []);
+            module('appverse.cache');
+            module('appverse');
         });
 
         describe('and SECURITY_GENERAL.securityEnabled is true...', function() {
@@ -98,7 +100,7 @@ describe('Midway: Api REST Module', function () {
                 });
             }));
 
-            it('AppRest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
+            it('appverse.rest should NOT wrap requests with oauth', inject(function(Oauth_RequestWrapper) {
                 Oauth_RequestWrapper.wrapRequest.called.should.be.false;
             }));
 
@@ -114,6 +116,7 @@ describe('Midway: Api REST Module', function () {
 });
 
 
+
 describe('REST_CONFIG.MockBackend is enabled...', function() {
 
     beforeEach(module(function($provide) {
@@ -125,14 +128,20 @@ describe('REST_CONFIG.MockBackend is enabled...', function() {
         $provide.constant('PROJECT_DATA', {});
         $provide.constant('DETECTION_CONFIG', {});
         $provide.constant('CACHE_CONFIG', {});
+        $provide.constant('I18N_CONFIG', {});
+        $provide.constant('SERVERPUSH_CONFIG', {});
+        $provide.constant('SECURITY_GENERAL', {});
         $provide.provider('ConfigLoader', function() {
             this.setDetection = sinon.spy();
+            this.$get = sinon.spy();
+        } );
+        $provide.provider('Oauth_RequestWrapper', function() {
             this.$get = sinon.spy();
         } );
         $provide.value('$httpBackend', {});
     }));
 
-    beforeEach(module('COMMONAPI'));
+    beforeEach(module('appverse'));
 
     it('$httpBackend should be mocked', inject(function($httpBackend) {
         should.exist($httpBackend.whenGET);
@@ -152,14 +161,20 @@ describe('REST_CONFIG.MockBackend is DISABLED...', function() {
         $provide.constant('PROJECT_DATA', {});
         $provide.constant('DETECTION_CONFIG', {});
         $provide.constant('CACHE_CONFIG', {});
+        $provide.constant('I18N_CONFIG', {});
+        $provide.constant('SERVERPUSH_CONFIG', {});
+        $provide.constant('SECURITY_GENERAL', {});
         $provide.provider('ConfigLoader', function() {
             this.setDetection = sinon.spy();
+            this.$get = sinon.spy();
+        } );
+        $provide.provider('Oauth_RequestWrapper', function() {
             this.$get = sinon.spy();
         } );
         $provide.value('$httpBackend', {});
     }));
 
-    beforeEach(module('COMMONAPI'));
+    beforeEach(module('appverse'));
 
     it('$httpBackend should be mocked', inject(function($httpBackend) {
         should.not.exist($httpBackend.whenGET);
@@ -171,7 +186,7 @@ describe('REST_CONFIG.MockBackend is DISABLED...', function() {
 function setupMainTesting() {
 
     // First load the module
-    module('AppREST');
+    module('appverse.rest');
 
     // then Override real services with mocks
     module(function($provide) {
@@ -196,6 +211,10 @@ function setupMainTesting() {
         $provide.constant('REST_CONFIG', {
             ElementTransformer : []
         });
+
+        $provide.constant('I18N_CONFIG', {});
+
+        $provide.constant('SERVERPUSH_CONFIG', {});
     });
 }
 
