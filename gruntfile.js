@@ -1,9 +1,11 @@
 'use strict';
 
-var fs            = require('fs'),
-connectLiveReload = require('connect-livereload'),
-LIVERELOAD_PORT   = 35729,
-liveReloadSnippet = connectLiveReload({port: LIVERELOAD_PORT});
+var fs = require('fs'),
+    connectLiveReload = require('connect-livereload'),
+    LIVERELOAD_PORT = 35729,
+    liveReloadSnippet = connectLiveReload({
+        port: LIVERELOAD_PORT
+    });
 
 
 module.exports = function (grunt) {
@@ -17,7 +19,7 @@ module.exports = function (grunt) {
     // Configurable paths
     var configPaths = {
         src: 'src',
-        bowerComponents : 'bower_components',
+        bowerComponents: 'bower_components',
         dist: 'dist',
         doc: 'doc',
         test: 'test',
@@ -25,8 +27,8 @@ module.exports = function (grunt) {
         testsConfig: 'config/test',
         reports: 'reports',
         coverage: 'reports/coverage',
-        e2eCoverage : 'reports/coverage/e2e',
-        e2eInstrumented : 'reports/coverage/e2e/_instrumented'
+        e2eCoverage: 'reports/coverage/e2e',
+        e2eInstrumented: 'reports/coverage/e2e/_instrumented'
     };
 
     // If app path is defined in bower.json, use it
@@ -85,7 +87,7 @@ module.exports = function (grunt) {
 
         maven: {
             options: {
-                goal:'install',
+                goal: 'install',
                 groupId: 'org.appverse.web.framework.modules.frontend.html5',
                 repositoryId: 'my-nexus',
                 releaseRepository: 'url'
@@ -97,9 +99,9 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= appverse.src %>/',
-                    src: ['**','!bower_components/**'],
-                    dest:'.'
+                    cwd: '<%= appverse.src %>/',
+                    src: ['**', '!bower_components/**'],
+                    dest: '.'
                 }]
             },
             'install-min': {
@@ -108,35 +110,35 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= appverse.dist %>/',
+                    cwd: '<%= appverse.dist %>/',
                     src: ['**'],
-                    dest:'.'
+                    dest: '.'
                 }]
             },
             'deploy-src': {
                 options: {
-                    goal:'deploy',
+                    goal: 'deploy',
                     url: '<%= releaseRepository %>',
                     classifier: 'sources'
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= appverse.src %>/',
-                    src: ['**','!bower_components/**'],
-                    dest:'.'
+                    cwd: '<%= appverse.src %>/',
+                    src: ['**', '!bower_components/**'],
+                    dest: '.'
                 }]
             },
             'deploy-min': {
                 options: {
-                    goal:'deploy',
+                    goal: 'deploy',
                     url: '<%= releaseRepository %>',
                     classifier: 'min'
                 },
                 files: [{
                     expand: true,
-                    cwd:'<%= appverse.dist %>/',
+                    cwd: '<%= appverse.dist %>/',
                     src: ['**'],
-                    dest:'.'
+                    dest: '.'
                 }]
             }
         },
@@ -152,7 +154,7 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
-            coverage : '<%= appverse.coverage %>/**',
+            coverage: '<%= appverse.coverage %>/**',
             server: '.tmp',
             docular: 'doc'
 
@@ -190,15 +192,15 @@ module.exports = function (grunt) {
         // ng-annotate tries to make the code safe for minification automatically
         // by using the Angular long form for dependency injection.
         ngAnnotate: {
-          dist: {
-            files: [{
-              expand: true,
-              cwd: '<%= appverse.dist %>',
-              src: ['**/*.js', '!oldieshim.js'],
-              dest: '<%= appverse.dist %>',
-              extDot : 'last'
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= appverse.dist %>',
+                    src: ['**/*.js', '!oldieshim.js'],
+                    dest: '<%= appverse.dist %>',
+                    extDot: 'last'
             }]
-          }
+            }
         },
 
         // Uglifies already concatenated files
@@ -209,12 +211,12 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: [{
-                      expand: true,     // Enable dynamic expansion.
-                      cwd: '<%= appverse.dist %>',      // Src matches are relative to this path.
-                      src: ['**/*.js'], // Actual pattern(s) to match.
-                      dest: '<%= appverse.dist %>',   // Destination path prefix.
-                      ext: '.min.js',   // Dest filepaths will have this extension.
-                      extDot: 'last'   // Extensions in filenames begin after the last dot
+                        expand: true, // Enable dynamic expansion.
+                        cwd: '<%= appverse.dist %>', // Src matches are relative to this path.
+                        src: ['**/*.js'], // Actual pattern(s) to match.
+                        dest: '<%= appverse.dist %>', // Destination path prefix.
+                        ext: '.min.js', // Dest filepaths will have this extension.
+                        extDot: 'last' // Extensions in filenames begin after the last dot
                     }
                 ]
             }
@@ -298,17 +300,17 @@ module.exports = function (grunt) {
 
         bump: {
             options: {
-              files: ['package.json', 'bower.json'],
-              updateConfigs: [],
-              commit: true,
-              commitMessage: 'Release v%VERSION%',
-              commitFiles: ['package.json','bower.json'],
-              createTag: true,
-              tagName: 'v%VERSION%',
-              tagMessage: 'Version %VERSION%',
-              push: true,
-              pushTo: 'origin',
-              gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
+                files: ['package.json', 'bower.json'],
+                updateConfigs: [],
+                commit: true,
+                commitMessage: 'Release v%VERSION%',
+                commitFiles: ['package.json', 'bower.json'],
+                createTag: true,
+                tagName: 'v%VERSION%',
+                tagMessage: 'Version %VERSION%',
+                push: true,
+                pushTo: 'origin',
+                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
         },
 
@@ -343,7 +345,7 @@ module.exports = function (grunt) {
             e2e: {
                 options: {
                     port: 9091,
-                     middleware: function (connect) {
+                    middleware: function (connect) {
                         return [
                             mountFolder(connect, configPaths.e2eInstrumented + '/src'),
                             mountFolder(connect, configPaths.src),
@@ -364,7 +366,9 @@ module.exports = function (grunt) {
                             mountFolder(connect, configPaths.src),
                             mountFolder(connect, configPaths.bowerComponents),
                             mountFolder(connect, configPaths.dist),
-                            mountFolder(connect, configPaths.demo,{index: 'index-dist.html'}),
+                            mountFolder(connect, configPaths.demo, {
+                                index: 'index-dist.html'
+                            }),
                             httpMethods
                         ];
                     }
@@ -420,7 +424,7 @@ module.exports = function (grunt) {
                 transform: function (path) {
                     // Demo server directly mounts src folder so the reference to src is not required
                     path = path.replace('/src/', '');
-                    return '<script src="'+ path +'"></script>';
+                    return '<script src="' + path + '"></script>';
                 }
             },
             js: {
@@ -433,8 +437,8 @@ module.exports = function (grunt) {
         // Generate code analysis reports
         plato: {
             main: {
-                options : {
-                    jshint : grunt.file.readJSON('.jshintrc')
+                options: {
+                    jshint: grunt.file.readJSON('.jshintrc')
                 },
                 files: {
                     '<%= appverse.reports %>/analysis/': [
@@ -448,12 +452,12 @@ module.exports = function (grunt) {
         },
 
         concurrent: {
-            dist: ['jshint', 'unit', 'midway','test:e2e:report', 'analysis']
+            dist: ['jshint', 'unit', 'midway', 'test:e2e:report', 'analysis']
         }
     });
 
 
-/*---------------------------------------- TASKS DEFINITION -------------------------------------*/
+    /*---------------------------------------- TASKS DEFINITION -------------------------------------*/
 
 
     // ------ Dist task. Builds the project -----
@@ -517,17 +521,17 @@ module.exports = function (grunt) {
         'karma:midway'
     ]);
 
-    grunt.registerTask('test:e2e:report',  [
+    grunt.registerTask('test:e2e:report', [
         'injector:js',
+        'instrument',
         'exec:webdriver_update',
         'connect:e2e',
         'protractor_webdriver',
-        'instrument',
         'protractor_coverage',
         'makeReport'
     ]);
 
-    grunt.registerTask('test:e2e:dist',  [
+    grunt.registerTask('test:e2e:dist', [
         'injector:js',
         'exec:webdriver_update',
         'connect:e2e_dist',
@@ -589,26 +593,29 @@ module.exports = function (grunt) {
 
     // -------- Special task for websockets demo ---------
 
-    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function () {
 
         var http = require('http');
         var CpuUsage = require('./config/grunt-tasks/cpu-usage');
-        var server = http.createServer(function handler () {});
+        var server = http.createServer(function handler() {});
 
         // Never end grunt task
         this.async();
 
-        server.listen(8080, function() {
+        server.listen(8080, function () {
             console.log('Websockets Server is listening on port 8080');
         });
 
         var WebSocketServer = require('websocket').server;
 
-        var wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false });
+        var wsServer = new WebSocketServer({
+            httpServer: server,
+            autoAcceptConnections: false
+        });
 
         var cpuUsage = new CpuUsage();
 
-        wsServer.on('request', function(request) {
+        wsServer.on('request', function (request) {
             var connection = request.accept('', request.origin);
             console.log(' Connection accepted from peer ' + connection.remoteAddress);
 
@@ -617,7 +624,7 @@ module.exports = function (grunt) {
                 connection.sendUTF(payLoad);
             }, 100);
 
-            connection.on('close', function(reasonCode, description) {
+            connection.on('close', function (reasonCode, description) {
                 clearInterval(sendInterval);
                 console.log('Peer ' + connection.remoteAddress + ' disconnected.');
                 console.log('Closing Reason: ' + reasonCode);
@@ -633,11 +640,11 @@ module.exports = function (grunt) {
 
 /*---------------------------------------- HELPER METHODS -------------------------------------*/
 
-function mountFolder (connect, dir, options) {
+function mountFolder(connect, dir, options) {
     return connect.static(require('path').resolve(dir), options);
 }
 
-function delayApiCalls (request, response, next) {
+function delayApiCalls(request, response, next) {
     if (request.url.indexOf('/api/') !== -1) {
         setTimeout(function () {
             next();
@@ -647,10 +654,10 @@ function delayApiCalls (request, response, next) {
     }
 }
 
-function httpMethods (request, response, next) {
+function httpMethods(request, response, next) {
 
     var rawpath = request.url.split('?')[0],
-    path        = require('path').resolve(__dirname, 'demo/' + rawpath);
+        path = require('path').resolve(__dirname, 'demo/' + rawpath);
 
     if ((request.method === 'PUT' || request.method === 'POST')) {
         console.log('inside put/post');
@@ -702,7 +709,7 @@ function httpMethods (request, response, next) {
 function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
 
     //Remove trailing slash
-    moduleFolderPath =  moduleFolderPath.replace(/\/+$/, '');
+    moduleFolderPath = moduleFolderPath.replace(/\/+$/, '');
 
     // Files using the same module are concatenated in the correct order:
     // · 1st, module.js files are loaded as these are the ones that create the module
@@ -717,7 +724,7 @@ function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
 
     return files.concat([
         moduleFolderPath + '/**/*.provider.js',
-        moduleFolderPath +'/**/*.js'
+        moduleFolderPath + '/**/*.js'
     ]);
 }
 
@@ -729,12 +736,11 @@ function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
  */
 function getAllFilesForDemo(filesObject) {
     var filesList = [];
-    for( var key in filesObject ) {
+    for (var key in filesObject) {
         if (filesObject.hasOwnProperty(key)) {
-           filesList = filesList.concat(filesObject[key]);
+            filesList = filesList.concat(filesObject[key]);
         }
     }
 
     return filesList;
 }
-
