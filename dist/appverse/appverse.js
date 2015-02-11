@@ -1,117 +1,3 @@
-(function() {
-    'use strict';
-
-    //////////////////////// COMMON API - MAIN //////////////////////////
-    // The Main module includes other API modules:
-    // - Bootstrap-based styling and gadgets
-    // - Routing
-    // - External Configuration
-    // - REST Integration
-    // - Cache Service
-    // - ServerPush
-    // - Security
-    // - Internationalization
-    // - Logging
-    /////////////////////////////////////////////////////////////////////
-
-    /**
-     * Required modules (compulsory)
-     */
-    var requires = [
-        'appverse.utils',
-        'appverse.configuration'
-    ];
-
-    /**
-     * Optional modules
-     */
-    var optional = [
-        'appverse.detection',
-        'appverse.rest',
-        'appverse.translate',
-        'AppModal',
-        'AppLogging',
-        'appverse.serverPush',
-        'AppSecurity',
-        'appverse.cache',
-        'appverse.performance',
-        'appverse.router'
-    ];
-
-
-    /**
-     * Main module.
-     * Bootstraps the application by integrating services that have any relation.
-     */
-    angular.module('COMMONAPI', generateDependencies(requires, optional))
-        .config(config)
-        .run(run);
-
-
-    /**
-     * Preliminary configuration.
-     *
-     * Configures the integration between modules that need to be integrated
-     * at the config phase.
-     */
-    function config($compileProvider, $injector, $provide, ModuleSeekerProvider, REST_CONFIG) {
-
-        //Mock backend if necessary
-        if (REST_CONFIG.MockBackend) {
-
-            $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
-        }
-
-        // sanitize hrefs
-        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
-
-        // Integrate modules that have a dependency
-        if (ModuleSeekerProvider.exists('appverse.detection')) {
-            var detectionProvider = $injector.get('DetectionProvider');
-            var configLoaderProvider = $injector.get('ConfigLoaderProvider');
-            configLoaderProvider.setDetection(detectionProvider);
-
-            if (ModuleSeekerProvider.exists('AppLogging')) {
-                var formattedLoggerProvider = $injector.get('formattedLoggerProvider');
-                formattedLoggerProvider.setDetection(detectionProvider);
-            }
-
-        }
-    }
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
-
-    function run($log, REST_CONFIG) {
-        if (REST_CONFIG.MockBackend) {
-            $log.debug('REST: You are using a MOCKED backend!');
-        }
-    }
-    run.$inject = ["$log", "REST_CONFIG"];
-
-    function generateDependencies(requires, optional) {
-        var dependencies = requires;
-        angular.forEach(optional, function (module) {
-            if (moduleExists(module)) {
-                dependencies.push(module);
-            }
-        });
-        return dependencies;
-    }
-
-    // TODO: this function is already defined in appverse.utils but cannot be used
-    // when declaring a module as we can't inject anything yet. We must have a way
-    // to call this function before being inside the angular environment. Global maybe?
-    function moduleExists(name) {
-        try {
-            angular.module(name);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
-
-})();
-
 (function() { 'use strict';
 
 /**
@@ -155,6 +41,120 @@ function run($log) {
 run.$inject = ["$log"];
 
 })();
+(function() {
+    'use strict';
+
+    //////////////////////// COMMON API - MAIN //////////////////////////
+    // The Main module includes other API modules:
+    // - Bootstrap-based styling and gadgets
+    // - Routing
+    // - External Configuration
+    // - REST Integration
+    // - Cache Service
+    // - ServerPush
+    // - Security
+    // - Internationalization
+    // - Logging
+    /////////////////////////////////////////////////////////////////////
+
+    /**
+     * Required modules (compulsory)
+     */
+    var requires = [
+        'appverse.utils',
+        'appverse.configuration'
+    ];
+
+    /**
+     * Optional modules
+     */
+    var optional = [
+        'appverse.detection',
+        'appverse.rest',
+        'appverse.translate',
+        'appverse.modal',
+        'appverse.logging',
+        'appverse.serverPush',
+        'appverse.security',
+        'appverse.cache',
+        'appverse.performance',
+        'appverse.router'
+    ];
+
+
+    /**
+     * Main module.
+     * Bootstraps the application by integrating services that have any relation.
+     */
+    angular.module('appverse', generateDependencies(requires, optional))
+        .config(config)
+        .run(run);
+
+
+    /**
+     * Preliminary configuration.
+     *
+     * Configures the integration between modules that need to be integrated
+     * at the config phase.
+     */
+    function config($compileProvider, $injector, $provide, ModuleSeekerProvider, REST_CONFIG) {
+
+        //Mock backend if necessary
+        if (REST_CONFIG.MockBackend) {
+
+            $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
+        }
+
+        // sanitize hrefs
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
+
+        // Integrate modules that have a dependency
+        if (ModuleSeekerProvider.exists('appverse.detection')) {
+            var detectionProvider = $injector.get('DetectionProvider');
+            var configLoaderProvider = $injector.get('ConfigLoaderProvider');
+            configLoaderProvider.setDetection(detectionProvider);
+
+            if (ModuleSeekerProvider.exists('appverse.logging')) {
+                var formattedLoggerProvider = $injector.get('formattedLoggerProvider');
+                formattedLoggerProvider.setDetection(detectionProvider);
+            }
+
+        }
+    }
+    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
+
+    function run($log, REST_CONFIG) {
+        if (REST_CONFIG.MockBackend) {
+            $log.debug('REST: You are using a MOCKED backend!');
+        }
+    }
+    run.$inject = ["$log", "REST_CONFIG"];
+
+    function generateDependencies(requires, optional) {
+        var dependencies = requires;
+        angular.forEach(optional, function (module) {
+            if (moduleExists(module)) {
+                dependencies.push(module);
+            }
+        });
+        return dependencies;
+    }
+
+    // TODO: this function is already defined in appverse.utils but cannot be used
+    // when declaring a module as we can't inject anything yet. We must have a way
+    // to call this function before being inside the angular environment. Global maybe?
+    function moduleExists(name) {
+        try {
+            angular.module(name);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+
+})();
+
 (function() { 'use strict';
 
 angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
@@ -298,54 +298,6 @@ function NoDetection() {
 
 })();
 
-/**
- * This file includes functionality to initialize settings in an appverse-web-html5 app
- * Just call the initalization code after having loaded angular and the configuration module:
- *
- * AppInit.setConfig(settings).bootstrap()
- *
- * @return {object} AppInit
- */
-var AppInit = AppInit || (function(angular) { 'use strict';
-
-    var settings;
-
-    var mainModuleName;
-
-    function setConfig(settingsObject) {
-        settings = settingsObject;
-        angular.module('appverse.configuration.loader').config(loadConfig);
-        return AppInit;
-    }
-
-    function bootstrap(appMainModule) {
-        var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function() {
-            angular.bootstrap(document, [moduleName]);
-        });
-    }
-
-    function setMainModuleName(name) {
-        mainModuleName = name;
-    }
-
-    function getMainModule() {
-        return angular.module(mainModuleName);
-    }
-
-    function loadConfig(ConfigLoaderProvider) {
-        ConfigLoaderProvider.load(settings);
-    }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
-
-    return {
-        setMainModuleName : setMainModuleName,
-        setConfig : setConfig,
-        bootstrap : bootstrap,
-        getMainModule : getMainModule
-    };
-
-})(angular);
 (function() { 'use strict';
 
 angular.module('appverse.configuration.default')
@@ -415,7 +367,7 @@ in the common API.
     //SCOPE CACHE
     /////////////////////////////
     ScopeCache_Enabled: true,
-    DefaultScopeCacheName: 'commonApiScopeDataCache',
+    DefaultScopeCacheName: 'appverseScopeDataCache',
     /*
      Max duration in milliseconds of the scope cache
       */
@@ -438,7 +390,7 @@ in the common API.
      2 = $sessionStorage
       */
     BrowserStorage_type: '2',
-    DefaultBrowserCacheName: 'commonApiBrowserCache',
+    DefaultBrowserCacheName: 'appverseBrowserCache',
     // Items added to this cache expire after 15 minutes.
     MaxAge: 900000,
     // This cache will clear itself every hour.
@@ -1003,3 +955,51 @@ WEBSOCKETS MODULE CONFIGURATION
 });
 
 })();
+/**
+ * This file includes functionality to initialize settings in an appverse-web-html5 app
+ * Just call the initalization code after having loaded angular and the configuration module:
+ *
+ * AppInit.setConfig(settings).bootstrap()
+ *
+ * @return {object} AppInit
+ */
+var AppInit = AppInit || (function(angular) { 'use strict';
+
+    var settings;
+
+    var mainModuleName;
+
+    function setConfig(settingsObject) {
+        settings = settingsObject;
+        angular.module('appverse.configuration.loader').config(loadConfig);
+        return AppInit;
+    }
+
+    function bootstrap(appMainModule) {
+        var moduleName = appMainModule || mainModuleName;
+        angular.element(document).ready(function() {
+            angular.bootstrap(document, [moduleName]);
+        });
+    }
+
+    function setMainModuleName(name) {
+        mainModuleName = name;
+    }
+
+    function getMainModule() {
+        return angular.module(mainModuleName);
+    }
+
+    function loadConfig(ConfigLoaderProvider) {
+        ConfigLoaderProvider.load(settings);
+    }
+    loadConfig.$inject = ["ConfigLoaderProvider"];
+
+    return {
+        setMainModuleName : setMainModuleName,
+        setConfig : setConfig,
+        bootstrap : bootstrap,
+        getMainModule : getMainModule
+    };
+
+})(angular);

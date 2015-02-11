@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc module
-     * @name AppLogging
+     * @name appverse.logging
      * @description
      *
      * The Logging module handles several tasks with logging:
@@ -38,7 +38,7 @@
      * and formattedLogger (the API implementation) to the callback,
      * and then, he returns a formattedLogger factory instance.
      */
-    angular.module('AppLogging', ['appverse.configuration'])
+    angular.module('appverse.logging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {
             $provide.decorator("$log", ['$delegate', 'formattedLogger',
                 function ($delegate, formattedLogger) {

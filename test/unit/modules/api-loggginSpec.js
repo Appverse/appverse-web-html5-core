@@ -1,7 +1,7 @@
 /*jshint expr:true */
 "use strict";
 
-describe('Unit: Testing AppLogging module', function () {
+describe('Unit: Testing appverse.logging module', function () {
 
     describe('when server logging is active...', function() {
 
@@ -17,7 +17,7 @@ describe('Unit: Testing AppLogging module', function () {
             });
         }));
 
-        beforeEach('push module for injection', module('AppLogging'));
+        beforeEach('push module for injection', module('appverse.logging'));
 
         beforeEach('inject fake backend', inject(function($injector) {
             // Set up the mock http service responses

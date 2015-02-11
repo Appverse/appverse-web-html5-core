@@ -29,10 +29,10 @@
         'appverse.detection',
         'appverse.rest',
         'appverse.translate',
-        'AppModal',
-        'AppLogging',
+        'appverse.modal',
+        'appverse.logging',
         'appverse.serverPush',
-        'AppSecurity',
+        'appverse.security',
         'appverse.cache',
         'appverse.performance',
         'appverse.router'
@@ -43,7 +43,7 @@
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
-    angular.module('COMMONAPI', generateDependencies(requires, optional))
+    angular.module('appverse', generateDependencies(requires, optional))
         .config(config)
         .run(run);
 
@@ -71,7 +71,7 @@
             var configLoaderProvider = $injector.get('ConfigLoaderProvider');
             configLoaderProvider.setDetection(detectionProvider);
 
-            if (ModuleSeekerProvider.exists('AppLogging')) {
+            if (ModuleSeekerProvider.exists('appverse.logging')) {
                 var formattedLoggerProvider = $injector.get('formattedLoggerProvider');
                 formattedLoggerProvider.setDetection(detectionProvider);
             }

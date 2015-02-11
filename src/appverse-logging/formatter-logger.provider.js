@@ -1,12 +1,12 @@
 (function() { 'use strict';
 
-angular.module('AppLogging')
+angular.module('appverse.logging')
     .provider("formattedLogger", FormattedLoggerProvider);
 
 
 /**
  * @ngdoc service
- * @name AppLogging.factory:formattedLogger
+ * @name appverse.logging.factory:formattedLogger
  * @requires LOGGING_CONFIG
  * @requires Detection
  * @param {Object} delegatedLog desc

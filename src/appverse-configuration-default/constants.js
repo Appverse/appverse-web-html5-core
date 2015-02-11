@@ -67,7 +67,7 @@ in the common API.
     //SCOPE CACHE
     /////////////////////////////
     ScopeCache_Enabled: true,
-    DefaultScopeCacheName: 'commonApiScopeDataCache',
+    DefaultScopeCacheName: 'appverseScopeDataCache',
     /*
      Max duration in milliseconds of the scope cache
       */
@@ -90,7 +90,7 @@ in the common API.
      2 = $sessionStorage
       */
     BrowserStorage_type: '2',
-    DefaultBrowserCacheName: 'commonApiBrowserCache',
+    DefaultBrowserCacheName: 'appverseBrowserCache',
     // Items added to this cache expire after 15 minutes.
     MaxAge: 900000,
     // This cache will clear itself every hour.

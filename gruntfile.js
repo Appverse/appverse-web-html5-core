@@ -47,8 +47,8 @@ module.exports = function (grunt) {
                 '<%= appverse.src %>/appverse-detection/detection.provider.js',
             ]),
 
-        '<%= appverse.dist %>/api-logging/api-logging.js' :
-            moduleFilesToConcat('<%= appverse.src %>/api-logging'),
+        '<%= appverse.dist %>/appverse-logging/appverse-logging.js' :
+            moduleFilesToConcat('<%= appverse.src %>/appverse-logging'),
 
         '<%= appverse.dist %>/appverse-performance/appverse-performance.js' :
             moduleFilesToConcat('<%= appverse.src %>/appverse-performance'),
@@ -68,9 +68,9 @@ module.exports = function (grunt) {
         '<%= appverse.dist %>/appverse-router/appverse-router.js' :
             moduleFilesToConcat('<%= appverse.src %>/appverse-router'),
 
-        '<%= appverse.dist %>/api-main/api-main.js' : [
-            ['<%= appverse.src %>/api-main/integrator.js'].concat(
-                moduleFilesToConcat('<%= appverse.src %>/{appverse-configuration*,api-main}')
+        '<%= appverse.dist %>/appverse/appverse.js' : [
+            ['<%= appverse.src %>/appverse/integrator.js'].concat(
+                moduleFilesToConcat('<%= appverse.src %>/{appverse-configuration*,appverse}')
             ),
         ]
     };

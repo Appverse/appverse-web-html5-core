@@ -75,7 +75,7 @@
             $log             = $injector.get('$log'),
             SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
 
-            if (ModuleSeeker.exists('AppSecurity')) {
+            if (ModuleSeeker.exists('appverse.security')) {
                 var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
                 if (SECURITY_GENERAL.securityEnabled){
                     restFactory.wrapRequestsWith(oauthRequestWrapperService);

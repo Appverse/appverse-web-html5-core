@@ -7,7 +7,7 @@
      * @ngdoc service
      * @name appverse.cache.service:IDBService
      * @description
-     * This service has been planned to be used as a simple HTML5's indexedDB specification with the commonAPI.
+     * This service has been planned to be used as a simple HTML5's indexedDB specification with the appverse.
      * A pre-configured data structure has been included to be used for common purposes:
      * Data Structure Name: 'default'
      * Fields: Id, Title, Body, Tags, Updated.
