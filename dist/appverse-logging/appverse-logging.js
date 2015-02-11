@@ -40,9 +40,9 @@
      */
     angular.module('appverse.logging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {
-            $provide.decorator("$log", ['$delegate', 'formattedLogger',
-                function ($delegate, formattedLogger) {
-                    return formattedLogger($delegate);
+            $provide.decorator("$log", ['$delegate', 'FormattedLogger',
+                function ($delegate, FormattedLogger) {
+                    return FormattedLogger($delegate);
                 }]);
         }]);
 
@@ -50,12 +50,12 @@
 (function() { 'use strict';
 
 angular.module('appverse.logging')
-    .provider("formattedLogger", FormattedLoggerProvider);
+    .provider("FormattedLogger", FormattedLoggerProvider);
 
 
 /**
  * @ngdoc service
- * @name appverse.logging.factory:formattedLogger
+ * @name appverse.logging.factory:FormattedLogger
  * @requires LOGGING_CONFIG
  * @requires Detection
  * @param {Object} delegatedLog desc

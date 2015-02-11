@@ -40,9 +40,9 @@
      */
     angular.module('appverse.logging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {
-            $provide.decorator("$log", ['$delegate', 'formattedLogger',
-                function ($delegate, formattedLogger) {
-                    return formattedLogger($delegate);
+            $provide.decorator("$log", ['$delegate', 'FormattedLogger',
+                function ($delegate, FormattedLogger) {
+                    return FormattedLogger($delegate);
                 }]);
         }]);
 

@@ -20,8 +20,8 @@
      * Internally, $http works in the same way. After some XHR returns, it calls $scope.$apply,
      * so that AngularJS can update its views accordingly.
      */
-    .factory('SocketFactory', ['$rootScope', 'socket',
-        function ($rootScope, socket) {
+    .factory('SocketFactory', ['$rootScope', 'Socket',
+        function ($rootScope, Socket) {
         var factory = {};
 
         /**
@@ -36,10 +36,10 @@
              You should cancel communication manually or when the $rootScope object is destroyed.
              */
         factory.listen = function (eventName, callback) {
-            socket.on(eventName, function () {
+            Socket.on(eventName, function () {
                 var args = arguments;
                 $rootScope.$apply(function () {
-                    callback.apply(socket, args);
+                    callback.apply(Socket, args);
                 });
             });
         };
@@ -56,11 +56,11 @@
              It is bound to a given $scope object.
              */
         factory.sendMessage = function (eventName, data, callback) {
-            socket.emit(eventName, data, function () {
+            Socket.emit(eventName, data, function () {
                 var args = arguments;
                 $rootScope.$apply(function () {
                     if (callback) {
-                        callback.apply(socket, args);
+                        callback.apply(Socket, args);
                     }
                 });
             });
@@ -75,7 +75,7 @@
              The communication will be cancelled without regarding other consideration.
              */
         factory.unsubscribeCommunication = function (callback) {
-            socket.off(callback());
+            Socket.off(callback());
         };
 
 

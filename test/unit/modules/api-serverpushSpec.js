@@ -18,8 +18,8 @@ describe('Unit: Testing appverse.serverPush module', function () {
         mockDependencies();
 
         // Load the module to be tested and initialized a mocked socketIo
-        module('appverse.serverPush', function(socketProvider) {
-            socketProvider.ioSocket({
+        module('appverse.serverPush', function(SocketProvider) {
+            SocketProvider.ioSocket({
                 on : sinon.spy()
             });
         });

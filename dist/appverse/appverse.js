@@ -115,7 +115,7 @@ run.$inject = ["$log"];
             configLoaderProvider.setDetection(detectionProvider);
 
             if (ModuleSeekerProvider.exists('appverse.logging')) {
-                var formattedLoggerProvider = $injector.get('formattedLoggerProvider');
+                var formattedLoggerProvider = $injector.get('FormattedLoggerProvider');
                 formattedLoggerProvider.setDetection(detectionProvider);
             }
 

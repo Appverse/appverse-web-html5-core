@@ -30,7 +30,7 @@
      * If an argument is not provided, it defaults to $rootScope.
      * As a reminder, broadcasted events are propagated down to descendant scopes.
      */
-     .provider('socket', ['SERVERPUSH_CONFIG',
+     .provider('Socket', ['SERVERPUSH_CONFIG',
         function (SERVERPUSH_CONFIG) {
 
             // when forwarding events, prefix the event name
