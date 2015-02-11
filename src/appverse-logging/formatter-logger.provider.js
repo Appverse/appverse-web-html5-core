@@ -3,15 +3,17 @@
 angular.module('appverse.logging')
     .provider("FormattedLogger", FormattedLoggerProvider);
 
-
 /**
- * @ngdoc service
- * @name appverse.logging.factory:FormattedLogger
+ * @ngdoc provider
+ * @name FormattedLogger
+ * @module appverse.logging
+ *
+ * @description
+ * Captures the $log service and decorate it.
+ *
  * @requires LOGGING_CONFIG
  * @requires Detection
  * @param {Object} delegatedLog desc
- * @description
- * Captures the $log service and decorate it.
  */
 function FormattedLoggerProvider () {
 

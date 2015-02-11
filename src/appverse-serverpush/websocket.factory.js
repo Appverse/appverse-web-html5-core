@@ -5,7 +5,8 @@
 
     /**
      * @ngdoc service
-     * @name appverse.serverPush.factory:WebSocketService
+     * @name WebSocketService
+     * @module appverse.serverPush
      * @requires $log
      * @requires $window
      * @requires WEBSOCKETS_CONFIG
@@ -18,8 +19,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#connect
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#connect
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
@@ -64,8 +64,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#send
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#send
                 @param {object} message Message payload in JSON format.
                 @description Send a message to the ws server.
             */
@@ -75,8 +74,7 @@
             };
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#subscribe
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#subscribe
                 @param {object} callback .
                 @description Retrieve the currentcallback of the endpoint connection.
             */
@@ -86,8 +84,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#disconnect
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#disconnect
                 @param {string} itemId The id of the item
                 @description Close the WebSocket connection.
             */
@@ -99,8 +96,7 @@
 
              /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#status
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#status
                 @param {string} itemId The id of the item
                 @description WebSocket connection status.
             */
@@ -113,8 +109,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#statusAsText
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#statusAsText
                 @param {string} itemId The id of the item
                 @description Returns WebSocket connection status as text.
             */

@@ -5,7 +5,8 @@
 
     /**
      * @ngdoc provider
-     * @name appverse.socket.io.provider:socket
+     * @name Socket
+     * @module appverse.socket.io
      * @description
      * This provider provides the appverse.serverPush module with the SocketIO
      * client object from pre-existing configuration in application.

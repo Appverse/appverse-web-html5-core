@@ -10,9 +10,7 @@
      *
      * It should be directly configurable by developers.
      *
-     * WARNING:
-     *
-     * Items in each translations object must match to items defined in the Configuration module.
+     * **Warning**: Items in each translations object must match items defined in the Configuration module.
      */
     angular.module('appverse.translate', [
         'pascalprecht.translate',

@@ -6,7 +6,8 @@
 
     /**
     * @ngdoc directive
-    * @name appverse.performance.directive:webworker
+    * @name webworker
+    * @module appverse.performance
     * @restrict AE
     *
     * @description

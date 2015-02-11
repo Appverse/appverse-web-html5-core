@@ -6,7 +6,8 @@
 
     /**
      * @ngdoc directive
-     * @name appverse.rest.directive:rest
+     * @name rest
+     * @module appverse.rest
      * @restrict A
      *
      * @description

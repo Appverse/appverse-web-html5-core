@@ -1,12 +1,11 @@
 'use strict';
 
-var fs = require('fs'),
-    connectLiveReload = require('connect-livereload'),
-    LIVERELOAD_PORT = 35729,
-    liveReloadSnippet = connectLiveReload({
-        port: LIVERELOAD_PORT
-    });
-
+var fs            = require('fs'),
+connectLiveReload = require('connect-livereload'),
+LIVERELOAD_PORT   = 35729,
+liveReloadSnippet = connectLiveReload({
+    port: LIVERELOAD_PORT
+});
 
 module.exports = function (grunt) {
 
@@ -156,7 +155,7 @@ module.exports = function (grunt) {
             },
             coverage: '<%= appverse.coverage %>/**',
             server: '.tmp',
-            docular: 'doc'
+            doc: 'doc'
 
         },
 
@@ -273,31 +272,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Generate docs
-        docular: {
-            showDocularDocs: false,
-            showAngularDocs: true,
-            docular_webapp_target: "doc",
-            groups: [
-                {
-                    groupTitle: 'Appverse HTML5',
-                    groupId: 'appverse',
-                    groupIcon: 'icon-beer',
-                    sections: [
-                        {
-                            id: "commonapi",
-                            title: "Common API",
-                            showSource: true,
-                            scripts: ["src/modules", "src/directives"
-                            ],
-                            docs: ["ngdocs/commonapi"],
-                            rank: {}
-                        }
-                    ]
-                }
-            ]
-        },
-
         bump: {
             options: {
                 files: ['package.json', 'bower.json'],
@@ -373,7 +347,22 @@ module.exports = function (grunt) {
                         ];
                     }
                 }
-            }
+            },
+
+            // Docs
+            doc: {
+                options: {
+                    port: 9999,
+                    keepalive : true,
+                    middleware: function (connect) {
+                        return [
+                            require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
+                            mountFolder(connect, configPaths.doc),
+
+                        ];
+                    }
+                }
+            },
         },
 
         watch: {
@@ -564,10 +553,24 @@ module.exports = function (grunt) {
         'connect:e2e_dist:keepalive',
     ]);
 
+
+    // ------ Doc tasks -----
+
     grunt.registerTask('doc', [
-        'clean:docular',
-        'docular'
+        'clean:doc',
+        'docgen'
     ]);
+
+    grunt.registerTask('docgen', 'Generates docs', function() {
+        var Dgeni = require('dgeni'),
+        packages  = [require('./docgen/package')],
+        dgeni     = new Dgeni(packages),
+        done      = this.async();
+        dgeni.generate().then(function(docs) {
+            console.log(docs.length, 'docs generated');
+            done();
+        });
+    });
 
 
     // ------ Analysis tasks. Runs code analysis -----
