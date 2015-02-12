@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     //////////////////////// COMMON API - MAIN //////////////////////////
@@ -29,15 +29,17 @@
         'AppDetection',
         'AppREST',
         'AppTranslate',
-        'AppModal',
         'AppLogging',
         'AppServerPush',
         'AppSecurity',
         'AppCache',
         'AppPerformance',
-        'AppRouter'
+        'AppRouter',
+        'xeditable',
+        'ja.qr',
+        'vr.directives.slider',
+        'ngGrid'
     ];
-
 
     /**
      * Main module.
@@ -46,7 +48,6 @@
     angular.module('COMMONAPI', generateDependencies(requires, optional))
         .config(config)
         .run(run);
-
 
     /**
      * Preliminary configuration.
@@ -88,9 +89,10 @@
     function generateDependencies(requires, optional) {
         var dependencies = requires;
         angular.forEach(optional, function (module) {
-            if (moduleExists(module)) {
-                dependencies.push(module);
+            if (!moduleExists(module)) {
+                angular.module(module, []);
             }
+            dependencies.push(module);
         });
         return dependencies;
     }
