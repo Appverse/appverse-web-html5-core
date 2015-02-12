@@ -117,3 +117,8 @@ pre {
 .hljs {
     padding: 0.5em 1em !important;
 }
+
+/* Label type hints */
+.label.type-hint {
+    background-color: #5897DF;
+}

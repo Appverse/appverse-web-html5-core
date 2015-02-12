@@ -9,16 +9,31 @@
  */
 var AppInit = AppInit || (function(angular) { 'use strict';
 
-    var settings;
+    var
+    settings,
+    mainModuleName;
 
-    var mainModuleName;
-
+    /**
+     * @ngdoc method
+     * @name AppInit#setConfig
+     * @param {object} settingsObject An object containing custom settings
+     * @description Sets custom settings
+     */
     function setConfig(settingsObject) {
         settings = settingsObject;
         angular.module('appverse.configuration.loader').config(loadConfig);
         return AppInit;
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#bootstrap
+     * @description Manually Bootstraps the application. For automatic bootstrap,
+     * use the standard Angular way using the ng-app directive.
+     *
+     * @param {string} appMainModule The name of the main application module.
+     * You can also use setMainModuleName and use this function without any parameters
+     */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
         angular.element(document).ready(function() {
@@ -26,13 +41,25 @@ var AppInit = AppInit || (function(angular) { 'use strict';
         });
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#setMainModuleName
+     * @param {string} name The name of the main application module.
+     */
     function setMainModuleName(name) {
         mainModuleName = name;
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#setMainModuleName
+     * @return {string} The name of the main application module.
+     */
     function getMainModule() {
         return angular.module(mainModuleName);
     }
+
+    // ---- Privates -----
 
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
