@@ -7,9 +7,6 @@
      * @ngdoc service
      * @name SocketFactory
      * @module appverse.serverPush
-     * @requires $rootScope
-     * @requires socket
-     *
      * @description
      * Although Socket.IO exposes an io variable on the window, it's better to encapsulate it
      * into the AngularJS's Dependency Injection system.
@@ -20,6 +17,9 @@
      * the templates if there was a change after running the callback passed to it by using dirty checking.
      * Internally, $http works in the same way. After some XHR returns, it calls $scope.$apply,
      * so that AngularJS can update its views accordingly.
+     *
+     * @requires $rootScope
+     * @requires Socket
      */
     .factory('SocketFactory', ['$rootScope', 'Socket',
         function ($rootScope, Socket) {

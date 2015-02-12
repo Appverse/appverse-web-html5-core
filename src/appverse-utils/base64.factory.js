@@ -4,6 +4,12 @@
 
     angular.module('appverse.utils')
 
+    /**
+     * @ngdoc service
+     * @name BaseUrlSetter
+     * @module appverse.utils
+     * @description Base64 encoding
+     */
     .factory('Base64', function () {
         var keyStr = 'ABCDEFGHIJKLMNOP' +
             'QRSTUVWXYZabcdef' +

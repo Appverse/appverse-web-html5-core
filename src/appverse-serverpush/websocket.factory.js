@@ -7,11 +7,9 @@
      * @ngdoc service
      * @name WebSocketService
      * @module appverse.serverPush
-     * @requires $log
-     * @requires $window
-     * @requires WEBSOCKETS_CONFIG
      *
-     * @description
+     * @requires $log
+     * @requires WEBSOCKETS_CONFIG
      */
     .factory('WebSocketFactory', ['$log', 'WEBSOCKETS_CONFIG',
         function($log, WEBSOCKETS_CONFIG) {

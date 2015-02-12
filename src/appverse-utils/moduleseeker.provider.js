@@ -5,9 +5,9 @@
 
     /**
      * @ngdoc service
-     * @name appverse.utils.provider:ModuleSeeker
-     * @description
-     * Seeks and check existance of modules
+     * @name ModuleSeeker
+     * @module appverse.utils
+     * @description Looks for modules
      */
     function ModuleSeeker() {
         this.$get = function() {

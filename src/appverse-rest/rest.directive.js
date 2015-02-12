@@ -20,6 +20,9 @@
          <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
        </file>
      </example>
+     *
+     * @requires  $log
+     * @requires  RESTFactory
      */
     function restDirective ($log, RESTFactory) {
         return {

@@ -37,6 +37,8 @@
      * As you can see, we are passing the original $log
      * and formattedLogger (the API implementation) to the callback,
      * and then, he returns a formattedLogger factory instance.
+     *
+     * @requires  appverse.configuration
      */
     angular.module('appverse.logging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {

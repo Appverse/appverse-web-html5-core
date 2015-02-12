@@ -12,7 +12,6 @@ angular.module('appverse.detection')
  * Contains methods for browser and network detection.
  *
  * @requires  MobileDetectorProvider
- * @requires  MobileLibrariesLoaderProvider
  */
 function DetectionProvider (MobileDetectorProvider) {
 

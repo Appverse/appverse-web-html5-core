@@ -3,13 +3,6 @@
 angular.module('appverse.detection')
     .run(run);
 
-/**
- * @doc function
- * @name appverse.detection#run
- *
- * @description
- * Run block for appverse.detection. Initializes the whole module
- */
 function run($log, Detection, $rootScope, $window) {
     $log.info('appverse.detection run');
 

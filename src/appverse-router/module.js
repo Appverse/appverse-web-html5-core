@@ -3,9 +3,10 @@
 
     /**
      * @ngdoc module
-     * @name AppRoute
-     * @requires ui.router
+     * @name appverse.router
      * @description Adds routing capabilities to the application
+     *
+     * @requires ui.router
      */
     angular.module('appverse.router', ['ui.router'])
 

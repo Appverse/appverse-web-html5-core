@@ -11,9 +11,6 @@ angular.module('appverse.logging')
  * @description
  * Captures the $log service and decorate it.
  *
- * @requires LOGGING_CONFIG
- * @requires Detection
- * @param {Object} delegatedLog desc
  */
 function FormattedLoggerProvider () {
 

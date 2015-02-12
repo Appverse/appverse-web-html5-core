@@ -25,6 +25,9 @@
     <webworker  id="101" message="Hans Walter" template=""/>
     </file>
     </example>
+    * @requires  $log
+    * @requires  WebWorkerFactory
+    * @requires  PERFORMANCE_CONFIG
     */
     .directive('webworker', ['$log', 'WebWorkerFactory', 'PERFORMANCE_CONFIG',
         function ($log, WebWorkerFactory, PERFORMANCE_CONFIG) {

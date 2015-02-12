@@ -7,11 +7,15 @@
      * @ngdoc service
      * @name RESTFactory
      * @module appverse.rest
-     * @requires $log
-     * @requires Restangular
      * @description
      * Contains methods for data finding (demo).
      * This module provides basic quick standard access to a REST API.
+     *
+     * @requires $log
+     * @requires $q
+     * @requires $http
+     * @requires Restangular
+     * @requires REST_CONFIG
      */
     function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {
 

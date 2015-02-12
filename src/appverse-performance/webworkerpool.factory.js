@@ -10,8 +10,7 @@
      * @name WebWorkerFactory
      * @module appverse.performance
      *
-     * @requires $log
-     * @requires PERFORMANCE_CONFIG
+
      * @description
      * This factory starts a pooled multithreaded execution of a webworker:
      * <pre></code>                _______
@@ -19,6 +18,10 @@
      * USER -> message -> task -> | pool  |-> thread 2
      *                            |_______|-> thread N
      * </code></pre>
+     *
+     * @requires $q
+     * @requires $log
+     * @requires PERFORMANCE_CONFIG
      */
     function WebWorkerPoolFactory ($log, $q, PERFORMANCE_CONFIG) {
 

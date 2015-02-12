@@ -30,6 +30,8 @@
      * The second argument is optional, and is the scope on which the events are to be broadcast.
      * If an argument is not provided, it defaults to $rootScope.
      * As a reminder, broadcasted events are propagated down to descendant scopes.
+     *
+     * @requires SERVERPUSH_CONFIG
      */
      .provider('Socket', ['SERVERPUSH_CONFIG',
         function (SERVERPUSH_CONFIG) {

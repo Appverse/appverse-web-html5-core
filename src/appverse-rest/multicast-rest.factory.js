@@ -5,6 +5,7 @@
      * @ngdoc service
      * @name  MulticastRESTFactory
      * @module appverse.rest
+     *
      * @requires $log
      * @requires Restangular
      * @requires REST_CONFIG

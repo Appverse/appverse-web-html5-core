@@ -85,6 +85,7 @@ p {
 /* Lists */
 .no-list-style {
     list-style: none;
+    padding-left: 20px;
 }
 .higher-lis li {
     margin: 10px 0 0 0;
