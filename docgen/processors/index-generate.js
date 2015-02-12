@@ -24,20 +24,11 @@ module.exports = function indexGenerateProcessor(moduleMap) {
   };
 };
 
-/*
-function generateMenuHierarchy(docs) {
-  var tree = {};
-  var types = [];
-
-  docs.forEach(function(doc) {
-    if (doc.docType === 'module') {
-      modules.push(doc);
-    }
-  });
-}
-*/
-
-
+/**
+ * Creates the index file
+ * @param  {array} modules List of modules
+ * @return {object}         The index file
+ */
 function createIndex(modules) {
   return {
     docType: 'index',

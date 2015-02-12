@@ -1,7 +1,7 @@
 /**
  * @ngdoc object
  * @name  AppInit
- * @module  COMMONAPI
+ * @module  appverse
  * @description
  * This file includes functionality to initialize settings in an appverse-web-html5 app
  * Just call the initalization code after having loaded angular and the configuration module:

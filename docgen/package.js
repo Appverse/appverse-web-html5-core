@@ -16,15 +16,10 @@ module.exports = new Package('appverse-dgeni', [
 
 .processor(require('./processors/index-generate'))
 .processor(require('./processors/copy-assets'))
+.processor(require('./processors/module-file'))
+.processor(require('./processors/package-name'))
 
-/*
-.config(function(inlineTagProcessor, getInjectables) {
-  inlineTagProcessor.inlineTagDefinitions = inlineTagProcessor.inlineTagDefinitions.concat(getInjectables([
-    require('./inline-tags-defs/link')
-  ]));
-})
-*/
-
+// Configure template ids
 .config(function(computeIdsProcessor, createDocMessage, getAliases) {
   computeIdsProcessor.idTemplates.push({
     docTypes: ['controller', 'provider', 'service', 'directive', 'input', 'object', 'function', 'filter', 'type' ],
@@ -33,12 +28,32 @@ module.exports = new Package('appverse-dgeni', [
   });
 })
 
+// Configure bower package name
+.config(function(packageNameProcessor) {
+  packageNameProcessor.packageName = 'appverse-web-html5-core';
+})
+
+// Add additional info to be rendered: Git data
+.config(function(renderDocsProcessor) {
+  renderDocsProcessor.extraData.git = {
+    info: {
+      owner : 'Appverse',
+      repo : 'appverse-web-html5-core',
+    },
+    version : {
+      isSnapshot : 'true'
+    }
+  };
+})
+
+// Configure paths for documentation assets (css, images...)
 .config(function(copyAssetsProcessor, createDocMessage) {
     copyAssetsProcessor.source = path.resolve(__dirname, 'templates/assets');
     // This is relative to the docs' outputPath
     copyAssetsProcessor.destination = 'assets';
 })
 
+// Configure paths
 .config(function(computePathsProcessor, createDocMessage) {
   computePathsProcessor.pathTemplates = [];
   computePathsProcessor.pathTemplates.push({
@@ -86,9 +101,9 @@ module.exports = new Package('appverse-dgeni', [
   readFilesProcessor.sourceFiles = [
     {
       // Process all js files in `src` and its subfolders ...
-      include: 'src/appverse*/**/*.js',
-      // ... except for this one!
-      exclude: 'src/angular-jqm.js',
+      include: ['src/appverse/**/*.js', 'src/appverse-*/**/*.js'],
+      // Do not include these files
+      exclude: [],
       // When calculating the relative path to these files use this as the base path.
       // So `src/foo/bar.js` will have relative path of `foo/bar.js`
       basePath: 'src'
