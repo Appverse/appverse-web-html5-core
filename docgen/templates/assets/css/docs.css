@@ -122,3 +122,10 @@ pre {
 .label.type-hint {
     background-color: #5897DF;
 }
+
+
+/* Method lists */
+ul.methods {
+    list-style: none;
+    padding-left: 0;
+}
