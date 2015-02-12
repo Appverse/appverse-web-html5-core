@@ -155,9 +155,7 @@ module.exports = function (grunt) {
                 }]
             },
             coverage: '<%= appverse.coverage %>/**',
-            server: '.tmp',
-            docular: 'doc'
-
+            server: '.tmp'
         },
 
         jshint: {
@@ -271,31 +269,6 @@ module.exports = function (grunt) {
                 lazy: true,
                 basePath: "<%= appverse.e2eInstrumented %>"
             }
-        },
-
-        // Generate docs
-        docular: {
-            showDocularDocs: false,
-            showAngularDocs: true,
-            docular_webapp_target: "doc",
-            groups: [
-                {
-                    groupTitle: 'Appverse HTML5',
-                    groupId: 'appverse',
-                    groupIcon: 'icon-beer',
-                    sections: [
-                        {
-                            id: "commonapi",
-                            title: "Common API",
-                            showSource: true,
-                            scripts: ["src/modules", "src/directives"
-                            ],
-                            docs: ["ngdocs/commonapi"],
-                            rank: {}
-                        }
-                    ]
-                }
-            ]
         },
 
         bump: {
@@ -563,12 +536,6 @@ module.exports = function (grunt) {
         'open:demo_dist',
         'connect:e2e_dist:keepalive',
     ]);
-
-    grunt.registerTask('doc', [
-        'clean:docular',
-        'docular'
-    ]);
-
 
     // ------ Analysis tasks. Runs code analysis -----
 
