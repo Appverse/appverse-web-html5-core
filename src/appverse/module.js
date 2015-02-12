@@ -15,6 +15,9 @@
      * * Security
      * * Internationalization
      * * Logging
+     *
+     * @requires  appverse.utils
+     * @requires  appverse.configuration
      */
 
     /**
