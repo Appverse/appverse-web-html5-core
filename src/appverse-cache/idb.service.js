@@ -14,6 +14,9 @@
      * * Data Structure Name: 'default'
      * * Fields: Id, Title, Body, Tags, Updated.
      * * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
+     *
+     * @requires $q
+     * @requires $log
      */
     .service('IDBService', ['$q', '$log', function($q, $log) {
         var setUp = false;

@@ -10,6 +10,10 @@
      *
      * @description
      * Returns an object that exposes methods for cache management.
+     *
+     * @requires $angularCacheFactory
+     * @requires $http
+     * @requires CACHE_CONFIG
      */
     function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
 

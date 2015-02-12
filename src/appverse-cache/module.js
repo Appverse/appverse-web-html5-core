@@ -42,6 +42,10 @@
            });
        }
       </code></pre>
+     *
+     * @requires  appverse.configuration
+     * @requires  jmdobry.angular-cache
+     * @requires  ngResource
      */
 
     angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])

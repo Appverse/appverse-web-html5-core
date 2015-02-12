@@ -9,8 +9,6 @@
      * @module  appverse.cache
      * @restrict AE
      *
-     * @requires CacheFactory
-     *
      * @description
      * Use this directive to inject directly in dom nodes caching features for values.
      * Use ``` <div cache="name"></div> ``` to fill the node with the cached value of "name"
@@ -18,6 +16,9 @@
      * You can also use "cache-name" instead of "cache" to specify the model name.
      *
      * @param {string} cache Name of cached model
+     *
+     * @requires $log
+     * @requires CacheFactory
      */
     .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
 
