@@ -7,7 +7,7 @@
      * @ngdoc directive
      * @name cache
      * @module  appverse.cache
-     * @restrict A
+     * @restrict AE
      *
      * @requires CacheFactory
      *
@@ -16,7 +16,8 @@
      * Use ``` <div cache="name"></div> ``` to fill the node with the cached value of "name"
      * and updates the value in cache when the "name" model changes.
      * You can also use "cache-name" instead of "cache" to specify the model name.
-
+     *
+     * @param {string} cache Name of cached model
      */
     .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
 
