@@ -14,10 +14,11 @@
 
   {% code %}
       <script src="angular.js">
+      {% if doc.name != 'appverse' %}<script src="appverse.js">{% endif %}
       <script src="{$ doc.moduleFile $}">
   {% endcode %}
 
-  <p>You can download this module from <a href="http://bower.io">Bower</a>:</p>
+  <p>This module is included in the {$ doc.packageName $} <a href="http://bower.io">Bower</a> package. You can install it with:</p>
      {% code %}bower install {$ doc.packageName $}@X.Y.Z --save{% endcode %}
 
   <p>Then load the module in your application by adding it as a dependent module:</p>
