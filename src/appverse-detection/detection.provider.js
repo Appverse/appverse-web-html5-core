@@ -1,4 +1,5 @@
-(function() { 'use strict';
+(function () {
+    'use strict';
 
 angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
@@ -48,8 +49,6 @@ function DetectionProvider (MobileDetectorProvider) {
     // Do some initialization
     if (this.hasAppverseMobile() || this.isMobileBrowser()) {
         // Do something for mobile...
-    } else {
-        angular.module('jqm', []);
     }
 
     var fireEvent = function (name, data) {
@@ -130,8 +129,12 @@ function DetectionProvider (MobileDetectorProvider) {
         var jsonUrl = "resources/detection/bandwidth.json?bust=" +  (new Date()).getTime();
         fireEvent("onBandwidthStart");
         this.$http.get(jsonUrl).success(function(data, status, headersFn) {
-            fireEvent("onBandwidthEnd", {status:status, data: data, getResponseHeader : headersFn});
+                fireEvent("onBandwidthEnd", {
+                    status: status,
+                    data: data,
+                    getResponseHeader: headersFn
         });
+            });
     };
 
     /**

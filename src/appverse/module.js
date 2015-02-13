@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -35,19 +35,25 @@
         'appverse.detection',
         'appverse.rest',
         'appverse.translate',
-        'appverse.modal',
         'appverse.logging',
         'appverse.serverPush',
         'appverse.security',
         'appverse.cache',
         'appverse.performance',
-        'appverse.router'
+        'appverse.router',
+        'xeditable',
+        'ja.qr',
+        'vr.directives.slider',
+        'ngGrid'
     ];
 
+    /**
+     * Main module.
+     * Bootstraps the application by integrating services that have any relation.
+     */
     angular.module('appverse', generateDependencies(requires, optional))
         .config(config)
         .run(run);
-
 
     /**
      * Preliminary configuration.
