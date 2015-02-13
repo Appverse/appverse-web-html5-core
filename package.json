@@ -1,6 +1,6 @@
 {
   "name": "appverse-web-html5-core",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "dependencies": {
     "protractor": "^1.4.0"
   },
