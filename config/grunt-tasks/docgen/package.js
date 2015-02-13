@@ -32,19 +32,6 @@ module.exports = new Package('appverse-dgeni', [
   packageNameProcessor.packageName = 'appverse-web-html5-core';
 })
 
-// Add additional info to be rendered: Git data
-.config(function(renderDocsProcessor) {
-  renderDocsProcessor.extraData.git = {
-    info: {
-      owner : 'Appverse',
-      repo : 'appverse-web-html5-core',
-    },
-    version : {
-      isSnapshot : 'true'
-    }
-  };
-})
-
 // Configure paths for documentation assets (css, images...)
 .config(function(copyAssetsProcessor, createDocMessage) {
     copyAssetsProcessor.source = path.resolve(__dirname, 'templates/assets');

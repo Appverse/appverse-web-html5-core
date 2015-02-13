@@ -2,6 +2,7 @@
 
 var fs            = require('fs'),
 connectLiveReload = require('connect-livereload'),
+bowerFile         = require('./bower.json'),
 LIVERELOAD_PORT   = 35729,
 liveReloadSnippet = connectLiveReload({
     port: LIVERELOAD_PORT
@@ -32,7 +33,7 @@ module.exports = function (grunt) {
 
     // If app path is defined in bower.json, use it
     try {
-        configPaths.src = require('./bower.json').appPath || configPaths.src;
+        configPaths.src = bowerFile.appPath || configPaths.src;
     } catch (e) {}
 
     // Define file to load in the demo, ordering and the way they are
@@ -155,7 +156,7 @@ module.exports = function (grunt) {
             },
             coverage: '<%= appverse.coverage %>/**',
             server: '.tmp',
-            doc: 'doc'
+            doc: 'doc/' + bowerFile.version
 
         },
 
