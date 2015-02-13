@@ -157,7 +157,6 @@ module.exports = function (grunt) {
             coverage: '<%= appverse.coverage %>/**',
             server: '.tmp',
             doc: 'doc/' + bowerFile.version
-
         },
 
         jshint: {
