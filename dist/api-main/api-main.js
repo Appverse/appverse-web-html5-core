@@ -41,7 +41,7 @@ function run($log) {
 run.$inject = ["$log"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     //////////////////////// COMMON API - MAIN //////////////////////////
@@ -72,15 +72,17 @@ run.$inject = ["$log"];
         'AppDetection',
         'AppREST',
         'AppTranslate',
-        'AppModal',
         'AppLogging',
         'AppServerPush',
         'AppSecurity',
         'AppCache',
         'AppPerformance',
-        'AppRouter'
+        'AppRouter',
+        'xeditable',
+        'ja.qr',
+        'vr.directives.slider',
+        'ngGrid'
     ];
-
 
     /**
      * Main module.
@@ -89,7 +91,6 @@ run.$inject = ["$log"];
     angular.module('COMMONAPI', generateDependencies(requires, optional))
         .config(config)
         .run(run);
-
 
     /**
      * Preliminary configuration.
