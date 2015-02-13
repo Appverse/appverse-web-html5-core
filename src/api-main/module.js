@@ -89,10 +89,9 @@
     function generateDependencies(requires, optional) {
         var dependencies = requires;
         angular.forEach(optional, function (module) {
-            if (!moduleExists(module)) {
-                angular.module(module, []);
+            if (moduleExists(module)) {
+                dependencies.push(module);
             }
-            dependencies.push(module);
         });
         return dependencies;
     }
