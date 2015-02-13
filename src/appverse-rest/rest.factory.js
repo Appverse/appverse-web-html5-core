@@ -11,10 +11,10 @@
      * Contains methods for data finding (demo).
      * This module provides basic quick standard access to a REST API.
      *
-     * @requires $log
-     * @requires $q
-     * @requires $http
-     * @requires Restangular
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires https://docs.angularjs.org/api/ngMock/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$http $http
+     * @requires https://github.com/mgonto/restangular Restangular
      * @requires REST_CONFIG
      */
     function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {

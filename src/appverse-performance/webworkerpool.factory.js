@@ -19,8 +19,8 @@
      *                            |_______|-> thread N
      * </code></pre>
      *
-     * @requires $q
-     * @requires $log
+     * @requires https://docs.angularjs.org/api/ngMock/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      * @requires PERFORMANCE_CONFIG
      */
     function WebWorkerPoolFactory ($log, $q, PERFORMANCE_CONFIG) {

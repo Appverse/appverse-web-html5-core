@@ -8,7 +8,7 @@
      * @name WebSocketService
      * @module appverse.serverPush
      *
-     * @requires $log
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      * @requires WEBSOCKETS_CONFIG
      */
     .factory('WebSocketFactory', ['$log', 'WEBSOCKETS_CONFIG',

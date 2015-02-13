@@ -21,7 +21,7 @@
        </file>
      </example>
      *
-     * @requires  $log
+     * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
      * @requires  RESTFactory
      */
     function restDirective ($log, RESTFactory) {

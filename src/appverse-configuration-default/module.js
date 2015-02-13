@@ -7,7 +7,6 @@
  * @description
  * This module defines default settings.
  *
- * @requires $browser
  */
 angular.module('appverse.configuration.default', ['$browser']);
 

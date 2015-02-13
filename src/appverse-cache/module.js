@@ -4,7 +4,6 @@
     /**
      * @ngdoc module
      * @name appverse.cache
-     * @requires appverse.configuration
      * @description
      * The Cache module includes several types of cache.
      *
@@ -44,8 +43,8 @@
       </code></pre>
      *
      * @requires  appverse.configuration
-     * @requires  jmdobry.angular-cache
-     * @requires  ngResource
+     * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
+     * @requires  https://docs.angularjs.org/api/ngResource/service/$resource ngResource
      */
 
     angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])

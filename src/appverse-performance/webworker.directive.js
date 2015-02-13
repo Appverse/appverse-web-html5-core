@@ -25,7 +25,7 @@
     <webworker  id="101" message="Hans Walter" template=""/>
     </file>
     </example>
-    * @requires  $log
+    * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
     * @requires  WebWorkerFactory
     * @requires  PERFORMANCE_CONFIG
     */

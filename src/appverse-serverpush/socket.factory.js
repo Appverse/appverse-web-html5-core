@@ -18,7 +18,7 @@
      * Internally, $http works in the same way. After some XHR returns, it calls $scope.$apply,
      * so that AngularJS can update its views accordingly.
      *
-     * @requires $rootScope
+     * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
      * @requires Socket
      */
     .factory('SocketFactory', ['$rootScope', 'Socket',

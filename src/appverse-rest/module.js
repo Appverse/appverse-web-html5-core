@@ -34,7 +34,7 @@
      * The MyRestangular object has scoped properties of the Restangular on with a different
      * configuration.
      *
-     * @requires  restangular
+     * @requires  https://github.com/mgonto/restangular restangular
      * @requires  appverse.configuration
      * @requires  appverse.utils
      *

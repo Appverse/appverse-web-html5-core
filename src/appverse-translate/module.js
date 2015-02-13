@@ -9,8 +9,8 @@
      * It should be directly configurable by developers.
      * **Warning**: Items in each translations object must match items defined in the Configuration module.
      *
-     * @requires pascalprecht.translate
-     * @requires tmh.dynamicLocale
+     * @requires https://github.com/angular-translate/angular-translate pascalprecht.translate
+     * @requires https://github.com/lgalfaso/angular-dynamic-locale tmh.dynamicLocale
      * @requires appverse.configuration
      */
     angular.module('appverse.translate', [

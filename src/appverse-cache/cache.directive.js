@@ -17,7 +17,7 @@
      *
      * @param {string} cache Name of cached model
      *
-     * @requires $log
+     * @requires https://docs.angularjs.org/api/ng/service/$log $log
      * @requires CacheFactory
      */
     .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {

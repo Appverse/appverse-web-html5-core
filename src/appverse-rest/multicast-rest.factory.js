@@ -6,8 +6,8 @@
      * @name  MulticastRESTFactory
      * @module appverse.rest
      *
-     * @requires $log
-     * @requires Restangular
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires https://github.com/mgonto/restangular Restangular
      * @requires REST_CONFIG
      */
     angular.module('appverse.rest')
