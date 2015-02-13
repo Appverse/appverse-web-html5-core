@@ -62,6 +62,8 @@
                     <div class="section-title">
                         {$ aDoc.id | link(aDoc.name, aDoc, doc) $}
                     </div>
+
+                    {% if aDoc.componentGroups.length %}
                     <div class="section-body">
                       <ul class="no-list-style list-less-left-padding">
                         {% for componentGroup in aDoc.componentGroups %}
@@ -76,6 +78,7 @@
                         {% endfor %}
                       </ul>
                     </div>
+                    {% endif %}
 
                   </li>
                 {% endif %}
