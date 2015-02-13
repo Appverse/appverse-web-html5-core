@@ -6,7 +6,18 @@
     // Define app components
     // For configuration, see bootstrap.js
 
-    angular.module('demoApp', ['appverse'])
+
+    angular.module('demoApp', [
+        'appverse.detection',
+        'appverse.logging',
+        'appverse.router',
+        'appverse.rest',
+        'appverse.cache',
+        'appverse.performance',
+        'appverse.translate',
+        'appverse.serverPush',
+        'appverse'
+    ])
         .controller('DetectionController', DetectionController)
         .controller('CacheController', CacheController)
         .controller('SimpleIDBController', SimpleIDBController)
