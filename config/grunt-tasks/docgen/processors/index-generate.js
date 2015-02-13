@@ -13,7 +13,6 @@ module.exports = function indexGenerateProcessor(moduleMap) {
       var modules = [];
 
       docs.forEach(function(doc) {
-        require('util').debug(doc.memberof);
         if (doc.docType === 'module') {
           modules.push(doc);
         }

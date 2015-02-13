@@ -561,16 +561,7 @@ module.exports = function (grunt) {
         'docgen'
     ]);
 
-    grunt.registerTask('docgen', 'Generates docs', function() {
-        var Dgeni = require('dgeni'),
-        packages  = [require('./docgen/package')],
-        dgeni     = new Dgeni(packages),
-        done      = this.async();
-        dgeni.generate().then(function(docs) {
-            console.log(docs.length, 'docs generated');
-            done();
-        });
-    });
+    grunt.registerTask('docgen', 'Generates docs', require('./config/grunt-tasks/docgen/grunt-task'));
 
 
     // ------ Analysis tasks. Runs code analysis -----
