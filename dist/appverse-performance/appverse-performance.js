@@ -4,11 +4,13 @@
     /**
      * @ngdoc module
      * @name appverse.performance
-     * @requires appverse.configuration
+     *
      * @description
-     * The appverse.performance provides services to handle usage of several performance elements:
-     * 1-Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
-     * 2-High Performance UI directives support.
+     * The AppPerformance provides services to handle usage of several performance elements:
+     * 1. Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
+     * 2. High Performance UI directives support.
+     *
+     * @requires appverse.configuration
      */
     angular.module('appverse.performance', ['appverse.configuration'])
         .run(run);
@@ -27,16 +29,14 @@
 
     /**
     * @ngdoc directive
-    * @name appverse.performance.directive:webworker
-    * @restrict AE
+    * @name webworker
+    * @module appverse.performance
+    * @restrict E
     *
     * @description
     * Establishes comm with messages to a selected web worker.
     * Allows send messages to the worker and receive results from.
     * Messages from the worker are displayed in a div.
-    * Params:
-    * id: id of the pre-configured worker or path to the worker's file
-    * message: Message to be passed to the worker.
     *
     * @example
     <example module="appverse.performance">
@@ -45,6 +45,13 @@
     <webworker  id="101" message="Hans Walter" template=""/>
     </file>
     </example>
+    *
+    * @param {string} id Id of the pre-configured worker or path to the worker's file
+    * @param {string} message Message to be passed to the worker.
+    *
+    * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+    * @requires  WebWorkerFactory
+    * @requires  PERFORMANCE_CONFIG
     */
     .directive('webworker', ['$log', 'WebWorkerFactory', 'PERFORMANCE_CONFIG',
         function ($log, WebWorkerFactory, PERFORMANCE_CONFIG) {
@@ -154,15 +161,21 @@
 
     /**
      * @ngdoc service
-     * @name appverse.performance.service:WebWorkerFactory
-     * @requires $log
-     * @requires PERFORMANCE_CONFIG
+     * @name WebWorkerFactory
+     * @module appverse.performance
+     *
+
      * @description
-     * This factory starts a pooled multithreaded execution of a webworker.
-     *                             _______
+     * This factory starts a pooled multithreaded execution of a webworker:
+     * <pre></code>                _______
      *                            |       |-> thread 1
      * USER -> message -> task -> | pool  |-> thread 2
      *                            |_______|-> thread N
+     * </code></pre>
+     *
+     * @requires https://docs.angularjs.org/api/ngMock/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires PERFORMANCE_CONFIG
      */
     function WebWorkerPoolFactory ($log, $q, PERFORMANCE_CONFIG) {
 
@@ -182,10 +195,11 @@
 
         /**
          * @ngdoc method
-         * @name appverse.performance.service:WebWorkerFactory#runTasksGroup
-         * @methodOf appverse.performance.service:WebWorkerFactory
+         * @name WebWorkerFactory#runParallelTasksGroup
+         *
          * @param {number} workerData WorkerData object with information of the task to be executed
          * @param {object} workerTasks Array with a group of WorkerTask objects for the same WorkerData
+         *
          * @description
          * Runs a group of parallelized tasks
          * Run a set of workers according to the pre-defined data in configuration
@@ -221,8 +235,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.performance.service:WebWorkerFactory#passMessage
-         * @methodOf appverse.performance.service:WebWorkerFactory
+         * @name WebWorkerFactory#passMessage
+         *
          * @param {number} id of the called worker
          * @param {object} function as callback
          * @param {string} message to be passed to the worker

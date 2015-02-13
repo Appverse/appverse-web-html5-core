@@ -4,47 +4,47 @@
     /**
      * @ngdoc module
      * @name appverse.cache
-     * @requires appverse.configuration
      * @description
      * The Cache module includes several types of cache.
      *
-     * Scope Cache: To be used in a limited scope. It does not persist when navigation.
+     * * Scope Cache: To be used in a limited scope. It does not persist when navigation.
      *
-     * Browser Storage: It handles short strings into local or session storage. Access is synchronous.
+     * * Browser Storage: It handles short strings into local or session storage. Access is synchronous.
      *
-     * IndexedDB: It initializes indexed database at browser to handle data structures. Access is asynchronous.
+     * * IndexedDB: It initializes indexed database at browser to handle data structures. Access is asynchronous.
      *
-     * Http Cache: It initializes cache for the $httpProvider. $http service instances will use this cache.
+     * * Http Cache: It initializes cache for the $httpProvider. $http service instances will use this cache.
      *
-     * WARNING - HTTP Service Cache:
+     * **WARNING - HTTP Service Cache**:
      *
      * The rest module handles its own cache. So, HttpCache affects only to manually created $http objects.
      *
-     * WARNING - IndexedDB Usage:
+     * **WARNING - IndexedDB Usage**:
      *
      * IndexedDB works both online and offline, allowing for client-side storage of large amounts of
      * structured data, in-order key retrieval, searches over the values stored, and the option to
-     *  store multiple values per key.
-     *
-     * With IndexedDB, all calls are asynchronous and all interactions happen within a transaction.
-     *
+     * store multiple values per key. With IndexedDB, all calls are asynchronous and all interactions happen within a transaction.
      * Consider Same-origin policy constraints when accessing the IDB.
      * This module creates a standard default IDB for the application domain.
      *
      * In order to make easiest as possible usage of the API two methods have been defined.
      * The below example shows how to use these object to build custom queries to the IDB
      * considering the initialization parameters:
-     * <pre>
-     *  function (param){
-     *      var queryBuilder = CacheFactory.getIDBQueryBuilder();
-     *      var objStore = CacheFactory.getIDBObjectStore();
-     *      var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
-     *      objStore.each(myQuery).then(function(cursor){
-     *          $scope.key = cursor.key;
-     *          $scope.value = cursor.value;
-     *      });
-     *  }
-     * </pre>
+     * <pre><code class="javascript">
+       function (param){
+           var queryBuilder = CacheFactory.getIDBQueryBuilder();
+           var objStore = CacheFactory.getIDBObjectStore();
+           var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
+           objStore.each(myQuery).then(function(cursor){
+               $scope.key = cursor.key;
+               $scope.value = cursor.value;
+           });
+       }
+      </code></pre>
+     *
+     * @requires  appverse.configuration
+     * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
+     * @requires  https://docs.angularjs.org/api/ngResource/service/$resource ngResource
      */
 
     angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])
@@ -91,22 +91,20 @@
 
     /**
      * @ngdoc directive
-     * @name appverse.cache.directive:cache
-     * @restrict B
-     * @requires $log
-     * @requires appverse.cache.factory:CacheFactory
+     * @name cache
+     * @module  appverse.cache
+     * @restrict AE
      *
      * @description
      * Use this directive to inject directly in dom nodes caching features for values.
+     * Use ``` <div cache="name"></div> ``` to fill the node with the cached value of "name"
+     * and updates the value in cache when the "name" model changes.
+     * You can also use "cache-name" instead of "cache" to specify the model name.
      *
+     * @param {string} cache Name of cached model
      *
-     * @example
-     <example module="appverse.cache">
-        <file name="index.html">
-            <div cache="name" />
-            <div cache cache-name="name" />
-        </file>
-    </example>
+     * @requires https://docs.angularjs.org/api/ng/service/$log $log
+     * @requires CacheFactory
      */
     .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
 
@@ -139,12 +137,15 @@
 
     /**
      * @ngdoc service
-     * @name appverse.cache.service:CacheFactory
-     * @requires $angularCacheFactory
-     * @requires $http
-     * @requires CACHE_CONFIG
+     * @name CacheFactory
+     * @module appverse.cache
+     *
      * @description
-     * Contains methods for cache management.
+     * Returns an object that exposes methods for cache management.
+     *
+     * @requires http://jmdobry.github.io/angular-cache/ $angularCacheFactory
+     * @requires https://docs.angularjs.org/api/ng/service/$http $http
+     * @requires CACHE_CONFIG
      */
     function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
 
@@ -156,11 +157,12 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#setScopeCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#setScopeCache
+         *
          * @param {number} duration Items expire after this time.
          * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
          * If you don't want $http's default cache to store every response.
+         *
          * @description Configure the scope cache.
          */
         factory.setScopeCache = function(duration, capacity) {
@@ -173,8 +175,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#getScopeCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#getScopeCache
+         *
          * @description getScopeCache is the singleton that CacheFactory
          * manages as a local cache created with $angularCacheFactory,
          * which is what we return from the service.
@@ -182,17 +184,17 @@
          *
          * The newly created cache object has the following set of methods:
          *
-         * {object} info() — Returns id, size, and options of cache.
+         * * {object} info() — Returns id, size, and options of cache.
          *
-         * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
+         * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
          *
-         * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
+         * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
          *
-         * {void} remove({string} key) — Removes a key-value pair from the cache.
+         * * {void} remove({string} key) — Removes a key-value pair from the cache.
          *
-         * {void} removeAll() — Removes all cached values.
+         * * {void} removeAll() — Removes all cached values.
          *
-         * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+         * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
          */
         factory.getScopeCache = function() {
             return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
@@ -200,7 +202,9 @@
         };
 
         /**
-         @function
+         @ngdoc function
+         @name CacheFactory#setBrowserStorage
+
          @param type Type of storage ( 1 local | 2 session).
          @param maxAgeInit
          @param cacheFlushIntervalInit
@@ -217,9 +221,8 @@
          Infinity, NaN - Will be replaced with null.
          undefined, Function - Will be removed.
          The returned object supports the following set of methods:
-         {void} $reset() - Clears the Storage in one go.
+         * {void} $reset() - Clears the Storage in one go.
          */
-
         factory.setBrowserStorage = function(
             type,
             maxAgeInit,
@@ -247,8 +250,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#setDefaultHttpCacheStorage
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#setDefaultHttpCacheStorage
+         *
          * @param {number} duration items expire after this time.
          * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
          * @description Default cache configuration for $http service
@@ -306,8 +309,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#getHttpCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#getHttpCache
+         * @methodOf CacheFactory
          * @description Returns the httpcache object in factory
          * @returns httpcache object
          */
@@ -329,13 +332,18 @@
 
     /**
      * @ngdoc service
-     * @name appverse.cache.service:IDBService
+     * @name IDBService
+     * @module  appverse.cache
+     *
      * @description
      * This service has been planned to be used as a simple HTML5's indexedDB specification with the appverse.
      * A pre-configured data structure has been included to be used for common purposes:
-     * Data Structure Name: 'default'
-     * Fields: Id, Title, Body, Tags, Updated.
-     * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
+     * * Data Structure Name: 'default'
+     * * Fields: Id, Title, Body, Tags, Updated.
+     * * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
+     *
+     * @requires https://docs.angularjs.org/api/ng/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
     .service('IDBService', ['$q', '$log', function($q, $log) {
         var setUp = false;
@@ -343,10 +351,9 @@
 
         var service = {};
 
-        /**
+         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#init
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#init
          * @description Initialize the default Indexed DB in browser if supported
          */
         function init() {
@@ -398,8 +405,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#isSupported
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#isSupported
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
         service.isSupported = function() {
@@ -408,8 +414,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#deleteDefault
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#deleteDefault
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
@@ -425,8 +430,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#getDefault
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#getDefault
          * @param {string} storeName The asssigned name of the store object.
          * @description Retrieves the record with the passed ID
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -449,8 +453,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#getDefaults
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#getDefaults
          * @description Retrieves the set with ALL the records in the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
@@ -489,8 +492,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#ready
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#ready
          * @description This flag is true if the IDB has been successfully initializated.
          */
         service.ready = function() {
@@ -499,8 +501,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#saveDefault
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#saveDefault
          * @param {string} item The record to be stored
          * @description Saves a record with the given structure into the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -547,8 +548,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#item
-         * @methodOf appverse.cache.service:item
+         * @name IDBService#item
+         *
          * @param {int} id The ID of the record to be stored
          * @param {string} title The name for record to be stored
          * @param {string} body The description of the record to be stored

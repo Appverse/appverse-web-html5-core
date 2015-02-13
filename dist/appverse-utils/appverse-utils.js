@@ -1,6 +1,13 @@
 (function() {
     'use strict';
 
+    /**
+     * @ngdoc module
+     * @name appverse.utils
+     * @description Provides utility objects and functions
+     *
+     * @requires appverse.configuration
+     */
     angular.module('appverse.utils', ['appverse.configuration']);
 
 })();
@@ -10,23 +17,29 @@
     angular.module('appverse.utils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
-    function BaseUrlSetterProvider() {
-        this.$get = function () {
-            return this;
-        };
-
-        this.setBasePath = function (basePath) {
-            return new BaseUrlSetter(basePath);
-        };
-    }
-
     /**
-     * @ngdoc service
+     * @ngdoc provider
      * @name BaseUrlSetter
      * @module appverse.utils
      * @description
      * Preprends a url with a base path
      */
+    function BaseUrlSetterProvider() {
+        this.$get = function () {
+            return this;
+        };
+
+        /**
+         * @ngdoc method
+         * @name BaseUrlSetter#setBasePath
+         * @param {string} basePath The base path to prepend
+         */
+        this.setBasePath = function (basePath) {
+            return new BaseUrlSetter(basePath);
+        };
+    }
+
+
     function BaseUrlSetter(basePath) {
 
         basePath = basePath || '';
@@ -78,9 +91,9 @@
 
     /**
      * @ngdoc service
-     * @name appverse.utils.provider:ModuleSeeker
-     * @description
-     * Seeks and check existance of modules
+     * @name ModuleSeeker
+     * @module appverse.utils
+     * @description Looks for modules
      */
     function ModuleSeeker() {
         this.$get = function() {
@@ -110,6 +123,12 @@
 
     angular.module('appverse.utils')
 
+    /**
+     * @ngdoc service
+     * @name BaseUrlSetter
+     * @module appverse.utils
+     * @description Base64 encoding
+     */
     .factory('Base64', function () {
         var keyStr = 'ABCDEFGHIJKLMNOP' +
             'QRSTUVWXYZabcdef' +
@@ -203,22 +222,23 @@
     angular.module('appverse.utils')
 
     /**
-     * @ngdoc object
+     * @ngdoc service
      * @name UtilFactory
-     * @requires $log
-     *
-     * @description
-     * This factory provides common utilities for API functionalities.
+     * @module appverse.utils
+     * @description This factory provides common utilities for API functionalities.
      */
     .factory('UtilFactory', function () {
             var factory = {};
+
             /**
-                 @function
-                 @param properties content of the static external properties file
-                 @param area group of properties
-                 @param property property to know the value in
-                 @description Deletes an item from a list.
-                 */
+             * @ngdoc method
+             * @name UtilFactory#findPropertyValueByName
+             * @description Deletes an item from a list.
+             *
+             * @param properties content of the static external properties file
+             * @param area group of properties
+             * @param property property to know the value in
+             */
             factory.findPropertyValueByName = function (properties, area, property) {
                 for (var i = 0; i < properties.length; i++) {
                     if (properties[i].area == area) {
@@ -232,6 +252,15 @@
                 return null;
             };
 
+            /**
+             * @ngdoc method
+             * @name UtilFactory#newRandomKey
+             * @description ...
+             *
+             * @param coll
+             * @param key
+             * @param currentKey
+             */
             factory.newRandomKey = function (coll, key, currentKey) {
                 var randKey;
                 do {

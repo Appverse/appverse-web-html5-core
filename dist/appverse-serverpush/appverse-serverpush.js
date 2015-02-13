@@ -38,6 +38,9 @@
     * requests for /socket.io/socket.io.js and sends the appropriate response automatically.
     *
     * That is the reason it is not a dependency handled by bower.
+    *
+    * @requires  appverse.socket.io
+    * @requires  appverse.configuration
     */
     angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
     /*
@@ -58,11 +61,6 @@
 (function() {
     'use strict';
 
-    //////////////////////////////////////////////////////////////////////////////
-    // COMMON API - 0.1
-    // PRIVATE MODULE (appverse.socket.io)
-    ////////////////////////////////////////////////////////////////////////////
-
     /**
      * @ngdoc module
      * @name appverse.socket.io
@@ -70,6 +68,8 @@
      * Private module implementing SocketIO. It provides the common API module appverse.serverPush
      * with the socket object wrapping the SocketIO client. This is initializated according
      * to the pre-existing external configuration.
+     *
+     * @requires  appverse.configuration
      */
     angular.module('appverse.socket.io', ['appverse.configuration']);
 
@@ -81,7 +81,8 @@
 
     /**
      * @ngdoc provider
-     * @name appverse.socket.io.provider:socket
+     * @name Socket
+     * @module appverse.socket.io
      * @description
      * This provider provides the appverse.serverPush module with the SocketIO
      * client object from pre-existing configuration in application.
@@ -105,6 +106,8 @@
      * The second argument is optional, and is the scope on which the events are to be broadcast.
      * If an argument is not provided, it defaults to $rootScope.
      * As a reminder, broadcasted events are propagated down to descendant scopes.
+     *
+     * @requires SERVERPUSH_CONFIG
      */
      .provider('Socket', ['SERVERPUSH_CONFIG',
         function (SERVERPUSH_CONFIG) {
@@ -216,10 +219,8 @@
 
     /**
      * @ngdoc service
-     * @name appverse.serverPush.factory:SocketFactory
-     * @requires $rootScope
-     * @requires socket
-     *
+     * @name SocketFactory
+     * @module appverse.serverPush
      * @description
      * Although Socket.IO exposes an io variable on the window, it's better to encapsulate it
      * into the AngularJS's Dependency Injection system.
@@ -230,6 +231,9 @@
      * the templates if there was a change after running the callback passed to it by using dirty checking.
      * Internally, $http works in the same way. After some XHR returns, it calls $scope.$apply,
      * so that AngularJS can update its views accordingly.
+     *
+     * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+     * @requires Socket
      */
     .factory('SocketFactory', ['$rootScope', 'Socket',
         function ($rootScope, Socket) {
@@ -237,8 +241,7 @@
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#listen
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#listen
              @param {string} eventName The name of the event/channel to be listened
              The communication is bound to rootScope.
              @param {object} callback The function to be passed as callback.
@@ -257,8 +260,7 @@
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#sendMessage
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#sendMessage
              @param {string} eventName The name of the event/channel to be sent to server
              @param {object} scope The scope object to be bound to the listening.
              The communication will be cancelled when the scope is destroyed.
@@ -279,8 +281,7 @@
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#unsubscribeCommunication
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#unsubscribeCommunication
              @param {object} callback The function to be passed as callback.
              @description Cancels all communications to server.
              The communication will be cancelled without regarding other consideration.
@@ -302,12 +303,11 @@
 
     /**
      * @ngdoc service
-     * @name appverse.serverPush.factory:WebSocketService
-     * @requires $log
-     * @requires $window
-     * @requires WEBSOCKETS_CONFIG
+     * @name WebSocketService
+     * @module appverse.serverPush
      *
-     * @description
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires WEBSOCKETS_CONFIG
      */
     .factory('WebSocketFactory', ['$log', 'WEBSOCKETS_CONFIG',
         function($log, WEBSOCKETS_CONFIG) {
@@ -315,8 +315,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#connect
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#connect
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
@@ -361,8 +360,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#send
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#send
                 @param {object} message Message payload in JSON format.
                 @description Send a message to the ws server.
             */
@@ -372,8 +370,7 @@
             };
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#subscribe
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#subscribe
                 @param {object} callback .
                 @description Retrieve the currentcallback of the endpoint connection.
             */
@@ -383,8 +380,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#disconnect
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#disconnect
                 @param {string} itemId The id of the item
                 @description Close the WebSocket connection.
             */
@@ -396,8 +392,7 @@
 
              /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#status
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#status
                 @param {string} itemId The id of the item
                 @description WebSocket connection status.
             */
@@ -410,8 +405,7 @@
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#statusAsText
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#statusAsText
                 @param {string} itemId The id of the item
                 @description Returns WebSocket connection status as text.
             */

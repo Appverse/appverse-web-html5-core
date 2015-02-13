@@ -3,9 +3,10 @@
 /**
  * @ngdoc module
  * @name appverse.configuration.default
- * @requires $browser
+ * @moduleFile appverse-configuration.js
  * @description
  * This module defines default settings.
+ *
  */
 angular.module('appverse.configuration.default', ['$browser']);
 
@@ -17,6 +18,8 @@ angular.module('appverse.configuration.default', ['$browser']);
  * @name appverse.configuration.loader
  * @description
  * Load default and custom settings into appverse.configuration
+ *
+ * @requires appverse.utils
  */
 angular.module('appverse.configuration.loader', ['appverse.utils']);
 
@@ -30,7 +33,10 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  * @name appverse.configuration
  * @requires appverse.detection
  * @description
- * It includes constants for all the common API components.
+ * It includes constants for all the common API components. This module is initially empty.
+ * When the application bootstraps, it is populated with the combination of default and custom configuration values
+ *
+ * @requires appverse.configuration.loader
  */
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
@@ -41,54 +47,35 @@ function run($log) {
 run.$inject = ["$log"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
-    //////////////////////// COMMON API - MAIN //////////////////////////
-    // The Main module includes other API modules:
-    // - Bootstrap-based styling and gadgets
-    // - Routing
-    // - External Configuration
-    // - REST Integration
-    // - Cache Service
-    // - ServerPush
-    // - Security
-    // - Internationalization
-    // - Logging
-    /////////////////////////////////////////////////////////////////////
-
     /**
-     * Required modules (compulsory)
+     * @ngdoc module
+     * @name  appverse
+     * @description Main module. Bootstraps the application by integrating services that have any relation.
+     * It will automatically initialize any of these modules, whose scripts have been loaded:
+     * * Bootstrap-based styling and gadgets
+     * * Routing
+     * * External Configuration
+     * * REST Integration
+     * * Cache Service
+     * * ServerPush
+     * * Security
+     * * Internationalization
+     * * Logging
+     *
+     * @requires  appverse.utils
+     * @requires  appverse.configuration
      */
-    var requires = [
-        'appverse.utils',
-        'appverse.configuration'
-    ];
 
     /**
-     * Optional modules
-     */
-    var optional = [
-        'appverse.detection',
-        'appverse.rest',
-        'appverse.translate',
-        'appverse.modal',
-        'appverse.logging',
-        'appverse.serverPush',
-        'appverse.security',
-        'appverse.cache',
-        'appverse.performance',
-        'appverse.router'
-    ];
 
-
-    /**
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
-    angular.module('appverse', generateDependencies(requires, optional))
-        .config(config)
-        .run(run);
+    angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
+        .config(config).run(run);
 
 
     /**
@@ -130,28 +117,6 @@ run.$inject = ["$log"];
     }
     run.$inject = ["$log", "REST_CONFIG"];
 
-    function generateDependencies(requires, optional) {
-        var dependencies = requires;
-        angular.forEach(optional, function (module) {
-            if (moduleExists(module)) {
-                dependencies.push(module);
-            }
-        });
-        return dependencies;
-    }
-
-    // TODO: this function is already defined in appverse.utils but cannot be used
-    // when declaring a module as we can't inject anything yet. We must have a way
-    // to call this function before being inside the angular environment. Global maybe?
-    function moduleExists(name) {
-        try {
-            angular.module(name);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
 
 })();
 
@@ -160,23 +125,52 @@ run.$inject = ["$log"];
 angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
 
 /**
- * @ngdoc module
- * @name appverse.configuration.provider:ConfigLoader
- * @requires appverse.detection
+ * @ngdoc provider
+ * @name ConfigLoader
+ * @module appverse.configuration.loader
+ *
  * @description
- * It includes constants for all the common API components.
+ * Loads configuration parameters int the AppConfiguration module.
  */
 function ConfigLoaderProvider() {
 
-    var appConfigTemp = {},
-    //by default, no detection is present
-    detection         = new NoDetection();
+    // By default, no detection is present
+    var detection = new NoDetection(),
+    // Object used to perfom default config overriding
+    appConfigTemp = {};
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#$get
+     * @description Factory function. Gets the service instance
+     */
+    this.$get = function() {
+        return this;
+    };
+
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#load
+     * @param {object} settings See appverse.configuration.default for available settings
+     * @description Loads the custom config, overriding defaults
+     */
     this.load = function(settings) {
         this.loadDefaultConfig()
             .loadCustomConfig(settings)
             .overrideDefaultConfig();
     };
+
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#setDetection
+     * @param {object} detectionProvider Detection provider from appverse.detection
+     */
+    this.setDetection = function(detectionProvider) {
+        detection = detectionProvider;
+    };
+
+
+    // ---- Privates -----
 
     this.loadDefaultConfig = function() {
         angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
@@ -194,13 +188,12 @@ function ConfigLoaderProvider() {
         return this;
     };
 
-
-
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
             angular.module('appverse.configuration').constant(propertyName, propertyValue);
         });
     };
+
 
     this.loadMobileConfigIfRequired = function() {
         if (detection.hasAppverseMobile()) {
@@ -270,13 +263,7 @@ function ConfigLoaderProvider() {
         this.addConfig(jsonData);
     };
 
-    this.setDetection = function(detectionProvider) {
-        detection = detectionProvider;
-    };
 
-    this.$get = function() {
-        return this;
-    };
 }
 
 
@@ -307,6 +294,13 @@ PROJECT CONFIGURATION
 This constants can be used to set basic information related to the application.
 All data are auto-explained because their names ;)
  */
+
+/**
+ * @ngdoc object
+ * @name PROJECT_DATA
+ * @module  appverse.configuration.default
+ * @description Basic information related to the application.
+ */
 .constant('PROJECT_DATA', {
     ApplicationName: 'Appverse Web HTML5 Incubator Demo',
     Version: '0.1',
@@ -319,13 +313,13 @@ All data are auto-explained because their names ;)
     VendorLibrariesBaseUrl: 'bower_components'
 })
 
-
-/*
-LOGGING MODULE CONFIGURATION
-This section contains basic configuration for the logging module
-in the common API.
-These params do not affect normal usage of $log service.
-*/
+/**
+ * @ngdoc object
+ * @name LOGGING_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.logging
+ * These params do not affect normal usage of $log service.
+ */
 .constant('LOGGING_CONFIG', {
     /*
     This param enables (if true) sending log messages to server.
@@ -357,11 +351,12 @@ These params do not affect normal usage of $log service.
     LogTextFormat: ''
 })
 
-/*
-CACHE MODULE CONFIGURATION
-This section contains basic configuration for the several types of cache handled by the cache module
-in the common API.
-*/
+/**
+ * @ngdoc object
+ * @name CACHE_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.cache
+ */
 .constant('CACHE_CONFIG', {
     /////////////////////////////
     //SCOPE CACHE
@@ -459,13 +454,15 @@ in the common API.
 
 })
 
-/*
-SERVER PUSH MODULE CONFIGURATION
-This section contains the configuration for the server push module.
-It si related to socket.io configuration params.
-Read Configuration section in socket.io documentation for further details.
-https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
-*/
+/**
+ * @ngdoc object
+ * @name SERVERPUSH_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.serverpush.
+ * It si related to socket.io configuration params.
+ * Read Configuration section in socket.io documentation for further details.
+ * https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
+ */
 .constant('SERVERPUSH_CONFIG', {
     /*
      URL of the listened server
@@ -550,14 +547,16 @@ https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
     ForceNewConnection: false
 })
 
-/*
-REST MODULE CONFIGURATION
-This section contains the ccnfiguration for the REST module.
-This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
-So, all configuration params are based on its configuration
-(https://github.com/mgonto/restangular#configuring-restangular).
-Future updates of Restangular imply review of this section in order
-to keep consistency between config and the module.
+/**
+ * @ngdoc object
+ * @name REST_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.rest.
+ * This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
+ * So, all configuration params are based on its configuration
+ * (https://github.com/mgonto/restangular#configuring-restangular).
+ * Future updates of Restangular imply review of this section in order
+ * to keep consistency between config and the module.
  */
 .constant('REST_CONFIG', {
     /*
@@ -772,21 +771,34 @@ to keep consistency between config and the module.
      */
     MockBackend: false
 })
-
+/**
+ * @ngdoc object
+ * @name AD_CONFIG
+ * @module appverse.configuration.default
+ * @description Defines ConsumerKey and ConsumerSecret
+ */
 .constant('AD_CONFIG', {
     ConsumerKey: '',
     ConsumerSecret: ''
 })
 
+/**
+ * @ngdoc object
+ * @name I18N_CONFIG
+ * @module appverse.configuration.default
+ * @description This section contains basic configuration for appverse.translate.
+ */
 .constant('I18N_CONFIG', {
     PreferredLocale: 'en-US',
     LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
     DetectLocale: true
 })
 
-/*
- * SECURITY SECTION
- * Includes default information about authentication and authorization configuration based on OAUTH 2.0.
+/**
+ * @ngdoc object
+ * @name SECURITY_GENERAL
+ * @module appverse.configuration.default
+ * @description Includes default information about authentication and authorization configuration based on OAUTH 2.0.
  */
 .constant('SECURITY_GENERAL', {
     securityEnabled: false,
@@ -820,6 +832,12 @@ to keep consistency between config and the module.
 
 })
 
+/**
+ * @ngdoc object
+ * @name SECURITY_OAUTH
+ * @module appverse.configuration.default
+ * @description Includes default specific settings for OAUTH
+ */
 .constant('SECURITY_OAUTH', {
     oauth2_endpoint: 'appverse',
     clientID: '',
@@ -839,8 +857,11 @@ to keep consistency between config and the module.
     tokenResponseHeaderName: 'Authorization'
 })
 
-/*
- * GOOGLE AUTHENTICATION
+/**
+ * @ngdoc object
+ * @name GOOGLE_AUTH
+ * @module appverse.configuration.default
+ * @description Defines settings to use Google Oauth2 autentication service
  */
 .constant('GOOGLE_AUTH', {
     clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
@@ -861,8 +882,11 @@ to keep consistency between config and the module.
     tokenRenewalPolicy: 'automatic_renovation'
 })
 
-/*
- *
+/**
+ * @ngdoc object
+ * @name AUTHORIZATION_DATA
+ * @module appverse.configuration.default
+ * @description Defines default authorization and roles data
  */
 .constant('AUTHORIZATION_DATA', {
     roles: ['user', 'admin', 'editor'],
@@ -882,9 +906,13 @@ to keep consistency between config and the module.
     routesThatRequireAdmin: ['/about']
 })
 
-/*
-WEBSOCKETS MODULE CONFIGURATION
-*/
+
+/**
+ * @ngdoc object
+ * @name WEBSOCKETS_CONFIG
+ * @module appverse.configuration.default
+ * @description Configuration parameters for web sockets
+ */
 .constant('WEBSOCKETS_CONFIG', {
 
     WS_ECHO_URL: "ws://echo.websocket.org",
@@ -902,11 +930,13 @@ WEBSOCKETS MODULE CONFIGURATION
     WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
 })
 
-/////////////////////////////
-//PERFORMANCE
-//Includes default information about the different facets for a better performance in the app.
-//There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
-/////////////////////////////
+/**
+ * @ngdoc object
+ * @name PERFORMANCE_CONFIG
+ * @module appverse.configuration.default
+ * @description Includes default information about the different facets for a better performance in the app.
+ * There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
+ */
 .constant('PERFORMANCE_CONFIG', {
 /*
  * WEBWORKERS SECTION
@@ -956,25 +986,41 @@ WEBSOCKETS MODULE CONFIGURATION
 
 })();
 /**
+ * @ngdoc object
+ * @name  AppInit
+ * @module  appverse
+ * @description
  * This file includes functionality to initialize settings in an appverse-web-html5 app
  * Just call the initalization code after having loaded angular and the configuration module:
- *
- * AppInit.setConfig(settings).bootstrap()
- *
- * @return {object} AppInit
+ * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
 var AppInit = AppInit || (function(angular) { 'use strict';
 
-    var settings;
+    var
+    settings,
+    mainModuleName;
 
-    var mainModuleName;
-
+    /**
+     * @ngdoc method
+     * @name AppInit#setConfig
+     * @param {object} settingsObject An object containing custom settings
+     * @description Sets custom settings
+     */
     function setConfig(settingsObject) {
         settings = settingsObject;
         angular.module('appverse.configuration.loader').config(loadConfig);
         return AppInit;
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#bootstrap
+     * @description Manually Bootstraps the application. For automatic bootstrap,
+     * use the standard Angular way using the ng-app directive.
+     *
+     * @param {string} appMainModule The name of the main application module.
+     * You can also use setMainModuleName and use this function without any parameters
+     */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
         angular.element(document).ready(function() {
@@ -982,13 +1028,25 @@ var AppInit = AppInit || (function(angular) { 'use strict';
         });
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#setMainModuleName
+     * @param {string} name The name of the main application module.
+     */
     function setMainModuleName(name) {
         mainModuleName = name;
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#setMainModuleName
+     * @return {string} The name of the main application module.
+     */
     function getMainModule() {
         return angular.module(mainModuleName);
     }
+
+    // ---- Privates -----
 
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);

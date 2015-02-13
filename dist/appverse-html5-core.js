@@ -4,47 +4,47 @@
     /**
      * @ngdoc module
      * @name appverse.cache
-     * @requires appverse.configuration
      * @description
      * The Cache module includes several types of cache.
      *
-     * Scope Cache: To be used in a limited scope. It does not persist when navigation.
+     * * Scope Cache: To be used in a limited scope. It does not persist when navigation.
      *
-     * Browser Storage: It handles short strings into local or session storage. Access is synchronous.
+     * * Browser Storage: It handles short strings into local or session storage. Access is synchronous.
      *
-     * IndexedDB: It initializes indexed database at browser to handle data structures. Access is asynchronous.
+     * * IndexedDB: It initializes indexed database at browser to handle data structures. Access is asynchronous.
      *
-     * Http Cache: It initializes cache for the $httpProvider. $http service instances will use this cache.
+     * * Http Cache: It initializes cache for the $httpProvider. $http service instances will use this cache.
      *
-     * WARNING - HTTP Service Cache:
+     * **WARNING - HTTP Service Cache**:
      *
      * The rest module handles its own cache. So, HttpCache affects only to manually created $http objects.
      *
-     * WARNING - IndexedDB Usage:
+     * **WARNING - IndexedDB Usage**:
      *
      * IndexedDB works both online and offline, allowing for client-side storage of large amounts of
      * structured data, in-order key retrieval, searches over the values stored, and the option to
-     *  store multiple values per key.
-     *
-     * With IndexedDB, all calls are asynchronous and all interactions happen within a transaction.
-     *
+     * store multiple values per key. With IndexedDB, all calls are asynchronous and all interactions happen within a transaction.
      * Consider Same-origin policy constraints when accessing the IDB.
      * This module creates a standard default IDB for the application domain.
      *
      * In order to make easiest as possible usage of the API two methods have been defined.
      * The below example shows how to use these object to build custom queries to the IDB
      * considering the initialization parameters:
-     * <pre>
-     *  function (param){
-     *      var queryBuilder = CacheFactory.getIDBQueryBuilder();
-     *      var objStore = CacheFactory.getIDBObjectStore();
-     *      var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
-     *      objStore.each(myQuery).then(function(cursor){
-     *          $scope.key = cursor.key;
-     *          $scope.value = cursor.value;
-     *      });
-     *  }
-     * </pre>
+     * <pre><code class="javascript">
+       function (param){
+           var queryBuilder = CacheFactory.getIDBQueryBuilder();
+           var objStore = CacheFactory.getIDBObjectStore();
+           var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
+           objStore.each(myQuery).then(function(cursor){
+               $scope.key = cursor.key;
+               $scope.value = cursor.value;
+           });
+       }
+      </code></pre>
+     *
+     * @requires  appverse.configuration
+     * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
+     * @requires  https://docs.angularjs.org/api/ngResource/service/$resource ngResource
      */
 
     angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])
@@ -91,22 +91,20 @@
 
     /**
      * @ngdoc directive
-     * @name appverse.cache.directive:cache
-     * @restrict B
-     * @requires $log
-     * @requires appverse.cache.factory:CacheFactory
+     * @name cache
+     * @module  appverse.cache
+     * @restrict AE
      *
      * @description
      * Use this directive to inject directly in dom nodes caching features for values.
+     * Use ``` <div cache="name"></div> ``` to fill the node with the cached value of "name"
+     * and updates the value in cache when the "name" model changes.
+     * You can also use "cache-name" instead of "cache" to specify the model name.
      *
+     * @param {string} cache Name of cached model
      *
-     * @example
-     <example module="appverse.cache">
-        <file name="index.html">
-            <div cache="name" />
-            <div cache cache-name="name" />
-        </file>
-    </example>
+     * @requires https://docs.angularjs.org/api/ng/service/$log $log
+     * @requires CacheFactory
      */
     .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
 
@@ -139,12 +137,15 @@
 
     /**
      * @ngdoc service
-     * @name appverse.cache.service:CacheFactory
-     * @requires $angularCacheFactory
-     * @requires $http
-     * @requires CACHE_CONFIG
+     * @name CacheFactory
+     * @module appverse.cache
+     *
      * @description
-     * Contains methods for cache management.
+     * Returns an object that exposes methods for cache management.
+     *
+     * @requires http://jmdobry.github.io/angular-cache/ $angularCacheFactory
+     * @requires https://docs.angularjs.org/api/ng/service/$http $http
+     * @requires CACHE_CONFIG
      */
     function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
 
@@ -156,11 +157,12 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#setScopeCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#setScopeCache
+         *
          * @param {number} duration Items expire after this time.
          * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
          * If you don't want $http's default cache to store every response.
+         *
          * @description Configure the scope cache.
          */
         factory.setScopeCache = function(duration, capacity) {
@@ -173,8 +175,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#getScopeCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#getScopeCache
+         *
          * @description getScopeCache is the singleton that CacheFactory
          * manages as a local cache created with $angularCacheFactory,
          * which is what we return from the service.
@@ -182,17 +184,17 @@
          *
          * The newly created cache object has the following set of methods:
          *
-         * {object} info() — Returns id, size, and options of cache.
+         * * {object} info() — Returns id, size, and options of cache.
          *
-         * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
+         * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
          *
-         * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
+         * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
          *
-         * {void} remove({string} key) — Removes a key-value pair from the cache.
+         * * {void} remove({string} key) — Removes a key-value pair from the cache.
          *
-         * {void} removeAll() — Removes all cached values.
+         * * {void} removeAll() — Removes all cached values.
          *
-         * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+         * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
          */
         factory.getScopeCache = function() {
             return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
@@ -200,7 +202,9 @@
         };
 
         /**
-         @function
+         @ngdoc function
+         @name CacheFactory#setBrowserStorage
+
          @param type Type of storage ( 1 local | 2 session).
          @param maxAgeInit
          @param cacheFlushIntervalInit
@@ -217,9 +221,8 @@
          Infinity, NaN - Will be replaced with null.
          undefined, Function - Will be removed.
          The returned object supports the following set of methods:
-         {void} $reset() - Clears the Storage in one go.
+         * {void} $reset() - Clears the Storage in one go.
          */
-
         factory.setBrowserStorage = function(
             type,
             maxAgeInit,
@@ -247,8 +250,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#setDefaultHttpCacheStorage
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#setDefaultHttpCacheStorage
+         *
          * @param {number} duration items expire after this time.
          * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
          * @description Default cache configuration for $http service
@@ -306,8 +309,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#getHttpCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#getHttpCache
+         * @methodOf CacheFactory
          * @description Returns the httpcache object in factory
          * @returns httpcache object
          */
@@ -329,13 +332,18 @@
 
     /**
      * @ngdoc service
-     * @name appverse.cache.service:IDBService
+     * @name IDBService
+     * @module  appverse.cache
+     *
      * @description
      * This service has been planned to be used as a simple HTML5's indexedDB specification with the appverse.
      * A pre-configured data structure has been included to be used for common purposes:
-     * Data Structure Name: 'default'
-     * Fields: Id, Title, Body, Tags, Updated.
-     * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
+     * * Data Structure Name: 'default'
+     * * Fields: Id, Title, Body, Tags, Updated.
+     * * Indexes: Id (Unique), titlelc(Unique), tag(multientry).
+     *
+     * @requires https://docs.angularjs.org/api/ng/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
     .service('IDBService', ['$q', '$log', function($q, $log) {
         var setUp = false;
@@ -343,10 +351,9 @@
 
         var service = {};
 
-        /**
+         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#init
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#init
          * @description Initialize the default Indexed DB in browser if supported
          */
         function init() {
@@ -398,8 +405,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#isSupported
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#isSupported
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
         service.isSupported = function() {
@@ -408,8 +414,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#deleteDefault
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#deleteDefault
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
@@ -425,8 +430,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#getDefault
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#getDefault
          * @param {string} storeName The asssigned name of the store object.
          * @description Retrieves the record with the passed ID
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -449,8 +453,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#getDefaults
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#getDefaults
          * @description Retrieves the set with ALL the records in the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
@@ -489,8 +492,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#ready
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#ready
          * @description This flag is true if the IDB has been successfully initializated.
          */
         service.ready = function() {
@@ -499,8 +501,7 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#saveDefault
-         * @methodOf appverse.cache.service:SimpleIDB
+         * @name IDBService#saveDefault
          * @param {string} item The record to be stored
          * @description Saves a record with the given structure into the IDB.
          * It returns a promise. remember The Indexed DB provides an asynchronous
@@ -547,8 +548,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:SimpleIDB#item
-         * @methodOf appverse.cache.service:item
+         * @name IDBService#item
+         *
          * @param {int} id The ID of the record to be stored
          * @param {string} title The name for record to be stored
          * @param {string} body The description of the record to be stored
@@ -574,8 +575,11 @@
 /**
  * @ngdoc module
  * @name appverse.detection
+ *
  * @description
  * Provides browser and network detection.
+ *
+ * @requires appverse.utils
  */
 angular.module('appverse.detection', ['appverse.utils']);
 
@@ -588,8 +592,10 @@ angular.module('appverse.detection', ['appverse.utils']);
         .provider('MobileDetector', MobileDetectorProvider);
 
     /**
-     * @ngdoc service
-     * @name appverse.detection.provider:Detection
+     * @ngdoc provider
+     * @name MobileDetector
+     * @module appverse.detection
+     *
      * @description
      * Detects if the browser is mobile
      */
@@ -599,10 +605,20 @@ angular.module('appverse.detection', ['appverse.utils']);
             return this;
         };
 
+        /**
+         * @ngdoc method
+         * @name MobileDetector#hasAppverseMobile
+         * @return {Boolean}
+         */
         this.hasAppverseMobile = function() {
             return hasUnity() && unityHasOSInfo();
         };
 
+        /**
+         * @ngdoc method
+         * @name MobileDetector#isMobileBrowser
+         * @return {Boolean}
+         */
         this.isMobileBrowser = function (customAgent) {
             var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
             return agentContainsMobileKeyword(agent);
@@ -626,18 +642,24 @@ angular.module('appverse.detection', ['appverse.utils']);
     }
 
 })();
-(function() { 'use strict';
+(function () {
+    'use strict';
 
 angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
 
 /**
  * @ngdoc provider
- * @name appverse.detection.provider:Detection
+ * @name Detection
+ * @module appverse.detection
+ *
  * @description
  * Contains methods for browser and network detection.
+ *
+ * @requires  MobileDetectorProvider
  */
 function DetectionProvider (MobileDetectorProvider) {
+
     this.mobileDetector        = MobileDetectorProvider;
     this.bandwidth             = 0;
     this.isPollingBandwidth    = false;
@@ -650,10 +672,20 @@ function DetectionProvider (MobileDetectorProvider) {
         return this;
     }];
 
+    /**
+     * @ngdoc method
+     * @name  AppDetection#hasAppverseMobile
+     * @return {Boolean} Whether the application has Appverse mobile or not
+     */
     this.hasAppverseMobile = function() {
         return this.mobileDetector.hasAppverseMobile();
     };
 
+    /**
+     * @ngdoc method
+     * @name  AppDetection#isMobileBrowser
+     * @return {Boolean} Whether the application is running on a mobile browser
+     */
     this.isMobileBrowser = function() {
         return this.mobileDetector.isMobileBrowser();
     };
@@ -661,8 +693,6 @@ function DetectionProvider (MobileDetectorProvider) {
     // Do some initialization
     if (this.hasAppverseMobile() || this.isMobileBrowser()) {
         // Do something for mobile...
-    } else {
-        angular.module('jqm', []);
     }
 
     var fireEvent = function (name, data) {
@@ -704,8 +734,8 @@ function DetectionProvider (MobileDetectorProvider) {
 
     /**
      * @ngdoc method
-     * @name appverse.detection.provider:Detection#testOnlineStatus
-     * @methodOf appverse.detection.provider:Detection
+     * @name Detection#testOnlineStatus
+     *
      * @param {String} path The item URL
      * @description Tries to fetch a file on the server and fire events for fail and success.
      */
@@ -715,8 +745,8 @@ function DetectionProvider (MobileDetectorProvider) {
 
     /**
      * @ngdoc method
-     * @name appverse.detection.provider:Detection#startPollingOnlineStatus
-     * @methodOf appverse.detection.provider:Detection
+     * @name Detection#startPollingOnlineStatus
+     *
      * @param {number} interval Time in milliseconds
      * @description Tries to fetch a file on the server at regular intervals and fire events for fail and success.
      */
@@ -724,24 +754,50 @@ function DetectionProvider (MobileDetectorProvider) {
         this.isPollingOnlineStatus = setInterval(this.testOnlineStatus, interval);
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#stopPollingOnlineStatus
+     *
+     * @description Stops fetching the file from the server.
+     */
     this.stopPollingOnlineStatus = function () {
         clearInterval(this.isPollingOnlineStatus);
         this.isPollingOnlineStatus = false;
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#testBandwidth
+     */
     this.testBandwidth = function () {
         var jsonUrl = "resources/detection/bandwidth.json?bust=" +  (new Date()).getTime();
         fireEvent("onBandwidthStart");
         this.$http.get(jsonUrl).success(function(data, status, headersFn) {
-            fireEvent("onBandwidthEnd", {status:status, data: data, getResponseHeader : headersFn});
+                fireEvent("onBandwidthEnd", {
+                    status: status,
+                    data: data,
+                    getResponseHeader: headersFn
         });
+            });
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#startPollingBandwidth
+     *
+     * @param {number} interval Time in milliseconds
+     */
     this.startPollingBandwidth = function (interval) {
         this.testBandwidth();
         this.isPollingBandwidth = setInterval(this.testBandwidth.bind(this), interval);
     };
 
+    /**
+     * @ngdoc method
+     * @name Detection#stopPollingBandwidth
+     *
+     * @param {number} interval Time in milliseconds
+     */
     this.stopPollingBandwidth = function () {
         clearInterval(this.isPollingBandwidth);
         this.isPollingBandwidth = false;
@@ -751,18 +807,12 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 
 })();
+
 (function() { 'use strict';
 
 angular.module('appverse.detection')
     .run(run);
 
-/**
- * @doc function
- * @name appverse.detection.run:Detection
- * @description
- *
- * Run block for appverse.detection. Contains methods for browser and network detection.
- */
 function run($log, Detection, $rootScope, $window) {
     $log.info('appverse.detection run');
 
@@ -836,26 +886,26 @@ run.$inject = ["$log", "Detection", "$rootScope", "$window"];
     /**
      * @ngdoc module
      * @name appverse.logging
-     * @description
      *
+     * @description
      * The Logging module handles several tasks with logging:
      *
-     * 1 - It applies a decorator on native $log service in module ng.
+     * 1. It applies a decorator on native $log service in module ng.
      *
-     * 2 - It includes sending of log events to server-side REST service.
+     * 2. It includes sending of log events to server-side REST service.
      *
-     * WARNING
+     * ## Warning
      *
      * IT IS STRONGLY RECOMMENDED TO USE THIS LOG IMPLEMENTATION AND NEVER directly
      * to use console.log() to log debugger messages.
      * If you do not use this one, use $log instead at least...
      *
-     * SERVER SIDE LOG
+     * ## Server side log
      *
      * To handle JavaScript errors, we needed to intercept the core AngularJS
      * error handling and add a server-side communication aspect to it.
      *
-     * DECORATOR WAY
+     * ## Decorator way
      *
      * The $provide service (which provides all angular services) needs 2 parameters to “decorate” something:
      *
@@ -869,6 +919,8 @@ run.$inject = ["$log", "Detection", "$rootScope", "$window"];
      * As you can see, we are passing the original $log
      * and formattedLogger (the API implementation) to the callback,
      * and then, he returns a formattedLogger factory instance.
+     *
+     * @requires  appverse.configuration
      */
     angular.module('appverse.logging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {
@@ -884,15 +936,14 @@ run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 angular.module('appverse.logging')
     .provider("FormattedLogger", FormattedLoggerProvider);
 
-
 /**
- * @ngdoc service
- * @name appverse.logging.factory:FormattedLogger
- * @requires LOGGING_CONFIG
- * @requires Detection
- * @param {Object} delegatedLog desc
+ * @ngdoc provider
+ * @name FormattedLogger
+ * @module appverse.logging
+ *
  * @description
  * Captures the $log service and decorate it.
+ *
  */
 function FormattedLoggerProvider () {
 
@@ -1040,11 +1091,13 @@ function FormattedLoggerProvider () {
     /**
      * @ngdoc module
      * @name appverse.performance
-     * @requires appverse.configuration
+     *
      * @description
-     * The appverse.performance provides services to handle usage of several performance elements:
-     * 1-Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
-     * 2-High Performance UI directives support.
+     * The AppPerformance provides services to handle usage of several performance elements:
+     * 1. Webworkers. Multithreaded-parallelized execution of tasks separated of the main JavaScript thread.
+     * 2. High Performance UI directives support.
+     *
+     * @requires appverse.configuration
      */
     angular.module('appverse.performance', ['appverse.configuration'])
         .run(run);
@@ -1063,16 +1116,14 @@ function FormattedLoggerProvider () {
 
     /**
     * @ngdoc directive
-    * @name appverse.performance.directive:webworker
-    * @restrict AE
+    * @name webworker
+    * @module appverse.performance
+    * @restrict E
     *
     * @description
     * Establishes comm with messages to a selected web worker.
     * Allows send messages to the worker and receive results from.
     * Messages from the worker are displayed in a div.
-    * Params:
-    * id: id of the pre-configured worker or path to the worker's file
-    * message: Message to be passed to the worker.
     *
     * @example
     <example module="appverse.performance">
@@ -1081,6 +1132,13 @@ function FormattedLoggerProvider () {
     <webworker  id="101" message="Hans Walter" template=""/>
     </file>
     </example>
+    *
+    * @param {string} id Id of the pre-configured worker or path to the worker's file
+    * @param {string} message Message to be passed to the worker.
+    *
+    * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+    * @requires  WebWorkerFactory
+    * @requires  PERFORMANCE_CONFIG
     */
     .directive('webworker', ['$log', 'WebWorkerFactory', 'PERFORMANCE_CONFIG',
         function ($log, WebWorkerFactory, PERFORMANCE_CONFIG) {
@@ -1190,15 +1248,21 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc service
-     * @name appverse.performance.service:WebWorkerFactory
-     * @requires $log
-     * @requires PERFORMANCE_CONFIG
+     * @name WebWorkerFactory
+     * @module appverse.performance
+     *
+
      * @description
-     * This factory starts a pooled multithreaded execution of a webworker.
-     *                             _______
+     * This factory starts a pooled multithreaded execution of a webworker:
+     * <pre></code>                _______
      *                            |       |-> thread 1
      * USER -> message -> task -> | pool  |-> thread 2
      *                            |_______|-> thread N
+     * </code></pre>
+     *
+     * @requires https://docs.angularjs.org/api/ngMock/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires PERFORMANCE_CONFIG
      */
     function WebWorkerPoolFactory ($log, $q, PERFORMANCE_CONFIG) {
 
@@ -1218,10 +1282,11 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.performance.service:WebWorkerFactory#runTasksGroup
-         * @methodOf appverse.performance.service:WebWorkerFactory
+         * @name WebWorkerFactory#runParallelTasksGroup
+         *
          * @param {number} workerData WorkerData object with information of the task to be executed
          * @param {object} workerTasks Array with a group of WorkerTask objects for the same WorkerData
+         *
          * @description
          * Runs a group of parallelized tasks
          * Run a set of workers according to the pre-defined data in configuration
@@ -1257,8 +1322,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.performance.service:WebWorkerFactory#passMessage
-         * @methodOf appverse.performance.service:WebWorkerFactory
+         * @name WebWorkerFactory#passMessage
+         *
          * @param {number} id of the called worker
          * @param {object} function as callback
          * @param {string} message to be passed to the worker
@@ -1495,21 +1560,26 @@ function FormattedLoggerProvider () {
      *
      * Params configuration are set in app-configuration file as constants.
      *
-     * SERVICES CLIENT CONFIGURATION
+     * ## Services Client Configuration
      *
      * The common API includes configuration for one set of REST resources client (1 base URL).
      * This is the most common approach in the most of projects.
      * In order to build several sets of REST resources (several base URLs) you should
      * create scoped configurations. Please, review the below snippet:
      *
-     * var MyRestangular = Restangular.withConfig(function(RestangularConfigurer) {
-     * RestangularConfigurer.setDefaultHeaders({'X-Auth': 'My Name'})
-     * });
+     *     var MyRestangular = Restangular.withConfig(function(RestangularConfigurer) {
+     *       RestangularConfigurer.setDefaultHeaders({'X-Auth': 'My Name'})
+     *     });
      *
-     * MyRestangular.one('place', 12).get();
+     *     MyRestangular.one('place', 12).get();
      *
      * The MyRestangular object has scoped properties of the Restangular on with a different
      * configuration.
+     *
+     * @requires  https://github.com/mgonto/restangular restangular
+     * @requires  appverse.configuration
+     * @requires  appverse.utils
+     *
      */
     angular.module('appverse.rest', requires).run(run);
 
@@ -1590,9 +1660,18 @@ function FormattedLoggerProvider () {
 (function() {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name  MulticastRESTFactory
+     * @module appverse.rest
+     *
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires https://github.com/mgonto/restangular Restangular
+     * @requires REST_CONFIG
+     */
     angular.module('appverse.rest')
-
     .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
+
         function ($log, Restangular, REST_CONFIG) {
             var factory = {};
             var multicastSpawn = REST_CONFIG.Multicast_enabled;
@@ -1621,7 +1700,8 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc directive
-     * @name appverse.rest.directive:rest
+     * @name rest
+     * @module appverse.rest
      * @restrict A
      *
      * @description
@@ -1634,6 +1714,9 @@ function FormattedLoggerProvider () {
          <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
        </file>
      </example>
+     *
+     * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires  RESTFactory
      */
     function restDirective ($log, RESTFactory) {
         return {
@@ -1691,12 +1774,17 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc service
-     * @name appverse.rest.factory:RESTFactory
-     * @requires $log
-     * @requires Restangular
+     * @name RESTFactory
+     * @module appverse.rest
      * @description
      * Contains methods for data finding (demo).
      * This module provides basic quick standard access to a REST API.
+     *
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires https://docs.angularjs.org/api/ngMock/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$http $http
+     * @requires https://github.com/mgonto/restangular Restangular
+     * @requires REST_CONFIG
      */
     function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {
 
@@ -1729,8 +1817,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#wrapRequestWith
+         *
          * @param {object} The request wrapper
          * @description Wraps a request.
          * The wrapper should expose a 'wrapRequest(Restangular)' function
@@ -1742,8 +1830,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#wrapRequestWith
+         *
          * @description Sets the default Content-Type as header.
          */
         factory.enableDefaultContentType = function() {
@@ -1754,8 +1842,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#setCache
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#setCache
+         *
          * @description Sets the cache. Caching also depends on REST_CONFIG
          */
         factory.setCache = function(cache) {
@@ -1776,8 +1864,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readObject
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readObject
+         *
          * @param {String} path The item URL
          * @param {String} successFn Optional function to be called when request is successful
          * @param {String} errorFn Optional function to be called when request has errors
@@ -1801,8 +1889,8 @@ function FormattedLoggerProvider () {
          */
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readList
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readList
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -1815,8 +1903,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readList
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readList
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -1829,8 +1917,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readBatch
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readBatch
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -1850,8 +1938,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readParallelMultipleBatch
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readParallelMultipleBatch
+         *
          * @param {String} paths An array with URLs for each resource
          * @description Returns a combined result from several REST resources in chained promises.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -1885,8 +1973,8 @@ function FormattedLoggerProvider () {
 
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readListItem
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readListItem
+         *
          * @param {String} path The item URL
          * @param {String} key The item key
          * @param {String} successFn Optional function to be called when request is successful
@@ -1905,8 +1993,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readListItems
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readListItems
+         *
          * @param {String} path The item URL
          * @param {String} keys The item keys array
          * @description Returns a unique value.
@@ -1919,8 +2007,8 @@ function FormattedLoggerProvider () {
 
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#createListItem
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#createListItem
+         *
          * @param {String} path The item URL
          * @param {object} newData The item to be created
          * @param {object} callback The function for callbacking
@@ -1934,8 +2022,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#updateObject
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#updateObject
+         *
          * @param {String} path The item URL
          * @param {object} newData The item to be updated
          * @param {object} callback The function for callbacking
@@ -1949,8 +2037,8 @@ function FormattedLoggerProvider () {
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#deleteListItem
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#deleteListItem
+         *
          * @param {String} path The item URL
          * @param {object} key The item key to be deleted
          * @param {object} callback The function for callbacking
@@ -1966,8 +2054,8 @@ function FormattedLoggerProvider () {
 
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#deleteObject
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#deleteObject
+         *
          * @param {String} path The item URL
          * @param {object} callback The function for callbacking
          * @description Deletes an item from a list.
@@ -2000,9 +2088,10 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc module
-     * @name AppRoute
-     * @requires ui.router
+     * @name appverse.router
      * @description Adds routing capabilities to the application
+     *
+     * @requires https://github.com/angular-ui/ui-router ui.router
      */
     angular.module('appverse.router', ['ui.router'])
 
@@ -2058,6 +2147,9 @@ function FormattedLoggerProvider () {
     * requests for /socket.io/socket.io.js and sends the appropriate response automatically.
     *
     * That is the reason it is not a dependency handled by bower.
+    *
+    * @requires  appverse.socket.io
+    * @requires  appverse.configuration
     */
     angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
     /*
@@ -2078,11 +2170,6 @@ function FormattedLoggerProvider () {
 (function() {
     'use strict';
 
-    //////////////////////////////////////////////////////////////////////////////
-    // COMMON API - 0.1
-    // PRIVATE MODULE (appverse.socket.io)
-    ////////////////////////////////////////////////////////////////////////////
-
     /**
      * @ngdoc module
      * @name appverse.socket.io
@@ -2090,6 +2177,8 @@ function FormattedLoggerProvider () {
      * Private module implementing SocketIO. It provides the common API module appverse.serverPush
      * with the socket object wrapping the SocketIO client. This is initializated according
      * to the pre-existing external configuration.
+     *
+     * @requires  appverse.configuration
      */
     angular.module('appverse.socket.io', ['appverse.configuration']);
 
@@ -2101,7 +2190,8 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc provider
-     * @name appverse.socket.io.provider:socket
+     * @name Socket
+     * @module appverse.socket.io
      * @description
      * This provider provides the appverse.serverPush module with the SocketIO
      * client object from pre-existing configuration in application.
@@ -2125,6 +2215,8 @@ function FormattedLoggerProvider () {
      * The second argument is optional, and is the scope on which the events are to be broadcast.
      * If an argument is not provided, it defaults to $rootScope.
      * As a reminder, broadcasted events are propagated down to descendant scopes.
+     *
+     * @requires SERVERPUSH_CONFIG
      */
      .provider('Socket', ['SERVERPUSH_CONFIG',
         function (SERVERPUSH_CONFIG) {
@@ -2236,10 +2328,8 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc service
-     * @name appverse.serverPush.factory:SocketFactory
-     * @requires $rootScope
-     * @requires socket
-     *
+     * @name SocketFactory
+     * @module appverse.serverPush
      * @description
      * Although Socket.IO exposes an io variable on the window, it's better to encapsulate it
      * into the AngularJS's Dependency Injection system.
@@ -2250,6 +2340,9 @@ function FormattedLoggerProvider () {
      * the templates if there was a change after running the callback passed to it by using dirty checking.
      * Internally, $http works in the same way. After some XHR returns, it calls $scope.$apply,
      * so that AngularJS can update its views accordingly.
+     *
+     * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+     * @requires Socket
      */
     .factory('SocketFactory', ['$rootScope', 'Socket',
         function ($rootScope, Socket) {
@@ -2257,8 +2350,7 @@ function FormattedLoggerProvider () {
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#listen
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#listen
              @param {string} eventName The name of the event/channel to be listened
              The communication is bound to rootScope.
              @param {object} callback The function to be passed as callback.
@@ -2277,8 +2369,7 @@ function FormattedLoggerProvider () {
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#sendMessage
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#sendMessage
              @param {string} eventName The name of the event/channel to be sent to server
              @param {object} scope The scope object to be bound to the listening.
              The communication will be cancelled when the scope is destroyed.
@@ -2299,8 +2390,7 @@ function FormattedLoggerProvider () {
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#unsubscribeCommunication
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#unsubscribeCommunication
              @param {object} callback The function to be passed as callback.
              @description Cancels all communications to server.
              The communication will be cancelled without regarding other consideration.
@@ -2322,12 +2412,11 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc service
-     * @name appverse.serverPush.factory:WebSocketService
-     * @requires $log
-     * @requires $window
-     * @requires WEBSOCKETS_CONFIG
+     * @name WebSocketService
+     * @module appverse.serverPush
      *
-     * @description
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires WEBSOCKETS_CONFIG
      */
     .factory('WebSocketFactory', ['$log', 'WEBSOCKETS_CONFIG',
         function($log, WEBSOCKETS_CONFIG) {
@@ -2335,8 +2424,7 @@ function FormattedLoggerProvider () {
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#connect
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#connect
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
@@ -2381,8 +2469,7 @@ function FormattedLoggerProvider () {
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#send
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#send
                 @param {object} message Message payload in JSON format.
                 @description Send a message to the ws server.
             */
@@ -2392,8 +2479,7 @@ function FormattedLoggerProvider () {
             };
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#subscribe
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#subscribe
                 @param {object} callback .
                 @description Retrieve the currentcallback of the endpoint connection.
             */
@@ -2403,8 +2489,7 @@ function FormattedLoggerProvider () {
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#disconnect
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#disconnect
                 @param {string} itemId The id of the item
                 @description Close the WebSocket connection.
             */
@@ -2416,8 +2501,7 @@ function FormattedLoggerProvider () {
 
              /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#status
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#status
                 @param {string} itemId The id of the item
                 @description WebSocket connection status.
             */
@@ -2430,8 +2514,7 @@ function FormattedLoggerProvider () {
 
             /**
                 @ngdoc method
-                @name appverse.serverPush.factory:WebSocketFactory#statusAsText
-                @methodOf appverse.serverPush.factory:WebSocketFactory
+                @name WebSocketFactory#statusAsText
                 @param {string} itemId The id of the item
                 @description Returns WebSocket connection status as text.
             */
@@ -2462,15 +2545,14 @@ function FormattedLoggerProvider () {
     /**
      * @ngdoc module
      * @name appverse.translate
-     * @requires appverse.configuration
      * @description
      * The Internationalization module handles languages in application.
-     *
      * It should be directly configurable by developers.
+     * **Warning**: Items in each translations object must match items defined in the Configuration module.
      *
-     * WARNING:
-     *
-     * Items in each translations object must match to items defined in the Configuration module.
+     * @requires https://github.com/angular-translate/angular-translate pascalprecht.translate
+     * @requires https://github.com/lgalfaso/angular-dynamic-locale tmh.dynamicLocale
+     * @requires appverse.configuration
      */
     angular.module('appverse.translate', [
         'pascalprecht.translate',
@@ -2577,6 +2659,13 @@ function FormattedLoggerProvider () {
 (function() {
     'use strict';
 
+    /**
+     * @ngdoc module
+     * @name appverse.utils
+     * @description Provides utility objects and functions
+     *
+     * @requires appverse.configuration
+     */
     angular.module('appverse.utils', ['appverse.configuration']);
 
 })();
@@ -2586,23 +2675,29 @@ function FormattedLoggerProvider () {
     angular.module('appverse.utils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
-    function BaseUrlSetterProvider() {
-        this.$get = function () {
-            return this;
-        };
-
-        this.setBasePath = function (basePath) {
-            return new BaseUrlSetter(basePath);
-        };
-    }
-
     /**
-     * @ngdoc service
+     * @ngdoc provider
      * @name BaseUrlSetter
      * @module appverse.utils
      * @description
      * Preprends a url with a base path
      */
+    function BaseUrlSetterProvider() {
+        this.$get = function () {
+            return this;
+        };
+
+        /**
+         * @ngdoc method
+         * @name BaseUrlSetter#setBasePath
+         * @param {string} basePath The base path to prepend
+         */
+        this.setBasePath = function (basePath) {
+            return new BaseUrlSetter(basePath);
+        };
+    }
+
+
     function BaseUrlSetter(basePath) {
 
         basePath = basePath || '';
@@ -2654,9 +2749,9 @@ function FormattedLoggerProvider () {
 
     /**
      * @ngdoc service
-     * @name appverse.utils.provider:ModuleSeeker
-     * @description
-     * Seeks and check existance of modules
+     * @name ModuleSeeker
+     * @module appverse.utils
+     * @description Looks for modules
      */
     function ModuleSeeker() {
         this.$get = function() {
@@ -2686,6 +2781,12 @@ function FormattedLoggerProvider () {
 
     angular.module('appverse.utils')
 
+    /**
+     * @ngdoc service
+     * @name BaseUrlSetter
+     * @module appverse.utils
+     * @description Base64 encoding
+     */
     .factory('Base64', function () {
         var keyStr = 'ABCDEFGHIJKLMNOP' +
             'QRSTUVWXYZabcdef' +
@@ -2779,22 +2880,23 @@ function FormattedLoggerProvider () {
     angular.module('appverse.utils')
 
     /**
-     * @ngdoc object
+     * @ngdoc service
      * @name UtilFactory
-     * @requires $log
-     *
-     * @description
-     * This factory provides common utilities for API functionalities.
+     * @module appverse.utils
+     * @description This factory provides common utilities for API functionalities.
      */
     .factory('UtilFactory', function () {
             var factory = {};
+
             /**
-                 @function
-                 @param properties content of the static external properties file
-                 @param area group of properties
-                 @param property property to know the value in
-                 @description Deletes an item from a list.
-                 */
+             * @ngdoc method
+             * @name UtilFactory#findPropertyValueByName
+             * @description Deletes an item from a list.
+             *
+             * @param properties content of the static external properties file
+             * @param area group of properties
+             * @param property property to know the value in
+             */
             factory.findPropertyValueByName = function (properties, area, property) {
                 for (var i = 0; i < properties.length; i++) {
                     if (properties[i].area == area) {
@@ -2808,6 +2910,15 @@ function FormattedLoggerProvider () {
                 return null;
             };
 
+            /**
+             * @ngdoc method
+             * @name UtilFactory#newRandomKey
+             * @description ...
+             *
+             * @param coll
+             * @param key
+             * @param currentKey
+             */
             factory.newRandomKey = function (coll, key, currentKey) {
                 var randKey;
                 do {
@@ -2825,9 +2936,10 @@ function FormattedLoggerProvider () {
 /**
  * @ngdoc module
  * @name appverse.configuration.default
- * @requires $browser
+ * @moduleFile appverse-configuration.js
  * @description
  * This module defines default settings.
+ *
  */
 angular.module('appverse.configuration.default', ['$browser']);
 
@@ -2839,6 +2951,8 @@ angular.module('appverse.configuration.default', ['$browser']);
  * @name appverse.configuration.loader
  * @description
  * Load default and custom settings into appverse.configuration
+ *
+ * @requires appverse.utils
  */
 angular.module('appverse.configuration.loader', ['appverse.utils']);
 
@@ -2852,7 +2966,10 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  * @name appverse.configuration
  * @requires appverse.detection
  * @description
- * It includes constants for all the common API components.
+ * It includes constants for all the common API components. This module is initially empty.
+ * When the application bootstraps, it is populated with the combination of default and custom configuration values
+ *
+ * @requires appverse.configuration.loader
  */
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
@@ -2863,54 +2980,35 @@ function run($log) {
 run.$inject = ["$log"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
-    //////////////////////// COMMON API - MAIN //////////////////////////
-    // The Main module includes other API modules:
-    // - Bootstrap-based styling and gadgets
-    // - Routing
-    // - External Configuration
-    // - REST Integration
-    // - Cache Service
-    // - ServerPush
-    // - Security
-    // - Internationalization
-    // - Logging
-    /////////////////////////////////////////////////////////////////////
-
     /**
-     * Required modules (compulsory)
+     * @ngdoc module
+     * @name  appverse
+     * @description Main module. Bootstraps the application by integrating services that have any relation.
+     * It will automatically initialize any of these modules, whose scripts have been loaded:
+     * * Bootstrap-based styling and gadgets
+     * * Routing
+     * * External Configuration
+     * * REST Integration
+     * * Cache Service
+     * * ServerPush
+     * * Security
+     * * Internationalization
+     * * Logging
+     *
+     * @requires  appverse.utils
+     * @requires  appverse.configuration
      */
-    var requires = [
-        'appverse.utils',
-        'appverse.configuration'
-    ];
 
     /**
-     * Optional modules
-     */
-    var optional = [
-        'appverse.detection',
-        'appverse.rest',
-        'appverse.translate',
-        'appverse.modal',
-        'appverse.logging',
-        'appverse.serverPush',
-        'appverse.security',
-        'appverse.cache',
-        'appverse.performance',
-        'appverse.router'
-    ];
 
-
-    /**
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
-    angular.module('appverse', generateDependencies(requires, optional))
-        .config(config)
-        .run(run);
+    angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
+        .config(config).run(run);
 
 
     /**
@@ -2952,28 +3050,6 @@ run.$inject = ["$log"];
     }
     run.$inject = ["$log", "REST_CONFIG"];
 
-    function generateDependencies(requires, optional) {
-        var dependencies = requires;
-        angular.forEach(optional, function (module) {
-            if (moduleExists(module)) {
-                dependencies.push(module);
-            }
-        });
-        return dependencies;
-    }
-
-    // TODO: this function is already defined in appverse.utils but cannot be used
-    // when declaring a module as we can't inject anything yet. We must have a way
-    // to call this function before being inside the angular environment. Global maybe?
-    function moduleExists(name) {
-        try {
-            angular.module(name);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
 
 })();
 
@@ -2982,23 +3058,52 @@ run.$inject = ["$log"];
 angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
 
 /**
- * @ngdoc module
- * @name appverse.configuration.provider:ConfigLoader
- * @requires appverse.detection
+ * @ngdoc provider
+ * @name ConfigLoader
+ * @module appverse.configuration.loader
+ *
  * @description
- * It includes constants for all the common API components.
+ * Loads configuration parameters int the AppConfiguration module.
  */
 function ConfigLoaderProvider() {
 
-    var appConfigTemp = {},
-    //by default, no detection is present
-    detection         = new NoDetection();
+    // By default, no detection is present
+    var detection = new NoDetection(),
+    // Object used to perfom default config overriding
+    appConfigTemp = {};
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#$get
+     * @description Factory function. Gets the service instance
+     */
+    this.$get = function() {
+        return this;
+    };
+
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#load
+     * @param {object} settings See appverse.configuration.default for available settings
+     * @description Loads the custom config, overriding defaults
+     */
     this.load = function(settings) {
         this.loadDefaultConfig()
             .loadCustomConfig(settings)
             .overrideDefaultConfig();
     };
+
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#setDetection
+     * @param {object} detectionProvider Detection provider from appverse.detection
+     */
+    this.setDetection = function(detectionProvider) {
+        detection = detectionProvider;
+    };
+
+
+    // ---- Privates -----
 
     this.loadDefaultConfig = function() {
         angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
@@ -3016,13 +3121,12 @@ function ConfigLoaderProvider() {
         return this;
     };
 
-
-
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
             angular.module('appverse.configuration').constant(propertyName, propertyValue);
         });
     };
+
 
     this.loadMobileConfigIfRequired = function() {
         if (detection.hasAppverseMobile()) {
@@ -3092,13 +3196,7 @@ function ConfigLoaderProvider() {
         this.addConfig(jsonData);
     };
 
-    this.setDetection = function(detectionProvider) {
-        detection = detectionProvider;
-    };
 
-    this.$get = function() {
-        return this;
-    };
 }
 
 
@@ -3129,6 +3227,13 @@ PROJECT CONFIGURATION
 This constants can be used to set basic information related to the application.
 All data are auto-explained because their names ;)
  */
+
+/**
+ * @ngdoc object
+ * @name PROJECT_DATA
+ * @module  appverse.configuration.default
+ * @description Basic information related to the application.
+ */
 .constant('PROJECT_DATA', {
     ApplicationName: 'Appverse Web HTML5 Incubator Demo',
     Version: '0.1',
@@ -3141,13 +3246,13 @@ All data are auto-explained because their names ;)
     VendorLibrariesBaseUrl: 'bower_components'
 })
 
-
-/*
-LOGGING MODULE CONFIGURATION
-This section contains basic configuration for the logging module
-in the common API.
-These params do not affect normal usage of $log service.
-*/
+/**
+ * @ngdoc object
+ * @name LOGGING_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.logging
+ * These params do not affect normal usage of $log service.
+ */
 .constant('LOGGING_CONFIG', {
     /*
     This param enables (if true) sending log messages to server.
@@ -3179,11 +3284,12 @@ These params do not affect normal usage of $log service.
     LogTextFormat: ''
 })
 
-/*
-CACHE MODULE CONFIGURATION
-This section contains basic configuration for the several types of cache handled by the cache module
-in the common API.
-*/
+/**
+ * @ngdoc object
+ * @name CACHE_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.cache
+ */
 .constant('CACHE_CONFIG', {
     /////////////////////////////
     //SCOPE CACHE
@@ -3281,13 +3387,15 @@ in the common API.
 
 })
 
-/*
-SERVER PUSH MODULE CONFIGURATION
-This section contains the configuration for the server push module.
-It si related to socket.io configuration params.
-Read Configuration section in socket.io documentation for further details.
-https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
-*/
+/**
+ * @ngdoc object
+ * @name SERVERPUSH_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.serverpush.
+ * It si related to socket.io configuration params.
+ * Read Configuration section in socket.io documentation for further details.
+ * https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
+ */
 .constant('SERVERPUSH_CONFIG', {
     /*
      URL of the listened server
@@ -3372,14 +3480,16 @@ https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
     ForceNewConnection: false
 })
 
-/*
-REST MODULE CONFIGURATION
-This section contains the ccnfiguration for the REST module.
-This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
-So, all configuration params are based on its configuration
-(https://github.com/mgonto/restangular#configuring-restangular).
-Future updates of Restangular imply review of this section in order
-to keep consistency between config and the module.
+/**
+ * @ngdoc object
+ * @name REST_CONFIG
+ * @module  appverse.configuration.default
+ * @description This section contains basic configuration for appverse.rest.
+ * This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
+ * So, all configuration params are based on its configuration
+ * (https://github.com/mgonto/restangular#configuring-restangular).
+ * Future updates of Restangular imply review of this section in order
+ * to keep consistency between config and the module.
  */
 .constant('REST_CONFIG', {
     /*
@@ -3594,21 +3704,34 @@ to keep consistency between config and the module.
      */
     MockBackend: false
 })
-
+/**
+ * @ngdoc object
+ * @name AD_CONFIG
+ * @module appverse.configuration.default
+ * @description Defines ConsumerKey and ConsumerSecret
+ */
 .constant('AD_CONFIG', {
     ConsumerKey: '',
     ConsumerSecret: ''
 })
 
+/**
+ * @ngdoc object
+ * @name I18N_CONFIG
+ * @module appverse.configuration.default
+ * @description This section contains basic configuration for appverse.translate.
+ */
 .constant('I18N_CONFIG', {
     PreferredLocale: 'en-US',
     LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
     DetectLocale: true
 })
 
-/*
- * SECURITY SECTION
- * Includes default information about authentication and authorization configuration based on OAUTH 2.0.
+/**
+ * @ngdoc object
+ * @name SECURITY_GENERAL
+ * @module appverse.configuration.default
+ * @description Includes default information about authentication and authorization configuration based on OAUTH 2.0.
  */
 .constant('SECURITY_GENERAL', {
     securityEnabled: false,
@@ -3642,6 +3765,12 @@ to keep consistency between config and the module.
 
 })
 
+/**
+ * @ngdoc object
+ * @name SECURITY_OAUTH
+ * @module appverse.configuration.default
+ * @description Includes default specific settings for OAUTH
+ */
 .constant('SECURITY_OAUTH', {
     oauth2_endpoint: 'appverse',
     clientID: '',
@@ -3661,8 +3790,11 @@ to keep consistency between config and the module.
     tokenResponseHeaderName: 'Authorization'
 })
 
-/*
- * GOOGLE AUTHENTICATION
+/**
+ * @ngdoc object
+ * @name GOOGLE_AUTH
+ * @module appverse.configuration.default
+ * @description Defines settings to use Google Oauth2 autentication service
  */
 .constant('GOOGLE_AUTH', {
     clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
@@ -3683,8 +3815,11 @@ to keep consistency between config and the module.
     tokenRenewalPolicy: 'automatic_renovation'
 })
 
-/*
- *
+/**
+ * @ngdoc object
+ * @name AUTHORIZATION_DATA
+ * @module appverse.configuration.default
+ * @description Defines default authorization and roles data
  */
 .constant('AUTHORIZATION_DATA', {
     roles: ['user', 'admin', 'editor'],
@@ -3704,9 +3839,13 @@ to keep consistency between config and the module.
     routesThatRequireAdmin: ['/about']
 })
 
-/*
-WEBSOCKETS MODULE CONFIGURATION
-*/
+
+/**
+ * @ngdoc object
+ * @name WEBSOCKETS_CONFIG
+ * @module appverse.configuration.default
+ * @description Configuration parameters for web sockets
+ */
 .constant('WEBSOCKETS_CONFIG', {
 
     WS_ECHO_URL: "ws://echo.websocket.org",
@@ -3724,11 +3863,13 @@ WEBSOCKETS MODULE CONFIGURATION
     WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
 })
 
-/////////////////////////////
-//PERFORMANCE
-//Includes default information about the different facets for a better performance in the app.
-//There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
-/////////////////////////////
+/**
+ * @ngdoc object
+ * @name PERFORMANCE_CONFIG
+ * @module appverse.configuration.default
+ * @description Includes default information about the different facets for a better performance in the app.
+ * There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
+ */
 .constant('PERFORMANCE_CONFIG', {
 /*
  * WEBWORKERS SECTION
@@ -3778,25 +3919,41 @@ WEBSOCKETS MODULE CONFIGURATION
 
 })();
 /**
+ * @ngdoc object
+ * @name  AppInit
+ * @module  appverse
+ * @description
  * This file includes functionality to initialize settings in an appverse-web-html5 app
  * Just call the initalization code after having loaded angular and the configuration module:
- *
- * AppInit.setConfig(settings).bootstrap()
- *
- * @return {object} AppInit
+ * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
 var AppInit = AppInit || (function(angular) { 'use strict';
 
-    var settings;
+    var
+    settings,
+    mainModuleName;
 
-    var mainModuleName;
-
+    /**
+     * @ngdoc method
+     * @name AppInit#setConfig
+     * @param {object} settingsObject An object containing custom settings
+     * @description Sets custom settings
+     */
     function setConfig(settingsObject) {
         settings = settingsObject;
         angular.module('appverse.configuration.loader').config(loadConfig);
         return AppInit;
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#bootstrap
+     * @description Manually Bootstraps the application. For automatic bootstrap,
+     * use the standard Angular way using the ng-app directive.
+     *
+     * @param {string} appMainModule The name of the main application module.
+     * You can also use setMainModuleName and use this function without any parameters
+     */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
         angular.element(document).ready(function() {
@@ -3804,13 +3961,25 @@ var AppInit = AppInit || (function(angular) { 'use strict';
         });
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#setMainModuleName
+     * @param {string} name The name of the main application module.
+     */
     function setMainModuleName(name) {
         mainModuleName = name;
     }
 
+    /**
+     * @ngdoc method
+     * @name AppInit#setMainModuleName
+     * @return {string} The name of the main application module.
+     */
     function getMainModule() {
         return angular.module(mainModuleName);
     }
+
+    // ---- Privates -----
 
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
