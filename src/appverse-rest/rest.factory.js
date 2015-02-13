@@ -5,12 +5,17 @@
 
     /**
      * @ngdoc service
-     * @name appverse.rest.factory:RESTFactory
-     * @requires $log
-     * @requires Restangular
+     * @name RESTFactory
+     * @module appverse.rest
      * @description
      * Contains methods for data finding (demo).
      * This module provides basic quick standard access to a REST API.
+     *
+     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires https://docs.angularjs.org/api/ngMock/service/$q $q
+     * @requires https://docs.angularjs.org/api/ngMock/service/$http $http
+     * @requires https://github.com/mgonto/restangular Restangular
+     * @requires REST_CONFIG
      */
     function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {
 
@@ -43,8 +48,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#wrapRequestWith
+         *
          * @param {object} The request wrapper
          * @description Wraps a request.
          * The wrapper should expose a 'wrapRequest(Restangular)' function
@@ -56,8 +61,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#wrapRequestWith
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#wrapRequestWith
+         *
          * @description Sets the default Content-Type as header.
          */
         factory.enableDefaultContentType = function() {
@@ -68,8 +73,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#setCache
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#setCache
+         *
          * @description Sets the cache. Caching also depends on REST_CONFIG
          */
         factory.setCache = function(cache) {
@@ -90,8 +95,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readObject
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readObject
+         *
          * @param {String} path The item URL
          * @param {String} successFn Optional function to be called when request is successful
          * @param {String} errorFn Optional function to be called when request has errors
@@ -115,8 +120,8 @@
          */
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readList
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readList
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -129,8 +134,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readList
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readList
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * @returns {object} Does a GET to path
@@ -143,8 +148,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readBatch
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readBatch
+         *
          * @param {String} path The item URL
          * @description Returns a complete list from a REST resource.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -164,8 +169,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readParallelMultipleBatch
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readParallelMultipleBatch
+         *
          * @param {String} paths An array with URLs for each resource
          * @description Returns a combined result from several REST resources in chained promises.
          * It is specially recommended when retrieving large amounts of data. Restangular adds 4 additional fields
@@ -199,8 +204,8 @@
 
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readListItem
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readListItem
+         *
          * @param {String} path The item URL
          * @param {String} key The item key
          * @param {String} successFn Optional function to be called when request is successful
@@ -219,8 +224,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#readListItems
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#readListItems
+         *
          * @param {String} path The item URL
          * @param {String} keys The item keys array
          * @description Returns a unique value.
@@ -233,8 +238,8 @@
 
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#createListItem
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#createListItem
+         *
          * @param {String} path The item URL
          * @param {object} newData The item to be created
          * @param {object} callback The function for callbacking
@@ -248,8 +253,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#updateObject
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#updateObject
+         *
          * @param {String} path The item URL
          * @param {object} newData The item to be updated
          * @param {object} callback The function for callbacking
@@ -263,8 +268,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#deleteListItem
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#deleteListItem
+         *
          * @param {String} path The item URL
          * @param {object} key The item key to be deleted
          * @param {object} callback The function for callbacking
@@ -280,8 +285,8 @@
 
        /**
          * @ngdoc method
-         * @name appverse.rest.factory:RESTFactory#deleteObject
-         * @methodOf appverse.rest.factory:RESTFactory
+         * @name RESTFactory#deleteObject
+         *
          * @param {String} path The item URL
          * @param {object} callback The function for callbacking
          * @description Deletes an item from a list.

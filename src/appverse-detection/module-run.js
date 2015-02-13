@@ -3,13 +3,6 @@
 angular.module('appverse.detection')
     .run(run);
 
-/**
- * @doc function
- * @name appverse.detection.run:Detection
- * @description
- *
- * Run block for appverse.detection. Contains methods for browser and network detection.
- */
 function run($log, Detection, $rootScope, $window) {
     $log.info('appverse.detection run');
 

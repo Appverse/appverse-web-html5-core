@@ -5,12 +5,15 @@
 
     /**
      * @ngdoc service
-     * @name appverse.cache.service:CacheFactory
-     * @requires $angularCacheFactory
-     * @requires $http
-     * @requires CACHE_CONFIG
+     * @name CacheFactory
+     * @module appverse.cache
+     *
      * @description
-     * Contains methods for cache management.
+     * Returns an object that exposes methods for cache management.
+     *
+     * @requires http://jmdobry.github.io/angular-cache/ $angularCacheFactory
+     * @requires https://docs.angularjs.org/api/ng/service/$http $http
+     * @requires CACHE_CONFIG
      */
     function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
 
@@ -22,11 +25,12 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#setScopeCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#setScopeCache
+         *
          * @param {number} duration Items expire after this time.
          * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
          * If you don't want $http's default cache to store every response.
+         *
          * @description Configure the scope cache.
          */
         factory.setScopeCache = function(duration, capacity) {
@@ -39,8 +43,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#getScopeCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#getScopeCache
+         *
          * @description getScopeCache is the singleton that CacheFactory
          * manages as a local cache created with $angularCacheFactory,
          * which is what we return from the service.
@@ -48,17 +52,17 @@
          *
          * The newly created cache object has the following set of methods:
          *
-         * {object} info() — Returns id, size, and options of cache.
+         * * {object} info() — Returns id, size, and options of cache.
          *
-         * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
+         * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
          *
-         * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
+         * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
          *
-         * {void} remove({string} key) — Removes a key-value pair from the cache.
+         * * {void} remove({string} key) — Removes a key-value pair from the cache.
          *
-         * {void} removeAll() — Removes all cached values.
+         * * {void} removeAll() — Removes all cached values.
          *
-         * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+         * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
          */
         factory.getScopeCache = function() {
             return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
@@ -66,7 +70,9 @@
         };
 
         /**
-         @function
+         @ngdoc function
+         @name CacheFactory#setBrowserStorage
+
          @param type Type of storage ( 1 local | 2 session).
          @param maxAgeInit
          @param cacheFlushIntervalInit
@@ -83,9 +89,8 @@
          Infinity, NaN - Will be replaced with null.
          undefined, Function - Will be removed.
          The returned object supports the following set of methods:
-         {void} $reset() - Clears the Storage in one go.
+         * {void} $reset() - Clears the Storage in one go.
          */
-
         factory.setBrowserStorage = function(
             type,
             maxAgeInit,
@@ -113,8 +118,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#setDefaultHttpCacheStorage
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#setDefaultHttpCacheStorage
+         *
          * @param {number} duration items expire after this time.
          * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
          * @description Default cache configuration for $http service
@@ -172,8 +177,8 @@
 
         /**
          * @ngdoc method
-         * @name appverse.cache.service:CacheFactory#getHttpCache
-         * @methodOf appverse.cache.service:CacheFactory
+         * @name CacheFactory#getHttpCache
+         * @methodOf CacheFactory
          * @description Returns the httpcache object in factory
          * @returns httpcache object
          */

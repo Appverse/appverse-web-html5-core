@@ -18,21 +18,26 @@
      *
      * Params configuration are set in app-configuration file as constants.
      *
-     * SERVICES CLIENT CONFIGURATION
+     * ## Services Client Configuration
      *
      * The common API includes configuration for one set of REST resources client (1 base URL).
      * This is the most common approach in the most of projects.
      * In order to build several sets of REST resources (several base URLs) you should
      * create scoped configurations. Please, review the below snippet:
      *
-     * var MyRestangular = Restangular.withConfig(function(RestangularConfigurer) {
-     * RestangularConfigurer.setDefaultHeaders({'X-Auth': 'My Name'})
-     * });
+     *     var MyRestangular = Restangular.withConfig(function(RestangularConfigurer) {
+     *       RestangularConfigurer.setDefaultHeaders({'X-Auth': 'My Name'})
+     *     });
      *
-     * MyRestangular.one('place', 12).get();
+     *     MyRestangular.one('place', 12).get();
      *
      * The MyRestangular object has scoped properties of the Restangular on with a different
      * configuration.
+     *
+     * @requires  https://github.com/mgonto/restangular restangular
+     * @requires  appverse.configuration
+     * @requires  appverse.utils
+     *
      */
     angular.module('appverse.rest', requires).run(run);
 

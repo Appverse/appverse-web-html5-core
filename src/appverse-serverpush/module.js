@@ -38,6 +38,9 @@
     * requests for /socket.io/socket.io.js and sends the appropriate response automatically.
     *
     * That is the reason it is not a dependency handled by bower.
+    *
+    * @requires  appverse.socket.io
+    * @requires  appverse.configuration
     */
     angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
     /*

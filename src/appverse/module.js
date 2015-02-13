@@ -1,18 +1,24 @@
 (function() {
     'use strict';
 
-    //////////////////////// COMMON API - MAIN //////////////////////////
-    // The Main module includes other API modules:
-    // - Bootstrap-based styling and gadgets
-    // - Routing
-    // - External Configuration
-    // - REST Integration
-    // - Cache Service
-    // - ServerPush
-    // - Security
-    // - Internationalization
-    // - Logging
-    /////////////////////////////////////////////////////////////////////
+    /**
+     * @ngdoc module
+     * @name  appverse
+     * @description Main module. Bootstraps the application by integrating services that have any relation.
+     * It will automatically initialize any of these modules, whose scripts have been loaded:
+     * * Bootstrap-based styling and gadgets
+     * * Routing
+     * * External Configuration
+     * * REST Integration
+     * * Cache Service
+     * * ServerPush
+     * * Security
+     * * Internationalization
+     * * Logging
+     *
+     * @requires  appverse.utils
+     * @requires  appverse.configuration
+     */
 
     /**
      * Required modules (compulsory)
@@ -38,11 +44,6 @@
         'appverse.router'
     ];
 
-
-    /**
-     * Main module.
-     * Bootstraps the application by integrating services that have any relation.
-     */
     angular.module('appverse', generateDependencies(requires, optional))
         .config(config)
         .run(run);

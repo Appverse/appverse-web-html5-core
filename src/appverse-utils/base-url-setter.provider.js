@@ -4,23 +4,29 @@
     angular.module('appverse.utils')
         .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
-    function BaseUrlSetterProvider() {
-        this.$get = function () {
-            return this;
-        };
-
-        this.setBasePath = function (basePath) {
-            return new BaseUrlSetter(basePath);
-        };
-    }
-
     /**
-     * @ngdoc service
+     * @ngdoc provider
      * @name BaseUrlSetter
      * @module appverse.utils
      * @description
      * Preprends a url with a base path
      */
+    function BaseUrlSetterProvider() {
+        this.$get = function () {
+            return this;
+        };
+
+        /**
+         * @ngdoc method
+         * @name BaseUrlSetter#setBasePath
+         * @param {string} basePath The base path to prepend
+         */
+        this.setBasePath = function (basePath) {
+            return new BaseUrlSetter(basePath);
+        };
+    }
+
+
     function BaseUrlSetter(basePath) {
 
         basePath = basePath || '';

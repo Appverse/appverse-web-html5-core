@@ -6,7 +6,8 @@
 
     /**
      * @ngdoc directive
-     * @name appverse.rest.directive:rest
+     * @name rest
+     * @module appverse.rest
      * @restrict A
      *
      * @description
@@ -19,6 +20,9 @@
          <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
        </file>
      </example>
+     *
+     * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+     * @requires  RESTFactory
      */
     function restDirective ($log, RESTFactory) {
         return {

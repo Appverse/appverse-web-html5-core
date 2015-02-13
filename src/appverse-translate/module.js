@@ -4,15 +4,14 @@
     /**
      * @ngdoc module
      * @name appverse.translate
-     * @requires appverse.configuration
      * @description
      * The Internationalization module handles languages in application.
-     *
      * It should be directly configurable by developers.
+     * **Warning**: Items in each translations object must match items defined in the Configuration module.
      *
-     * WARNING:
-     *
-     * Items in each translations object must match to items defined in the Configuration module.
+     * @requires https://github.com/angular-translate/angular-translate pascalprecht.translate
+     * @requires https://github.com/lgalfaso/angular-dynamic-locale tmh.dynamicLocale
+     * @requires appverse.configuration
      */
     angular.module('appverse.translate', [
         'pascalprecht.translate',

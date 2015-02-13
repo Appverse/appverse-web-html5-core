@@ -5,10 +5,8 @@
 
     /**
      * @ngdoc service
-     * @name appverse.serverPush.factory:SocketFactory
-     * @requires $rootScope
-     * @requires socket
-     *
+     * @name SocketFactory
+     * @module appverse.serverPush
      * @description
      * Although Socket.IO exposes an io variable on the window, it's better to encapsulate it
      * into the AngularJS's Dependency Injection system.
@@ -19,6 +17,9 @@
      * the templates if there was a change after running the callback passed to it by using dirty checking.
      * Internally, $http works in the same way. After some XHR returns, it calls $scope.$apply,
      * so that AngularJS can update its views accordingly.
+     *
+     * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
+     * @requires Socket
      */
     .factory('SocketFactory', ['$rootScope', 'Socket',
         function ($rootScope, Socket) {
@@ -26,8 +27,7 @@
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#listen
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#listen
              @param {string} eventName The name of the event/channel to be listened
              The communication is bound to rootScope.
              @param {object} callback The function to be passed as callback.
@@ -46,8 +46,7 @@
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#sendMessage
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#sendMessage
              @param {string} eventName The name of the event/channel to be sent to server
              @param {object} scope The scope object to be bound to the listening.
              The communication will be cancelled when the scope is destroyed.
@@ -68,8 +67,7 @@
 
         /**
              @ngdoc method
-             @name appverse.serverPush.factory:SocketFactory#unsubscribeCommunication
-             @methodOf appverse.serverPush.factory:SocketFactory
+             @name SocketFactory#unsubscribeCommunication
              @param {object} callback The function to be passed as callback.
              @description Cancels all communications to server.
              The communication will be cancelled without regarding other consideration.

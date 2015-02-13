@@ -6,16 +6,14 @@
 
     /**
     * @ngdoc directive
-    * @name appverse.performance.directive:webworker
-    * @restrict AE
+    * @name webworker
+    * @module appverse.performance
+    * @restrict E
     *
     * @description
     * Establishes comm with messages to a selected web worker.
     * Allows send messages to the worker and receive results from.
     * Messages from the worker are displayed in a div.
-    * Params:
-    * id: id of the pre-configured worker or path to the worker's file
-    * message: Message to be passed to the worker.
     *
     * @example
     <example module="appverse.performance">
@@ -24,6 +22,13 @@
     <webworker  id="101" message="Hans Walter" template=""/>
     </file>
     </example>
+    *
+    * @param {string} id Id of the pre-configured worker or path to the worker's file
+    * @param {string} message Message to be passed to the worker.
+    *
+    * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+    * @requires  WebWorkerFactory
+    * @requires  PERFORMANCE_CONFIG
     */
     .directive('webworker', ['$log', 'WebWorkerFactory', 'PERFORMANCE_CONFIG',
         function ($log, WebWorkerFactory, PERFORMANCE_CONFIG) {

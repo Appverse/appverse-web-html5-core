@@ -1,12 +1,12 @@
 'use strict';
 
-var fs = require('fs'),
-    connectLiveReload = require('connect-livereload'),
-    LIVERELOAD_PORT = 35729,
-    liveReloadSnippet = connectLiveReload({
-        port: LIVERELOAD_PORT
-    });
-
+var fs            = require('fs'),
+connectLiveReload = require('connect-livereload'),
+bowerFile         = require('./bower.json'),
+LIVERELOAD_PORT   = 35729,
+liveReloadSnippet = connectLiveReload({
+    port: LIVERELOAD_PORT
+});
 
 module.exports = function (grunt) {
 
@@ -33,7 +33,7 @@ module.exports = function (grunt) {
 
     // If app path is defined in bower.json, use it
     try {
-        configPaths.src = require('./bower.json').appPath || configPaths.src;
+        configPaths.src = bowerFile.appPath || configPaths.src;
     } catch (e) {}
 
     // Define file to load in the demo, ordering and the way they are
@@ -155,7 +155,8 @@ module.exports = function (grunt) {
                 }]
             },
             coverage: '<%= appverse.coverage %>/**',
-            server: '.tmp'
+            server: '.tmp',
+            doc: 'doc/' + bowerFile.version
         },
 
         jshint: {
@@ -346,7 +347,22 @@ module.exports = function (grunt) {
                         ];
                     }
                 }
-            }
+            },
+
+            // Docs
+            doc: {
+                options: {
+                    port: 9999,
+                    keepalive : true,
+                    middleware: function (connect) {
+                        return [
+                            require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
+                            mountFolder(connect, configPaths.doc),
+
+                        ];
+                    }
+                }
+            },
         },
 
         watch: {
@@ -536,6 +552,17 @@ module.exports = function (grunt) {
         'open:demo_dist',
         'connect:e2e_dist:keepalive',
     ]);
+
+
+    // ------ Doc tasks -----
+
+    grunt.registerTask('doc', [
+        'clean:doc',
+        'docgen'
+    ]);
+
+    grunt.registerTask('docgen', 'Generates docs', require('./config/grunt-tasks/docgen/grunt-task'));
+
 
     // ------ Analysis tasks. Runs code analysis -----
 

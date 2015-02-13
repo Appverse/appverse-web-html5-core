@@ -4,26 +4,26 @@
     /**
      * @ngdoc module
      * @name appverse.logging
-     * @description
      *
+     * @description
      * The Logging module handles several tasks with logging:
      *
-     * 1 - It applies a decorator on native $log service in module ng.
+     * 1. It applies a decorator on native $log service in module ng.
      *
-     * 2 - It includes sending of log events to server-side REST service.
+     * 2. It includes sending of log events to server-side REST service.
      *
-     * WARNING
+     * ## Warning
      *
      * IT IS STRONGLY RECOMMENDED TO USE THIS LOG IMPLEMENTATION AND NEVER directly
      * to use console.log() to log debugger messages.
      * If you do not use this one, use $log instead at least...
      *
-     * SERVER SIDE LOG
+     * ## Server side log
      *
      * To handle JavaScript errors, we needed to intercept the core AngularJS
      * error handling and add a server-side communication aspect to it.
      *
-     * DECORATOR WAY
+     * ## Decorator way
      *
      * The $provide service (which provides all angular services) needs 2 parameters to “decorate” something:
      *
@@ -37,6 +37,8 @@
      * As you can see, we are passing the original $log
      * and formattedLogger (the API implementation) to the callback,
      * and then, he returns a formattedLogger factory instance.
+     *
+     * @requires  appverse.configuration
      */
     angular.module('appverse.logging', ['appverse.configuration'])
         .config(["$provide",  function ($provide) {

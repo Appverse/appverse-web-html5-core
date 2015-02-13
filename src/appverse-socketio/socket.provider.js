@@ -5,7 +5,8 @@
 
     /**
      * @ngdoc provider
-     * @name appverse.socket.io.provider:socket
+     * @name Socket
+     * @module appverse.socket.io
      * @description
      * This provider provides the appverse.serverPush module with the SocketIO
      * client object from pre-existing configuration in application.
@@ -29,6 +30,8 @@
      * The second argument is optional, and is the scope on which the events are to be broadcast.
      * If an argument is not provided, it defaults to $rootScope.
      * As a reminder, broadcasted events are propagated down to descendant scopes.
+     *
+     * @requires SERVERPUSH_CONFIG
      */
      .provider('Socket', ['SERVERPUSH_CONFIG',
         function (SERVERPUSH_CONFIG) {

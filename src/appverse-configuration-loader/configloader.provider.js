@@ -3,23 +3,52 @@
 angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
 
 /**
- * @ngdoc module
- * @name appverse.configuration.provider:ConfigLoader
- * @requires appverse.detection
+ * @ngdoc provider
+ * @name ConfigLoader
+ * @module appverse.configuration.loader
+ *
  * @description
- * It includes constants for all the common API components.
+ * Loads configuration parameters int the AppConfiguration module.
  */
 function ConfigLoaderProvider() {
 
-    var appConfigTemp = {},
-    //by default, no detection is present
-    detection         = new NoDetection();
+    // By default, no detection is present
+    var detection = new NoDetection(),
+    // Object used to perfom default config overriding
+    appConfigTemp = {};
 
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#$get
+     * @description Factory function. Gets the service instance
+     */
+    this.$get = function() {
+        return this;
+    };
+
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#load
+     * @param {object} settings See appverse.configuration.default for available settings
+     * @description Loads the custom config, overriding defaults
+     */
     this.load = function(settings) {
         this.loadDefaultConfig()
             .loadCustomConfig(settings)
             .overrideDefaultConfig();
     };
+
+    /**
+     * @ngdoc method
+     * @name  ConfigLoader#setDetection
+     * @param {object} detectionProvider Detection provider from appverse.detection
+     */
+    this.setDetection = function(detectionProvider) {
+        detection = detectionProvider;
+    };
+
+
+    // ---- Privates -----
 
     this.loadDefaultConfig = function() {
         angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
@@ -37,13 +66,12 @@ function ConfigLoaderProvider() {
         return this;
     };
 
-
-
     this.overrideDefaultConfig = function() {
         angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
             angular.module('appverse.configuration').constant(propertyName, propertyValue);
         });
     };
+
 
     this.loadMobileConfigIfRequired = function() {
         if (detection.hasAppverseMobile()) {
@@ -113,13 +141,7 @@ function ConfigLoaderProvider() {
         this.addConfig(jsonData);
     };
 
-    this.setDetection = function(detectionProvider) {
-        detection = detectionProvider;
-    };
 
-    this.$get = function() {
-        return this;
-    };
 }
 
 
