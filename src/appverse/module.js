@@ -21,39 +21,13 @@
      */
 
     /**
-     * Required modules (compulsory)
-     */
-    var requires = [
-        'appverse.utils',
-        'appverse.configuration'
-    ];
 
-    /**
-     * Optional modules
-     */
-    var optional = [
-        'appverse.detection',
-        'appverse.rest',
-        'appverse.translate',
-        'appverse.logging',
-        'appverse.serverPush',
-        'appverse.security',
-        'appverse.cache',
-        'appverse.performance',
-        'appverse.router',
-        'xeditable',
-        'ja.qr',
-        'vr.directives.slider',
-        'ngGrid'
-    ];
-
-    /**
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
-    angular.module('appverse', generateDependencies(requires, optional))
-        .config(config)
-        .run(run);
+    angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
+        .config(config).run(run);
+
 
     /**
      * Preliminary configuration.
@@ -89,28 +63,6 @@
     function run($log, REST_CONFIG) {
         if (REST_CONFIG.MockBackend) {
             $log.debug('REST: You are using a MOCKED backend!');
-        }
-    }
-
-    function generateDependencies(requires, optional) {
-        var dependencies = requires;
-        angular.forEach(optional, function (module) {
-            if (moduleExists(module)) {
-                dependencies.push(module);
-            }
-        });
-        return dependencies;
-    }
-
-    // TODO: this function is already defined in appverse.utils but cannot be used
-    // when declaring a module as we can't inject anything yet. We must have a way
-    // to call this function before being inside the angular environment. Global maybe?
-    function moduleExists(name) {
-        try {
-            angular.module(name);
-            return true;
-        } catch (e) {
-            return false;
         }
     }
 
