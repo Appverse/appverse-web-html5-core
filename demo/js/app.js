@@ -50,13 +50,15 @@
     }
 
 
-    function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService, CACHE_CONFIG) {
+    function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService) {
 
         if ($stateParams.key) {
             IDBService.getDefault(Number($stateParams.key)).then(function (note) {
                 $scope.note = note;
                 $scope.tagString = "";
-                if (note.tags.length) $scope.tagString = note.tags.join(",");
+                if (note.tags.length) {
+                    $scope.tagString = note.tags.join(",");
+                }
             });
         }
 
@@ -65,7 +67,7 @@
             $scope.note.title = "";
             $scope.note.body = "";
             $scope.tagString = "";
-            $scope.note.id = ""
+            $scope.note.id = "";
         };
 
         $scope.saveNote = function () {
@@ -225,7 +227,7 @@
 
             drawRectangle(targetContext, wp.x, wp.y, bulletSize, colors[0]);
 
-        }
+        };
 
         // process the image by splitting it in parts and sending it to the worker
         function renderElements(imgwidth, imgheight, image, poolSize) {
