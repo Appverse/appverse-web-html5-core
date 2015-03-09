@@ -113,8 +113,20 @@
     }
 
 
-    function RestController($scope, RESTFactory) {
+    function RestController($scope, RESTFactory, $log, Restangular) {
+
+        $log.debug('RestController');
+
+        Restangular.setBaseUrl('api');
+
         $scope.factoryBooks = RESTFactory.readList('books');
+
+        RESTFactory.readParallelMultipleBatch(['books', 'books2'])
+            .then(function (result) {
+                $log.debug('readParallelMultipleBatch has finished:', result);
+
+                $scope.parallelBooks = result[0].concat(result[1]);
+            });
     }
 
 

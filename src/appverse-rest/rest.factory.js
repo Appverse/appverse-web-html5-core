@@ -161,7 +161,7 @@
          */
         factory.readBatch = function (path) {
             var d = $q.defer();
-            $http.get(Restangular.configuration.baseUrl + '/' + path + REST_CONFIG.RequestSuffix)
+            $http.get(Restangular.configuration.baseUrl + '/' + path + Restangular.configuration.suffix)
                 .success(function (data) {
                     d.resolve(data);
                 });
