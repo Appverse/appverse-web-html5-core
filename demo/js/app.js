@@ -119,6 +119,8 @@
 
         $log.debug('RestController');
 
+        // Demo of setting Restangular BaseUrl at runtime instead of config phase
+        // This forces RESTFactory to read from Restangular config instead of REST_CONFIG constant
         Restangular.setBaseUrl('api');
 
         $scope.factoryBooks = RESTFactory.readList('books');
