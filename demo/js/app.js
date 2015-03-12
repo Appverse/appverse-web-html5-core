@@ -50,13 +50,15 @@
     }
 
 
-    function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService, CACHE_CONFIG) {
+    function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService) {
 
         if ($stateParams.key) {
             IDBService.getDefault(Number($stateParams.key)).then(function (note) {
                 $scope.note = note;
                 $scope.tagString = "";
-                if (note.tags.length) $scope.tagString = note.tags.join(",");
+                if (note.tags.length) {
+                    $scope.tagString = note.tags.join(",");
+                }
             });
         }
 
@@ -65,7 +67,7 @@
             $scope.note.title = "";
             $scope.note.body = "";
             $scope.tagString = "";
-            $scope.note.id = ""
+            $scope.note.id = "";
         };
 
         $scope.saveNote = function () {
@@ -113,8 +115,22 @@
     }
 
 
-    function RestController($scope, RESTFactory) {
+    function RestController($scope, RESTFactory, $log, Restangular) {
+
+        $log.debug('RestController');
+
+        // Demo of setting Restangular BaseUrl at runtime instead of config phase
+        // This forces RESTFactory to read from Restangular config instead of REST_CONFIG constant
+        Restangular.setBaseUrl('api');
+
         $scope.factoryBooks = RESTFactory.readList('books');
+
+        RESTFactory.readParallelMultipleBatch(['books', 'books2'])
+            .then(function (result) {
+                $log.debug('readParallelMultipleBatch has finished:', result);
+
+                $scope.parallelBooks = result[0].concat(result[1]);
+            });
     }
 
 
@@ -213,7 +229,7 @@
 
             drawRectangle(targetContext, wp.x, wp.y, bulletSize, colors[0]);
 
-        }
+        };
 
         // process the image by splitting it in parts and sending it to the worker
         function renderElements(imgwidth, imgheight, image, poolSize) {

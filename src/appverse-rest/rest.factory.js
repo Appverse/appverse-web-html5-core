@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
@@ -17,7 +17,7 @@
      * @requires https://github.com/mgonto/restangular Restangular
      * @requires REST_CONFIG
      */
-    function RESTFactory ($log, $q, $http, Restangular,  REST_CONFIG) {
+    function RESTFactory($log, $q, $http, Restangular, REST_CONFIG) {
 
         ////////////////////////////////////////////////////////////////////////////////////
         // ADVICES ABOUT PROMISES
@@ -55,7 +55,7 @@
          * The wrapper should expose a 'wrapRequest(Restangular)' function
          * that wraps the requests and returns the processed Restangular service
          */
-        factory.wrapRequestsWith = function(wrapper) {
+        factory.wrapRequestsWith = function (wrapper) {
             Restangular = wrapper.wrapRequest(Restangular);
         };
 
@@ -65,7 +65,7 @@
          *
          * @description Sets the default Content-Type as header.
          */
-        factory.enableDefaultContentType = function() {
+        factory.enableDefaultContentType = function () {
             Restangular.setDefaultHeaders({
                 'Content-Type': REST_CONFIG.DefaultContentType
             });
@@ -77,7 +77,7 @@
          *
          * @description Sets the cache. Caching also depends on REST_CONFIG
          */
-        factory.setCache = function(cache) {
+        factory.setCache = function (cache) {
             Restangular.setResponseInterceptor(
                 function (data, operation, what, url, response) {
                     // Caches response data or not according to configuration.
@@ -104,8 +104,8 @@
          * @returns {object} List of values
          */
         factory.readObject = function (path, successFn, errorFn) {
-            successFn = successFn || function() {};
-            errorFn   = errorFn || function() {};
+            successFn = successFn || function () {};
+            errorFn = errorFn || function () {};
             var promise = Restangular.one(path).get();
             promise.then(successFn, errorFn);
             return promise.$object;
@@ -118,7 +118,7 @@
             Then, use the var in templates:
             <li ng-repeat="person in people">{{person.Name}}</li>
          */
-       /**
+        /**
          * @ngdoc method
          * @name RESTFactory#readList
          *
@@ -159,11 +159,12 @@
          * This method uses the $http AngularJS service. So, Restangular object settings are not applicable.
          * @returns {object} Promise with a large data structure
          */
-       factory.readBatch = function (path) {
+        factory.readBatch = function (path) {
             var d = $q.defer();
-            $http.get(REST_CONFIG.BaseUrl + '/' + path + REST_CONFIG.RequestSuffix).success(function(data){
-                d.resolve(data);
-            });
+            $http.get(Restangular.configuration.baseUrl + '/' + path + Restangular.configuration.suffix)
+                .success(function (data) {
+                    d.resolve(data);
+                });
             return d.promise;
         };
 
@@ -180,29 +181,29 @@
          * This method uses the $http AngularJS service. So, Restangular object settings are not applicable.
          * @returns {object} Promise with a large data structure
          */
-       factory.readParallelMultipleBatch = function (paths) {
-           var promises = [];
+        factory.readParallelMultipleBatch = function (paths) {
+            var promises = [];
 
-           angular.forEach(paths, function (path) {
+            angular.forEach(paths, function (path) {
 
-               var deferred = $q.defer();
-               factory.readBatch(path).then(function (data) {
-                       deferred.resolve(data);
-                   },
-                   function () {
-                       deferred.reject();
-                   });
+                var deferred = $q.defer();
+                factory.readBatch(path).then(function (data) {
+                        deferred.resolve(data);
+                    },
+                    function () {
+                        deferred.reject();
+                    });
 
-               promises.push(deferred.promise);
+                promises.push(deferred.promise);
 
-           });
+            });
 
-           return $q.all(promises);
-       };
+            return $q.all(promises);
+        };
 
 
 
-       /**
+        /**
          * @ngdoc method
          * @name RESTFactory#readListItem
          *
@@ -214,8 +215,8 @@
          * @returns {object} An item value
          */
         factory.readListItem = function (path, key, successFn, errorFn) {
-            successFn = successFn || function() {};
-            errorFn   = errorFn || function() {};
+            successFn = successFn || function () {};
+            errorFn = errorFn || function () {};
             var promise = Restangular.one(path, key).get();
             promise.then(successFn, errorFn);
             return promise.$object;
@@ -236,7 +237,7 @@
         };
 
 
-       /**
+        /**
          * @ngdoc method
          * @name RESTFactory#createListItem
          *
@@ -247,7 +248,7 @@
          * @returns {object} The created item
          */
         factory.createListItem = function (path, newData, callback) {
-            Restangular.all(path).post(newData).then(callback,restErrorHandler);
+            Restangular.all(path).post(newData).then(callback, restErrorHandler);
         };
 
 
@@ -283,7 +284,7 @@
             });
         };
 
-       /**
+        /**
          * @ngdoc method
          * @name RESTFactory#deleteObject
          *
@@ -295,7 +296,7 @@
 
         factory.deleteObject = function (path, callback) {
             // Use 'then' to resolve the promise.
-            Restangular.one(path).delete().then(callback,restErrorHandler);
+            Restangular.one(path).delete().then(callback, restErrorHandler);
         };
 
         /**
@@ -303,7 +304,7 @@
         @param response Response to know its status
         @description Provides a handler for errors.
         */
-        function restErrorHandler(response){
+        function restErrorHandler(response) {
             $log.error("Error with status code", response.status);
         }
 

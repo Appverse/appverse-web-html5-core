@@ -35,5 +35,11 @@
              rest-loading-text="Loading 'missing_resource' &nbsp;<i class='fa fa-refresh fa-spin'></i>"
              rest-error-text="<i class='fa fa-exclamation-circle red'></i> Error while loading 'missing_resource'">
         </div>
+        
+        <h2>Loading 2 (or more) resources in parallel</h2>
+<p>Results are loaded when all resources are retrieved. Useful when you do not know which resources will finish first to avoid making calls one after the other.</p>
+        <ul>
+            <li ng-if="book.language" ng-repeat="book in parallelBooks">{{book.language}}</li>
+        </ul>
     </div>
 </section>
