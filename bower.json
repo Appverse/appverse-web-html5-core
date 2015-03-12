@@ -24,7 +24,7 @@
     "grunt-contrib-concat": "~0.5.0",
     "angular-touch": "~1.2.20",
     "angular-animate": "~1.2.20",
-    "bootstrap-sass-official": "~3.3.1"
+    "bootstrap-sass": "~3.3.3"
   },
   "devDependencies": {
     "angular-mocks": "~1.2.20",
@@ -47,5 +47,5 @@
   ],
   "resolutions": {
     "angular": "~1.2.20"
-}
+  }
 }
