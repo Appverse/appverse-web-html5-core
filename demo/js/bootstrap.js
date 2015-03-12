@@ -83,7 +83,7 @@ AppInit.setConfig({
             "WS_SUPPORTED": "HTML5 Websockets specification is supported in this browser."
         },
         "REST_CONFIG": {
-            "BaseUrl": "api",
+            "BaseUrl": "",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {
