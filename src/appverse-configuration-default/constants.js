@@ -638,6 +638,8 @@ All data are auto-explained because their names ;)
     WS_CLOSING: 'Websocket connection closing...',
     WS_OPEN: 'Websocket connection is open',
     WS_UNKNOWN: 'Websocket status is unknown',
+    WS_PROTOCOL_CONNECTED:'Websocket protocol connected',
+    WS_PROTOCOL_DISCONNECTED:'Websocket protocol disconnected',    
     WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
     WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
     WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'

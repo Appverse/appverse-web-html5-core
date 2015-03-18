@@ -62,7 +62,7 @@
                 };
 
                 ws.onmessage = function(message) {
-                  factory.callback(message.data);
+                  factory.onmessagecallback(message.data);
                 };
 
                 ws.onclose = function () {
@@ -143,7 +143,10 @@
                 @param {object} callback .
                 @description Retrieve the currentcallback of the endpoint connection.
             */
-            factory.subscribe = function(callback) {
+            factory.onmessage = function(callback) {
+              factory.onmessagecallback = callback;
+            };
+             factory.onstatuschanged = function(callback) {
               factory.callback = callback;
             };
 

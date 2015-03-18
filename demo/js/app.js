@@ -344,9 +344,9 @@
                 })
                 .init();
 
-            WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
-            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);
-            initWebSocketFactoryEvents();
+            WebSocketFactory.onmessage(updateChartWhenNewDataArrives);
+            WebSocketFactory.onstatuschanged(statusChanged);
+            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);            
         };
 
         $scope.realTimeStats.stop = function () {
@@ -368,20 +368,19 @@
             }
         }
 
-        function initWebSocketFactoryEvents() {
-            WebSocketFactory.ws.onopen = function (event) {
+        function statusChanged(event) {
+            if (event != WEBSOCKETS_CONFIG.WS_CONNECTED) {
                 $log.debug(event);
                 WebSocketFactory.ws.send('');
                 $scope.status = 'Connection opened!';
                 $scope.$digest();
-            };
-
-            WebSocketFactory.ws.onclose = function (event) {
+            }
+            if (event != WEBSOCKETS_CONFIG.WS_DISCONNECTED) {
                 $log.debug(event);
                 $scope.status = 'Connection closed.';
                 WebSocketFactory.ws = null;
                 $scope.$digest();
-            };
+            }
         }
     }
 
