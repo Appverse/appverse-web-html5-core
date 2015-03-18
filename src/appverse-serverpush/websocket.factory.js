@@ -92,6 +92,11 @@
                     $log.warn('No protocol configured WS_PROTOCOL_TYPE=none');
                     return;
                 }
+                if (factory.ws === null){
+                    $log.warn('No underling websocket connection stablished, ' +
+                              'stablish a websocket connection first');
+                    return;
+                }
                 var client = null;
                 //protocol
                 if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'auto' ||

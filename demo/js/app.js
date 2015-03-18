@@ -345,14 +345,14 @@
                 .init();
 
             WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
-            WebSocketFactory.connect(WEBSOCKETS_CONFIG.WS_CPU_URL);
+            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);
             initWebSocketFactoryEvents();
         };
 
         $scope.realTimeStats.stop = function () {
             $scope.realTimeStats.running = false;
             Chart.clearPoints();
-            WebSocketFactory.disconnect();
+            WebSocketFactory.close();
             $scope.status = 'Disconnecting...';
         };
 

@@ -628,9 +628,9 @@ All data are auto-explained because their names ;)
  */
 .constant('WEBSOCKETS_CONFIG', {
     WS_ECHO_URL: "ws://echo.websocket.org",
-    WS_TYPE: 'auto',//auto|sockjs|native
-    WS_PROTOCOL_TYPE: 'auto',//auto|stomp|none
-    WS_CPU_INTERVAL: 30,
+    WS_TYPE: 'native',//auto|sockjs|native
+    WS_PROTOCOL_TYPE: 'none',//auto|stomp|none
+    WS_INTERVAL: 30,
     WS_CONNECTED: 'Websocket connected',
     WS_DISCONNECTED: 'Websocket disconnected',
     WS_CONNECTING: 'Connecting Websocket...',
