@@ -345,8 +345,10 @@
                 .init();
 
             WebSocketFactory.onmessage(updateChartWhenNewDataArrives);
-            WebSocketFactory.onstatuschanged(statusChanged);
-            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);            
+            WebSocketFactory.onstatuschanged(statusChanged);            
+            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);
+            WebSocketFactory.connect('','');
+            
         };
 
         $scope.realTimeStats.stop = function () {
@@ -356,16 +358,11 @@
             $scope.status = 'Disconnecting...';
         };
 
-        function updateChartWhenNewDataArrives(message) {
-            if (message != WEBSOCKETS_CONFIG.WS_CONNECTED) {
-
-                /* Workaround for deployed demo */
+        function updateChartWhenNewDataArrives(message) {                
                 if (message.data.charAt(0) === '{') {
-                    message = JSON.parse(message).data.pop().value;
+                    message = JSON.parse(message.data).data.pop().value;
                 }
-
-                Chart.update(message);
-            }
+                Chart.update(message.data);            
         }
 
         function statusChanged(event, message) {
