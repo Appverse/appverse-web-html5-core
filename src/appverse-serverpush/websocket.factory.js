@@ -140,8 +140,12 @@
                 @name WebSocketFactory#disconnect                
                 @description Disconnects a protocol connection over a websocket connection
             */
-            factory.disconnect = function(){                
-                    client.disconnect();
+            factory.disconnect = function(){
+                if(!factory.client) {
+                    $log.warn('factory.client does not exists');
+                    return;
+                }
+                client.disconnect();
             };
             
 
