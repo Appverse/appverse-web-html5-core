@@ -27,11 +27,22 @@
                     return;
                 }
 
-                var ws;
-                if ('WebSocket' in window) {
-                    ws = new WebSocket(url);
-                } else if ('MozWebSocket' in window) {
-                    ws = new window.MozWebSocket(url);
+                var ws = null;
+                //check if SockJS is avaiable
+                if (WEBSOCKETS_CONFIG.WS_TYPE === 'auto'){//auto|sockjs|native
+                    if ('SockJS' in window) {
+                        ws = new SockJS(url);                
+                    }
+                }else if (WEBSOCKETS_CONFIG.WS_TYPE === 'sockjs'){
+                    ws = new SockJS(url);
+                }
+                //otherwise switches to HTML5 WebSocket native object
+                if (ws == null){
+                    if ('WebSocket' in window) {
+                        ws = new WebSocket(url);
+                    } else if ('MozWebSocket' in window) {
+                        ws = new MozWebSocket(url);
+                    }
                 }
                 ws.onopen = function () {
                     if (ws !== null) {

@@ -627,9 +627,8 @@ All data are auto-explained because their names ;)
  * @description Configuration parameters for web sockets
  */
 .constant('WEBSOCKETS_CONFIG', {
-
     WS_ECHO_URL: "ws://echo.websocket.org",
-    WS_CPU_URL: "ws://localhost:8080/websocket/services/websocket/statistics/get/cpuload",
+    WS_TYPE: 'auto',//auto|sockjs|native    
     WS_CPU_INTERVAL: 30,
     WS_CONNECTED: 'Websocket connected',
     WS_DISCONNECTED: 'Websocket disconnected',
