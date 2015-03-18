@@ -360,7 +360,7 @@
             if (message != WEBSOCKETS_CONFIG.WS_CONNECTED) {
 
                 /* Workaround for deployed demo */
-                if (message.charAt(0) === '{') {
+                if (message.data.charAt(0) === '{') {
                     message = JSON.parse(message).data.pop().value;
                 }
 
@@ -368,14 +368,13 @@
             }
         }
 
-        function statusChanged(event) {
-            if (event != WEBSOCKETS_CONFIG.WS_CONNECTED) {
-                $log.debug(event);
-                WebSocketFactory.ws.send('');
+        function statusChanged(event, message) {
+            if (message != WEBSOCKETS_CONFIG.WS_CONNECTED) {
+                $log.debug(event);                
                 $scope.status = 'Connection opened!';
                 $scope.$digest();
             }
-            if (event != WEBSOCKETS_CONFIG.WS_DISCONNECTED) {
+            if (message != WEBSOCKETS_CONFIG.WS_DISCONNECTED) {
                 $log.debug(event);
                 $scope.status = 'Connection closed.';
                 WebSocketFactory.ws = null;

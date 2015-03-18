@@ -48,21 +48,21 @@
                 }else{
                     $log.debug('WS_TYPE: sockjs');
                 }
-                ws.onopen = function () {
+                ws.onopen = function (event) {
                     if (ws !== null) {
                         ws.send('');
-                        factory.callback(WEBSOCKETS_CONFIG.WS_CONNECTED);
+                        factory.callback(event,WEBSOCKETS_CONFIG.WS_CONNECTED);
                     } else {
-                        factory.callback(WEBSOCKETS_CONFIG.WS_DISCONNECTED);
+                        factory.callback(event, WEBSOCKETS_CONFIG.WS_DISCONNECTED);
                      }
                 };
 
-                ws.onerror = function() {
-                  factory.callback(WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
+                ws.onerror = function(event) {
+                  factory.callback(event, WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
                 };
 
                 ws.onmessage = function(message) {
-                  factory.onmessagecallback(message.data);
+                  factory.onmessagecallback(message);
                 };
 
                 ws.onclose = function () {
@@ -74,6 +74,13 @@
 
                 factory.ws = ws;
             };
+            factory.onprotocolconnectcallback = function(event) {
+              factory.callback(event, WEBSOCKETS_CONFIG.WS_PROTOCOL_CONNECTED);
+            };
+            factory.onprotocoldisconnectcallback = function(event) {
+              factory.callback(event,WEBSOCKETS_CONFIG.WS_PROTOCOL_DISCONNECTED);
+            };
+            
             
             /**
                 @ngdoc method
@@ -116,16 +123,27 @@
                         }
                         //stablish connection
                         if (onconnectcallback !== undefined){
-                            client.connect(user, password, onconnectcallback);  
+                            client.connect(user, password, onconnectcallback, factory.onprotocoldisconnectcallback);  
                         }else{
-                            client.connect(user, password, factory.onconnectcallback);
+                            client.connect(user, password, factory.onprotocolconnectcallback, 
+                                factory.onprotocoldisconectcallback, factory.onprotocoldisconnectcallback);                            
                         }
+                        client.disconect(factory.onprotocoldisconnectcallback);
                     }else{
                         $log.debug('WS_TYPE: none');
                     }
                 }
                 factory.client = client;
             };
+             /**
+                @ngdoc method
+                @name WebSocketFactory#disconnect                
+                @description Disconnects a protocol connection over a websocket connection
+            */
+            factory.disconnect = function(){                
+                    client.disconnect();
+            };
+            
 
             /**
                 @ngdoc method
