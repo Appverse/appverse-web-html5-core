@@ -179,7 +179,9 @@
                 @description Close the WebSocket connection.
             */
             factory.close = function() {
-                factory.ws.close();
+                if (factory.ws){
+                    factory.ws.close();
+                }
             };
 
 
