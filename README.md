@@ -71,6 +71,8 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
 
 
     <!-- Server Push module -->
+    <script src="bower_components/sockjs-client/dist/sockjs.js"></script>
+    <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/modules/api-serverpush.js"></script>
 
     <!-- Translate module -->
