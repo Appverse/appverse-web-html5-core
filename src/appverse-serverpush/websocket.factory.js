@@ -100,7 +100,7 @@
                 }
                 if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'none'){
                     $log.warn('No protocol configured WS_PROTOCOL_TYPE=none');
-                    return;
+                    throw new TypeError('No protocol configured WS_PROTOCOL_TYPE=none');
                 }
                 if (factory.ws === null){
                     $log.warn('No underling websocket connection stablished, ' +
@@ -126,7 +126,7 @@
                         }
                         //stablish connection
                         if (!angular.isUndefined(onconnectcallback)){
-                            client.connect(user, password, onconnectcallback, factory.onprotocoldisconnectcallback);  
+                            client.connect(user, password, onconnectcallback, factory.onprotocoldisconnectcallback);
                         }else{
                             client.connect(user, password, factory.onprotocolconnectcallback, 
                                 factory.onprotocoldisconectcallback, factory.onprotocoldisconnectcallback);
@@ -151,6 +151,9 @@
                 if(factory.client === null || angular.isUndefined(factory.client)) {
                     $log.warn('factory.client does not exists');
                     return null;
+                }
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
                 }
                 return factory.client.subscribe(queueName, callback);
             };
@@ -216,7 +219,10 @@
                 @description Retrieve a raw message of the websocket connection.
             */
             factory.onmessage = function(callback) {
-              factory.onmessagecallback = callback;
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                factory.onmessagecallback = callback;
             };
             /**
                 @ngdoc method
@@ -224,8 +230,11 @@
                 @param {object} callback .
                 @description Retrieve the websocket changes of status.
             */
-             factory.onstatuschanged = function(callback) {
-              factory.callback = callback;
+            factory.onstatuschanged = function(callback) {
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                factory.callback = callback;
             };
 
             /**
