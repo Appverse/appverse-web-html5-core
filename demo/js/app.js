@@ -346,8 +346,7 @@
 
             WebSocketFactory.onmessage(updateChartWhenNewDataArrives);
             WebSocketFactory.onstatuschanged(statusChanged);            
-            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);
-            WebSocketFactory.connect('','');
+            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);            
             
         };
 
@@ -358,11 +357,12 @@
             $scope.status = 'Disconnecting...';
         };
 
-        function updateChartWhenNewDataArrives(message) {                
+        function updateChartWhenNewDataArrives(message) {
+                var value = message.data;
                 if (message.data.charAt(0) === '{') {
-                    message = JSON.parse(message.data).data.pop().value;
+                    value = JSON.parse(message.data).data.pop().value;
                 }
-                Chart.update(message.data);            
+                Chart.update(value);            
         }
 
         function statusChanged(event, message) {
