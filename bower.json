@@ -1,7 +1,7 @@
 {
   "name": "appverse-web-html5-core",
   "description": "Appverse web html5 core module.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "main": "dist/api-main/api-main.min.js",
   "dependencies": {
     "angular": "~1.2.20",
