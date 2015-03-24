@@ -1,3 +1,5 @@
+/*jshint node:true */
+
 'use strict';
 
 var fs            = require('fs'),
@@ -414,7 +416,8 @@ module.exports = function (grunt) {
                     // Demo server directly mounts src folder so the reference to src is not required
                     path = path.replace('/src/', '');
                     return '<script src="' + path + '"></script>';
-                }
+                },
+                lineEnding: require('os').EOL
             },
             js: {
                 files: {
