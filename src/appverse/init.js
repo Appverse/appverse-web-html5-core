@@ -7,11 +7,12 @@
  * Just call the initalization code after having loaded angular and the configuration module:
  * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
-var AppInit = AppInit || (function(angular) { 'use strict';
+var AppInit = AppInit || (function (angular) {
+    'use strict';
 
     var
-    settings,
-    mainModuleName;
+        settings,
+        mainModuleName;
 
     /**
      * @ngdoc method
@@ -21,7 +22,15 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     function setConfig(settingsObject) {
         settings = settingsObject;
-        angular.module('appverse.configuration.loader').config(loadConfig);
+        var module = angular.module('appverse.configuration.loader');
+        // Remove default config function
+        module._invokeQueue.some(function (currentValue, index) {
+            if (currentValue[0] === '$injector' && currentValue[1] === 'invoke') {
+                module._invokeQueue.splice(index);
+                return true;
+            }
+        });
+        module.config(loadConfig);
         return AppInit;
     }
 
@@ -36,7 +45,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function() {
+        angular.element(document).ready(function () {
             angular.bootstrap(document, [moduleName]);
         });
     }
@@ -66,10 +75,10 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     }
 
     return {
-        setMainModuleName : setMainModuleName,
-        setConfig : setConfig,
-        bootstrap : bootstrap,
-        getMainModule : getMainModule
+        setMainModuleName: setMainModuleName,
+        setConfig: setConfig,
+        bootstrap: bootstrap,
+        getMainModule: getMainModule
     };
 
 })(angular);
