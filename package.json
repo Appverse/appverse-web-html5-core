@@ -61,7 +61,6 @@
         "karma-script-launcher": "~0.1.0",
         "karma-sinon": "^1.0.3",
         "load-grunt-tasks": "~0.6.0",
-        "lodash": "^2.4.1",
         "mocha": "^2.0.1",
         "ncp": "^1.0.1",
         "phantomjs": "1.9.9",

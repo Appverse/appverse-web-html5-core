@@ -15,7 +15,7 @@
     "angular-translate-loader-static-files": "~0.1.6",
     "angular-i18n": "1.0.8",
     "angular-dynamic-locale": "~0.1.17",
-    "restangular": "~1.2.0",
+    "restangular": "~1.5.1",
     "modernizr": "~2.6.1",
     "angular-cache": "~2.3.3",
     "socket.io-client": "~0.9.16",

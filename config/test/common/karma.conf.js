@@ -32,8 +32,8 @@ var settings = {
     midwayFiles: [
         'bower_components/angular-cache/dist/angular-cache.js',
         'bower_components/angular-ui-router/release/angular-ui-router.js',
-        'bower_components/lodash/dist/lodash.js',
-        'bower_components/restangular/dist/restangular.js',
+        'bower_components/lodash/lodash.min.js',
+        'bower_components/restangular/dist/restangular.min.js',
         'test/midway/**/*.js'
     ],
 };
