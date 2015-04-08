@@ -45,7 +45,6 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
     <script src="bower_components/angular-cache/dist/angular-cache.min.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.min.js"></script>
     <script src="bower_components/ng-grid/build/ng-grid.debug.js"></script>
 
     <!-- UI components -->
