@@ -50,13 +50,15 @@
     }
 
 
-    function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService, CACHE_CONFIG) {
+    function SimpleIDBController($scope, $rootScope, $stateParams, $log, IDBService) {
 
         if ($stateParams.key) {
             IDBService.getDefault(Number($stateParams.key)).then(function (note) {
                 $scope.note = note;
                 $scope.tagString = "";
-                if (note.tags.length) $scope.tagString = note.tags.join(",");
+                if (note.tags.length) {
+                    $scope.tagString = note.tags.join(",");
+                }
             });
         }
 
@@ -65,7 +67,7 @@
             $scope.note.title = "";
             $scope.note.body = "";
             $scope.tagString = "";
-            $scope.note.id = ""
+            $scope.note.id = "";
         };
 
         $scope.saveNote = function () {
@@ -113,8 +115,22 @@
     }
 
 
-    function RestController($scope, RESTFactory) {
+    function RestController($scope, RESTFactory, $log, Restangular) {
+
+        $log.debug('RestController');
+
+        // Demo of setting Restangular BaseUrl at runtime instead of config phase
+        // This forces RESTFactory to read from Restangular config instead of REST_CONFIG constant
+        Restangular.setBaseUrl('api');
+
         $scope.factoryBooks = RESTFactory.readList('books');
+
+        RESTFactory.readParallelMultipleBatch(['books', 'books2'])
+            .then(function (result) {
+                $log.debug('readParallelMultipleBatch has finished:', result);
+
+                $scope.parallelBooks = result[0].concat(result[1]);
+            });
     }
 
 
@@ -213,7 +229,7 @@
 
             drawRectangle(targetContext, wp.x, wp.y, bulletSize, colors[0]);
 
-        }
+        };
 
         // process the image by splitting it in parts and sending it to the worker
         function renderElements(imgwidth, imgheight, image, poolSize) {
@@ -328,44 +344,39 @@
                 })
                 .init();
 
-            WebSocketFactory.subscribe(updateChartWhenNewDataArrives);
-            WebSocketFactory.connect(WEBSOCKETS_CONFIG.WS_CPU_URL);
-            initWebSocketFactoryEvents();
+            WebSocketFactory.onmessage(updateChartWhenNewDataArrives);
+            WebSocketFactory.onstatuschanged(statusChanged);            
+            WebSocketFactory.open(WEBSOCKETS_CONFIG.WS_CPU_URL);            
+            
         };
 
         $scope.realTimeStats.stop = function () {
             $scope.realTimeStats.running = false;
             Chart.clearPoints();
-            WebSocketFactory.disconnect();
+            WebSocketFactory.close();
             $scope.status = 'Disconnecting...';
         };
 
         function updateChartWhenNewDataArrives(message) {
-            if (message != WEBSOCKETS_CONFIG.WS_CONNECTED) {
-
-                /* Workaround for deployed demo */
-                if (message.charAt(0) === '{') {
-                    message = JSON.parse(message).data.pop().value;
+                var value = message.data;
+                if (message.data.charAt(0) === '{') {
+                    value = JSON.parse(message.data).data.pop().value;
                 }
-
-                Chart.update(message);
-            }
+                Chart.update(value);            
         }
 
-        function initWebSocketFactoryEvents() {
-            WebSocketFactory.ws.onopen = function (event) {
-                $log.debug(event);
-                WebSocketFactory.ws.send('');
+        function statusChanged(event, message) {
+            if (message != WEBSOCKETS_CONFIG.WS_CONNECTED) {
+                $log.debug(event);                
                 $scope.status = 'Connection opened!';
                 $scope.$digest();
-            };
-
-            WebSocketFactory.ws.onclose = function (event) {
+            }
+            if (message != WEBSOCKETS_CONFIG.WS_DISCONNECTED) {
                 $log.debug(event);
                 $scope.status = 'Connection closed.';
                 WebSocketFactory.ws = null;
                 $scope.$digest();
-            };
+            }
         }
     }
 

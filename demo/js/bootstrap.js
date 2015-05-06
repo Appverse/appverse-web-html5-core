@@ -70,7 +70,7 @@ AppInit.setConfig({
         "WEBSOCKETS_CONFIG": {
             "WS_ECHO_URL": "ws://echo.websocket.org",
             "WS_CPU_URL": "ws://localhost:8080/websocket/services/websocket/statistics/get/cpuload",
-            "WS_CPU_INTERVAL": 30,
+            "WS_INTERVAL": 30,
             "WS_CONNECTED": "Connected",
             "WS_DISCONNECTED": "Disconnected",
             "WS_CONNECTING": "Connecting Websocket...",
@@ -83,7 +83,7 @@ AppInit.setConfig({
             "WS_SUPPORTED": "HTML5 Websockets specification is supported in this browser."
         },
         "REST_CONFIG": {
-            "BaseUrl": "api",
+            "BaseUrl": "",
             "ExtraFields": [],
             "ParentLess": false,
             "NoCacheHttpMethods": {

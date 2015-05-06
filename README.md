@@ -45,7 +45,6 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
     <script src="bower_components/angular-cache/dist/angular-cache.min.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.min.js"></script>
     <script src="bower_components/ng-grid/build/ng-grid.debug.js"></script>
 
     <!-- UI components -->
@@ -65,12 +64,14 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <script src="bower_components/appverse-web-html5-core/src/modules/api-main.js"></script>
 
     <!-- REST module -->
-    <script src="bower_components/lodash/dist/lodash.underscore.min.js"></script>
+    <script src="bower_components/lodash/lodash.min.js"></script>
     <script src="bower_components/restangular/dist/restangular.min.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/modules/api-rest.js"></script>
 
 
     <!-- Server Push module -->
+    <script src="bower_components/sockjs-client/dist/sockjs.js"></script>
+    <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/modules/api-serverpush.js"></script>
 
     <!-- Translate module -->
@@ -85,11 +86,11 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <script src="bower_components/appverse-web-html5-core/src/directives/cache-directives.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/directives/rest-directives.js"></script>
     <script src="bower_components/appverse-web-html5-core/src/modules/api-performance.js"></script>
-    
-        
-    <!-- your scripts here-->    
-    
-    <!-- endbuild -->    
+
+
+    <!-- your scripts here-->
+
+    <!-- endbuild -->
 ```
 
 
@@ -107,12 +108,12 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
 
     Copyright (c) 2012 GFT Appverse, S.L., Sociedad Unipersonal.
 
-     This Source  Code Form  is subject to the  terms of  the Appverse Public License 
-     Version 2.0  ("APL v2.0").  If a copy of  the APL  was not  distributed with this 
+     This Source  Code Form  is subject to the  terms of  the Appverse Public License
+     Version 2.0  ("APL v2.0").  If a copy of  the APL  was not  distributed with this
      file, You can obtain one at <http://appverse.org/legal/appverse-license/>.
 
-     Redistribution and use in  source and binary forms, with or without modification, 
-     are permitted provided that the  conditions  of the  AppVerse Public License v2.0 
+     Redistribution and use in  source and binary forms, with or without modification,
+     are permitted provided that the  conditions  of the  AppVerse Public License v2.0
      are met.
 
      THIS SOFTWARE IS PROVIDED BY THE  COPYRIGHT HOLDERS  AND CONTRIBUTORS "AS IS" AND
@@ -123,6 +124,6 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
      INCIDENTAL,  SPECIAL,   EXEMPLARY,  OR CONSEQUENTIAL DAMAGES  (INCLUDING, BUT NOT
      LIMITED TO,  PROCUREMENT OF SUBSTITUTE  GOODS OR SERVICES;  LOSS OF USE, DATA, OR
      PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-     WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) 
-     ARISING  IN  ANY WAY OUT  OF THE USE  OF THIS  SOFTWARE,  EVEN  IF ADVISED OF THE 
+     WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE)
+     ARISING  IN  ANY WAY OUT  OF THE USE  OF THIS  SOFTWARE,  EVEN  IF ADVISED OF THE
      POSSIBILITY OF SUCH DAMAGE.

@@ -627,10 +627,10 @@ All data are auto-explained because their names ;)
  * @description Configuration parameters for web sockets
  */
 .constant('WEBSOCKETS_CONFIG', {
-
     WS_ECHO_URL: "ws://echo.websocket.org",
-    WS_CPU_URL: "ws://localhost:8080/websocket/services/websocket/statistics/get/cpuload",
-    WS_CPU_INTERVAL: 30,
+    WS_TYPE: 'native',//auto|sockjs|native
+    WS_PROTOCOL_TYPE: 'none',//auto|stomp|none
+    WS_INTERVAL: 30,
     WS_CONNECTED: 'Websocket connected',
     WS_DISCONNECTED: 'Websocket disconnected',
     WS_CONNECTING: 'Connecting Websocket...',
@@ -638,6 +638,8 @@ All data are auto-explained because their names ;)
     WS_CLOSING: 'Websocket connection closing...',
     WS_OPEN: 'Websocket connection is open',
     WS_UNKNOWN: 'Websocket status is unknown',
+    WS_PROTOCOL_CONNECTED:'Websocket protocol connected',
+    WS_PROTOCOL_DISCONNECTED:'Websocket protocol disconnected',    
     WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
     WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
     WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'

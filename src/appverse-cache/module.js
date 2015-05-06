@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -44,10 +44,9 @@
      *
      * @requires  appverse.configuration
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
-     * @requires  https://docs.angularjs.org/api/ngResource/service/$resource ngResource
      */
 
-    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])
+    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache'])
         .run(run);
 
     function run($log, CacheFactory, CACHE_CONFIG) {
@@ -57,26 +56,26 @@
         /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {
             CacheFactory.setScopeCache(
-                    CACHE_CONFIG.ScopeCache_duration,
-                    CACHE_CONFIG.ScopeCache_capacity
-                    );
+                CACHE_CONFIG.ScopeCache_duration,
+                CACHE_CONFIG.ScopeCache_capacity
+            );
         }
 
         if (CACHE_CONFIG.BrowserStorageCache_Enabled) {
             CacheFactory.setBrowserStorage(
-                    CACHE_CONFIG.BrowserStorage_type,
-                    CACHE_CONFIG.MaxAge,
-                    CACHE_CONFIG.CacheFlushInterval,
-                    CACHE_CONFIG.DeleteOnExpire,
-                    CACHE_CONFIG.VerifyIntegrity
-                    );
+                CACHE_CONFIG.BrowserStorage_type,
+                CACHE_CONFIG.MaxAge,
+                CACHE_CONFIG.CacheFlushInterval,
+                CACHE_CONFIG.DeleteOnExpire,
+                CACHE_CONFIG.VerifyIntegrity
+            );
         }
 
         /* The cache for http calls */
         if (CACHE_CONFIG.HttpCache_Enabled) {
             CacheFactory.setDefaultHttpCacheStorage(
-                    CACHE_CONFIG.HttpCache_duration,
-                    CACHE_CONFIG.HttpCache_capacity);
+                CACHE_CONFIG.HttpCache_duration,
+                CACHE_CONFIG.HttpCache_capacity);
         }
 
     }

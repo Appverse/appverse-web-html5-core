@@ -1,124 +1,127 @@
 <!doctype html>
 <html class="no-js" lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Appverse Web HTML5 CORE Demo</title>
-        <meta name="description" content="AppVerse Core Demo Application">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" href="favicon.ico">
 
-        <!-- Reset CSS -->
-        <link href="css/normalize.css" rel="stylesheet">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Appverse Web HTML5 CORE Demo</title>
+    <meta name="description" content="AppVerse Core Demo Application">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
 
-        <!-- Custom CSS -->
-        <link href="css/showcase.css" rel="stylesheet">
+    <!-- Reset CSS -->
+    <link href="css/normalize.css" rel="stylesheet">
 
-        <!-- Custom Fonts -->
-        <link href="fonts/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Raleway:200,400,700,800" rel="stylesheet" type="text/css">
+    <!-- Custom CSS -->
+    <link href="css/showcase.css" rel="stylesheet">
 
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
+    <!-- Custom Fonts -->
+    <link href="fonts/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Raleway:200,400,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-    </head>
+</head>
 
-    <body>
-        <!-- Content -->
-        <div class="container">
-            <button class="menu-button" id="open-button">Open Menu</button>
-            <div class="menu-wrap">
-                <nav id="menuNav" class="menu">
-                    <div class="icon-list">
-                        <h2>Menu</h2>
-                        <hr>
-                        <a href="/"><i class="fa fa-fw fa-home"></i><span>Home</span></a>
-                        <hr>
-                        <h3><i class="fa fa-fw fa-gear"></i> <span>Core Module</span></h3>
-                        <ng-include src="'partials/core-modules-links.html'"></ng-include>
-                        <hr>
-                        <h3><a href="#rest"><i class="fa fa-fw fa-user"></i><span>UI</span></a></h3>
-                        <hr>
-                        <h3><a href="#rest"><i class="fa fa-fw fa-shield"></i><span>Security</span></a></h3>
-                    </div>
-                </nav>
-                <button class="close-button" id="close-button">Close Menu</button>
-            </div>
-            <div class="content-wrap">
-                <div class="content">
-                    <div ui-view autoscroll="false"></div>
+<body>
+    <!-- Content -->
+    <div class="container">
+        <button class="menu-button" id="open-button">Open Menu</button>
+        <div class="menu-wrap">
+            <nav id="menuNav" class="menu">
+                <div class="icon-list">
+                    <h2>Menu</h2>
+                    <hr>
+                    <a href="/"><i class="fa fa-fw fa-home"></i><span>Home</span></a>
+                    <hr>
+                    <h3><i class="fa fa-fw fa-gear"></i> <span>Core Module</span></h3>
+                    <ng-include src="'partials/core-modules-links.html'"></ng-include>
+                    <hr>
+                    <h3><a href="#rest"><i class="fa fa-fw fa-user"></i><span>UI</span></a></h3>
+                    <hr>
+                    <h3><a href="#rest"><i class="fa fa-fw fa-shield"></i><span>Security</span></a></h3>
                 </div>
+            </nav>
+            <button class="close-button" id="close-button">Close Menu</button>
+        </div>
+        <div class="content-wrap">
+            <div class="content">
+                <div ui-view autoscroll="false"></div>
             </div>
         </div>
-        <!-- /Content -->
+    </div>
+    <!-- /Content -->
 
-        <!-- Scripts -->
+    <!-- Scripts -->
 
-        <script src="angular/angular.js"></script>
-        <script src="angular-cookies/angular-cookies.js"></script>
-        <script src="angular-sanitize/angular-sanitize.js"></script>
-        <script src="angular-ui-router/release/angular-ui-router.js"></script>
-        <script src="angular-cache/dist/angular-cache.js"></script>
-        <script src="angular-resource/angular-resource.js"></script>
-        <script src="angular-translate/angular-translate.min.js"></script>
-        <script src="angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
-        <script src="angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
-        <script src="lodash/dist/lodash.js"></script>
-        <script src="restangular/dist/restangular.js"></script>
-        <script src="socket.io-client/dist/socket.io.js"></script>
-        <!-- Inlcude mocks to mock backend -->
-        <script src="angular-mocks/angular-mocks.js"></script>
+    <script src="angular/angular.js"></script>
+    <script src="angular-cookies/angular-cookies.js"></script>
+    <script src="angular-sanitize/angular-sanitize.js"></script>
+    <script src="angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="angular-cache/dist/angular-cache.js"></script>
+    <script src="angular-translate/angular-translate.min.js"></script>
+    <script src="angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+    <script src="angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
+    <script src="lodash/lodash.min.js"></script>
+    <script src="restangular/dist/restangular.min.js"></script>
+    <script src="socket.io-client/dist/socket.io.js"></script>
+    <script src="sockjs-client/dist/sockjs.js"></script>
+    <script src="stomp-websocket/lib/stomp.js"></script>
+    <!-- Inlcude mocks to mock backend -->
+    <script src="angular-mocks/angular-mocks.js"></script>
 
-        <!-- ########## Core modules: autoinjected. Check gruntfile.js ########## -->
-        <!-- injector:js -->
-        <script src="appverse-cache/module.js"></script>
-        <script src="appverse-cache/cache.directive.js"></script>
-        <script src="appverse-cache/cache.factory.js"></script>
-        <script src="appverse-cache/idb.service.js"></script>
-        <script src="appverse-detection/module.js"></script>
-        <script src="appverse-detection/mobile-detector.provider.js"></script>
-        <script src="appverse-detection/detection.provider.js"></script>
-        <script src="appverse-detection/module-run.js"></script>
-        <script src="appverse-logging/module.js"></script>
-        <script src="appverse-logging/formatter-logger.provider.js"></script>
-        <script src="appverse-performance/module.js"></script>
-        <script src="appverse-performance/webworker.directive.js"></script>
-        <script src="appverse-performance/webworkerpool.factory.js"></script>
-        <script src="appverse-translate/module.js"></script>
-        <script src="appverse-utils/module.js"></script>
-        <script src="appverse-utils/base-url-setter.provider.js"></script>
-        <script src="appverse-utils/moduleseeker.provider.js"></script>
-        <script src="appverse-utils/base64.factory.js"></script>
-        <script src="appverse-utils/util.factory.js"></script>
-        <script src="appverse-serverpush/module.js"></script>
-        <script src="appverse-socketio/module.js"></script>
-        <script src="appverse-socketio/socket.provider.js"></script>
-        <script src="appverse-serverpush/socket.factory.js"></script>
-        <script src="appverse-serverpush/websocket.factory.js"></script>
-        <script src="appverse-rest/module.js"></script>
-        <script src="appverse-rest/multicast-rest.factory.js"></script>
-        <script src="appverse-rest/rest.directive.js"></script>
-        <script src="appverse-rest/rest.factory.js"></script>
-        <script src="appverse-router/module.js"></script>
-        <script src="appverse-configuration-default/module.js"></script>
-        <script src="appverse-configuration-loader/module.js"></script>
-        <script src="appverse-configuration/module.js"></script>
-        <script src="appverse/module.js"></script>
-        <script src="appverse-configuration-loader/configloader.provider.js"></script>
-        <script src="appverse-configuration-default/constants.js"></script>
-        <script src="appverse/init.js"></script>
-        <!-- endinjector -->
+    <!-- ########## Core modules: autoinjected. Check gruntfile.js ########## -->
+    <!-- injector:js -->
+    <script src="appverse-cache/module.js"></script>
+    <script src="appverse-cache/cache.directive.js"></script>
+    <script src="appverse-cache/cache.factory.js"></script>
+    <script src="appverse-cache/idb.service.js"></script>
+    <script src="appverse-detection/module.js"></script>
+    <script src="appverse-detection/mobile-detector.provider.js"></script>
+    <script src="appverse-detection/detection.provider.js"></script>
+    <script src="appverse-detection/module-run.js"></script>
+    <script src="appverse-logging/module.js"></script>
+    <script src="appverse-logging/formatter-logger.provider.js"></script>
+    <script src="appverse-performance/module.js"></script>
+    <script src="appverse-performance/webworker.directive.js"></script>
+    <script src="appverse-performance/webworkerpool.factory.js"></script>
+    <script src="appverse-translate/module.js"></script>
+    <script src="appverse-utils/module.js"></script>
+    <script src="appverse-utils/base-url-setter.provider.js"></script>
+    <script src="appverse-utils/moduleseeker.provider.js"></script>
+    <script src="appverse-utils/base64.factory.js"></script>
+    <script src="appverse-utils/util.factory.js"></script>
+    <script src="appverse-serverpush/module.js"></script>
+    <script src="appverse-socketio/module.js"></script>
+    <script src="appverse-socketio/socket.provider.js"></script>
+    <script src="appverse-serverpush/socket.factory.js"></script>
+    <script src="appverse-serverpush/websocket.factory.js"></script>
+    <script src="appverse-rest/module.js"></script>
+    <script src="appverse-rest/multicast-rest.factory.js"></script>
+    <script src="appverse-rest/rest.directive.js"></script>
+    <script src="appverse-rest/rest.factory.js"></script>
+    <script src="appverse-router/module.js"></script>
+    <script src="appverse-configuration-default/module.js"></script>
+    <script src="appverse-configuration-loader/module.js"></script>
+    <script src="appverse-configuration/module.js"></script>
+    <script src="appverse/module.js"></script>
+    <script src="appverse-configuration-loader/configloader.provider.js"></script>
+    <script src="appverse-configuration-default/constants.js"></script>
+    <script src="appverse/init.js"></script>
+    <!-- endinjector -->
 
-        <!-- Demo app specific js -->
-        <script src="js/vendor/canvasjs.min.js"></script>
-        <script src="js/vendor/modernizr.min.js"></script>
-        <script src="js/app.js"></script>
-        <script src="js/menu.js"></script>
-        <script src="js/states.js"></script>
-        <script src="js/bootstrap.js"></script>
+    <!-- Demo app specific js -->
+    <script src="js/vendor/canvasjs.min.js"></script>
+    <script src="js/vendor/modernizr.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/states.js"></script>
+    <script src="js/bootstrap.js"></script>
 
-    </body>
+</body>
+
 </html>

@@ -1,3 +1,5 @@
+/*jshint node:true */
+
 'use strict';
 
 var fs            = require('fs'),
@@ -278,7 +280,7 @@ module.exports = function (grunt) {
                 updateConfigs: [],
                 commit: true,
                 commitMessage: 'Release v%VERSION%',
-                commitFiles: ['package.json', 'bower.json'],
+                commitFiles: ['package.json', 'bower.json','dist'],
                 createTag: true,
                 tagName: 'v%VERSION%',
                 tagMessage: 'Version %VERSION%',
@@ -414,7 +416,8 @@ module.exports = function (grunt) {
                     // Demo server directly mounts src folder so the reference to src is not required
                     path = path.replace('/src/', '');
                     return '<script src="' + path + '"></script>';
-                }
+                },
+                lineEnding: require('os').EOL
             },
             js: {
                 files: {

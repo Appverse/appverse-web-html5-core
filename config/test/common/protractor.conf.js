@@ -11,12 +11,9 @@ module.exports = {
     // Its seems that there are no random failures when testing with
     // non instrumented code
     // TODO: remove Phantomjs and use real browsers with Vagrant
-    capabilities : {
-        browserName: 'phantomjs',
-        'phantomjs.binary.path': require('phantomjs').path,
-        'phantomjs.cli.args': ['--ignore-ssl-errors=true', '--web-security=false']
+    capabilities: {
+        browserName: 'chrome'
     },
-
 
     seleniumAddress: 'http://localhost:4444/wd/hub',
 
