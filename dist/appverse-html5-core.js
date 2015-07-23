@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -44,10 +44,9 @@
      *
      * @requires  appverse.configuration
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
-     * @requires  https://docs.angularjs.org/api/ngResource/service/$resource ngResource
      */
 
-    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])
+    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache'])
         .run(run);
 
     function run($log, CacheFactory, CACHE_CONFIG) {
@@ -57,26 +56,26 @@
         /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {
             CacheFactory.setScopeCache(
-                    CACHE_CONFIG.ScopeCache_duration,
-                    CACHE_CONFIG.ScopeCache_capacity
-                    );
+                CACHE_CONFIG.ScopeCache_duration,
+                CACHE_CONFIG.ScopeCache_capacity
+            );
         }
 
         if (CACHE_CONFIG.BrowserStorageCache_Enabled) {
             CacheFactory.setBrowserStorage(
-                    CACHE_CONFIG.BrowserStorage_type,
-                    CACHE_CONFIG.MaxAge,
-                    CACHE_CONFIG.CacheFlushInterval,
-                    CACHE_CONFIG.DeleteOnExpire,
-                    CACHE_CONFIG.VerifyIntegrity
-                    );
+                CACHE_CONFIG.BrowserStorage_type,
+                CACHE_CONFIG.MaxAge,
+                CACHE_CONFIG.CacheFlushInterval,
+                CACHE_CONFIG.DeleteOnExpire,
+                CACHE_CONFIG.VerifyIntegrity
+            );
         }
 
         /* The cache for http calls */
         if (CACHE_CONFIG.HttpCache_Enabled) {
             CacheFactory.setDefaultHttpCacheStorage(
-                    CACHE_CONFIG.HttpCache_duration,
-                    CACHE_CONFIG.HttpCache_capacity);
+                CACHE_CONFIG.HttpCache_duration,
+                CACHE_CONFIG.HttpCache_capacity);
         }
 
     }
@@ -585,7 +584,9 @@ angular.module('appverse.detection', ['appverse.utils']);
 
 
 })();
-(function() {
+/*globals Appverse:false */
+
+(function () {
     'use strict';
 
     angular.module('appverse.detection')
@@ -610,8 +611,13 @@ angular.module('appverse.detection', ['appverse.utils']);
          * @name MobileDetector#hasAppverseMobile
          * @return {Boolean}
          */
-        this.hasAppverseMobile = function() {
-            return hasUnity() && unityHasOSInfo();
+        this.hasAppverseMobile = function () {
+
+            if (typeof Appverse !== 'undefined' && Appverse.System && Appverse.System.GetOSInfo() !== null) {
+                return true;
+            } else {
+                return false;
+            }
         };
 
         /**
@@ -624,14 +630,6 @@ angular.module('appverse.detection', ['appverse.utils']);
             return agentContainsMobileKeyword(agent);
         };
 
-        function hasUnity () {
-            return typeof Unity !== 'undefined';
-        }
-
-        function unityHasOSInfo () {
-            return Unity.System.GetOSInfo() !== null;
-        }
-
         function agentContainsMobileKeyword(agent) {
 
             /*jshint ignore:start,-W101*/
@@ -642,6 +640,7 @@ angular.module('appverse.detection', ['appverse.utils']);
     }
 
 })();
+
 (function () {
     'use strict';
 
@@ -2429,37 +2428,55 @@ function FormattedLoggerProvider () {
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
-            factory.connect = function(url) {
+            factory.open = function(url) {
 
                 if(factory.ws) {
                     return;
                 }
 
-                var ws;
-                if ('WebSocket' in window) {
-                    ws = new WebSocket(url);
-                } else if ('MozWebSocket' in window) {
-                    ws = new window.MozWebSocket(url);
+                var ws = null;
+                //check if SockJS is avaiable
+                if (angular.isUndefined(url)) {
+                    url = WEBSOCKETS_CONFIG.WS_URL;
                 }
-                ws.onopen = function () {
+                
+                if (WEBSOCKETS_CONFIG.WS_TYPE === 'auto'){//auto|sockjs|native
+                    if ('SockJS' in window) {
+                        ws = new SockJS(url);                
+                    }
+                }else if (WEBSOCKETS_CONFIG.WS_TYPE === 'sockjs'){
+                    ws = new SockJS(url);
+                }
+                //otherwise switches to HTML5 WebSocket native object
+                if (ws === null){
+                    $log.debug('WS_TYPE: native');
+                    if ('WebSocket' in window) {
+                        ws = new WebSocket(url);
+                    } else if ('MozWebSocket' in window) {
+                        ws = new MozWebSocket(url);
+                    }
+                }else{
+                    $log.debug('WS_TYPE: sockjs');
+                }
+                ws.onopen = function (event) {
                     if (ws !== null) {
                         ws.send('');
-                        factory.callback(WEBSOCKETS_CONFIG.WS_CONNECTED);
+                        factory.callback(event,WEBSOCKETS_CONFIG.WS_CONNECTED);
                     } else {
-                        factory.callback(WEBSOCKETS_CONFIG.WS_DISCONNECTED);
+                        factory.callback(event, WEBSOCKETS_CONFIG.WS_DISCONNECTED);
                      }
                 };
 
-                ws.onerror = function() {
-                  factory.callback(WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
+                ws.onerror = function(event) {
+                  factory.callback(event, WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
                 };
 
                 ws.onmessage = function(message) {
-                  factory.callback(message.data);
+                  factory.onmessagecallback(message);
                 };
 
                 ws.onclose = function () {
-                    if (ws != null) {
+                    if (ws !== null) {
                         ws.close();
                         ws = null;
                     }
@@ -2467,25 +2484,164 @@ function FormattedLoggerProvider () {
 
                 factory.ws = ws;
             };
+            factory.onprotocolconnectcallback = function(event) {
+              factory.callback(event, WEBSOCKETS_CONFIG.WS_PROTOCOL_CONNECTED);
+            };
+            factory.onprotocoldisconnectcallback = function(event) {
+              factory.callback(event,WEBSOCKETS_CONFIG.WS_PROTOCOL_DISCONNECTED);
+            };
+            
+            
+            /**
+                @ngdoc method
+                @name WebSocketFactory#connect
+                @param {object} username 
+                @param {object} password 
+                @param {object} onconnectcallback 
+                @description Stablishes a protocol connection over a websocket connection
+            */
+            factory.connect = function(user, password, onconnectcallback) {
+                if(factory.client) {
+                    $log.warn('factory.client already exists: ' + factory.client + 'close it to reconect');
+                    return;
+                }
+                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'none'){
+                    $log.warn('No protocol configured WS_PROTOCOL_TYPE=none');
+                    throw new TypeError('No protocol configured WS_PROTOCOL_TYPE=none');
+                }
+                if (factory.ws === null){
+                    $log.warn('No underling websocket connection stablished, ' +
+                              'stablish a websocket connection first');
+                    return;
+                }
+                var client = null;
+                //protocol
+                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'auto' ||
+                    WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'stomp'){
+                    if ('Stomp' in window){
+                        if (factory.ws !== null && !angular.isUndefined(factory.ws)){
+                            client = Stomp.over(factory.ws);
+                        }else{
+                            $log.warn('No underling websocket connection stablished, ' +
+                                      'stablish a websocket connection first');
+                            return;
+                        }
+                        $log.debug('WS_TYPE: sockjs');
+                        //configure
+                        if (WEBSOCKETS_CONFIG.WS_INTERVAL !== null){
+                            client.heartbeat.outgoing = WEBSOCKETS_CONFIG.WS_INTERVAL * 1000;
+                        }
+                        //stablish connection
+                        if (!angular.isUndefined(onconnectcallback)){
+                            client.connect(user, password, onconnectcallback, factory.onprotocoldisconnectcallback);
+                        }else{
+                            client.connect(user, password, factory.onprotocolconnectcallback, 
+                                factory.onprotocoldisconectcallback, factory.onprotocoldisconnectcallback);
+                        }
+                        client.disconect(factory.onprotocoldisconnectcallback);
+                    }else{
+                        $log.debug('WS_TYPE: none');
+                    }
+                }
+                factory.client = client;
+            };
+            /**
+                @ngdoc method
+                @name WebSocketFactory#subscribe
+                @param {object} queueName String that represents the endpoint queue name.
+                @param {object} callback .
+                @description Subscribe to an specific queue on server side.
+                @returns subscription variable (required to unsubscribe)
+                
+            */
+            factory.subscribe = function(queueName, callback){
+                if(factory.client === null || angular.isUndefined(factory.client)) {
+                    $log.warn('factory.client does not exists');
+                    return null;
+                }
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                return factory.client.subscribe(queueName, callback);
+            };
+            
+             /**
+                @ngdoc method
+                @name WebSocketFactory#send
+                @param {object} queueName String that represents the endpoint queue name.
+                @param {object} headers special headers.
+                @param {object} message .
+                @description Send a protocol message to the server.
+            */            
+            factory.send = function(queueName, headers, message){
+                if(factory.client === null || angular.isUndefined(factory.client)) {
+                    $log.warn('factory.client does not exists');
+                    return ;
+                }
+                factory.client.send(queueName, headers, message);
+            };
+             /**
+                @ngdoc method
+                @name WebSocketFactory#unsubscribe
+                @param {object} subscription subscription object provided on subscribe.
+                @description Unsubscribe to an specific queue on server side.
+                
+            */
+            factory.unsubscribe = function(subscription){
+                if(!subscription || angular.isUndefined(subscription)) {
+                    $log.warn('subscription does not exists');
+                    return;
+                }                
+                subscription.unsubscribe();
+            };
+            
+            /**
+                @ngdoc method
+                @name WebSocketFactory#disconnect                
+                @description Disconnects a protocol connection over a websocket connection
+            */
+            factory.disconnect = function(){
+                if(!factory.client || angular.isUndefined(factory.client)) {
+                    $log.warn('factory.client does not exists');
+                    return;
+                }
+                factory.client.disconnect();
+            };
+            
 
             /**
                 @ngdoc method
-                @name WebSocketFactory#send
+                @name WebSocketFactory#sendRaw
                 @param {object} message Message payload in JSON format.
-                @description Send a message to the ws server.
+                @description Send a raw message to the ws server (without protocol).
             */
-            factory.send = function(message) {
+            factory.sendRaw = function(message) {
               $log.debug('factory.ws: ' + factory.ws);
               factory.ws.send(message);
             };
             /**
                 @ngdoc method
-                @name WebSocketFactory#subscribe
+                @name WebSocketFactory#onmessage
                 @param {object} callback .
-                @description Retrieve the currentcallback of the endpoint connection.
+                @description Retrieve a raw message of the websocket connection.
             */
-            factory.subscribe = function(callback) {
-              factory.callback = callback;
+            factory.onmessage = function(callback) {
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                factory.onmessagecallback = callback;
+            };
+            /**
+                @ngdoc method
+                @name WebSocketFactory#onstatuschanged
+                @param {object} callback .
+                @description Retrieve the websocket changes of status.
+            */
+            factory.onstatuschanged = function(callback) {
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                factory.callback = callback;
             };
 
             /**
@@ -2494,8 +2650,10 @@ function FormattedLoggerProvider () {
                 @param {string} itemId The id of the item
                 @description Close the WebSocket connection.
             */
-            factory.disconnect = function() {
-                factory.ws.close();
+            factory.close = function() {
+                if (factory.ws){
+                    factory.ws.close();
+                }
             };
 
 
@@ -2505,9 +2663,10 @@ function FormattedLoggerProvider () {
                 @name WebSocketFactory#status
                 @param {string} itemId The id of the item
                 @description WebSocket connection status.
+                @returns websocket status code
             */
             factory.status = function() {
-                if (factory.ws == null || angular.isUndefined(factory.ws)){
+                if (factory.ws === null || angular.isUndefined(factory.ws)){
                     return WebSocket.CLOSED;
                 }
                 return factory.ws.readyState;
@@ -2518,16 +2677,17 @@ function FormattedLoggerProvider () {
                 @name WebSocketFactory#statusAsText
                 @param {string} itemId The id of the item
                 @description Returns WebSocket connection status as text.
+                @returns status text
             */
             factory.statusAsText = function() {
                         var readyState = factory.status();
-                        if (readyState == WebSocket.CONNECTING){
+                        if (readyState === WebSocket.CONNECTING){
                                 return WEBSOCKETS_CONFIG.CONNECTING;
-                        } else if (readyState == WebSocket.OPEN){
+                        } else if (readyState === WebSocket.OPEN){
                                 return WEBSOCKETS_CONFIG.OPEN;
-                        } else if (readyState == WebSocket.CLOSING){
+                        } else if (readyState === WebSocket.CLOSING){
                                 return WEBSOCKETS_CONFIG.WS_CLOSING;
-                        } else if (readyState == WebSocket.CLOSED){
+                        } else if (readyState === WebSocket.CLOSED){
                                 return WEBSOCKETS_CONFIG.WS_CLOSED;
                         } else {
                                 return WEBSOCKETS_CONFIG.WS_UNKNOWN;
@@ -3054,171 +3214,176 @@ run.$inject = ["$log"];
 
 })();
 
-(function() { 'use strict';
+(function () {
+    'use strict';
 
-angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
-
-/**
- * @ngdoc provider
- * @name ConfigLoader
- * @module appverse.configuration.loader
- *
- * @description
- * Loads configuration parameters int the AppConfiguration module.
- */
-function ConfigLoaderProvider() {
-
-    // By default, no detection is present
-    var detection = new NoDetection(),
-    // Object used to perfom default config overriding
-    appConfigTemp = {};
+    angular.module('appverse.configuration.loader')
+        .provider('ConfigLoader', ConfigLoaderProvider)
+        .config(configFn);
 
     /**
-     * @ngdoc method
-     * @name  ConfigLoader#$get
-     * @description Factory function. Gets the service instance
+     * @ngdoc provider
+     * @name ConfigLoader
+     * @module appverse.configuration.loader
+     *
+     * @description
+     * Loads configuration parameters int the AppConfiguration module.
      */
-    this.$get = function() {
-        return this;
-    };
+    function ConfigLoaderProvider() {
 
-    /**
-     * @ngdoc method
-     * @name  ConfigLoader#load
-     * @param {object} settings See appverse.configuration.default for available settings
-     * @description Loads the custom config, overriding defaults
-     */
-    this.load = function(settings) {
-        this.loadDefaultConfig()
-            .loadCustomConfig(settings)
-            .overrideDefaultConfig();
-    };
+        // By default, no detection is present
+        var detection = new NoDetection(),
+            // Object used to perfom default config overriding
+            appConfigTemp = {};
 
-    /**
-     * @ngdoc method
-     * @name  ConfigLoader#setDetection
-     * @param {object} detectionProvider Detection provider from appverse.detection
-     */
-    this.setDetection = function(detectionProvider) {
-        detection = detectionProvider;
-    };
+        /**
+         * @ngdoc method
+         * @name  ConfigLoader#$get
+         * @description Factory function. Gets the service instance
+         */
+        this.$get = function () {
+            return this;
+        };
 
+        /**
+         * @ngdoc method
+         * @name  ConfigLoader#load
+         * @param {object} settings See appverse.configuration.default for available settings
+         * @description Loads the custom config, overriding defaults
+         */
+        this.load = function (settings) {
+            this.loadDefaultConfig()
+                .loadCustomConfig(settings)
+                .overrideDefaultConfig();
+        };
 
-    // ---- Privates -----
+        /**
+         * @ngdoc method
+         * @name  ConfigLoader#setDetection
+         * @param {object} detectionProvider Detection provider from appverse.detection
+         */
+        this.setDetection = function (detectionProvider) {
+            detection = detectionProvider;
+        };
 
-    this.loadDefaultConfig = function() {
-        angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
-            appConfigTemp[element[2][0]] = element[2][1];
-        });
-        return this;
-    };
+        // ---- Privates -----
+        this.loadDefaultConfig = function () {
+            angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
+                appConfigTemp[element[2][0]] = element[2][1];
+            });
+            return this;
+        };
 
-    this.loadCustomConfig = function(settings) {
-        if (settings) {
-            this.settings =  settings;
-        }
-        this.loadMobileConfigIfRequired();
-        this.loadEnvironmentConfig();
-        return this;
-    };
-
-    this.overrideDefaultConfig = function() {
-        angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
-            angular.module('appverse.configuration').constant(propertyName, propertyValue);
-        });
-    };
-
-
-    this.loadMobileConfigIfRequired = function() {
-        if (detection.hasAppverseMobile()) {
-            this.loadAppverseMobileConfig();
-        } else if (detection.isMobileBrowser()) {
-            this.loadMobileBrowserConfig();
-        }
-    };
-
-    this.loadEnvironmentConfig = function() {
-        if (this.settings && this.settings.environment) {
-            this.addConfig(this.settings.environment);
-        } else {
-            this.addConfigFromJSON('resources/configuration/environment-conf.json');
-        }
-        return this;
-    };
-
-    this.loadAppverseMobileConfig = function() {
-        if (this.settings && this.settings.appverseMobile) {
-            this.addConfig(this.settings.appverseMobile);
-        } else {
-            this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
-        }
-        return this;
-    };
-
-    this.loadMobileBrowserConfig = function() {
-        if (this.settings && this.settings.mobileBrowser) {
-            this.addConfig(this.settings.mobileBrowser);
-        } else {
-            this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
-        }
-
-        return this;
-    };
-
-    this.addConfig = function(settings) {
-        angular.forEach(settings, function (constantObject, constantName) {
-            var appConfigObject = appConfigTemp[constantName];
-
-            if (appConfigObject) {
-                angular.forEach(constantObject, function (propertyValue, propertyName) {
-                    appConfigObject[propertyName] = propertyValue;
-                });
-                appConfigTemp[constantName] = appConfigObject;
-            } else {
-                appConfigTemp[constantName] = constantObject;
+        this.loadCustomConfig = function (settings) {
+            if (settings) {
+                this.settings = settings;
             }
+            this.loadMobileConfigIfRequired();
+            this.loadEnvironmentConfig();
+            return this;
+        };
+
+        this.overrideDefaultConfig = function () {
+            angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
+                angular.module('appverse.configuration').constant(propertyName, propertyValue);
+            });
+        };
+
+        this.loadMobileConfigIfRequired = function () {
+            if (detection.hasAppverseMobile()) {
+                this.loadAppverseMobileConfig();
+            } else if (detection.isMobileBrowser()) {
+                this.loadMobileBrowserConfig();
+            }
+        };
+
+        this.loadEnvironmentConfig = function () {
+            if (this.settings && this.settings.environment) {
+                this.addConfig(this.settings.environment);
+            } else {
+                this.addConfigFromJSON('resources/configuration/environment-conf.json');
+            }
+            return this;
+        };
+
+        this.loadAppverseMobileConfig = function () {
+            if (this.settings && this.settings.appverseMobile) {
+                this.addConfig(this.settings.appverseMobile);
+            } else {
+                this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+            }
+            return this;
+        };
+
+        this.loadMobileBrowserConfig = function () {
+            if (this.settings && this.settings.mobileBrowser) {
+                this.addConfig(this.settings.mobileBrowser);
+            } else {
+                this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+            }
+
+            return this;
+        };
+
+        this.addConfig = function (settings) {
+            angular.forEach(settings, function (constantObject, constantName) {
+                var appConfigObject = appConfigTemp[constantName];
+
+                if (appConfigObject) {
+                    angular.forEach(constantObject, function (propertyValue, propertyName) {
+                        appConfigObject[propertyName] = propertyValue;
+                    });
+                    appConfigTemp[constantName] = appConfigObject;
+                } else {
+                    appConfigTemp[constantName] = constantObject;
+                }
+            });
+
+        };
+
+        this.addConfigFromJSON = function (jsonUrl) {
+
+            // Make syncrhonous request.
+            // TODO: make asyncrhonous. Synchronous requests block the browser.
+            // Making requests asyncronous will require to manually bootstrap angular
+            // when the response is received.
+            // Another option is to let the developer inject the configuration in the config phase
+            var request = new XMLHttpRequest();
+            // `false` makes the request synchronous
+            request.open('GET', jsonUrl, false);
+            request.send(null);
+            var jsonData = JSON.parse(request.responseText);
+
+            this.addConfig(jsonData);
+        };
+    }
+
+    /**
+     * Used when no detection is provided
+     */
+    function NoDetection() {
+
+        this.hasAppverseMobile = function () {
+            return false;
+        };
+
+        this.isMobileBrowser = function () {
+            return false;
+        };
+    }
+
+    function configFn(ConfigLoaderProvider) {
+
+        // Automatic loading of default settings
+        ConfigLoaderProvider.load({
+            environment: {},
+            appverseMobile: {},
+            mobileBrowser: {}
         });
-
-    };
-
-    this.addConfigFromJSON = function(jsonUrl) {
-
-        // Make syncrhonous request.
-        // TODO: make asyncrhonous. Synchronous requests block the browser.
-        // Making requests asyncronous will require to manually bootstrap angular
-        // when the response is received.
-        // Another option is to let the developer inject the configuration in the config phase
-        var request = new XMLHttpRequest();
-        // `false` makes the request synchronous
-        request.open('GET', jsonUrl, false);
-        request.send(null);
-        var jsonData = JSON.parse(request.responseText);
-
-        this.addConfig(jsonData);
-    };
-
-
-}
-
-
-/**
- * Used when no detection is provided
- */
-function NoDetection() {
-
-    this.hasAppverseMobile = function() {
-        return false;
-    };
-
-    this.isMobileBrowser = function() {
-        return false;
-    };
-
-}
-
+    }
+    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
-
 (function() { 'use strict';
 
 angular.module('appverse.configuration.default')
@@ -3848,10 +4013,10 @@ All data are auto-explained because their names ;)
  * @description Configuration parameters for web sockets
  */
 .constant('WEBSOCKETS_CONFIG', {
-
     WS_ECHO_URL: "ws://echo.websocket.org",
-    WS_CPU_URL: "ws://localhost:8080/websocket/services/websocket/statistics/get/cpuload",
-    WS_CPU_INTERVAL: 30,
+    WS_TYPE: 'native',//auto|sockjs|native
+    WS_PROTOCOL_TYPE: 'none',//auto|stomp|none
+    WS_INTERVAL: 30,
     WS_CONNECTED: 'Websocket connected',
     WS_DISCONNECTED: 'Websocket disconnected',
     WS_CONNECTING: 'Connecting Websocket...',
@@ -3859,6 +4024,8 @@ All data are auto-explained because their names ;)
     WS_CLOSING: 'Websocket connection closing...',
     WS_OPEN: 'Websocket connection is open',
     WS_UNKNOWN: 'Websocket status is unknown',
+    WS_PROTOCOL_CONNECTED:'Websocket protocol connected',
+    WS_PROTOCOL_DISCONNECTED:'Websocket protocol disconnected',    
     WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
     WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
     WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
@@ -3928,11 +4095,12 @@ All data are auto-explained because their names ;)
  * Just call the initalization code after having loaded angular and the configuration module:
  * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
-var AppInit = AppInit || (function(angular) { 'use strict';
+var AppInit = AppInit || (function (angular) {
+    'use strict';
 
     var
-    settings,
-    mainModuleName;
+        settings,
+        mainModuleName;
 
     /**
      * @ngdoc method
@@ -3942,7 +4110,15 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     function setConfig(settingsObject) {
         settings = settingsObject;
-        angular.module('appverse.configuration.loader').config(loadConfig);
+        var module = angular.module('appverse.configuration.loader');
+        // Remove default config function
+        module._invokeQueue.some(function (currentValue, index) {
+            if (currentValue[0] === '$injector' && currentValue[1] === 'invoke') {
+                module._invokeQueue.splice(index);
+                return true;
+            }
+        });
+        module.config(loadConfig);
         return AppInit;
     }
 
@@ -3957,7 +4133,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function() {
+        angular.element(document).ready(function () {
             angular.bootstrap(document, [moduleName]);
         });
     }
@@ -3988,10 +4164,10 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
-        setMainModuleName : setMainModuleName,
-        setConfig : setConfig,
-        bootstrap : bootstrap,
-        getMainModule : getMainModule
+        setMainModuleName: setMainModuleName,
+        setConfig: setConfig,
+        bootstrap: bootstrap,
+        getMainModule: getMainModule
     };
 
 })(angular);
