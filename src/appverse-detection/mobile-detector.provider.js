@@ -25,10 +25,11 @@
          * @name MobileDetector#hasAppverseMobile
          * @return {Boolean}
          */
-        this.hasAppverseMobile = function () {
-
-            if (typeof Appverse !== 'undefined' && Appverse.System && Appverse.System.GetOSInfo() !== null) {
+        this.hasAppverseMobile = function() {
+            if (typeof(_AppverseContext) != "undefined") {
                 return true;
+            } else if (window.localStorage.getItem("_AppverseContext")) {
+                return true;         
             } else {
                 return false;
             }

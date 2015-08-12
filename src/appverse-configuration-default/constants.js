@@ -26,6 +26,17 @@ All data are auto-explained because their names ;)
     VendorLibrariesBaseUrl: 'bower_components'
 })
 
+
+/**
+ * @ngdoc object
+ * @name IONIC_CONFIG
+ * @module  appverse.configuration.default
+ * @description Parent state name of desktop + Ionic application.
+ */
+.constant('IONIC_CONFIG', {
+    MainState: 'menu'
+})
+
 /**
  * @ngdoc object
  * @name LOGGING_CONFIG
