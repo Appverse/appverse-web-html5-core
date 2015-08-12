@@ -39,7 +39,7 @@ angular.module('appverse.detection', ['appverse.utils']);
          * @return {Boolean}
          */
         this.hasAppverseMobile = function() {
-            return hasUnity() && unityHasOSInfo();
+            return hasUnity();
         };
 
         /**
@@ -50,10 +50,21 @@ angular.module('appverse.detection', ['appverse.utils']);
         this.isMobileBrowser = function (customAgent) {
             var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
             return agentContainsMobileKeyword(agent);
+            
         };
+        
+        this.isMobileApp = function(){
+            if (typeof(_AppverseContext) != "undefined") {
+                return true;
+            } else if (window.localStorage.getItem("_AppverseContext")) {
+                return true;         
+            } else {
+                return false;
+            }
+        }
 
         function hasUnity () {
-            return typeof Unity !== 'undefined';
+            return typeof Appverse !== 'undefined';
         }
 
         function unityHasOSInfo () {
@@ -122,6 +133,9 @@ function DetectionProvider (MobileDetectorProvider) {
     if (this.hasAppverseMobile() || this.isMobileBrowser()) {
         // Do something for mobile...
     }
+    this.isMobileApp = function() {
+        return this.mobileDetector.isMobileApp();
+    };
 
     var fireEvent = function (name, data) {
         var e = document.createEvent("Event");
@@ -243,6 +257,7 @@ angular.module('appverse.detection')
 
 function run($log, Detection, $rootScope, $window) {
     $log.info('appverse.detection run');
+    
 
     if ($window.addEventListener) {
         $window.addEventListener("online", function () {
