@@ -13,7 +13,9 @@ angular.module('appverse.detection', ['appverse.utils']);
 
 
 })();
-(function() {
+/*globals Appverse:false */
+
+(function () {
     'use strict';
 
     angular.module('appverse.detection')
@@ -38,8 +40,13 @@ angular.module('appverse.detection', ['appverse.utils']);
          * @name MobileDetector#hasAppverseMobile
          * @return {Boolean}
          */
-        this.hasAppverseMobile = function() {
-            return hasUnity() && unityHasOSInfo();
+        this.hasAppverseMobile = function () {
+
+            if (typeof Appverse !== 'undefined' && Appverse.System && Appverse.System.GetOSInfo() !== null) {
+                return true;
+            } else {
+                return false;
+            }
         };
 
         /**
@@ -52,14 +59,6 @@ angular.module('appverse.detection', ['appverse.utils']);
             return agentContainsMobileKeyword(agent);
         };
 
-        function hasUnity () {
-            return typeof Unity !== 'undefined';
-        }
-
-        function unityHasOSInfo () {
-            return Unity.System.GetOSInfo() !== null;
-        }
-
         function agentContainsMobileKeyword(agent) {
 
             /*jshint ignore:start,-W101*/
@@ -70,6 +69,7 @@ angular.module('appverse.detection', ['appverse.utils']);
     }
 
 })();
+
 (function () {
     'use strict';
 
