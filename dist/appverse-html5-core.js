@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -44,10 +44,9 @@
      *
      * @requires  appverse.configuration
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
-     * @requires  https://docs.angularjs.org/api/ngResource/service/$resource ngResource
      */
 
-    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache', 'ngResource'])
+    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache'])
         .run(run);
 
     function run($log, CacheFactory, CACHE_CONFIG) {
@@ -57,26 +56,26 @@
         /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {
             CacheFactory.setScopeCache(
-                    CACHE_CONFIG.ScopeCache_duration,
-                    CACHE_CONFIG.ScopeCache_capacity
-                    );
+                CACHE_CONFIG.ScopeCache_duration,
+                CACHE_CONFIG.ScopeCache_capacity
+            );
         }
 
         if (CACHE_CONFIG.BrowserStorageCache_Enabled) {
             CacheFactory.setBrowserStorage(
-                    CACHE_CONFIG.BrowserStorage_type,
-                    CACHE_CONFIG.MaxAge,
-                    CACHE_CONFIG.CacheFlushInterval,
-                    CACHE_CONFIG.DeleteOnExpire,
-                    CACHE_CONFIG.VerifyIntegrity
-                    );
+                CACHE_CONFIG.BrowserStorage_type,
+                CACHE_CONFIG.MaxAge,
+                CACHE_CONFIG.CacheFlushInterval,
+                CACHE_CONFIG.DeleteOnExpire,
+                CACHE_CONFIG.VerifyIntegrity
+            );
         }
 
         /* The cache for http calls */
         if (CACHE_CONFIG.HttpCache_Enabled) {
             CacheFactory.setDefaultHttpCacheStorage(
-                    CACHE_CONFIG.HttpCache_duration,
-                    CACHE_CONFIG.HttpCache_capacity);
+                CACHE_CONFIG.HttpCache_duration,
+                CACHE_CONFIG.HttpCache_capacity);
         }
 
     }
@@ -570,22 +569,25 @@
 
 })();
 
-(function() { 'use strict';
+(function () {
+    'use strict';
 
-/**
- * @ngdoc module
- * @name appverse.detection
- *
- * @description
- * Provides browser and network detection.
- *
- * @requires appverse.utils
- */
-angular.module('appverse.detection', ['appverse.utils']);
+    /**
+     * @ngdoc module
+     * @name appverse.detection
+     *
+     * @description
+     * Provides browser and network detection.
+     *
+     * @requires appverse.utils
+     */
+    angular.module('appverse.detection', ['appverse.utils']);
 
 
 })();
-(function() {
+/*globals Appverse:false */
+
+(function () {
     'use strict';
 
     angular.module('appverse.detection')
@@ -610,8 +612,14 @@ angular.module('appverse.detection', ['appverse.utils']);
          * @name MobileDetector#hasAppverseMobile
          * @return {Boolean}
          */
-        this.hasAppverseMobile = function() {
-            return hasUnity() && unityHasOSInfo();
+        this.hasAppverseMobile = function () {
+            if (typeof (_AppverseContext) != "undefined") {
+                return true;
+            } else if (window.localStorage.getItem("_AppverseContext")) {
+                return true;
+            } else {
+                return false;
+            }
         };
 
         /**
@@ -623,14 +631,6 @@ angular.module('appverse.detection', ['appverse.utils']);
             var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
             return agentContainsMobileKeyword(agent);
         };
-
-        function hasUnity () {
-            return typeof Unity !== 'undefined';
-        }
-
-        function unityHasOSInfo () {
-            return Unity.System.GetOSInfo() !== null;
-        }
 
         function agentContainsMobileKeyword(agent) {
 
@@ -808,76 +808,164 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 })();
 
-(function() { 'use strict';
+(function () {
+    'use strict';
 
-angular.module('appverse.detection')
-    .run(run);
+    angular.module('appverse.detection')
+        .run(run);
 
-function run($log, Detection, $rootScope, $window) {
-    $log.info('appverse.detection run');
+    function run($log, Detection, $rootScope, $window) {
+        $log.info('appverse.detection run');
 
-    if ($window.addEventListener) {
-        $window.addEventListener("online", function () {
-            $log.debug('detectionController online');
-            Detection.isOnline = true;
-            $rootScope.$digest();
-        }, true);
+        if ($window.addEventListener) {
+            $window.addEventListener("online", function () {
+                $log.debug('detectionController online');
+                Detection.isOnline = true;
+                $rootScope.$digest();
+            }, true);
 
-        $window.addEventListener("offline", function () {
-            $log.debug('detectionController offline');
-            Detection.isOnline = false;
-            $rootScope.$digest();
-        }, true);
-    } else {
-        $log.warn('Detection module: $window.addEventListener not supported.');
-    }
+            $window.addEventListener("offline", function () {
+                $log.debug('detectionController offline');
+                Detection.isOnline = false;
+                $rootScope.$digest();
+            }, true);
+        } else {
+            $log.warn('Detection module: $window.addEventListener not supported.');
+        }
 
-    if ($window.applicationCache) {
-        $window.applicationCache.addEventListener("error", function () {
-            $log.debug("Error fetching manifest: a good chance we are offline");
-        });
-    } else {
-        $log.warn('Detection module: $window.applicationCache not supported.');
-    }
+        if ($window.applicationCache) {
+            $window.applicationCache.addEventListener("error", function () {
+                $log.debug("Error fetching manifest: a good chance we are offline");
+            });
+        } else {
+            $log.warn('Detection module: $window.applicationCache not supported.');
+        }
 
-    if (window.addEventListener) {
-        window.addEventListener("goodconnection", function () {
-            $log.debug('detectionController goodconnection');
-            Detection.isOnline = true;
-            $rootScope.$digest();
-        });
-
-        window.addEventListener("connectiontimeout", function () {
-            $log.debug('detectionController connectiontimeout');
-            Detection.isOnline = false;
-            $rootScope.$digest();
-        });
-
-        window.addEventListener("connectionerror", function () {
-            $log.debug('detectionController connectionerror');
-            Detection.isOnline = false;
-            $rootScope.$digest();
-        });
-
-        window.addEventListener("onBandwidthStart", function () {
-            $log.debug('detectionController onBandwidthStart');
-            Detection.bandwidthStartTime = new Date();
-        });
-
-        window.addEventListener("onBandwidthEnd", function (e) {
-            $log.debug('detectionController onBandwidthEnd');
-            var contentLength = parseInt(e.data.getResponseHeader('Content-Length'), 10);
-            var delay = new Date() - Detection.bandwidthStartTime;
-            Detection.bandwidth = parseInt((contentLength / 1024) / (delay / 1000));
-            setTimeout(function () {
+        if (window.addEventListener) {
+            window.addEventListener("goodconnection", function () {
+                $log.debug('detectionController goodconnection');
+                Detection.isOnline = true;
                 $rootScope.$digest();
             });
-        });
-    } else {
-        $log.warn('Detection module: window.addEventListener not supported.');
+
+            window.addEventListener("connectiontimeout", function () {
+                $log.debug('detectionController connectiontimeout');
+                Detection.isOnline = false;
+                $rootScope.$digest();
+            });
+
+            window.addEventListener("connectionerror", function () {
+                $log.debug('detectionController connectionerror');
+                Detection.isOnline = false;
+                $rootScope.$digest();
+            });
+
+            window.addEventListener("onBandwidthStart", function () {
+                $log.debug('detectionController onBandwidthStart');
+                Detection.bandwidthStartTime = new Date();
+            });
+
+            window.addEventListener("onBandwidthEnd", function (e) {
+                $log.debug('detectionController onBandwidthEnd');
+                var contentLength = parseInt(e.data.getResponseHeader('Content-Length'), 10);
+                var delay = new Date() - Detection.bandwidthStartTime;
+                Detection.bandwidth = parseInt((contentLength / 1024) / (delay / 1000));
+                setTimeout(function () {
+                    $rootScope.$digest();
+                });
+            });
+        } else {
+            $log.warn('Detection module: window.addEventListener not supported.');
+        }
     }
-}
-run.$inject = ["$log", "Detection", "$rootScope", "$window"];
+    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
+
+})();
+(function () {
+    'use strict';
+
+    var requires = [
+        'appverse.detection',
+        'ui.router',
+        'ui.bootstrap'
+    ];
+
+
+    /**
+     * @ngdoc module
+     * @name appverse.ionic
+     *
+     * @description
+     * Provides ionic management views
+     *
+     * @requires appverse.detection
+     * @requires ui.router
+     * @requires ui.bootstrap
+     */
+
+    angular.module('appverse.ionic', requires);
+
+
+})();
+(function () {
+    'use strict';
+
+    angular.module('appverse.ionic')
+        .run(run).config(['$stateProvider', 'DetectionProvider', 'IONIC_CONFIG', function ($stateProvider, DetectionProvider, IONIC_CONFIG) {
+            if (DetectionProvider.isMobileBrowser()) {
+                $stateProvider.state(IONIC_CONFIG.MainState, {
+                    abstract: true,
+                    // Use a url of "/" to set a states as the "index".
+                    url: "",
+                    templateUrl: 'mobileviews/' + IONIC_CONFIG.MainState + '.html'
+                });
+            } else {
+                $stateProvider.state(IONIC_CONFIG.MainState, {
+                    abstract: true,
+                    // Use a url of "/" to set a states as the "index".
+                    url: "",
+                    templateUrl: 'views/' + IONIC_CONFIG.MainState + '.html'
+                });
+            }
+
+    }]);
+
+    function run($log, Detection, $rootScope, $state, $modal) {
+        $log.info('appverse.ionic run');
+        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+            //reset templateUrl and controller value if is necessary
+            if (toState.templateUrl.indexOf("mobileview") >= 0) {
+                toState.templateUrl = toState.templateUrl.split("mobile")[1];
+                toState.controller = toState.controller.split("_mobile")[0];
+            }
+
+            //Security checkpoint: check state access permissions before changing state
+            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") == -1) || (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") == -1)) {
+                event.preventDefault();
+
+                $modal.open({
+                    templateUrl: 'views/modals/not-allowed.html',
+                    controller: 'ModalNotAllowedCntrl',
+                    resolve: {
+                        isMobile: function () {
+                            return Detection.isMobileBrowser();
+                        }
+                    }
+                });
+
+            }
+
+            if (Detection.isMobileBrowser()) {
+                toState.templateUrl = "mobile" + toState.templateUrl;
+                if (toState.data.mobileController) {
+                    toState.controller = toState.data.mobileController;
+                }
+            }
+
+        });
+
+    }
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal"];
 
 })();
 (function() {
@@ -1083,6 +1171,221 @@ function FormattedLoggerProvider () {
 
 }
 
+
+})();
+(function () {
+    'use strict';
+
+    /**
+     * @ngdoc module
+     * @name appverse.native
+     *
+     * @description
+     * Provides native utilities using Appverse mobile
+     *
+     * @requires appverse.detection
+     */
+    angular.module('appverse.native', ['appverse.detection']);
+
+
+})();
+(function () {
+    'use strict';
+
+    angular.module('appverse.native').factory('AppverseNative', AppverseNative);
+
+    /**
+     * @ngdoc service
+     * @name AppverseNative
+     * @module appverse.native
+     * @description This module provides basic quick standard access to a Native functions
+     *
+     */
+
+    function AppverseNative($log, $q, Detection, $window) {
+        ////////////////////////////////////////////////////////////////////////////////////
+        // ADVICES ABOUT PROMISES
+        //
+        // 1-PROMISES
+        // All Restangular requests return a Promise. Angular's templates
+        // are able to handle Promises and they're able to show the promise
+        // result in the HTML. So, if the promise isn't yet solved, it shows
+        // nothing and once we get the data from the server, it's shown in the template.
+        // If what we want to do is to edit the object you get and then do a put, in
+        // that case, we cannot work with the promise, as we need to change values.
+        // If that's the case, we need to assign the result of the promise to a $scope variable.
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        var factory, deferredGeo, deferredNetwork, geoTryNumber;
+        factory = deferredGeo = deferredNetwork = {};
+        geoTryNumber = 0;
+
+        var promises = [];
+
+        $window.callbackGeo = function (result) {
+            if (result) {
+                Appverse.Geo.StartUpdatingLocation('callbackGeoStart', 'callbackGeoStart');
+            } else {
+                deferredGeo.reject(result);
+            }
+        };
+
+        $window.callbackGeoStart = function (result) {
+            if (result) {
+                Appverse.Geo.GetCoordinates('callbackGeoCoordinates', 'callbackGeoCoordinates');
+            } else {
+                deferredGeo.reject(result);
+            }
+        };
+
+        $window.callbackGeoCoordinates = function (coordinates) {
+            geoTryNumber++;
+            if (coordinates.XCoordinate != 0 && coordinates.YCoordinate != 0 && coordinates.XDoP < 500 && coordinates.YDoP < 500) {
+                deferredGeo.resolve(coordinates);
+                Appverse.Geo.StopUpdatingLocation('callbackGeoStop', 'callbackGeoStop');
+            } else {
+                if (geoTryNumber > 10) {
+                    deferredGeo.reject(coordinates);
+                    Appverse.Geo.StopUpdatingLocation('callbackGeoStop', 'callbackGeoStop');
+                } else {
+                    setTimeout(function () {
+                        callbackGeoStart(true);
+                    }, 2000);
+                }
+            }
+        };
+
+        $window.StopUpdatingLocation = function (result) {};
+
+        $window.callbackNetwork = function (result) {
+            if (result) {
+                deferredNetwork.resolve(result);
+            } else {
+                deferredNetwork.reject(result);
+            }
+        };
+
+
+
+        factory.getCoordinates = function () {
+            deferredGeo = $q.defer();
+            if (Detection.hasAppverseMobile()) {
+                Appverse.Geo.IsGPSEnabled('callbackGeo', 'callbackGeo');
+            } else {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    return deferredGeo.reject(false);
+                }
+            }
+            return deferredGeo.promise;
+        };
+
+        function showPosition(position) {
+            var coordinates = {
+                "XCoordinate": position.coords.latitude,
+                "YCoordinate": position.coords.longitude,
+                "ZCoordinate": 0,
+                "XDoP": position.coords.accuracy,
+                "YDoP": position.coords.accuracy
+            };
+            deferredGeo.resolve(coordinates);
+        }
+
+
+        factory.isNetworkReachable = function () {
+            deferredNetwork = $q.defer();
+
+            if (Detection.hasAppverseMobile()) {
+                Appverse.Net.IsNetworkReachable("www.google.com", 'callbackNetwork', 'callbackNetwork');
+            } else {
+                if (Detection.isOnline) {
+                    deferredNetwork.resolve(true);
+                } else {
+                    deferredNetwork.reject(false);
+                }
+            }
+            return deferredNetwork.promise;
+        };
+
+        factory.getBrowserInformation = function () {
+            if (Detection.hasAppverseMobile()) {
+                return {
+                    isMobileBrowser: !Appverse.is.Desktop,
+                    isIphone: Appverse.is.iPhone,
+                    isWindowsPhone: Appverse.is.Windows,
+                    isWindows: Appverse.is.Windows,
+                    isBlackberry: Appverse.is.Blackberry,
+                    isAndroid: Appverse.is.Android,
+                    isiOS: Appverse.is.iOS,
+                    isTablet: Appverse.is.Tablet,
+                    isPhone: !Appverse.is.Desktop,
+                    isIpod: Appverse.is.iPod,
+                    isIpad: Appverse.is.iPad,
+                    isLinux: Appverse.is.Linux,
+                    isMac: Appverse.is.Mac
+                };
+            } else {
+                var iOS, iphone, ipod, ipad, android, mac, windows, linux, blackberry, tablet, windowsPhone;
+                iOS = iphone = ipod = ipad = android = mac = windows = linux = blackberry = tablet = windowsPhone = false;
+                if (navigator.userAgent.match(/iPhone/i)) {
+                    iOS = true;
+                    iphone = true;
+                }
+                if (navigator.userAgent.match(/iPod/i)) {
+                    iOS = true;
+                    ipod = true;
+                }
+                if (navigator.userAgent.match(/iPad/i)) {
+                    iOS = true;
+                    ipad = true;
+                }
+                if (navigator.userAgent.indexOf("android") > -1) {
+                    android = true;
+                }
+                if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+                    mac = true;
+                }
+                if (navigator.appVersion.indexOf("Win") != -1) {
+                    windows = true;
+                };
+                if (navigator.appVersion.indexOf("Linux") != -1) {
+                    linux = true;
+                };
+                if (navigator.userAgent.toLowerCase().indexOf("blackberry") >= 0) {
+                    blackberry = true;
+                }
+                if ((/ipad|android|android 3.0|xoom|sch-i800|playbook|tablet|kindle/i.test(navigator.userAgent.toLowerCase()))) {
+                    tablet = true;
+                }
+                if (navigator.userAgent.match(/Windows Phone/i) || navigator.userAgent.match(/iemobile/i)) {
+                    windowsPhone = true;
+                }
+
+
+                return {
+                    isMobileBrowser: Detection.isMobileBrowser(),
+                    isIphone: iphone,
+                    isWindowsPhone: windowsPhone,
+                    isWindows: windows,
+                    isBlackberry: blackberry,
+                    isAndroid: android,
+                    isiOS: iOS,
+                    isTablet: tablet,
+                    isPhone: Detection.isMobileBrowser(),
+                    isIpod: ipod,
+                    isIpad: ipad,
+                    isLinux: linux,
+                    isMac: mac
+                };
+            }
+        };
+
+
+        return factory;
+
+    }
+    AppverseNative.$inject = ["$log", "$q", "Detection", "$window"];
 
 })();
 (function() {
@@ -2429,37 +2732,55 @@ function FormattedLoggerProvider () {
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
-            factory.connect = function(url) {
+            factory.open = function(url) {
 
                 if(factory.ws) {
                     return;
                 }
 
-                var ws;
-                if ('WebSocket' in window) {
-                    ws = new WebSocket(url);
-                } else if ('MozWebSocket' in window) {
-                    ws = new window.MozWebSocket(url);
+                var ws = null;
+                //check if SockJS is avaiable
+                if (angular.isUndefined(url)) {
+                    url = WEBSOCKETS_CONFIG.WS_URL;
                 }
-                ws.onopen = function () {
+                
+                if (WEBSOCKETS_CONFIG.WS_TYPE === 'auto'){//auto|sockjs|native
+                    if ('SockJS' in window) {
+                        ws = new SockJS(url);                
+                    }
+                }else if (WEBSOCKETS_CONFIG.WS_TYPE === 'sockjs'){
+                    ws = new SockJS(url);
+                }
+                //otherwise switches to HTML5 WebSocket native object
+                if (ws === null){
+                    $log.debug('WS_TYPE: native');
+                    if ('WebSocket' in window) {
+                        ws = new WebSocket(url);
+                    } else if ('MozWebSocket' in window) {
+                        ws = new MozWebSocket(url);
+                    }
+                }else{
+                    $log.debug('WS_TYPE: sockjs');
+                }
+                ws.onopen = function (event) {
                     if (ws !== null) {
                         ws.send('');
-                        factory.callback(WEBSOCKETS_CONFIG.WS_CONNECTED);
+                        factory.callback(event,WEBSOCKETS_CONFIG.WS_CONNECTED);
                     } else {
-                        factory.callback(WEBSOCKETS_CONFIG.WS_DISCONNECTED);
+                        factory.callback(event, WEBSOCKETS_CONFIG.WS_DISCONNECTED);
                      }
                 };
 
-                ws.onerror = function() {
-                  factory.callback(WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
+                ws.onerror = function(event) {
+                  factory.callback(event, WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
                 };
 
                 ws.onmessage = function(message) {
-                  factory.callback(message.data);
+                  factory.onmessagecallback(message);
                 };
 
                 ws.onclose = function () {
-                    if (ws != null) {
+                    if (ws !== null) {
                         ws.close();
                         ws = null;
                     }
@@ -2467,25 +2788,164 @@ function FormattedLoggerProvider () {
 
                 factory.ws = ws;
             };
+            factory.onprotocolconnectcallback = function(event) {
+              factory.callback(event, WEBSOCKETS_CONFIG.WS_PROTOCOL_CONNECTED);
+            };
+            factory.onprotocoldisconnectcallback = function(event) {
+              factory.callback(event,WEBSOCKETS_CONFIG.WS_PROTOCOL_DISCONNECTED);
+            };
+            
+            
+            /**
+                @ngdoc method
+                @name WebSocketFactory#connect
+                @param {object} username 
+                @param {object} password 
+                @param {object} onconnectcallback 
+                @description Stablishes a protocol connection over a websocket connection
+            */
+            factory.connect = function(user, password, onconnectcallback) {
+                if(factory.client) {
+                    $log.warn('factory.client already exists: ' + factory.client + 'close it to reconect');
+                    return;
+                }
+                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'none'){
+                    $log.warn('No protocol configured WS_PROTOCOL_TYPE=none');
+                    throw new TypeError('No protocol configured WS_PROTOCOL_TYPE=none');
+                }
+                if (factory.ws === null){
+                    $log.warn('No underling websocket connection stablished, ' +
+                              'stablish a websocket connection first');
+                    return;
+                }
+                var client = null;
+                //protocol
+                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'auto' ||
+                    WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'stomp'){
+                    if ('Stomp' in window){
+                        if (factory.ws !== null && !angular.isUndefined(factory.ws)){
+                            client = Stomp.over(factory.ws);
+                        }else{
+                            $log.warn('No underling websocket connection stablished, ' +
+                                      'stablish a websocket connection first');
+                            return;
+                        }
+                        $log.debug('WS_TYPE: sockjs');
+                        //configure
+                        if (WEBSOCKETS_CONFIG.WS_INTERVAL !== null){
+                            client.heartbeat.outgoing = WEBSOCKETS_CONFIG.WS_INTERVAL * 1000;
+                        }
+                        //stablish connection
+                        if (!angular.isUndefined(onconnectcallback)){
+                            client.connect(user, password, onconnectcallback, factory.onprotocoldisconnectcallback);
+                        }else{
+                            client.connect(user, password, factory.onprotocolconnectcallback, 
+                                factory.onprotocoldisconectcallback, factory.onprotocoldisconnectcallback);
+                        }
+                        client.disconect(factory.onprotocoldisconnectcallback);
+                    }else{
+                        $log.debug('WS_TYPE: none');
+                    }
+                }
+                factory.client = client;
+            };
+            /**
+                @ngdoc method
+                @name WebSocketFactory#subscribe
+                @param {object} queueName String that represents the endpoint queue name.
+                @param {object} callback .
+                @description Subscribe to an specific queue on server side.
+                @returns subscription variable (required to unsubscribe)
+                
+            */
+            factory.subscribe = function(queueName, callback){
+                if(factory.client === null || angular.isUndefined(factory.client)) {
+                    $log.warn('factory.client does not exists');
+                    return null;
+                }
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                return factory.client.subscribe(queueName, callback);
+            };
+            
+             /**
+                @ngdoc method
+                @name WebSocketFactory#send
+                @param {object} queueName String that represents the endpoint queue name.
+                @param {object} headers special headers.
+                @param {object} message .
+                @description Send a protocol message to the server.
+            */            
+            factory.send = function(queueName, headers, message){
+                if(factory.client === null || angular.isUndefined(factory.client)) {
+                    $log.warn('factory.client does not exists');
+                    return ;
+                }
+                factory.client.send(queueName, headers, message);
+            };
+             /**
+                @ngdoc method
+                @name WebSocketFactory#unsubscribe
+                @param {object} subscription subscription object provided on subscribe.
+                @description Unsubscribe to an specific queue on server side.
+                
+            */
+            factory.unsubscribe = function(subscription){
+                if(!subscription || angular.isUndefined(subscription)) {
+                    $log.warn('subscription does not exists');
+                    return;
+                }                
+                subscription.unsubscribe();
+            };
+            
+            /**
+                @ngdoc method
+                @name WebSocketFactory#disconnect                
+                @description Disconnects a protocol connection over a websocket connection
+            */
+            factory.disconnect = function(){
+                if(!factory.client || angular.isUndefined(factory.client)) {
+                    $log.warn('factory.client does not exists');
+                    return;
+                }
+                factory.client.disconnect();
+            };
+            
 
             /**
                 @ngdoc method
-                @name WebSocketFactory#send
+                @name WebSocketFactory#sendRaw
                 @param {object} message Message payload in JSON format.
-                @description Send a message to the ws server.
+                @description Send a raw message to the ws server (without protocol).
             */
-            factory.send = function(message) {
+            factory.sendRaw = function(message) {
               $log.debug('factory.ws: ' + factory.ws);
               factory.ws.send(message);
             };
             /**
                 @ngdoc method
-                @name WebSocketFactory#subscribe
+                @name WebSocketFactory#onmessage
                 @param {object} callback .
-                @description Retrieve the currentcallback of the endpoint connection.
+                @description Retrieve a raw message of the websocket connection.
             */
-            factory.subscribe = function(callback) {
-              factory.callback = callback;
+            factory.onmessage = function(callback) {
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                factory.onmessagecallback = callback;
+            };
+            /**
+                @ngdoc method
+                @name WebSocketFactory#onstatuschanged
+                @param {object} callback .
+                @description Retrieve the websocket changes of status.
+            */
+            factory.onstatuschanged = function(callback) {
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                factory.callback = callback;
             };
 
             /**
@@ -2494,8 +2954,10 @@ function FormattedLoggerProvider () {
                 @param {string} itemId The id of the item
                 @description Close the WebSocket connection.
             */
-            factory.disconnect = function() {
-                factory.ws.close();
+            factory.close = function() {
+                if (factory.ws){
+                    factory.ws.close();
+                }
             };
 
 
@@ -2505,9 +2967,10 @@ function FormattedLoggerProvider () {
                 @name WebSocketFactory#status
                 @param {string} itemId The id of the item
                 @description WebSocket connection status.
+                @returns websocket status code
             */
             factory.status = function() {
-                if (factory.ws == null || angular.isUndefined(factory.ws)){
+                if (factory.ws === null || angular.isUndefined(factory.ws)){
                     return WebSocket.CLOSED;
                 }
                 return factory.ws.readyState;
@@ -2518,16 +2981,17 @@ function FormattedLoggerProvider () {
                 @name WebSocketFactory#statusAsText
                 @param {string} itemId The id of the item
                 @description Returns WebSocket connection status as text.
+                @returns status text
             */
             factory.statusAsText = function() {
                         var readyState = factory.status();
-                        if (readyState == WebSocket.CONNECTING){
+                        if (readyState === WebSocket.CONNECTING){
                                 return WEBSOCKETS_CONFIG.CONNECTING;
-                        } else if (readyState == WebSocket.OPEN){
+                        } else if (readyState === WebSocket.OPEN){
                                 return WEBSOCKETS_CONFIG.OPEN;
-                        } else if (readyState == WebSocket.CLOSING){
+                        } else if (readyState === WebSocket.CLOSING){
                                 return WEBSOCKETS_CONFIG.WS_CLOSING;
-                        } else if (readyState == WebSocket.CLOSED){
+                        } else if (readyState === WebSocket.CLOSED){
                                 return WEBSOCKETS_CONFIG.WS_CLOSED;
                         } else {
                                 return WEBSOCKETS_CONFIG.WS_UNKNOWN;
@@ -3054,869 +3518,888 @@ run.$inject = ["$log"];
 
 })();
 
-(function() { 'use strict';
+(function () {
+    'use strict';
 
-angular.module('appverse.configuration.loader').provider('ConfigLoader', ConfigLoaderProvider);
-
-/**
- * @ngdoc provider
- * @name ConfigLoader
- * @module appverse.configuration.loader
- *
- * @description
- * Loads configuration parameters int the AppConfiguration module.
- */
-function ConfigLoaderProvider() {
-
-    // By default, no detection is present
-    var detection = new NoDetection(),
-    // Object used to perfom default config overriding
-    appConfigTemp = {};
+    angular.module('appverse.configuration.loader')
+        .provider('ConfigLoader', ConfigLoaderProvider)
+        .config(configFn);
 
     /**
-     * @ngdoc method
-     * @name  ConfigLoader#$get
-     * @description Factory function. Gets the service instance
+     * @ngdoc provider
+     * @name ConfigLoader
+     * @module appverse.configuration.loader
+     *
+     * @description
+     * Loads configuration parameters int the AppConfiguration module.
      */
-    this.$get = function() {
-        return this;
-    };
+    function ConfigLoaderProvider() {
 
-    /**
-     * @ngdoc method
-     * @name  ConfigLoader#load
-     * @param {object} settings See appverse.configuration.default for available settings
-     * @description Loads the custom config, overriding defaults
-     */
-    this.load = function(settings) {
-        this.loadDefaultConfig()
-            .loadCustomConfig(settings)
-            .overrideDefaultConfig();
-    };
+        // By default, no detection is present
+        var detection = new NoDetection(),
+            // Object used to perfom default config overriding
+            appConfigTemp = {};
 
-    /**
-     * @ngdoc method
-     * @name  ConfigLoader#setDetection
-     * @param {object} detectionProvider Detection provider from appverse.detection
-     */
-    this.setDetection = function(detectionProvider) {
-        detection = detectionProvider;
-    };
+        /**
+         * @ngdoc method
+         * @name  ConfigLoader#$get
+         * @description Factory function. Gets the service instance
+         */
+        this.$get = function () {
+            return this;
+        };
 
+        /**
+         * @ngdoc method
+         * @name  ConfigLoader#load
+         * @param {object} settings See appverse.configuration.default for available settings
+         * @description Loads the custom config, overriding defaults
+         */
+        this.load = function (settings) {
+            this.loadDefaultConfig()
+                .loadCustomConfig(settings)
+                .overrideDefaultConfig();
+        };
 
-    // ---- Privates -----
+        /**
+         * @ngdoc method
+         * @name  ConfigLoader#setDetection
+         * @param {object} detectionProvider Detection provider from appverse.detection
+         */
+        this.setDetection = function (detectionProvider) {
+            detection = detectionProvider;
+        };
 
-    this.loadDefaultConfig = function() {
-        angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
-            appConfigTemp[element[2][0]] = element[2][1];
-        });
-        return this;
-    };
+        // ---- Privates -----
+        this.loadDefaultConfig = function () {
+            angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
+                appConfigTemp[element[2][0]] = element[2][1];
+            });
+            return this;
+        };
 
-    this.loadCustomConfig = function(settings) {
-        if (settings) {
-            this.settings =  settings;
-        }
-        this.loadMobileConfigIfRequired();
-        this.loadEnvironmentConfig();
-        return this;
-    };
-
-    this.overrideDefaultConfig = function() {
-        angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
-            angular.module('appverse.configuration').constant(propertyName, propertyValue);
-        });
-    };
-
-
-    this.loadMobileConfigIfRequired = function() {
-        if (detection.hasAppverseMobile()) {
-            this.loadAppverseMobileConfig();
-        } else if (detection.isMobileBrowser()) {
-            this.loadMobileBrowserConfig();
-        }
-    };
-
-    this.loadEnvironmentConfig = function() {
-        if (this.settings && this.settings.environment) {
-            this.addConfig(this.settings.environment);
-        } else {
-            this.addConfigFromJSON('resources/configuration/environment-conf.json');
-        }
-        return this;
-    };
-
-    this.loadAppverseMobileConfig = function() {
-        if (this.settings && this.settings.appverseMobile) {
-            this.addConfig(this.settings.appverseMobile);
-        } else {
-            this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
-        }
-        return this;
-    };
-
-    this.loadMobileBrowserConfig = function() {
-        if (this.settings && this.settings.mobileBrowser) {
-            this.addConfig(this.settings.mobileBrowser);
-        } else {
-            this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
-        }
-
-        return this;
-    };
-
-    this.addConfig = function(settings) {
-        angular.forEach(settings, function (constantObject, constantName) {
-            var appConfigObject = appConfigTemp[constantName];
-
-            if (appConfigObject) {
-                angular.forEach(constantObject, function (propertyValue, propertyName) {
-                    appConfigObject[propertyName] = propertyValue;
-                });
-                appConfigTemp[constantName] = appConfigObject;
-            } else {
-                appConfigTemp[constantName] = constantObject;
+        this.loadCustomConfig = function (settings) {
+            if (settings) {
+                this.settings = settings;
             }
+            this.loadMobileConfigIfRequired();
+            this.loadEnvironmentConfig();
+            return this;
+        };
+
+        this.overrideDefaultConfig = function () {
+            angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
+                angular.module('appverse.configuration').constant(propertyName, propertyValue);
+            });
+        };
+
+        this.loadMobileConfigIfRequired = function () {
+            if (detection.hasAppverseMobile()) {
+                this.loadAppverseMobileConfig();
+            } else if (detection.isMobileBrowser()) {
+                this.loadMobileBrowserConfig();
+            }
+        };
+
+        this.loadEnvironmentConfig = function () {
+            if (this.settings && this.settings.environment) {
+                this.addConfig(this.settings.environment);
+            } else {
+                this.addConfigFromJSON('resources/configuration/environment-conf.json');
+            }
+            return this;
+        };
+
+        this.loadAppverseMobileConfig = function () {
+            if (this.settings && this.settings.appverseMobile) {
+                this.addConfig(this.settings.appverseMobile);
+            } else {
+                this.addConfigFromJSON('resources/configuration/appversemobile-conf.json');
+            }
+            return this;
+        };
+
+        this.loadMobileBrowserConfig = function () {
+            if (this.settings && this.settings.mobileBrowser) {
+                this.addConfig(this.settings.mobileBrowser);
+            } else {
+                this.addConfigFromJSON('resources/configuration/mobilebrowser-conf.json');
+            }
+
+            return this;
+        };
+
+        this.addConfig = function (settings) {
+            angular.forEach(settings, function (constantObject, constantName) {
+                var appConfigObject = appConfigTemp[constantName];
+
+                if (appConfigObject) {
+                    angular.forEach(constantObject, function (propertyValue, propertyName) {
+                        appConfigObject[propertyName] = propertyValue;
+                    });
+                    appConfigTemp[constantName] = appConfigObject;
+                } else {
+                    appConfigTemp[constantName] = constantObject;
+                }
+            });
+
+        };
+
+        this.addConfigFromJSON = function (jsonUrl) {
+
+            // Make syncrhonous request.
+            // TODO: make asyncrhonous. Synchronous requests block the browser.
+            // Making requests asyncronous will require to manually bootstrap angular
+            // when the response is received.
+            // Another option is to let the developer inject the configuration in the config phase
+            var request = new XMLHttpRequest();
+            // `false` makes the request synchronous
+            request.open('GET', jsonUrl, false);
+            request.send(null);
+            var jsonData = JSON.parse(request.responseText);
+
+            this.addConfig(jsonData);
+        };
+    }
+
+    /**
+     * Used when no detection is provided
+     */
+    function NoDetection() {
+
+        this.hasAppverseMobile = function () {
+            return false;
+        };
+
+        this.isMobileBrowser = function () {
+            return false;
+        };
+    }
+
+    function configFn(ConfigLoaderProvider) {
+
+        // Automatic loading of default settings
+        ConfigLoaderProvider.load({
+            environment: {},
+            appverseMobile: {},
+            mobileBrowser: {}
         });
-
-    };
-
-    this.addConfigFromJSON = function(jsonUrl) {
-
-        // Make syncrhonous request.
-        // TODO: make asyncrhonous. Synchronous requests block the browser.
-        // Making requests asyncronous will require to manually bootstrap angular
-        // when the response is received.
-        // Another option is to let the developer inject the configuration in the config phase
-        var request = new XMLHttpRequest();
-        // `false` makes the request synchronous
-        request.open('GET', jsonUrl, false);
-        request.send(null);
-        var jsonData = JSON.parse(request.responseText);
-
-        this.addConfig(jsonData);
-    };
-
-
-}
-
-
-/**
- * Used when no detection is provided
- */
-function NoDetection() {
-
-    this.hasAppverseMobile = function() {
-        return false;
-    };
-
-    this.isMobileBrowser = function() {
-        return false;
-    };
-
-}
-
+    }
+    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
+(function () {
+    'use strict';
 
-(function() { 'use strict';
+    angular.module('appverse.configuration.default')
 
-angular.module('appverse.configuration.default')
+    /*
+    PROJECT CONFIGURATION
+    This constants can be used to set basic information related to the application.
+    All data are auto-explained because their names ;)
+     */
 
-/*
-PROJECT CONFIGURATION
-This constants can be used to set basic information related to the application.
-All data are auto-explained because their names ;)
- */
+    /**
+     * @ngdoc object
+     * @name PROJECT_DATA
+     * @module  appverse.configuration.default
+     * @description Basic information related to the application.
+     */
+    .constant('PROJECT_DATA', {
+        ApplicationName: 'Appverse Web HTML5 Incubator Demo',
+        Version: '0.1',
+        Company: 'GFT',
+        Year: '2013',
+        Team: 'GFT Appverse Web',
+        URL: '',
+        LoginViewPath: '/login',
+        myUrl: '',
+        VendorLibrariesBaseUrl: 'bower_components'
+    })
 
-/**
- * @ngdoc object
- * @name PROJECT_DATA
- * @module  appverse.configuration.default
- * @description Basic information related to the application.
- */
-.constant('PROJECT_DATA', {
-    ApplicationName: 'Appverse Web HTML5 Incubator Demo',
-    Version: '0.1',
-    Company: 'GFT',
-    Year: '2013',
-    Team: 'GFT Appverse Web',
-    URL: '',
-    LoginViewPath: '/login',
-    myUrl: '',
-    VendorLibrariesBaseUrl: 'bower_components'
-})
 
-/**
- * @ngdoc object
- * @name LOGGING_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.logging
- * These params do not affect normal usage of $log service.
- */
-.constant('LOGGING_CONFIG', {
-    /*
-    This param enables (if true) sending log messages to server.
-    The server side REST service must record messages from client in order to be analyzed.
-    ALL messages are sent. It is not yet possible select which type of log messages are sent.
+    /**
+     * @ngdoc object
+     * @name IONIC_CONFIG
+     * @module  appverse.configuration.default
+     * @description Parent state name of desktop + Ionic application.
      */
-    ServerEnabled: false,
-    LogServerEndpoint: 'http://localhost:9000/log',
-    /*
-    This preffix will be included at the beginning of each message.
-     */
-    CustomLogPreffix: 'APPLOG',
-    /*
-    Enabled levels will be written in the custom format.
-    This param does not affect to $log service.
-     */
-    EnabledLogLevel: true,
-    EnabledErrorLevel: true,
-    EnabledDebugLevel: true,
-    EnabledWarnLevel: true,
-    EnabledInfoLevel: true,
-    /*
-    Format of the datetime information.
-     */
-    LogDateTimeFormat: '%Y-%M-%d %h:%m:%s:%z',
-    /*
-    Fields that will be included in the log message if containing information.
-     */
-    LogTextFormat: ''
-})
+    .constant('IONIC_CONFIG', {
+        MainState: 'menu'
+    })
 
-/**
- * @ngdoc object
- * @name CACHE_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.cache
- */
-.constant('CACHE_CONFIG', {
-    /////////////////////////////
-    //SCOPE CACHE
-    /////////////////////////////
-    ScopeCache_Enabled: true,
-    DefaultScopeCacheName: 'appverseScopeDataCache',
-    /*
-     Max duration in milliseconds of the scope cache
-      */
-    ScopeCache_duration: 10000,
-    /*
-     This param turns the scope cache into a LRU one.
-     The cache’s capacity is used together to track available memory.
-      */
-    ScopeCache_capacity: 10,
+    /**
+     * @ngdoc object
+     * @name LOGGING_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.logging
+     * These params do not affect normal usage of $log service.
+     */
+    .constant('LOGGING_CONFIG', {
+        /*
+        This param enables (if true) sending log messages to server.
+        The server side REST service must record messages from client in order to be analyzed.
+        ALL messages are sent. It is not yet possible select which type of log messages are sent.
+         */
+        ServerEnabled: false,
+        LogServerEndpoint: 'http://localhost:9000/log',
+        /*
+        This preffix will be included at the beginning of each message.
+         */
+        CustomLogPreffix: 'APPLOG',
+        /*
+        Enabled levels will be written in the custom format.
+        This param does not affect to $log service.
+         */
+        EnabledLogLevel: true,
+        EnabledErrorLevel: true,
+        EnabledDebugLevel: true,
+        EnabledWarnLevel: true,
+        EnabledInfoLevel: true,
+        /*
+        Format of the datetime information.
+         */
+        LogDateTimeFormat: '%Y-%M-%d %h:%m:%s:%z',
+        /*
+        Fields that will be included in the log message if containing information.
+         */
+        LogTextFormat: ''
+    })
 
-    /////////////////////////////
-    //BROWSER STORAGE TYPE
-    //This sets the preferred browser storage in the app.
-    //Most of times it is convenient follow a policy for browser storage, using only one of the two types.
-    //If you prefer flexibility (the developer makes a choice for each case) do not use the provided API.
-    /////////////////////////////
-    BrowserStorageCache_Enabled: true,
-    /*
-     1 = $localStorage
-     2 = $sessionStorage
-      */
-    BrowserStorage_type: '2',
-    DefaultBrowserCacheName: 'appverseBrowserCache',
-    // Items added to this cache expire after 15 minutes.
-    MaxAge: 900000,
-    // This cache will clear itself every hour.
-    CacheFlushInterval: 3600000,
-    // Items will be deleted from this cache right when they expire.
-    DeleteOnExpire: 'aggressive',
-    //Constant for the literal
-    SessionBrowserStorage: 'sessionStorage',
-    //Constant for the literal
-    LocalBrowserStorage: 'localStorage',
-    //Constant for the literal
-    NoBrowserStorage: 'none',
+    /**
+     * @ngdoc object
+     * @name CACHE_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.cache
+     */
+    .constant('CACHE_CONFIG', {
+        /////////////////////////////
+        //SCOPE CACHE
+        /////////////////////////////
+        ScopeCache_Enabled: true,
+        DefaultScopeCacheName: 'appverseScopeDataCache',
+        /*
+         Max duration in milliseconds of the scope cache
+          */
+        ScopeCache_duration: 10000,
+        /*
+         This param turns the scope cache into a LRU one.
+         The cache’s capacity is used together to track available memory.
+          */
+        ScopeCache_capacity: 10,
 
-    //Direct browser storage (0 local | 1 session)
-    browserDirectCacheType: '1',
-    /*
-     * Specify whether to verify integrity of data saved in localStorage on every operation.
-     * If true, angular-cache will perform a full sync with localStorage on every operation.
-     * Increases reliability of data synchronization, but may incur a performance penalty.
-     * Has no effect if storageMode is set to "none".
-     */
-    VerifyIntegrity: true,
-    /////////////////////////////
-    //$http SERVICE CACHE
-    /////////////////////////////
-    HttpCache_Enabled: true,
-    /*
-     Max duration in milliseconds of the http service cache.
-     */
-    HttpCache_duration: 20000,
-    /*
-     This param turns the http cache into a LRU one.
-     The cache’s capacity is used together to track available memory.
-     */
-    HttpCache_capacity: 10,
-    /////////////////////////////
-    //BROWSER'S INDEXED DB CACHE
-    /////////////////////////////
-    IndexedDBCache_Enabled: false,
-    /*
-     Name of the default object store
-      */
-    IndexedDB_name: 'DefaultIDBCache',
-    /*
-     The version for the version (mandatory)
-      */
-    IndexedDB_version: 1,
-    /*
-     * The options for the db.
-     * The default structure is defined as id/name pairs.
-     * It is possible to add more indexes:
-     * indexes : [{ name : 'indexName', unique : 'true/false' },{},...]
-     */
-    IndexedDB_options: [
-        {
-            storeName: 'structure-of-items',
-            keyPath: 'id',
-            indexes: [
-                {
-                    name: 'name',
-                    unique: false
+        /////////////////////////////
+        //BROWSER STORAGE TYPE
+        //This sets the preferred browser storage in the app.
+        //Most of times it is convenient follow a policy for browser storage, using only one of the two types.
+        //If you prefer flexibility (the developer makes a choice for each case) do not use the provided API.
+        /////////////////////////////
+        BrowserStorageCache_Enabled: true,
+        /*
+         1 = $localStorage
+         2 = $sessionStorage
+          */
+        BrowserStorage_type: '2',
+        DefaultBrowserCacheName: 'appverseBrowserCache',
+        // Items added to this cache expire after 15 minutes.
+        MaxAge: 900000,
+        // This cache will clear itself every hour.
+        CacheFlushInterval: 3600000,
+        // Items will be deleted from this cache right when they expire.
+        DeleteOnExpire: 'aggressive',
+        //Constant for the literal
+        SessionBrowserStorage: 'sessionStorage',
+        //Constant for the literal
+        LocalBrowserStorage: 'localStorage',
+        //Constant for the literal
+        NoBrowserStorage: 'none',
+
+        //Direct browser storage (0 local | 1 session)
+        browserDirectCacheType: '1',
+        /*
+         * Specify whether to verify integrity of data saved in localStorage on every operation.
+         * If true, angular-cache will perform a full sync with localStorage on every operation.
+         * Increases reliability of data synchronization, but may incur a performance penalty.
+         * Has no effect if storageMode is set to "none".
+         */
+        VerifyIntegrity: true,
+        /////////////////////////////
+        //$http SERVICE CACHE
+        /////////////////////////////
+        HttpCache_Enabled: true,
+        /*
+         Max duration in milliseconds of the http service cache.
+         */
+        HttpCache_duration: 20000,
+        /*
+         This param turns the http cache into a LRU one.
+         The cache’s capacity is used together to track available memory.
+         */
+        HttpCache_capacity: 10,
+        /////////////////////////////
+        //BROWSER'S INDEXED DB CACHE
+        /////////////////////////////
+        IndexedDBCache_Enabled: false,
+        /*
+         Name of the default object store
+          */
+        IndexedDB_name: 'DefaultIDBCache',
+        /*
+         The version for the version (mandatory)
+          */
+        IndexedDB_version: 1,
+        /*
+         * The options for the db.
+         * The default structure is defined as id/name pairs.
+         * It is possible to add more indexes:
+         * indexes : [{ name : 'indexName', unique : 'true/false' },{},...]
+         */
+        IndexedDB_options: [
+            {
+                storeName: 'structure-of-items',
+                keyPath: 'id',
+                indexes: [
+                    {
+                        name: 'name',
+                        unique: false
                 }
             ]
         }
     ]
 
-})
-
-/**
- * @ngdoc object
- * @name SERVERPUSH_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.serverpush.
- * It si related to socket.io configuration params.
- * Read Configuration section in socket.io documentation for further details.
- * https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
- */
-.constant('SERVERPUSH_CONFIG', {
-    /*
-     URL of the listened server
-      */
-    BaseUrl: 'http://localhost:3000',
-    /*
-     Port to be listened at the base url.
-      */
-    ListenedPort: '3000',
-    /*
-      resource
-      defaults to socket.io
-      Note the subtle difference between the server, this one is missing a /.
-      These 2 should be in sync with the server to prevent mismatches.
-      */
-    Resource: 'socket.io',
-    /*
-      connect timeout
-      defaults to 10000 ms
-      How long should Socket.IO wait before it aborts the connection attempt with the server to try another fall-back.
-      Please note that some transports require a longer timeout than others.
-      Setting this really low could potentially harm them.
-      */
-    ConnectTimeout: '10000',
-    /*
-      try multiple transports
-      defaults to true
-      When Socket.IO reconnects and it keeps failing over and over again,
-      should it try all available transports when it finally gives up.
-      */
-    TryMultipleTransports: true,
-    /*
-      reconnect
-      defaults to true
-      Should Socket.IO automatically reconnect when it detects a dropped connection or timeout.
-      */
-    Reconnect: true,
-    /*
-      reconnection delay
-      defaults to 500 ms
-      The initial timeout to start a reconnect,
-      this is increased using an exponential back off algorithm each
-      time a new reconnection attempt has been made.
-      */
-    ReconnectionDelay: 1000,
-    /*
-      reconnection limit
-      defaults to Infinity
-      The maximum reconnection delay in milliseconds, or Infinity.
-      */
-    ReconnectionLimit: 'Infinity',
-    /*
-      max reconnection attempts
-      defaults to 10
-      How many times should Socket.IO attempt to reconnect with the server after a a dropped connection.
-      After this we will emit the reconnect_failed event.
-      */
-    MaxReconnectionAttempts: 5,
-    /*
-      sync disconnect on unload
-      defaults to false
-      Do we need to send a disconnect packet to server when the browser unloads.
-      */
-    SyncDisconnectOnUnload: false,
-    /*
-      auto connect
-      defaults to true
-      When code calls io.connect() should Socket.IO automatically establish a connection with the server.
-      */
-    AutoConnect: true,
-    /*
-      flash policy port
-      defaults to 10843
-      If the server has Flashsocket enabled, this should match the same port as the server.
-      */
-    FlashPolicyPort: '',
-    /*
-      force new connection
-      defaults to false
-      Force multiple io.connect() calls to the same server to use different connections.
-      */
-    ForceNewConnection: false
-})
-
-/**
- * @ngdoc object
- * @name REST_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.rest.
- * This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
- * So, all configuration params are based on its configuration
- * (https://github.com/mgonto/restangular#configuring-restangular).
- * Future updates of Restangular imply review of this section in order
- * to keep consistency between config and the module.
- */
-.constant('REST_CONFIG', {
-    /*
-    The base URL for all calls to your API.
-    For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
-    The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
-    so you can also set an absolute url like http://api.example.com/api/v1
-    if you need do set another domain.
-    */
-    BaseUrl: '/api/v1',
-
-    /*
-    If enabled, requests via REST module will be multicasted.
-     */
-//    Multicast_enabled: true,
-
-     /*
-     The base URLs array for all multicast calls to your API.
-     */
-//    Multicast_baseUrl: ['/api/v1', '/api/v2', '/api/v3', '/api/v4'],
-
-    /*
-    Number of requests to be spawned in multicast mode for each
-     */
-//    Multicast_spawn: 1,
-
-    /*
-    These are the fields that you want to save from your parent resources if you need to display them.
-    By default this is an Empty Array which will suit most cases.
-    */
-    ExtraFields: [],
-
-    /*
-    Use this property to control whether Restangularized elements to have a parent or not.
-    This method accepts 2 parameters:
-    Boolean: Specifies if all elements should be parentless or not
-    Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
-    */
-    ParentLess: false,
-
-    /*
-    HTTP methods will be validated whether they are cached or not.
-    */
-    NoCacheHttpMethods: {
-        'get': false,
-        'post': true,
-        'put': false,
-        'delete': true,
-        'option': false
-    },
-
-    /*
-    This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
-    the corresponding transformer will be called if it fits.
-    This should be used to add your own methods / functions to entities of certain types.
-    You can add as many element transformers as you want.
-    The signature of this method can be one of the following:
-
-    1-Transformer is called with all elements that have been restangularized, no matter if they're collections or not:
-    addElementTransformer(route, transformer)
-    2-Transformer is called with all elements that have been restangularized and match the specification regarding
-    if it's a collection or not (true | false):
-    addElementTransformer(route, isCollection, transformer)
-    */
-    ElementTransformer: [],
-
-    /*
-    This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
-    this will be called. It means that if you receive a list of objects in one call, this method will be called
-    first for the collection and then for each element of the collection.
-    It is recommended the usage of addElementTransformer instead of onElemRestangularized whenever
-    possible as the implementation is much cleaner.
-    This callback is a function that has 3 parameters:
-    @param elem: The element that has just been restangularized. Can be a collection or a single element.
-    @param isCollection: Boolean indicating if this is a collection or a single element.
-    @param what: The model that is being modified. This is the "path" of this resource. For example buildings
-    @param Restangular: The instanced service to use any of its methods
-    */
-    OnElemRestangularized: function (elem) {
-        return elem;
-    },
-
-    /*
-    The requestInterceptor is called before sending any data to the server.
-    It's a function that must return the element to be requested.
-
-    @param element: The element to send to the server.
-    @param operation: The operation made. It'll be the HTTP method used except for a GET which returns a list
-    of element which will return getList so that you can distinguish them.
-    @param what: The model that's being requested. It can be for example: accounts, buildings, etc.
-    @param url: The relative URL being requested. For example: /api/v1/accounts/123
-    */
-    RequestInterceptor: null,
-
-    /*
-    The fullRequestInterceptor is similar to the requestInterceptor but more powerful.
-    It lets you change the element, the request parameters and the headers as well.
-    It's a function that receives the same as the requestInterceptor
-    plus the headers and the query parameters (in that order).
-    It must return an object with the following properties:
-    headers: The headers to send
-    params: The request parameters to send
-    element: The element to send
-    httpConfig: The httpConfig to call with
-    */
-    FullRequestInterceptor: null,
-
-    /*
-    The errorInterceptor is called whenever there's an error.
-    It's a function that receives the response as a parameter.
-    The errorInterceptor function, whenever it returns false, prevents the promise
-    linked to a Restangular request to be executed.
-    All other return values (besides false) are ignored and the promise follows the usual path,
-    eventually reaching the success or error hooks.
-    The feature to prevent the promise to complete is useful whenever you need to intercept
-    each Restangular error response for every request in your AngularJS application in a single place,
-    increasing debugging capabilities and hooking security features in a single place.
-    */
-    ErrorInterceptor: function (response) {
-        console.log("ErrorInterceptor, server response:", response);
-    },
-
-    /*
-    Restangular required 3 fields for every "Restangularized" element. These are:
-
-    id: Id of the element. Default: id
-    route: Name of the route of this element. Default: route
-    parentResource: The reference to the parent resource. Default: parentResource
-    restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
-    cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
-    etag: Where to save the ETag received from the server. Defaults to restangularEtag
-    selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
-    URL to an item, you can just leave it blank. Defaults to href
-    Also all of Restangular methods and functions are configurable through restangularFields property.
-    All of these fields except for id and selfLink are handled by Restangular,
-    so most of the time you won't change them.
-    You can configure the name of the property that will be binded to all
-    of this fields by setting restangularFields property.
-    */
-    RestangularFields: {
-        id: 'id',
-        route: 'route'
-    },
-
-    /*
-    You can now Override HTTP Methods. You can set here the array of methods to override.
-    All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
-    header with the real HTTP method we wanted to do.
-    */
-    MethodOverriders: [],
-
-    /*
-    You can set default Query parameters to be sent with every request and every method.
-    Additionally, if you want to configure request params per method, you can use
-    requestParams configuration similar to $http.
-    For example RestangularProvider.requestParams.get = {single: true}.
-    Supported method to configure are: remove, get, post, put, common (all).
-    */
-    DefaultRequestParams: {},
-
-    /*
-    You can set fullResponse to true to get the whole response every time you do any request.
-    The full response has the restangularized data in the data field,
-    and also has the headers and config sent. By default, it's set to false.
-    */
-    FullResponse: false,
-
-    /*
-    You can set default Headers to be sent with every request.
-    Example:
-    DefaultHeaders: {'Content-Type': 'application/json'}
-    */
-    DefaultHeaders: {
-        'Content-Type': 'application/json',
-        'X-XSRF-TOKEN': 'juan'
-        //SECURITY_GENERAL.XSRFCSRFHeaderName: SECURITY_GENERAL.XSRFCSRFCookieValue
-
-    },
-
-    /*
-    If all of your requests require to send some suffix to work, you can set it here.
-    For example, if you need to send the format like /users/123.json you can add that .json
-    to the suffix using the setRequestSuffix method
-    */
-    RequestSuffix: '.json',
-
-    /*
-    You can set this to either true or false.
-    If set to true, then the cannonical ID from the element will be used for URL creation
-    (in DELETE, PUT, POST, etc.).
-    What this means is that if you change the ID of the element and then you do a put,
-    if you set this to true, it'll use the "old" ID which was received from the server.
-    If set to false, it'll use the new ID assigned to the element.
-    */
-    UseCannonicalId: false,
-
-    /*
-    You can set here if you want to URL Encode IDs or not.
-    */
-    EncodeIds: true,
-    /*
-     *
-     */
-    DefaultContentType: 'application/json',
+    })
 
     /**
-     * If true, it will mock backend $http calls
-     * by decorating the default "real" $http service with a mocked
-     * one from angular-mocks.
-     * (remember to include the  angular-mocks.js script if this option is set to true)
-     * @type {Boolean}
+     * @ngdoc object
+     * @name SERVERPUSH_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.serverpush.
+     * It si related to socket.io configuration params.
+     * Read Configuration section in socket.io documentation for further details.
+     * https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
      */
-    MockBackend: false
-})
-/**
- * @ngdoc object
- * @name AD_CONFIG
- * @module appverse.configuration.default
- * @description Defines ConsumerKey and ConsumerSecret
- */
-.constant('AD_CONFIG', {
-    ConsumerKey: '',
-    ConsumerSecret: ''
-})
+    .constant('SERVERPUSH_CONFIG', {
+        /*
+         URL of the listened server
+          */
+        BaseUrl: 'http://localhost:3000',
+        /*
+         Port to be listened at the base url.
+          */
+        ListenedPort: '3000',
+        /*
+          resource
+          defaults to socket.io
+          Note the subtle difference between the server, this one is missing a /.
+          These 2 should be in sync with the server to prevent mismatches.
+          */
+        Resource: 'socket.io',
+        /*
+          connect timeout
+          defaults to 10000 ms
+          How long should Socket.IO wait before it aborts the connection attempt with the server to try another fall-back.
+          Please note that some transports require a longer timeout than others.
+          Setting this really low could potentially harm them.
+          */
+        ConnectTimeout: '10000',
+        /*
+          try multiple transports
+          defaults to true
+          When Socket.IO reconnects and it keeps failing over and over again,
+          should it try all available transports when it finally gives up.
+          */
+        TryMultipleTransports: true,
+        /*
+          reconnect
+          defaults to true
+          Should Socket.IO automatically reconnect when it detects a dropped connection or timeout.
+          */
+        Reconnect: true,
+        /*
+          reconnection delay
+          defaults to 500 ms
+          The initial timeout to start a reconnect,
+          this is increased using an exponential back off algorithm each
+          time a new reconnection attempt has been made.
+          */
+        ReconnectionDelay: 1000,
+        /*
+          reconnection limit
+          defaults to Infinity
+          The maximum reconnection delay in milliseconds, or Infinity.
+          */
+        ReconnectionLimit: 'Infinity',
+        /*
+          max reconnection attempts
+          defaults to 10
+          How many times should Socket.IO attempt to reconnect with the server after a a dropped connection.
+          After this we will emit the reconnect_failed event.
+          */
+        MaxReconnectionAttempts: 5,
+        /*
+          sync disconnect on unload
+          defaults to false
+          Do we need to send a disconnect packet to server when the browser unloads.
+          */
+        SyncDisconnectOnUnload: false,
+        /*
+          auto connect
+          defaults to true
+          When code calls io.connect() should Socket.IO automatically establish a connection with the server.
+          */
+        AutoConnect: true,
+        /*
+          flash policy port
+          defaults to 10843
+          If the server has Flashsocket enabled, this should match the same port as the server.
+          */
+        FlashPolicyPort: '',
+        /*
+          force new connection
+          defaults to false
+          Force multiple io.connect() calls to the same server to use different connections.
+          */
+        ForceNewConnection: false
+    })
 
-/**
- * @ngdoc object
- * @name I18N_CONFIG
- * @module appverse.configuration.default
- * @description This section contains basic configuration for appverse.translate.
- */
-.constant('I18N_CONFIG', {
-    PreferredLocale: 'en-US',
-    LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
-    DetectLocale: true
-})
-
-/**
- * @ngdoc object
- * @name SECURITY_GENERAL
- * @module appverse.configuration.default
- * @description Includes default information about authentication and authorization configuration based on OAUTH 2.0.
- */
-.constant('SECURITY_GENERAL', {
-    securityEnabled: false,
-    XSRFCSRFRequestHeaderName: 'X-XSRF-TOKEN',
-    XSRFCSRFResponseCookieName: 'XSRF-TOKEN',
-    BearerTokenResponseHeader: 'access_token',
-    BearerTokenRequestHeader: 'Authorization',
-    RefreshTokenResponseHeader: 'refresh_token',
-    BearerTokenExpiringResponseHeader: 'expires_in',
-    TokenTypeResponseHeader: 'token_type',
-    /*
-    The XSRF policy type is the level of complexity to calculate the value to be returned in the xsrf header in request
-    against the authorization server:
-    0: No value is included (The domain is the same one)
-    1: $http service built-in solution. The $http service will extract this token from the response header,
-     and then included in the X-XSRF-TOKEN header to every HTTP request. The server must check the token
-     on each request, and then block access if it is not valid.
-    2: Additional calculation of the cookie value using a secret hash. The value is included in the X-XSRF-TOKEN
-     request header.
+    /**
+     * @ngdoc object
+     * @name REST_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.rest.
+     * This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
+     * So, all configuration params are based on its configuration
+     * (https://github.com/mgonto/restangular#configuring-restangular).
+     * Future updates of Restangular imply review of this section in order
+     * to keep consistency between config and the module.
      */
-    XSRFPolicyType: 1,
-    XSRFSecret: '',
-    Headers_ContentType: 'application/json',
-    loginHTTPMethod: 'POST',
-    loginURL: 'http://localhost:8080/html5-incubator-server/rest/sec/login',
-    username: 'admin',
-    password: 'admin',
-    connected: 'connected',
-    disconnected: 'disconnected',
-    notEnabled: 'Security not enabled'
+    .constant('REST_CONFIG', {
+            /*
+            The base URL for all calls to your API.
+            For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
+            The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
+            so you can also set an absolute url like http://api.example.com/api/v1
+            if you need do set another domain.
+            */
+            BaseUrl: '/api/v1',
 
-})
+            /*
+            If enabled, requests via REST module will be multicasted.
+             */
+            //    Multicast_enabled: true,
 
-/**
- * @ngdoc object
- * @name SECURITY_OAUTH
- * @module appverse.configuration.default
- * @description Includes default specific settings for OAUTH
- */
-.constant('SECURITY_OAUTH', {
-    oauth2_endpoint: 'appverse',
-    clientID: '',
-    profile: 'http://localhost:8080/html5-incubator-server',
-    scope: 'resources',
-    scopeURL: 'http://localhost:8080/html5-incubator-server',
-    scope_authorizePath: '/oauth/authorize',
-    scope_tokenPath: '/oauth/token',
-    scope_flow: 'implicit',
-    scope_view: 'standard',
-    scope_storage: 'none',
-    scope_template: 'views/demo/security/oauth_default.html',
-    redirectURL: 'http://localhost:9000',
-    storage: 'cookies',
-    storage_cookies: 'cookies',
-    storage_header: 'header',
-    tokenResponseHeaderName: 'Authorization'
-})
+            /*
+            The base URLs array for all multicast calls to your API.
+            */
+            //    Multicast_baseUrl: ['/api/v1', '/api/v2', '/api/v3', '/api/v4'],
 
-/**
- * @ngdoc object
- * @name GOOGLE_AUTH
- * @module appverse.configuration.default
- * @description Defines settings to use Google Oauth2 autentication service
- */
-.constant('GOOGLE_AUTH', {
-    clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
-    scopeURL: 'https://www.googleapis.com/auth/plus.login',
-    requestvisibleactionsURL: 'http://schemas.google.com/AddActivity',
-    theme: 'dark',
-    cookiepolicy: 'single_host_origin',
-    revocationURL: 'https://accounts.google.com/o/oauth2/revoke?token=',
-    /*
-     * Policy about token renewal:
-     * revocation: if the token is invalid the user is fordec to logout and warned.
-     * manual_renovation: the user is warned about the token validity. Renewal is proposed.
-     * automatic_renovation: the token is automatically renewed.
+            /*
+            Number of requests to be spawned in multicast mode for each
+             */
+            //    Multicast_spawn: 1,
+
+            /*
+            These are the fields that you want to save from your parent resources if you need to display them.
+            By default this is an Empty Array which will suit most cases.
+            */
+            ExtraFields: [],
+
+            /*
+            Use this property to control whether Restangularized elements to have a parent or not.
+            This method accepts 2 parameters:
+            Boolean: Specifies if all elements should be parentless or not
+            Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
+            */
+            ParentLess: false,
+
+            /*
+            HTTP methods will be validated whether they are cached or not.
+            */
+            NoCacheHttpMethods: {
+                'get': false,
+                'post': true,
+                'put': false,
+                'delete': true,
+                'option': false
+            },
+
+            /*
+            This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
+            the corresponding transformer will be called if it fits.
+            This should be used to add your own methods / functions to entities of certain types.
+            You can add as many element transformers as you want.
+            The signature of this method can be one of the following:
+
+            1-Transformer is called with all elements that have been restangularized, no matter if they're collections or not:
+            addElementTransformer(route, transformer)
+            2-Transformer is called with all elements that have been restangularized and match the specification regarding
+            if it's a collection or not (true | false):
+            addElementTransformer(route, isCollection, transformer)
+            */
+            ElementTransformer: [],
+
+            /*
+            This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
+            this will be called. It means that if you receive a list of objects in one call, this method will be called
+            first for the collection and then for each element of the collection.
+            It is recommended the usage of addElementTransformer instead of onElemRestangularized whenever
+            possible as the implementation is much cleaner.
+            This callback is a function that has 3 parameters:
+            @param elem: The element that has just been restangularized. Can be a collection or a single element.
+            @param isCollection: Boolean indicating if this is a collection or a single element.
+            @param what: The model that is being modified. This is the "path" of this resource. For example buildings
+            @param Restangular: The instanced service to use any of its methods
+            */
+            OnElemRestangularized: function (elem) {
+                return elem;
+            },
+
+            /*
+            The requestInterceptor is called before sending any data to the server.
+            It's a function that must return the element to be requested.
+
+            @param element: The element to send to the server.
+            @param operation: The operation made. It'll be the HTTP method used except for a GET which returns a list
+            of element which will return getList so that you can distinguish them.
+            @param what: The model that's being requested. It can be for example: accounts, buildings, etc.
+            @param url: The relative URL being requested. For example: /api/v1/accounts/123
+            */
+            RequestInterceptor: null,
+
+            /*
+            The fullRequestInterceptor is similar to the requestInterceptor but more powerful.
+            It lets you change the element, the request parameters and the headers as well.
+            It's a function that receives the same as the requestInterceptor
+            plus the headers and the query parameters (in that order).
+            It must return an object with the following properties:
+            headers: The headers to send
+            params: The request parameters to send
+            element: The element to send
+            httpConfig: The httpConfig to call with
+            */
+            FullRequestInterceptor: null,
+
+            /*
+            The errorInterceptor is called whenever there's an error.
+            It's a function that receives the response as a parameter.
+            The errorInterceptor function, whenever it returns false, prevents the promise
+            linked to a Restangular request to be executed.
+            All other return values (besides false) are ignored and the promise follows the usual path,
+            eventually reaching the success or error hooks.
+            The feature to prevent the promise to complete is useful whenever you need to intercept
+            each Restangular error response for every request in your AngularJS application in a single place,
+            increasing debugging capabilities and hooking security features in a single place.
+            */
+            ErrorInterceptor: function (response) {
+                console.log("ErrorInterceptor, server response:", response);
+            },
+
+            /*
+            Restangular required 3 fields for every "Restangularized" element. These are:
+
+            id: Id of the element. Default: id
+            route: Name of the route of this element. Default: route
+            parentResource: The reference to the parent resource. Default: parentResource
+            restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
+            cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
+            etag: Where to save the ETag received from the server. Defaults to restangularEtag
+            selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
+            URL to an item, you can just leave it blank. Defaults to href
+            Also all of Restangular methods and functions are configurable through restangularFields property.
+            All of these fields except for id and selfLink are handled by Restangular,
+            so most of the time you won't change them.
+            You can configure the name of the property that will be binded to all
+            of this fields by setting restangularFields property.
+            */
+            RestangularFields: {
+                id: 'id',
+                route: 'route'
+            },
+
+            /*
+            You can now Override HTTP Methods. You can set here the array of methods to override.
+            All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
+            header with the real HTTP method we wanted to do.
+            */
+            MethodOverriders: [],
+
+            /*
+            You can set default Query parameters to be sent with every request and every method.
+            Additionally, if you want to configure request params per method, you can use
+            requestParams configuration similar to $http.
+            For example RestangularProvider.requestParams.get = {single: true}.
+            Supported method to configure are: remove, get, post, put, common (all).
+            */
+            DefaultRequestParams: {},
+
+            /*
+            You can set fullResponse to true to get the whole response every time you do any request.
+            The full response has the restangularized data in the data field,
+            and also has the headers and config sent. By default, it's set to false.
+            */
+            FullResponse: false,
+
+            /*
+            You can set default Headers to be sent with every request.
+            Example:
+            DefaultHeaders: {'Content-Type': 'application/json'}
+            */
+            DefaultHeaders: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': 'juan'
+                    //SECURITY_GENERAL.XSRFCSRFHeaderName: SECURITY_GENERAL.XSRFCSRFCookieValue
+
+            },
+
+            /*
+            If all of your requests require to send some suffix to work, you can set it here.
+            For example, if you need to send the format like /users/123.json you can add that .json
+            to the suffix using the setRequestSuffix method
+            */
+            RequestSuffix: '.json',
+
+            /*
+            You can set this to either true or false.
+            If set to true, then the cannonical ID from the element will be used for URL creation
+            (in DELETE, PUT, POST, etc.).
+            What this means is that if you change the ID of the element and then you do a put,
+            if you set this to true, it'll use the "old" ID which was received from the server.
+            If set to false, it'll use the new ID assigned to the element.
+            */
+            UseCannonicalId: false,
+
+            /*
+            You can set here if you want to URL Encode IDs or not.
+            */
+            EncodeIds: true,
+            /*
+             *
+             */
+            DefaultContentType: 'application/json',
+
+            /**
+             * If true, it will mock backend $http calls
+             * by decorating the default "real" $http service with a mocked
+             * one from angular-mocks.
+             * (remember to include the  angular-mocks.js script if this option is set to true)
+             * @type {Boolean}
+             */
+            MockBackend: false
+        })
+        /**
+         * @ngdoc object
+         * @name AD_CONFIG
+         * @module appverse.configuration.default
+         * @description Defines ConsumerKey and ConsumerSecret
+         */
+        .constant('AD_CONFIG', {
+            ConsumerKey: '',
+            ConsumerSecret: ''
+        })
+
+    /**
+     * @ngdoc object
+     * @name I18N_CONFIG
+     * @module appverse.configuration.default
+     * @description This section contains basic configuration for appverse.translate.
      */
-    revocation: 'revocation',
-    manual_renovation: 'manual_renovation',
-    automatic_renovation: 'automatic_renovation',
-    tokenRenewalPolicy: 'automatic_renovation'
-})
+    .constant('I18N_CONFIG', {
+        PreferredLocale: 'en-US',
+        LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
+        DetectLocale: true
+    })
 
-/**
- * @ngdoc object
- * @name AUTHORIZATION_DATA
- * @module appverse.configuration.default
- * @description Defines default authorization and roles data
- */
-.constant('AUTHORIZATION_DATA', {
-    roles: ['user', 'admin', 'editor'],
-    adminRoles: ["ROLE_EXAMPLE","ROLE_EXAMPLE_2","ROLE_REMOTE_LOGGING_WRITER","ROLE_USER"],
-    users: ['Jesus de Diego'],
-    userRoleMatrix: [
-        {
-            'user': 'Jesus de Diego',
-            'roles': ["ROLE_EXAMPLE","ROLE_EXAMPLE_2","ROLE_REMOTE_LOGGING_WRITER","ROLE_USER"]
+    /**
+     * @ngdoc object
+     * @name SECURITY_GENERAL
+     * @module appverse.configuration.default
+     * @description Includes default information about authentication and authorization configuration based on OAUTH 2.0.
+     */
+    .constant('SECURITY_GENERAL', {
+        securityEnabled: false,
+        XSRFCSRFRequestHeaderName: 'X-XSRF-TOKEN',
+        XSRFCSRFResponseCookieName: 'XSRF-TOKEN',
+        BearerTokenResponseHeader: 'access_token',
+        BearerTokenRequestHeader: 'Authorization',
+        RefreshTokenResponseHeader: 'refresh_token',
+        BearerTokenExpiringResponseHeader: 'expires_in',
+        TokenTypeResponseHeader: 'token_type',
+        /*
+        The XSRF policy type is the level of complexity to calculate the value to be returned in the xsrf header in request
+        against the authorization server:
+        0: No value is included (The domain is the same one)
+        1: $http service built-in solution. The $http service will extract this token from the response header,
+         and then included in the X-XSRF-TOKEN header to every HTTP request. The server must check the token
+         on each request, and then block access if it is not valid.
+        2: Additional calculation of the cookie value using a secret hash. The value is included in the X-XSRF-TOKEN
+         request header.
+         */
+        XSRFPolicyType: 1,
+        XSRFSecret: '',
+        Headers_ContentType: 'application/json',
+        loginHTTPMethod: 'POST',
+        loginURL: 'http://localhost:8080/html5-incubator-server/rest/sec/login',
+        username: 'admin',
+        password: 'admin',
+        connected: 'connected',
+        disconnected: 'disconnected',
+        notEnabled: 'Security not enabled'
+
+    })
+
+    /**
+     * @ngdoc object
+     * @name SECURITY_OAUTH
+     * @module appverse.configuration.default
+     * @description Includes default specific settings for OAUTH
+     */
+    .constant('SECURITY_OAUTH', {
+        oauth2_endpoint: 'appverse',
+        clientID: '',
+        profile: 'http://localhost:8080/html5-incubator-server',
+        scope: 'resources',
+        scopeURL: 'http://localhost:8080/html5-incubator-server',
+        scope_authorizePath: '/oauth/authorize',
+        scope_tokenPath: '/oauth/token',
+        scope_flow: 'implicit',
+        scope_view: 'standard',
+        scope_storage: 'none',
+        scope_template: 'views/demo/security/oauth_default.html',
+        redirectURL: 'http://localhost:9000',
+        storage: 'cookies',
+        storage_cookies: 'cookies',
+        storage_header: 'header',
+        tokenResponseHeaderName: 'Authorization'
+    })
+
+    /**
+     * @ngdoc object
+     * @name GOOGLE_AUTH
+     * @module appverse.configuration.default
+     * @description Defines settings to use Google Oauth2 autentication service
+     */
+    .constant('GOOGLE_AUTH', {
+        clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
+        scopeURL: 'https://www.googleapis.com/auth/plus.login',
+        requestvisibleactionsURL: 'http://schemas.google.com/AddActivity',
+        theme: 'dark',
+        cookiepolicy: 'single_host_origin',
+        revocationURL: 'https://accounts.google.com/o/oauth2/revoke?token=',
+        /*
+         * Policy about token renewal:
+         * revocation: if the token is invalid the user is fordec to logout and warned.
+         * manual_renovation: the user is warned about the token validity. Renewal is proposed.
+         * automatic_renovation: the token is automatically renewed.
+         */
+        revocation: 'revocation',
+        manual_renovation: 'manual_renovation',
+        automatic_renovation: 'automatic_renovation',
+        tokenRenewalPolicy: 'automatic_renovation'
+    })
+
+    /**
+     * @ngdoc object
+     * @name AUTHORIZATION_DATA
+     * @module appverse.configuration.default
+     * @description Defines default authorization and roles data
+     */
+    .constant('AUTHORIZATION_DATA', {
+        roles: ['user', 'admin', 'editor'],
+        adminRoles: ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"],
+        users: ['Jesus de Diego'],
+        userRoleMatrix: [
+            {
+                'user': 'Jesus de Diego',
+                'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
         },
-        {
-            'user': 'Antoine Charnoz',
-            'roles': ["ROLE_EXAMPLE","ROLE_EXAMPLE_2","ROLE_REMOTE_LOGGING_WRITER","ROLE_USER"]
+            {
+                'user': 'Antoine Charnoz',
+                'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
         }
     ],
-    routesThatDontRequireAuth: ['/home'],
-    routesThatRequireAdmin: ['/about']
-})
+        routesThatDontRequireAuth: ['/home'],
+        routesThatRequireAdmin: ['/about']
+    })
 
 
-/**
- * @ngdoc object
- * @name WEBSOCKETS_CONFIG
- * @module appverse.configuration.default
- * @description Configuration parameters for web sockets
- */
-.constant('WEBSOCKETS_CONFIG', {
+    /**
+     * @ngdoc object
+     * @name WEBSOCKETS_CONFIG
+     * @module appverse.configuration.default
+     * @description Configuration parameters for web sockets
+     */
+    .constant('WEBSOCKETS_CONFIG', {
+        WS_ECHO_URL: "ws://echo.websocket.org",
+        WS_TYPE: 'native', //auto|sockjs|native
+        WS_PROTOCOL_TYPE: 'none', //auto|stomp|none
+        WS_INTERVAL: 30,
+        WS_CONNECTED: 'Websocket connected',
+        WS_DISCONNECTED: 'Websocket disconnected',
+        WS_CONNECTING: 'Connecting Websocket...',
+        WS_CLOSED: 'Websocket connection closed',
+        WS_CLOSING: 'Websocket connection closing...',
+        WS_OPEN: 'Websocket connection is open',
+        WS_UNKNOWN: 'Websocket status is unknown',
+        WS_PROTOCOL_CONNECTED: 'Websocket protocol connected',
+        WS_PROTOCOL_DISCONNECTED: 'Websocket protocol disconnected',
+        WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
+        WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
+        WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
+    })
 
-    WS_ECHO_URL: "ws://echo.websocket.org",
-    WS_CPU_URL: "ws://localhost:8080/websocket/services/websocket/statistics/get/cpuload",
-    WS_CPU_INTERVAL: 30,
-    WS_CONNECTED: 'Websocket connected',
-    WS_DISCONNECTED: 'Websocket disconnected',
-    WS_CONNECTING: 'Connecting Websocket...',
-    WS_CLOSED: 'Websocket connection closed',
-    WS_CLOSING: 'Websocket connection closing...',
-    WS_OPEN: 'Websocket connection is open',
-    WS_UNKNOWN: 'Websocket status is unknown',
-    WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
-    WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
-    WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
-})
-
-/**
- * @ngdoc object
- * @name PERFORMANCE_CONFIG
- * @module appverse.configuration.default
- * @description Includes default information about the different facets for a better performance in the app.
- * There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
- */
-.constant('PERFORMANCE_CONFIG', {
-/*
- * WEBWORKERS SECTION
- * To test multiple parallelized threads with web workers a thread pool or task queue is defined.
- * The goal is focused on using enough threads to improve the execution but not too much or the browser system can turn
- * into unstable.
- * You can configure the maximum number of concurrent web workers when this pool is instantiated,
- * and any 'task' you submit will be executed using one of the available threads from the pool.
- * Note that the app is not really pooling threads, but just using this pool to control the number of concurrently
- * executing web workers due to the high cost for start them.
- */
-    /*
-    Maximum number of simultaneous executing threads used by workers
+    /**
+     * @ngdoc object
+     * @name PERFORMANCE_CONFIG
+     * @module appverse.configuration.default
+     * @description Includes default information about the different facets for a better performance in the app.
+     * There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
      */
-    webworker_pooled_threads: 4,
-    /*
-    If true, only workers in the web worker_authorized_workers property might be executed.
-    Other invoked workers will not result in a worker call.
-     */
-    webworker_authorized_workers_only: true,
-    /*
-    Folder for workers' files
-     */
-    webworker_directory: "resources/webworkers/",
-    /*
-    List of authorized workers with its ID.
-    The ID is used to be passed in the directive's attribute.
-     */
-    webworker_authorized_workers: [
-        {
-            'id': 'w1',
-            'type': 'dedicated',
-            'poolSize': 4,
-            'file': 'RenderImage.js'
+    .constant('PERFORMANCE_CONFIG', {
+        /*
+         * WEBWORKERS SECTION
+         * To test multiple parallelized threads with web workers a thread pool or task queue is defined.
+         * The goal is focused on using enough threads to improve the execution but not too much or the browser system can turn
+         * into unstable.
+         * You can configure the maximum number of concurrent web workers when this pool is instantiated,
+         * and any 'task' you submit will be executed using one of the available threads from the pool.
+         * Note that the app is not really pooling threads, but just using this pool to control the number of concurrently
+         * executing web workers due to the high cost for start them.
+         */
+        /*
+        Maximum number of simultaneous executing threads used by workers
+         */
+        webworker_pooled_threads: 4,
+        /*
+        If true, only workers in the web worker_authorized_workers property might be executed.
+        Other invoked workers will not result in a worker call.
+         */
+        webworker_authorized_workers_only: true,
+        /*
+        Folder for workers' files
+         */
+        webworker_directory: "resources/webworkers/",
+        /*
+        List of authorized workers with its ID.
+        The ID is used to be passed in the directive's attribute.
+         */
+        webworker_authorized_workers: [
+            {
+                'id': 'w1',
+                'type': 'dedicated',
+                'poolSize': 4,
+                'file': 'RenderImage.js'
         },
-        {
-            'id': 'w2',
-            'type': 'dedicated',
-            'poolSize': 4,
-            'file': 'RestMultiRequest.js'
+            {
+                'id': 'w2',
+                'type': 'dedicated',
+                'poolSize': 4,
+                'file': 'RestMultiRequest.js'
         }
     ],
-    webworker_dedicated_literal: "dedicated",
-    webworker_shared_literal: "shared",
-    webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
-});
+        webworker_dedicated_literal: "dedicated",
+        webworker_shared_literal: "shared",
+        webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
+    });
 
 })();
 /**
@@ -3928,11 +4411,12 @@ All data are auto-explained because their names ;)
  * Just call the initalization code after having loaded angular and the configuration module:
  * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
-var AppInit = AppInit || (function(angular) { 'use strict';
+var AppInit = AppInit || (function (angular) {
+    'use strict';
 
     var
-    settings,
-    mainModuleName;
+        settings,
+        mainModuleName;
 
     /**
      * @ngdoc method
@@ -3942,7 +4426,15 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     function setConfig(settingsObject) {
         settings = settingsObject;
-        angular.module('appverse.configuration.loader').config(loadConfig);
+        var module = angular.module('appverse.configuration.loader');
+        // Remove default config function
+        module._invokeQueue.some(function (currentValue, index) {
+            if (currentValue[0] === '$injector' && currentValue[1] === 'invoke') {
+                module._invokeQueue.splice(index);
+                return true;
+            }
+        });
+        module.config(loadConfig);
         return AppInit;
     }
 
@@ -3957,7 +4449,7 @@ var AppInit = AppInit || (function(angular) { 'use strict';
      */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function() {
+        angular.element(document).ready(function () {
             angular.bootstrap(document, [moduleName]);
         });
     }
@@ -3988,10 +4480,10 @@ var AppInit = AppInit || (function(angular) { 'use strict';
     loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
-        setMainModuleName : setMainModuleName,
-        setConfig : setConfig,
-        bootstrap : bootstrap,
-        getMainModule : getMainModule
+        setMainModuleName: setMainModuleName,
+        setConfig: setConfig,
+        bootstrap: bootstrap,
+        getMainModule: getMainModule
     };
 
 })(angular);
