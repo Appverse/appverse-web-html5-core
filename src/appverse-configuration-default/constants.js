@@ -40,6 +40,20 @@
 
     /**
      * @ngdoc object
+     * @name ROUTER_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.router
+     */
+    .constant('ROUTER_CONFIG', {
+        /*
+        This param enables (if true) the $locationProvider.html5Mode.
+        IMPORTANT: This param only works for development environment. For a real server is necessary to config a .htaccess file or equivalent.
+        */
+        removeHashtag: false
+    })
+
+    /**
+     * @ngdoc object
      * @name LOGGING_CONFIG
      * @module  appverse.configuration.default
      * @description This section contains basic configuration for appverse.logging

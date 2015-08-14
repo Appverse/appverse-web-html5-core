@@ -2387,7 +2387,7 @@ function FormattedLoggerProvider () {
     RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -2398,16 +2398,23 @@ function FormattedLoggerProvider () {
      * @requires https://github.com/angular-ui/ui-router ui.router
      */
     angular.module('appverse.router', ['ui.router'])
-
-    .run(['$rootScope', '$state', '$stateParams',
+        .config(["$locationProvider", "ROUTER_CONFIG", function ($locationProvider, ROUTER_CONFIG) {
+            if (ROUTING_CONFIG.removeHashtag) {
+                $locationProvider.html5Mode({
+                    enabled: ROUTER_CONFIG.removeHashtag,
+                    requireBase: false
+                });
+            }
+        }])
+        .run(['$rootScope', '$state', '$stateParams',
             function ($rootScope, $state, $stateParams) {
 
-            // It's very handy to add references to $state and $stateParams to the $rootScope
-            // so that you can access them from any scope within your applications.For example,
-            // <li ng-class="{ active: $state.includes('contacts.list') }"> will set the <li>
-            // to active whenever 'contacts.list' or one of its decendents is active.
-            $rootScope.$state = $state;
-            $rootScope.$stateParams = $stateParams;
+                // It's very handy to add references to $state and $stateParams to the $rootScope
+                // so that you can access them from any scope within your applications.For example,
+                // <li ng-class="{ active: $state.includes('contacts.list') }"> will set the <li>
+                // to active whenever 'contacts.list' or one of its decendents is active.
+                $rootScope.$state = $state;
+                $rootScope.$stateParams = $stateParams;
         }]);
 
 })();
@@ -3726,6 +3733,20 @@ run.$inject = ["$log"];
      */
     .constant('IONIC_CONFIG', {
         MainState: 'menu'
+    })
+
+    /**
+     * @ngdoc object
+     * @name ROUTER_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.router
+     */
+    .constant('ROUTER_CONFIG', {
+        /*
+        This param enables (if true) the $locationProvider.html5Mode.
+        IMPORTANT: This param only works for development environment. For a real server is necessary to config a .htaccess file or equivalent.
+        */
+        removeHashtag: false
     })
 
     /**
