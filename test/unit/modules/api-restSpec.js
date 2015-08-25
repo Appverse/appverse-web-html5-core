@@ -11,12 +11,6 @@ describe('Unit: Testing appverse.rest module', function () {
         })
     );
 
-    it('should contain a MulticastRESTFactory factory',
-        inject(function (MulticastRESTFactory) {
-            expect(MulticastRESTFactory).to.be.an.object;
-        })
-    );
-
     describe('when wrapping request in the Rest Service', function() {
 
         // Create a mock wrapper that wraps requests by just
