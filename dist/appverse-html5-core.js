@@ -1963,41 +1963,6 @@ function FormattedLoggerProvider () {
 (function() {
     'use strict';
 
-    /**
-     * @ngdoc service
-     * @name  MulticastRESTFactory
-     * @module appverse.rest
-     *
-     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
-     * @requires https://github.com/mgonto/restangular Restangular
-     * @requires REST_CONFIG
-     */
-    angular.module('appverse.rest')
-    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-
-        function ($log, Restangular, REST_CONFIG) {
-            var factory = {};
-            var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            $log.debug('Multicast Enabled : ' + multicastSpawn);
-
-            factory.readObject = function (path, params) {
-                if(params && params.length >0){
-
-                }else{
-                    //No params. It is a normal call
-                    return Restangular.one(path).get().$object;
-                }
-
-            };
-
-            return factory;
-        }]);
-
-
-})();
-(function() {
-    'use strict';
-
     angular.module('appverse.rest')
     .directive('rest', restDirective);
 
@@ -3984,21 +3949,6 @@ run.$inject = ["$log"];
             BaseUrl: '/api/v1',
 
             /*
-            If enabled, requests via REST module will be multicasted.
-             */
-            //    Multicast_enabled: true,
-
-            /*
-            The base URLs array for all multicast calls to your API.
-            */
-            //    Multicast_baseUrl: ['/api/v1', '/api/v2', '/api/v3', '/api/v4'],
-
-            /*
-            Number of requests to be spawned in multicast mode for each
-             */
-            //    Multicast_spawn: 1,
-
-            /*
             These are the fields that you want to save from your parent resources if you need to display them.
             By default this is an Empty Array which will suit most cases.
             */
@@ -4402,6 +4352,7 @@ run.$inject = ["$log"];
     });
 
 })();
+
 /**
  * @ngdoc object
  * @name  AppInit
