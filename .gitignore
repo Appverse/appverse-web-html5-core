@@ -1,9 +1,8 @@
-node_modules
-bower_components
-.tmp
-.sass-cache
-.sonar/
-reports
-doc/
-*.log
-demo/index*.TMP
+/node_modules
+/bower_components
+/.tmp
+/.sass-cache
+/.sonar/
+/reports/
+/doc/
+/*.log
