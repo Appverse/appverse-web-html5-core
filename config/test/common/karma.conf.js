@@ -1,4 +1,4 @@
-/*global module:false */
+/*jshint node:true */
 
 'use strict';
 
@@ -28,15 +28,7 @@ var settings = {
 
     unitFiles: [
         'test/unit/**/*.js'
-    ],
-
-    midwayFiles: [
-        'bower_components/angular-cache/dist/angular-cache.min.js',
-        'bower_components/angular-ui-router/release/angular-ui-router.js',
-        'bower_components/lodash/lodash.min.js',
-        'bower_components/restangular/dist/restangular.min.js',
-        'test/midway/**/*.js'
-    ],
+    ]
 };
 
 
@@ -46,20 +38,16 @@ function Configurator() {
     this.frameworks = settings.frameworks;
 }
 
-Configurator.prototype.filesForUnitTests = function () {
+Configurator.prototype.filesForUnitTests = function() {
     return this.withCommonFiles().files(settings.unitFiles);
 };
 
-Configurator.prototype.filesForMidwayTests = function () {
-    return this.withCommonFiles().files(settings.midwayFiles);
-};
-
-Configurator.prototype.withCommonFiles = function () {
+Configurator.prototype.withCommonFiles = function() {
     this._files = settings.commonFiles;
     return this;
 };
 
-Configurator.prototype.files = function (specificFiles) {
+Configurator.prototype.files = function(specificFiles) {
     return this._files.concat(specificFiles);
 };
 

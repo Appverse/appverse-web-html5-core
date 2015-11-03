@@ -2,15 +2,15 @@
 
 'use strict';
 
-var fs            = require('fs'),
-connectLiveReload = require('connect-livereload'),
-bowerFile         = require('./bower.json'),
-LIVERELOAD_PORT   = 35729,
-liveReloadSnippet = connectLiveReload({
-    port: LIVERELOAD_PORT
-});
+var fs = require('fs'),
+    connectLiveReload = require('connect-livereload'),
+    bowerFile = require('./bower.json'),
+    LIVERELOAD_PORT = 35729,
+    liveReloadSnippet = connectLiveReload({
+        port: LIVERELOAD_PORT
+    });
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -41,44 +41,33 @@ module.exports = function (grunt) {
     // Define file to load in the demo, ordering and the way they are
     // concatenated for distribution
     var files = {
-        '<%= appverse.dist %>/appverse-cache/appverse-cache.js':
-            moduleFilesToConcat('<%= appverse.src %>/appverse-cache'),
+        '<%= appverse.dist %>/appverse-cache/appverse-cache.js': moduleFilesToConcat('<%= appverse.src %>/appverse-cache'),
 
-        '<%= appverse.dist %>/appverse-detection/appverse-detection.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-detection', [
-                // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.src %>/appverse-detection/mobile-detector.provider.js',
-                '<%= appverse.src %>/appverse-detection/detection.provider.js',
-            ]),
+        '<%= appverse.dist %>/appverse-detection/appverse-detection.js': moduleFilesToConcat('<%= appverse.src %>/appverse-detection', [
+            // this order must be preseved as there are dependencies between these providers
+            '<%= appverse.src %>/appverse-detection/mobile-detector.provider.js',
+            '<%= appverse.src %>/appverse-detection/detection.provider.js',
+        ]),
 
-        '<%= appverse.dist %>/appverse-logging/appverse-logging.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-logging'),
+        '<%= appverse.dist %>/appverse-logging/appverse-logging.js': moduleFilesToConcat('<%= appverse.src %>/appverse-logging'),
 
-        '<%= appverse.dist %>/appverse-performance/appverse-performance.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-performance'),
+        '<%= appverse.dist %>/appverse-performance/appverse-performance.js': moduleFilesToConcat('<%= appverse.src %>/appverse-performance'),
 
-        '<%= appverse.dist %>/appverse-translate/appverse-translate.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-translate'),
+        '<%= appverse.dist %>/appverse-translate/appverse-translate.js': moduleFilesToConcat('<%= appverse.src %>/appverse-translate'),
 
-        '<%= appverse.dist %>/appverse-utils/appverse-utils.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),
+        '<%= appverse.dist %>/appverse-utils/appverse-utils.js': moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),
 
-        '<%= appverse.dist %>/appverse-serverpush/appverse-serverpush.js' :
-            moduleFilesToConcat('<%= appverse.src %>/{appverse-serverpush,appverse-socketio}'),
+        '<%= appverse.dist %>/appverse-serverpush/appverse-serverpush.js': moduleFilesToConcat('<%= appverse.src %>/{appverse-serverpush,appverse-socketio}'),
 
-        '<%= appverse.dist %>/appverse-rest/appverse-rest.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-rest'),
+        '<%= appverse.dist %>/appverse-rest/appverse-rest.js': moduleFilesToConcat('<%= appverse.src %>/appverse-rest'),
 
-        '<%= appverse.dist %>/appverse-router/appverse-router.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-router'),
-        
-        '<%= appverse.dist %>/appverse-native/appverse-native.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-native'),
-        
-        '<%= appverse.dist %>/appverse-ionic/appverse-ionic.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-ionic'),
+        '<%= appverse.dist %>/appverse-router/appverse-router.js': moduleFilesToConcat('<%= appverse.src %>/appverse-router'),
 
-        '<%= appverse.dist %>/appverse/appverse.js' : [
+        '<%= appverse.dist %>/appverse-native/appverse-native.js': moduleFilesToConcat('<%= appverse.src %>/appverse-native'),
+
+        '<%= appverse.dist %>/appverse-ionic/appverse-ionic.js': moduleFilesToConcat('<%= appverse.src %>/appverse-ionic'),
+
+        '<%= appverse.dist %>/appverse/appverse.js': [
             ['<%= appverse.src %>/appverse/integrator.js'].concat(
                 moduleFilesToConcat('<%= appverse.src %>/{appverse-configuration*,appverse}')
             ),
@@ -206,7 +195,7 @@ module.exports = function (grunt) {
                     src: ['**/*.js', '!oldieshim.js'],
                     dest: '<%= appverse.dist %>',
                     extDot: 'last'
-            }]
+                }]
             }
         },
 
@@ -218,14 +207,13 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: [{
-                        expand: true, // Enable dynamic expansion.
-                        cwd: '<%= appverse.dist %>', // Src matches are relative to this path.
-                        src: ['**/*.js'], // Actual pattern(s) to match.
-                        dest: '<%= appverse.dist %>', // Destination path prefix.
-                        ext: '.min.js', // Dest filepaths will have this extension.
-                        extDot: 'last' // Extensions in filenames begin after the last dot
-                    }
-                ]
+                    expand: true, // Enable dynamic expansion.
+                    cwd: '<%= appverse.dist %>', // Src matches are relative to this path.
+                    src: ['**/*.js'], // Actual pattern(s) to match.
+                    dest: '<%= appverse.dist %>', // Destination path prefix.
+                    ext: '.min.js', // Dest filepaths will have this extension.
+                    extDot: 'last' // Extensions in filenames begin after the last dot
+                }]
             }
         },
 
@@ -238,16 +226,11 @@ module.exports = function (grunt) {
             unitAutoWatch: {
                 configFile: '<%= appverse.testsConfig %>/karma.unit.watch.conf.js',
                 autoWatch: true
-            },
-            midway: {
-                configFile: '<%= appverse.testsConfig %>/karma.midway.conf.js',
-                autoWatch: false,
-                singleRun: true
-            },
+            }
         },
 
         // Runs protractor and generate coverage report for e2e tests.
-        // Unit and midway are already managedby Karma
+        // Unit is managed by Karma
         protractor_coverage: {
             options: {
                 configFile: '<%= appverse.testsConfig %>/protractor.e2e.conf.js',
@@ -286,7 +269,7 @@ module.exports = function (grunt) {
                 updateConfigs: [],
                 commit: true,
                 commitMessage: 'Release v%VERSION%',
-                commitFiles: ['package.json', 'bower.json','dist'],
+                commitFiles: ['package.json', 'bower.json', 'dist'],
                 createTag: true,
                 tagName: 'v%VERSION%',
                 tagMessage: 'Version %VERSION%',
@@ -310,7 +293,7 @@ module.exports = function (grunt) {
             livereload: {
                 options: {
                     port: 9000,
-                    middleware: function (connect) {
+                    middleware: function(connect) {
                         return [
                             delayApiCalls,
                             liveReloadSnippet,
@@ -327,7 +310,7 @@ module.exports = function (grunt) {
             e2e: {
                 options: {
                     port: 9091,
-                    middleware: function (connect) {
+                    middleware: function(connect) {
                         return [
                             mountFolder(connect, configPaths.e2eInstrumented + '/src'),
                             mountFolder(connect, configPaths.src),
@@ -343,7 +326,7 @@ module.exports = function (grunt) {
             e2e_dist: {
                 options: {
                     port: 9090,
-                    middleware: function (connect) {
+                    middleware: function(connect) {
                         return [
                             mountFolder(connect, configPaths.src),
                             mountFolder(connect, configPaths.bowerComponents),
@@ -361,8 +344,8 @@ module.exports = function (grunt) {
             doc: {
                 options: {
                     port: 9999,
-                    keepalive : true,
-                    middleware: function (connect) {
+                    keepalive: true,
+                    middleware: function(connect) {
                         return [
                             require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
                             mountFolder(connect, configPaths.doc),
@@ -418,7 +401,7 @@ module.exports = function (grunt) {
         injector: {
             options: {
                 relative: false,
-                transform: function (path) {
+                transform: function(path) {
                     // Demo server directly mounts src folder so the reference to src is not required
                     path = path.replace('/src/', '');
                     return '<script src="' + path + '"></script>';
@@ -442,15 +425,14 @@ module.exports = function (grunt) {
                     '<%= appverse.reports %>/analysis/': [
                         '<%= appverse.src %>/**/*.js',
                         '<%= appverse.test %>/unit/**/*.js',
-                        '<%= appverse.test %>/midway/**/*.js',
                         '<%= appverse.test %>/e2e/**/*.js',
-                     ]
+                    ]
                 }
             }
         },
 
         concurrent: {
-            dist: ['jshint', 'unit', 'midway', 'test:e2e:report', 'analysis']
+            dist: ['jshint', 'unit', 'test:e2e:report', 'analysis']
         }
     });
 
@@ -490,16 +472,11 @@ module.exports = function (grunt) {
     grunt.registerTask('test:all', [
         'clean:coverage',
         'unit',
-        'midway',
         'e2e',
     ]);
 
     grunt.registerTask('unit', [
         'test:unit:once'
-    ]);
-
-    grunt.registerTask('midway', [
-        'test:midway'
     ]);
 
     grunt.registerTask('e2e', [
@@ -513,10 +490,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit:once', [
         'karma:unit'
-    ]);
-
-    grunt.registerTask('test:midway', [
-        'karma:midway'
     ]);
 
     grunt.registerTask('test:e2e:report', [
@@ -541,7 +514,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('dev', [
         // For now, only execute unit tests when a file changes?
-        // midway and e2e are slow and do not give innmedate
+        // e2e are slow and do not give innmedate
         // feedback after a change
         'test:unit:watch'
     ]);
@@ -596,7 +569,7 @@ module.exports = function (grunt) {
 
     // -------- Special task for websockets demo ---------
 
-    grunt.registerTask('wsserver', 'Start a new web socket demo server', function () {
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
 
         var http = require('http');
         var CpuUsage = require('./config/grunt-tasks/cpu-usage');
@@ -605,7 +578,7 @@ module.exports = function (grunt) {
         // Never end grunt task
         this.async();
 
-        server.listen(8080, function () {
+        server.listen(8080, function() {
             console.log('Websockets Server is listening on port 8080');
         });
 
@@ -618,16 +591,16 @@ module.exports = function (grunt) {
 
         var cpuUsage = new CpuUsage();
 
-        wsServer.on('request', function (request) {
+        wsServer.on('request', function(request) {
             var connection = request.accept('', request.origin);
             console.log(' Connection accepted from peer ' + connection.remoteAddress);
 
-            var sendInterval = setInterval(function () {
+            var sendInterval = setInterval(function() {
                 var payLoad = (cpuUsage.get() * 100).toFixed(0);
                 connection.sendUTF(payLoad);
             }, 100);
 
-            connection.on('close', function (reasonCode, description) {
+            connection.on('close', function(reasonCode, description) {
                 clearInterval(sendInterval);
                 console.log('Peer ' + connection.remoteAddress + ' disconnected.');
                 console.log('Closing Reason: ' + reasonCode);
@@ -649,7 +622,7 @@ function mountFolder(connect, dir, options) {
 
 function delayApiCalls(request, response, next) {
     if (request.url.indexOf('/api/') !== -1) {
-        setTimeout(function () {
+        setTimeout(function() {
             next();
         }, 1000);
     } else {
@@ -665,14 +638,14 @@ function httpMethods(request, response, next) {
     if ((request.method === 'PUT' || request.method === 'POST')) {
         console.log('inside put/post');
         request.content = '';
-        request.addListener("data", function (chunk) {
+        request.addListener("data", function(chunk) {
             request.content += chunk;
         });
 
-        request.addListener("end", function () {
+        request.addListener("end", function() {
             console.log("request content: " + JSON.stringify(request.content));
             if (fs.existsSync(path)) {
-                fs.writeFile(path, request.content, function (err) {
+                fs.writeFile(path, request.content, function(err) {
                     if (err) {
                         throw err;
                     }
@@ -685,7 +658,7 @@ function httpMethods(request, response, next) {
             if (request.url === '/log') {
                 var filePath = 'server/log/server.log';
                 var logData = JSON.parse(request.content);
-                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
+                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function(err) {
                     if (err) {
                         throw err;
                     }
