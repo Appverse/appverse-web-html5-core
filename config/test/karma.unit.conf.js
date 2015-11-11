@@ -2,13 +2,13 @@
 
 'use strict';
 
-module.exports = function(config) {
+module.exports = function (config) {
 
     config.set({
 
-        basePath: '../../',
+        basePath: '../..',
 
-        frameworks: ['jasmine'],
+        frameworks: ['mocha', 'chai', 'sinon'],
 
         browsers: ['PhantomJS'],
 
@@ -26,11 +26,10 @@ module.exports = function(config) {
             dir: 'reports/coverage',
             reporters: [{
                     type: 'lcov'
-                }, {
+                        }, {
                     type: 'clover'
-                },
-
-            ]
+                        }
+                    ]
         },
 
         junitReporter: {
@@ -52,11 +51,10 @@ module.exports = function(config) {
             'src/appverse-*/**/*.provider.js',
             'src/appverse-*/**/*.js',
 
-            'src/appverse/*.js'
-        ],
+            'src/appverse/*.js',
 
-        unitFiles: [
             'test/unit/**/*.js'
         ]
+
     });
 };
