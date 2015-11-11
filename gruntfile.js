@@ -2,15 +2,9 @@
 
 'use strict';
 
-var fs            = require('fs'),
-connectLiveReload = require('connect-livereload'),
-bowerFile         = require('./bower.json'),
-LIVERELOAD_PORT   = 35729,
-liveReloadSnippet = connectLiveReload({
-    port: LIVERELOAD_PORT
-});
+var bowerFile = require('./bower.json');
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -25,65 +19,14 @@ module.exports = function (grunt) {
         dist: 'dist',
         doc: 'doc',
         test: 'test',
-        demo: 'demo',
         testsConfig: 'config/test',
-        reports: 'reports',
-        coverage: 'reports/coverage',
-        e2eCoverage: 'reports/coverage/e2e',
-        e2eInstrumented: 'reports/coverage/e2e/_instrumented'
+        reports: 'reports'
     };
 
     // If app path is defined in bower.json, use it
     try {
         configPaths.src = bowerFile.appPath || configPaths.src;
     } catch (e) {}
-
-    // Define file to load in the demo, ordering and the way they are
-    // concatenated for distribution
-    var files = {
-        '<%= appverse.dist %>/appverse-cache/appverse-cache.js':
-            moduleFilesToConcat('<%= appverse.src %>/appverse-cache'),
-
-        '<%= appverse.dist %>/appverse-detection/appverse-detection.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-detection', [
-                // this order must be preseved as there are dependencies between these providers
-                '<%= appverse.src %>/appverse-detection/mobile-detector.provider.js',
-                '<%= appverse.src %>/appverse-detection/detection.provider.js',
-            ]),
-
-        '<%= appverse.dist %>/appverse-logging/appverse-logging.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-logging'),
-
-        '<%= appverse.dist %>/appverse-performance/appverse-performance.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-performance'),
-
-        '<%= appverse.dist %>/appverse-translate/appverse-translate.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-translate'),
-
-        '<%= appverse.dist %>/appverse-utils/appverse-utils.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-utils'),
-
-        '<%= appverse.dist %>/appverse-serverpush/appverse-serverpush.js' :
-            moduleFilesToConcat('<%= appverse.src %>/{appverse-serverpush,appverse-socketio}'),
-
-        '<%= appverse.dist %>/appverse-rest/appverse-rest.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-rest'),
-
-        '<%= appverse.dist %>/appverse-router/appverse-router.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-router'),
-        
-        '<%= appverse.dist %>/appverse-native/appverse-native.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-native'),
-        
-        '<%= appverse.dist %>/appverse-ionic/appverse-ionic.js' :
-            moduleFilesToConcat('<%= appverse.src %>/appverse-ionic'),
-
-        '<%= appverse.dist %>/appverse/appverse.js' : [
-            ['<%= appverse.src %>/appverse/integrator.js'].concat(
-                moduleFilesToConcat('<%= appverse.src %>/{appverse-configuration*,appverse}')
-            ),
-        ]
-    };
 
     // Start Grunt config definition
     grunt.initConfig({
@@ -162,7 +105,7 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
-            coverage: '<%= appverse.coverage %>/**',
+            reports: '<%= appverse.reports %>',
             server: '.tmp',
             doc: 'doc/' + bowerFile.version
         },
@@ -184,7 +127,10 @@ module.exports = function (grunt) {
 
             // Concatenate all files for a module in a single module file
             modules: {
-                files: files
+                files: [
+                    '<%= appverse.src %>/**/module.js',
+                    '<%= appverse.src %>/**'
+                ]
             },
 
             // Concatenate all modules into a full distribution
@@ -206,7 +152,7 @@ module.exports = function (grunt) {
                     src: ['**/*.js', '!oldieshim.js'],
                     dest: '<%= appverse.dist %>',
                     extDot: 'last'
-            }]
+                }]
             }
         },
 
@@ -218,14 +164,13 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: [{
-                        expand: true, // Enable dynamic expansion.
-                        cwd: '<%= appverse.dist %>', // Src matches are relative to this path.
-                        src: ['**/*.js'], // Actual pattern(s) to match.
-                        dest: '<%= appverse.dist %>', // Destination path prefix.
-                        ext: '.min.js', // Dest filepaths will have this extension.
-                        extDot: 'last' // Extensions in filenames begin after the last dot
-                    }
-                ]
+                    expand: true, // Enable dynamic expansion.
+                    cwd: '<%= appverse.dist %>', // Src matches are relative to this path.
+                    src: ['**/*.js'], // Actual pattern(s) to match.
+                    dest: '<%= appverse.dist %>', // Destination path prefix.
+                    ext: '.min.js', // Dest filepaths will have this extension.
+                    extDot: 'last' // Extensions in filenames begin after the last dot
+                }]
             }
         },
 
@@ -235,48 +180,9 @@ module.exports = function (grunt) {
                 autoWatch: false,
                 singleRun: true
             },
-            unitAutoWatch: {
+            'unit:watch': {
                 configFile: '<%= appverse.testsConfig %>/karma.unit.watch.conf.js',
                 autoWatch: true
-            },
-            midway: {
-                configFile: '<%= appverse.testsConfig %>/karma.midway.conf.js',
-                autoWatch: false,
-                singleRun: true
-            },
-        },
-
-        // Runs protractor and generate coverage report for e2e tests.
-        // Unit and midway are already managedby Karma
-        protractor_coverage: {
-            options: {
-                configFile: '<%= appverse.testsConfig %>/protractor.e2e.conf.js',
-                coverageDir: '<%= appverse.e2eCoverage %>',
-                keepAlive: false,
-                noColor: false,
-                args: {},
-            },
-            run: {}
-        },
-
-        // After the tests have been run and the coverage has been measured and captured
-        // you want to create a report.
-        makeReport: {
-            src: '<%= appverse.e2eCoverage %>/*.json',
-            options: {
-                type: ['html', 'clover'],
-                dir: '<%= appverse.e2eCoverage %>'
-            }
-        },
-
-        // Measuring coverage from protractor tests does not work out of the box.
-        // To measure coverage Protractor coverage,
-        // all sources need to be instrumented using Istanbul
-        instrument: {
-            files: '<%= appverse.src %>/**/*.js',
-            options: {
-                lazy: true,
-                basePath: "<%= appverse.e2eInstrumented %>"
             }
         },
 
@@ -286,7 +192,7 @@ module.exports = function (grunt) {
                 updateConfigs: [],
                 commit: true,
                 commitMessage: 'Release v%VERSION%',
-                commitFiles: ['package.json', 'bower.json','dist'],
+                commitFiles: ['package.json', 'bower.json', 'dist'],
                 createTag: true,
                 tagName: 'v%VERSION%',
                 tagMessage: 'Version %VERSION%',
@@ -306,63 +212,12 @@ module.exports = function (grunt) {
                 hostname: 'localhost'
             },
 
-            // For demo app in chrome
-            livereload: {
-                options: {
-                    port: 9000,
-                    middleware: function (connect) {
-                        return [
-                            delayApiCalls,
-                            liveReloadSnippet,
-                            mountFolder(connect, configPaths.src),
-                            mountFolder(connect, configPaths.bowerComponents),
-                            mountFolder(connect, configPaths.demo),
-                            httpMethods
-                        ];
-                    }
-                }
-            },
-
-            // For e2e tests on demo app, with coverage reporting
-            e2e: {
-                options: {
-                    port: 9091,
-                    middleware: function (connect) {
-                        return [
-                            mountFolder(connect, configPaths.e2eInstrumented + '/src'),
-                            mountFolder(connect, configPaths.src),
-                            mountFolder(connect, configPaths.bowerComponents),
-                            mountFolder(connect, configPaths.demo),
-                            httpMethods
-                        ];
-                    }
-                }
-            },
-
-            // For e2e tests on built demo app
-            e2e_dist: {
-                options: {
-                    port: 9090,
-                    middleware: function (connect) {
-                        return [
-                            mountFolder(connect, configPaths.src),
-                            mountFolder(connect, configPaths.bowerComponents),
-                            mountFolder(connect, configPaths.dist),
-                            mountFolder(connect, configPaths.demo, {
-                                index: 'index-dist.html'
-                            }),
-                            httpMethods
-                        ];
-                    }
-                }
-            },
-
             // Docs
             doc: {
                 options: {
                     port: 9999,
-                    keepalive : true,
-                    middleware: function (connect) {
+                    keepalive: true,
+                    middleware: function(connect) {
                         return [
                             require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
                             mountFolder(connect, configPaths.doc),
@@ -371,65 +226,6 @@ module.exports = function (grunt) {
                     }
                 }
             },
-        },
-
-        watch: {
-            livereload: {
-                options: {
-                    livereload: LIVERELOAD_PORT
-                },
-                tasks: ['injector:js'],
-                files: [
-                    '<%= appverse.demo %>/*.html',
-                    '<%= appverse.demo %>/partials/*.html',
-                    '<%= appverse.demo %>/js/*.js',
-                    //For performance reasons only match one level
-                    '<%= appverse.src %>/{,*/}*.js',
-                ],
-            }
-        },
-
-        open: {
-            demo: {
-                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.options.port %>'
-            },
-            demo_dist: {
-                url: '<%= connect.options.protocol %>://<%= connect.options.hostname %>:<%= connect.e2e_dist.options.port %>'
-            },
-        },
-
-        // Execute commands that cannot be specified with tasks
-        exec: {
-            // These commands are defined in package.json for
-            // automatic resoultion of any binary included in node_modules/
-            protractor_start: 'npm run protractor-dist',
-            webdriver_update: 'npm run update-webdriver'
-        },
-
-        protractor_webdriver: {
-            start: {
-                options: {
-                    command: 'node_modules/.bin/webdriver-manager start --standalone'
-                }
-            }
-        },
-
-        // Automatically include all src/ files in demo's html as script tags
-        injector: {
-            options: {
-                relative: false,
-                transform: function (path) {
-                    // Demo server directly mounts src folder so the reference to src is not required
-                    path = path.replace('/src/', '');
-                    return '<script src="' + path + '"></script>';
-                },
-                lineEnding: require('os').EOL
-            },
-            js: {
-                files: {
-                    '<%= appverse.demo %>/index.html': getAllFilesForDemo(files),
-                }
-            }
         },
 
         // Generate code analysis reports
@@ -441,16 +237,14 @@ module.exports = function (grunt) {
                 files: {
                     '<%= appverse.reports %>/analysis/': [
                         '<%= appverse.src %>/**/*.js',
-                        '<%= appverse.test %>/unit/**/*.js',
-                        '<%= appverse.test %>/midway/**/*.js',
-                        '<%= appverse.test %>/e2e/**/*.js',
-                     ]
+                        '<%= appverse.test %>/unit/**/*.js'
+                    ]
                 }
             }
         },
 
         concurrent: {
-            dist: ['jshint', 'unit', 'midway', 'test:e2e:report', 'analysis']
+            dist: ['jshint', 'unit', 'analysis']
         }
     });
 
@@ -465,13 +259,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('dist', [
-        'concurrent:dist',
-        'make_dist_and_test'
-    ]);
-
-    grunt.registerTask('make_dist_and_test', [
-        'dist:make',
-        'test:e2e:dist',
+        'concurrent:dist'
     ]);
 
     grunt.registerTask('dist:make', [
@@ -484,86 +272,16 @@ module.exports = function (grunt) {
     // ------ Tests tasks -----
 
     grunt.registerTask('test', [
-        'test:all'
-    ]);
-
-    grunt.registerTask('test:all', [
-        'clean:coverage',
-        'unit',
-        'midway',
-        'e2e',
-    ]);
-
-    grunt.registerTask('unit', [
-        'test:unit:once'
-    ]);
-
-    grunt.registerTask('midway', [
-        'test:midway'
-    ]);
-
-    grunt.registerTask('e2e', [
-        'dist:make',
-        'test:e2e:dist'
+        'test:unit'
     ]);
 
     grunt.registerTask('test:unit:watch', [
-        'karma:unitAutoWatch'
+        'karma:unit:watch'
     ]);
 
-    grunt.registerTask('test:unit:once', [
+    grunt.registerTask('test:unit', [
         'karma:unit'
     ]);
-
-    grunt.registerTask('test:midway', [
-        'karma:midway'
-    ]);
-
-    grunt.registerTask('test:e2e:report', [
-        'injector:js',
-        'instrument',
-        'exec:webdriver_update',
-        'connect:e2e',
-        'protractor_webdriver',
-        'protractor_coverage',
-        'makeReport'
-    ]);
-
-    grunt.registerTask('test:e2e:dist', [
-        'injector:js',
-        'exec:webdriver_update',
-        'connect:e2e_dist',
-        'protractor_webdriver',
-        'exec:protractor_start',
-    ]);
-
-    // ------ Dev tasks. To be run continously while developing -----
-
-    grunt.registerTask('dev', [
-        // For now, only execute unit tests when a file changes?
-        // midway and e2e are slow and do not give innmedate
-        // feedback after a change
-        'test:unit:watch'
-    ]);
-
-
-    // ------ Demo tasks. Starts a webserver with a demo app -----
-
-    grunt.registerTask('demo', [
-        'injector:js',
-        'connect:livereload',
-        'open:demo',
-        'watch'
-    ]);
-
-    grunt.registerTask('demo:dist', [
-        'dist:make',
-        'open:demo_dist',
-        'connect:e2e_dist:keepalive',
-    ]);
-
-
-    // ------ Doc tasks -----
 
     grunt.registerTask('doc', [
         'clean:doc',
@@ -596,7 +314,7 @@ module.exports = function (grunt) {
 
     // -------- Special task for websockets demo ---------
 
-    grunt.registerTask('wsserver', 'Start a new web socket demo server', function () {
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
 
         var http = require('http');
         var CpuUsage = require('./config/grunt-tasks/cpu-usage');
@@ -605,7 +323,7 @@ module.exports = function (grunt) {
         // Never end grunt task
         this.async();
 
-        server.listen(8080, function () {
+        server.listen(8080, function() {
             console.log('Websockets Server is listening on port 8080');
         });
 
@@ -618,16 +336,16 @@ module.exports = function (grunt) {
 
         var cpuUsage = new CpuUsage();
 
-        wsServer.on('request', function (request) {
+        wsServer.on('request', function(request) {
             var connection = request.accept('', request.origin);
             console.log(' Connection accepted from peer ' + connection.remoteAddress);
 
-            var sendInterval = setInterval(function () {
+            var sendInterval = setInterval(function() {
                 var payLoad = (cpuUsage.get() * 100).toFixed(0);
                 connection.sendUTF(payLoad);
             }, 100);
 
-            connection.on('close', function (reasonCode, description) {
+            connection.on('close', function(reasonCode, description) {
                 clearInterval(sendInterval);
                 console.log('Peer ' + connection.remoteAddress + ' disconnected.');
                 console.log('Closing Reason: ' + reasonCode);
@@ -639,111 +357,8 @@ module.exports = function (grunt) {
 
 };
 
-
-
 /*---------------------------------------- HELPER METHODS -------------------------------------*/
 
 function mountFolder(connect, dir, options) {
     return connect.static(require('path').resolve(dir), options);
-}
-
-function delayApiCalls(request, response, next) {
-    if (request.url.indexOf('/api/') !== -1) {
-        setTimeout(function () {
-            next();
-        }, 1000);
-    } else {
-        next();
-    }
-}
-
-function httpMethods(request, response, next) {
-
-    var rawpath = request.url.split('?')[0],
-        path = require('path').resolve(__dirname, 'demo/' + rawpath);
-
-    if ((request.method === 'PUT' || request.method === 'POST')) {
-        console.log('inside put/post');
-        request.content = '';
-        request.addListener("data", function (chunk) {
-            request.content += chunk;
-        });
-
-        request.addListener("end", function () {
-            console.log("request content: " + JSON.stringify(request.content));
-            if (fs.existsSync(path)) {
-                fs.writeFile(path, request.content, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log('file saved');
-                    response.end('file was saved');
-                });
-                return;
-            }
-
-            if (request.url === '/log') {
-                var filePath = 'server/log/server.log';
-                var logData = JSON.parse(request.content);
-                fs.appendFile(filePath, logData.logUrl + '\n' + logData.logMessage + '\n', function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log('log saved');
-                    response.end('log was saved');
-                });
-                return;
-            }
-        });
-        return;
-    }
-    next();
-}
-
-
-/**
- * Specify concat order to concant files from the same
- * module into a single module file
- *
- * @param  {string} moduleFolderPath
- * @param  {array} filesAfterModule Files to concat inmediately after the module
- * @return {array}                  List of files to concat
- */
-function moduleFilesToConcat(moduleFolderPath, filesAfterModule) {
-
-    //Remove trailing slash
-    moduleFolderPath = moduleFolderPath.replace(/\/+$/, '');
-
-    // Files using the same module are concatenated in the correct order:
-    // · 1st, module.js files are loaded as these are the ones that create the module
-    // · 2nd, provider.js files containing are loaded. This is because some modules use their own
-    // providers in their config block. Because of this, providers must be loaded prior to config blocks.
-    // · 3rd, rest of files
-    var files = [moduleFolderPath + '/module.js'];
-
-    if (typeof filesAfterModule === 'object') {
-        files = files.concat(filesAfterModule);
-    }
-
-    return files.concat([
-        moduleFolderPath + '/**/*.provider.js',
-        moduleFolderPath + '/**/*.js'
-    ]);
-}
-
-/**
- * Gets a list of all the files to load as scripts.
- *
- * @param  {object} filesObject Files object of files structured by module
- * @return {array}              Array of files
- */
-function getAllFilesForDemo(filesObject) {
-    var filesList = [];
-    for (var key in filesObject) {
-        if (filesObject.hasOwnProperty(key)) {
-            filesList = filesList.concat(filesObject[key]);
-        }
-    }
-
-    return filesList;
 }
