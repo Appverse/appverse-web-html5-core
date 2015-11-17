@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -18,13 +18,13 @@
      * @requires https://docs.angularjs.org/api/ng/service/$q $q
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
-    .service('IDBService', ['$q', '$log', function($q, $log) {
+    .service('IDBService', ['$q', '$log', function ($q, $log) {
         var setUp = false;
         var db;
 
         var service = {};
 
-         /**
+        /**
          * @ngdoc method
          * @name IDBService#init
          * @description Initialize the default Indexed DB in browser if supported
@@ -39,30 +39,37 @@
 
             var openRequest = window.indexedDB.open("indexeddb_appverse", 1);
 
-            openRequest.onerror = function(e) {
+            openRequest.onerror = function (e) {
                 $log.debug("Error opening db");
-                console.dir(e);
                 deferred.reject(e.toString());
             };
 
-            openRequest.onupgradeneeded = function(e) {
+            openRequest.onupgradeneeded = function (e) {
 
                 var thisDb = e.target.result;
                 var objectStore;
 
                 //Create Note
                 if (!thisDb.objectStoreNames.contains("default")) {
-                    objectStore = thisDb.createObjectStore("item", {keyPath: "id", autoIncrement: true});
-                    objectStore.createIndex("titlelc", "titlelc", {unique: false});
-                    objectStore.createIndex("tags", "tags", {unique: false, multiEntry: true});
+                    objectStore = thisDb.createObjectStore("item", {
+                        keyPath: "id",
+                        autoIncrement: true
+                    });
+                    objectStore.createIndex("titlelc", "titlelc", {
+                        unique: false
+                    });
+                    objectStore.createIndex("tags", "tags", {
+                        unique: false,
+                        multiEntry: true
+                    });
                 }
 
             };
 
-            openRequest.onsuccess = function(e) {
+            openRequest.onsuccess = function (e) {
                 db = e.target.result;
 
-                db.onerror = function(event) {
+                db.onerror = function (event) {
                     // Generic error handler for all errors targeted at this database's
                     // requests!
                     deferred.reject("Database error: " + event.target.errorCode);
@@ -81,7 +88,7 @@
          * @name IDBService#isSupported
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
-        service.isSupported = function() {
+        service.isSupported = function () {
             return ("indexedDB" in window);
         };
 
@@ -91,11 +98,11 @@
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
-        service.deleteDefault = function(key) {
+        service.deleteDefault = function (key) {
             var deferred = $q.defer();
             var t = db.transaction(["item"], "readwrite");
             t.objectStore("item").delete(key);
-            t.oncomplete = function() {
+            t.oncomplete = function () {
                 deferred.resolve();
             };
             return deferred.promise;
@@ -109,14 +116,14 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.getDefault = function(key) {
+        service.getDefault = function (key) {
             var deferred = $q.defer();
 
             var transaction = db.transaction(["item"]);
             var objectStore = transaction.objectStore("item");
             var request = objectStore.get(key);
 
-            request.onsuccess = function() {
+            request.onsuccess = function () {
                 var note = request.result;
                 deferred.resolve(note);
             };
@@ -131,18 +138,19 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.getDefaults = function() {
+        service.getDefaults = function () {
             var deferred = $q.defer();
 
-            init().then(function() {
+            init().then(function () {
 
                 var result = [];
 
-                var handleResult = function(event) {
+                var handleResult = function (event) {
                     var cursor = event.target.result;
                     if (cursor) {
                         result.push({
-                            key: cursor.key, title: cursor.value.title,
+                            key: cursor.key,
+                            title: cursor.value.title,
                             body: cursor.value.body,
                             updated: cursor.value.updated,
                             tags: cursor.value.tags
@@ -155,7 +163,7 @@
                 var objectStore = transaction.objectStore("item");
                 objectStore.openCursor().onsuccess = handleResult;
 
-                transaction.oncomplete = function() {
+                transaction.oncomplete = function () {
                     deferred.resolve(result);
                 };
 
@@ -168,7 +176,7 @@
          * @name IDBService#ready
          * @description This flag is true if the IDB has been successfully initializated.
          */
-        service.ready = function() {
+        service.ready = function () {
             return setUp;
         };
 
@@ -180,7 +188,7 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.saveDefault = function(item) {
+        service.saveDefault = function (item) {
             //Should this call init() too? maybe
             var deferred = $q.defer();
 
@@ -212,7 +220,7 @@
                 });
             }
 
-            t.oncomplete = function() {
+            t.oncomplete = function () {
                 deferred.resolve();
             };
 
@@ -229,7 +237,7 @@
          * @param {Array} tags Several tags useful for searches
          * @description This object represents the common default object stored in the IDB
          */
-        service.item = function(id, title, body, tags) {
+        service.item = function (id, title, body, tags) {
             this.id = id;
             this.title = title;
             this.body = body;

@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -341,7 +341,7 @@
             @param what: The model that is being modified. This is the "path" of this resource. For example buildings
             @param Restangular: The instanced service to use any of its methods
             */
-            OnElemRestangularized: function(elem) {
+            OnElemRestangularized: function (elem) {
                 return elem;
             },
 
@@ -381,9 +381,7 @@
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function(response) {
-                console.log("ErrorInterceptor, server response:", response);
-            },
+            ErrorInterceptor: function () {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:

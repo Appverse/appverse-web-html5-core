@@ -26,7 +26,7 @@
          * @return {Boolean}
          */
         this.hasAppverseMobile = function () {
-            if (typeof (_AppverseContext) != "undefined") {
+            if (typeof (_AppverseContext) !== "undefined") {
                 return true;
             } else if (window.localStorage.getItem("_AppverseContext")) {
                 return true;
