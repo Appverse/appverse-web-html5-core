@@ -3370,7 +3370,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 })();
 
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -3380,9 +3380,10 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
      *
      * @requires appverse.configuration
      */
-    angular.module('appverse.utils', ['appverse.configuration']);
+    angular.module('appverse.utils');
 
 })();
+
 (function (angular) {
     'use strict';
 
