@@ -4,7 +4,7 @@
 
 var bowerFile = require('./bower.json');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -217,7 +217,7 @@ module.exports = function(grunt) {
                 options: {
                     port: 9999,
                     keepalive: true,
-                    middleware: function(connect) {
+                    middleware: function (connect) {
                         return [
                             require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
                             mountFolder(connect, configPaths.doc),
@@ -244,7 +244,7 @@ module.exports = function(grunt) {
         },
 
         concurrent: {
-            dist: ['jshint', 'unit', 'analysis']
+            dist: ['jshint', 'test:unit', 'analysis']
         }
     });
 
@@ -314,7 +314,7 @@ module.exports = function(grunt) {
 
     // -------- Special task for websockets demo ---------
 
-    grunt.registerTask('wsserver', 'Start a new web socket demo server', function() {
+    grunt.registerTask('wsserver', 'Start a new web socket demo server', function () {
 
         var http = require('http');
         var CpuUsage = require('./config/grunt-tasks/cpu-usage');
@@ -323,7 +323,7 @@ module.exports = function(grunt) {
         // Never end grunt task
         this.async();
 
-        server.listen(8080, function() {
+        server.listen(8080, function () {
             console.log('Websockets Server is listening on port 8080');
         });
 
@@ -336,16 +336,16 @@ module.exports = function(grunt) {
 
         var cpuUsage = new CpuUsage();
 
-        wsServer.on('request', function(request) {
+        wsServer.on('request', function (request) {
             var connection = request.accept('', request.origin);
             console.log(' Connection accepted from peer ' + connection.remoteAddress);
 
-            var sendInterval = setInterval(function() {
+            var sendInterval = setInterval(function () {
                 var payLoad = (cpuUsage.get() * 100).toFixed(0);
                 connection.sendUTF(payLoad);
             }, 100);
 
-            connection.on('close', function(reasonCode, description) {
+            connection.on('close', function (reasonCode, description) {
                 clearInterval(sendInterval);
                 console.log('Peer ' + connection.remoteAddress + ' disconnected.');
                 console.log('Closing Reason: ' + reasonCode);

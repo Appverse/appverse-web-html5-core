@@ -23,7 +23,7 @@
 
     function run($log, Detection, $rootScope, $state, $modal) {
         $log.info('appverse.ionic run');
-        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+        $rootScope.$on('$stateChangeStart', function (event, toState) {
             //reset templateUrl and controller value if is necessary
             if (toState.templateUrl.indexOf("mobileview") >= 0) {
                 toState.templateUrl = toState.templateUrl.split("mobile")[1];
@@ -31,7 +31,8 @@
             }
 
             //Security checkpoint: check state access permissions before changing state
-            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") == -1) || (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") == -1)) {
+            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") === -1) ||
+                (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") === -1)) {
                 event.preventDefault();
 
                 $modal.open({
