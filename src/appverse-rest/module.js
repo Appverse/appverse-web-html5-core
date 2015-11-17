@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var requires = [
@@ -42,7 +42,7 @@
     angular.module('appverse.rest', requires).run(run);
 
 
-    function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
+    function run($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
 
         tryToIntegrateSecurity();
         tryToIntegrateCache();
@@ -76,15 +76,15 @@
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
 
         function tryToIntegrateSecurity() {
-            var restFactory  = $injector.get('RESTFactory'),
-            $log             = $injector.get('$log'),
-            SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
+            var restFactory = $injector.get('RESTFactory'),
+                $log = $injector.get('$log'),
+                SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
 
             if (ModuleSeeker.exists('appverse.security')) {
                 var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
-                if (SECURITY_GENERAL.securityEnabled){
+                if (SECURITY_GENERAL.securityEnabled) {
                     restFactory.wrapRequestsWith(oauthRequestWrapperService);
-                    $log.debug( "REST communication is secure. Security is enabled." +
+                    $log.debug("REST communication is secure. Security is enabled." +
                         " REST requests will be wrapped with authorization headers.");
                     return;
                 }
@@ -97,8 +97,8 @@
         function tryToIntegrateCache() {
             if (ModuleSeeker.exists('appverse.cache')) {
                 var restFactory = $injector.get('RESTFactory'),
-                CacheFactory    = $injector.get('CacheFactory'),
-                cache           = CacheFactory.getHttpCache();
+                    avCacheFactory = $injector.get('avCacheFactory'),
+                    cache = avCacheFactory.getHttpCache();
                 restFactory.setCache(cache);
             }
         }

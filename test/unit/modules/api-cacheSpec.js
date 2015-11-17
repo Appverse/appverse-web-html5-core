@@ -1,12 +1,12 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 "use strict";
 
 describe('Unit: Testing appverse.cache module', function () {
 
-    beforeEach(setupCacheTesting);
+    beforeEach(module('appverse.cache'));
 
-    it('should contain a CacheFactory factory', inject(function (CacheFactory) {
-        expect(CacheFactory).to.be.an.object;
+    it('should contain a avCacheFactory factory', inject(function (avCacheFactory) {
+        expect(avCacheFactory).to.be.an.object;
     }));
 
     it('should contain a IDBService service',
@@ -16,32 +16,4 @@ describe('Unit: Testing appverse.cache module', function () {
         })
     );
 
-    /////////////// HELPER FUNCTIONS
-
-    function setupCacheTesting() {
-
-        // Generate mock modules and providers
-        mockDependencies();
-
-        // Load the module to be tested
-        module("appverse.cache");
-    }
-
-    function mockDependencies() {
-
-        // mock modules by creating empty ones
-        angular.module('appverse.configuration', []);
-        angular.module('jmdobry.angular-cache', []);
-
-        // Provide the dependency injector with mock empty objects
-        // instead of real ones
-        module(function ($provide) {
-
-            $provide.factory('$angularCacheFactory', function(){
-                return {};
-            });
-
-            $provide.constant('CACHE_CONFIG', {});
-        });
-    }
 });

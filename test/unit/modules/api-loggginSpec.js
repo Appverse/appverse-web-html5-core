@@ -1,41 +1,40 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 "use strict";
 
 describe('Unit: Testing appverse.logging module', function () {
 
-    describe('when server logging is active...', function() {
+    describe('when server logging is active...', function () {
 
         var $httpBackend;
 
-        beforeEach('mock constants', module(function($provide) {
-            $provide.constant('LOGGING_CONFIG', {
-                ServerEnabled : true,
-                LogServerEndpoint : 'http://logginserver.com/log',
-                EnabledDebugLevel: true,
-                LogDateTimeFormat: '%Y-%M-%d %h:%m:%s:%z',
-                CustomLogPreffix: 'APPLOG',
+        beforeEach(function () {
+            module('appverse.logging');
+
+            AppInit.setConfig({
+                environment: {
+                    LOGGING_CONFIG: {
+                        ServerEnabled: true,
+                        LogServerEndpoint: 'http://logginserver.com/log'
+                    }
+                }
             });
-        }));
+        });
 
-        beforeEach('push module for injection', module('appverse.logging'));
-
-        beforeEach('inject fake backend', inject(function($injector) {
+        beforeEach('inject fake backend', inject(function ($injector) {
             // Set up the mock http service responses
             $httpBackend = $injector.get('$httpBackend');
-            $httpBackend.expectPOST('http://logginserver.com/log', /\{.+\}/).respond(201, 'ok');
+            $httpBackend.whenPOST('http://logginserver.com/log', /\{.+\}/).respond(201, 'ok');
         }));
 
-        it('should POST log data to the server', inject(function($log) {
-            //$httpBackend.flush();
+        it('should POST log data to the server', inject(function ($log) {
             $log.reset();
             $log.debug('anything');
             $httpBackend.flush();
-
         }));
 
-        afterEach(function() {
-           $httpBackend.verifyNoOutstandingExpectation();
-           $httpBackend.verifyNoOutstandingRequest();
+        afterEach(function () {
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
         });
 
     });

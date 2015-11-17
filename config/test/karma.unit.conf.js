@@ -24,12 +24,13 @@ module.exports = function (config) {
         coverageReporter: {
             // specify a common output directory
             dir: 'reports/coverage',
-            reporters: [{
+            reporters: [
+                {
                     type: 'lcov'
-                        }, {
+                }, {
                     type: 'clover'
-                        }
-                    ]
+                }
+            ]
         },
 
         junitReporter: {
@@ -38,11 +39,11 @@ module.exports = function (config) {
 
         files: [
             'bower_components/angular/angular.js',
-            'bower_components/angular-cookies/angular-cookies.js',
-            'bower_components/angular-mocks/angular-mocks.js',
-            'bower_components/angular-translate/angular-translate.js',
-            'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
-            'bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
+            'bower_components/angular-cache/dist/angular-cache.min.js',
+            'bower_components/angular-translate/angular-translate.min.js',
+            'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
+            'bower_components/angular-dynamic-locale/dist/tmhDynamicLocale.js',
+
             'src/appverse-*/**/module.js',
             // Detection providers need to be loaded in this order
             'src/appverse-detection/mobile-detector.provider.js',
@@ -53,6 +54,7 @@ module.exports = function (config) {
 
             'src/appverse/*.js',
 
+            'bower_components/angular-mocks/angular-mocks.js',
             'test/unit/**/*.js'
         ]
 

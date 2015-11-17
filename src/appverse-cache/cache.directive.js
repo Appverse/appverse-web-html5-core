@@ -1,4 +1,4 @@
-(function(){
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -18,9 +18,9 @@
      * @param {string} cache Name of cached model
      *
      * @requires https://docs.angularjs.org/api/ng/service/$log $log
-     * @requires CacheFactory
+     * @requires avCacheFactory
      */
-    .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
+    .directive('cache', function ($log, avCacheFactory) {
 
         return {
             link: function (scope, element, attrs) {
@@ -28,19 +28,18 @@
                 var name = attrs.cache || attrs.cacheName;
 
                 scope.$watch(function () {
-                    return CacheFactory.getScopeCache().get(name);
+                    return avCacheFactory.getScopeCache().get(name);
                 }, function (newVal) {
                     $log.debug('Cache watch {' + name + '}:', newVal);
-                    scope[name] = CacheFactory.getScopeCache().get(name);
+                    scope[name] = avCacheFactory.getScopeCache().get(name);
                 });
 
                 scope.$watch(name, function (newVal) {
                     $log.debug('Cache watch {' + name + '}:', newVal);
-                    CacheFactory.getScopeCache().put(name, scope[name]);
+                    avCacheFactory.getScopeCache().put(name, scope[name]);
                 });
             }
         };
-    }]);
-
+    });
 
 })();
