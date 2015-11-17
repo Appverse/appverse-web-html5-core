@@ -127,10 +127,88 @@ module.exports = function (grunt) {
 
             // Concatenate all files for a module in a single module file
             modules: {
-                files: [
-                    '<%= appverse.src %>/**/module.js',
-                    '<%= appverse.src %>/**'
-                ]
+                files: [{
+                    src: [
+                        '<%= appverse.src %>/appverse-configuration-default/**/module.js',
+                        '<%= appverse.src %>/appverse-configuration-loader/**/module.js',
+                        '<%= appverse.src %>/appverse-configuration/**/module.js',
+                        '<%= appverse.src %>/appverse/**/module.js',
+                        '<%= appverse.src %>/appverse-configuration-loader/**/*.js',
+                        '<%= appverse.src %>/appverse-configuration-default/**/*.js',
+                        '<%= appverse.src %>/appverse/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse/appverse.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-cache/**/module.js',
+                        '<%= appverse.src %>/appverse-cache/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-cache/appverse-cache.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-detection/**/module.js',
+                        '<%= appverse.src %>/appverse-detection/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-detection/appverse-detection.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-ionic/**/module.js',
+                        '<%= appverse.src %>/appverse-ionic/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-ionic/appverse-ionic.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-logging/**/module.js',
+                        '<%= appverse.src %>/appverse-logging/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-logging/appverse-logging.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-native/**/module.js',
+                        '<%= appverse.src %>/appverse-native/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-native/appverse-native.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-performance/**/module.js',
+                        '<%= appverse.src %>/appverse-performance/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-performance/appverse-performance.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-rest/**/module.js',
+                        '<%= appverse.src %>/appverse-rest/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-rest/appverse-rest.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-router/**/module.js',
+                        '<%= appverse.src %>/appverse-router/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-router/appverse-router.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-serverpush/**/module.js',
+                        '<%= appverse.src %>/appverse-socketio/**/module.js',
+                        '<%= appverse.src %>/appverse-socketio/**/*.js',
+                        '<%= appverse.src %>/appverse-serverpush/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-serverpush/appverse-serverpush.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-translate/**/module.js',
+                        '<%= appverse.src %>/appverse-translate/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-translate/appverse-translate.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-utils/**/module.js',
+                        '<%= appverse.src %>/appverse-utils/base-url*',
+                        '<%= appverse.src %>/appverse-utils/moduleseeker*',
+                        '<%= appverse.src %>/appverse-utils/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-utils/appverse-utils.js'
+                }]
             },
 
             // Concatenate all modules into a full distribution
@@ -149,9 +227,8 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     cwd: '<%= appverse.dist %>',
-                    src: ['**/*.js', '!oldieshim.js'],
+                    src: '**/*.js',
                     dest: '<%= appverse.dist %>',
-                    extDot: 'last'
                 }]
             }
         },
@@ -259,7 +336,8 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('dist', [
-        'concurrent:dist'
+        'concurrent:dist',
+        'dist:make'
     ]);
 
     grunt.registerTask('dist:make', [

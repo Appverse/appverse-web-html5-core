@@ -308,10 +308,10 @@ run.$inject = ["$log"];
      * @description Basic information related to the application.
      */
     .constant('PROJECT_DATA', {
-        ApplicationName: 'Appverse Web HTML5 Incubator Demo',
+        ApplicationName: 'Appverse HTML5',
         Version: '0.1',
         Company: 'GFT',
-        Year: '2013',
+        Year: '2015',
         Team: 'GFT Appverse Web',
         URL: '',
         LoginViewPath: '/login',
@@ -456,18 +456,14 @@ run.$inject = ["$log"];
          * It is possible to add more indexes:
          * indexes : [{ name : 'indexName', unique : 'true/false' },{},...]
          */
-        IndexedDB_options: [
-            {
-                storeName: 'structure-of-items',
-                keyPath: 'id',
-                indexes: [
-                    {
-                        name: 'name',
-                        unique: false
-                }
-            ]
-        }
-    ]
+        IndexedDB_options: [{
+            storeName: 'structure-of-items',
+            keyPath: 'id',
+            indexes: [{
+                name: 'name',
+                unique: false
+            }]
+        }]
 
     })
 
@@ -677,9 +673,7 @@ run.$inject = ["$log"];
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function (response) {
-                console.log("ErrorInterceptor, server response:", response);
-            },
+            ErrorInterceptor: function () {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:
@@ -894,16 +888,13 @@ run.$inject = ["$log"];
         roles: ['user', 'admin', 'editor'],
         adminRoles: ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"],
         users: ['Jesus de Diego'],
-        userRoleMatrix: [
-            {
-                'user': 'Jesus de Diego',
-                'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
-        },
-            {
-                'user': 'Antoine Charnoz',
-                'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
-        }
-    ],
+        userRoleMatrix: [{
+            'user': 'Jesus de Diego',
+            'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
+        }, {
+            'user': 'Antoine Charnoz',
+            'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
+        }],
         routesThatDontRequireAuth: ['/home'],
         routesThatRequireAdmin: ['/about']
     })
@@ -969,20 +960,17 @@ run.$inject = ["$log"];
         List of authorized workers with its ID.
         The ID is used to be passed in the directive's attribute.
          */
-        webworker_authorized_workers: [
-            {
-                'id': 'w1',
-                'type': 'dedicated',
-                'poolSize': 4,
-                'file': 'RenderImage.js'
-        },
-            {
-                'id': 'w2',
-                'type': 'dedicated',
-                'poolSize': 4,
-                'file': 'RestMultiRequest.js'
-        }
-    ],
+        webworker_authorized_workers: [{
+            'id': 'w1',
+            'type': 'dedicated',
+            'poolSize': 4,
+            'file': 'RenderImage.js'
+        }, {
+            'id': 'w2',
+            'type': 'dedicated',
+            'poolSize': 4,
+            'file': 'RestMultiRequest.js'
+        }],
         webworker_dedicated_literal: "dedicated",
         webworker_shared_literal: "shared",
         webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
