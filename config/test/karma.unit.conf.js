@@ -40,6 +40,7 @@ module.exports = function (config) {
             'bower_components/angular/angular.js',
             'bower_components/angular-cookies/angular-cookies.js',
             'bower_components/angular-mocks/angular-mocks.js',
+            'bower_components/angular-cache/dist/angular-cache.min.js',
             'bower_components/angular-translate/angular-translate.js',
             'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
             'bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',

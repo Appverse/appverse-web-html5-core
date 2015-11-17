@@ -32,8 +32,8 @@
      * considering the initialization parameters:
      * <pre><code class="javascript">
        function (param){
-           var queryBuilder = CacheFactory.getIDBQueryBuilder();
-           var objStore = CacheFactory.getIDBObjectStore();
+           var queryBuilder = avCacheFactory.getIDBQueryBuilder();
+           var objStore = avCacheFactory.getIDBObjectStore();
            var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
            objStore.each(myQuery).then(function(cursor){
                $scope.key = cursor.key;
@@ -46,23 +46,24 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
-    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache'])
-        .run(run);
+    angular.module('appverse.cache', [
+        'appverse.configuration',
+        'angular-cache'
+    ]).run(run);
 
-    function run($log, CacheFactory, CACHE_CONFIG) {
+    function run($log, avCacheFactory, CACHE_CONFIG) {
 
         $log.info('appverse.cache run');
 
-        /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {
-            CacheFactory.setScopeCache(
+            avCacheFactory.setScopeCache(
                 CACHE_CONFIG.ScopeCache_duration,
                 CACHE_CONFIG.ScopeCache_capacity
             );
         }
 
         if (CACHE_CONFIG.BrowserStorageCache_Enabled) {
-            CacheFactory.setBrowserStorage(
+            avCacheFactory.setBrowserStorage(
                 CACHE_CONFIG.BrowserStorage_type,
                 CACHE_CONFIG.MaxAge,
                 CACHE_CONFIG.CacheFlushInterval,
@@ -71,13 +72,11 @@
             );
         }
 
-        /* The cache for http calls */
         if (CACHE_CONFIG.HttpCache_Enabled) {
-            CacheFactory.setDefaultHttpCacheStorage(
+            avCacheFactory.setDefaultHttpCacheStorage(
                 CACHE_CONFIG.HttpCache_duration,
                 CACHE_CONFIG.HttpCache_capacity);
         }
-
     }
 
 })();
