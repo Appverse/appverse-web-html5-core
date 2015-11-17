@@ -68,8 +68,10 @@
             $log.warn('Detection module: window.addEventListener not supported.');
         }
 
-        if (!Appverse) {
-            Appverse.is = {};
+        if (!$window.Appverse) {
+            $window.Appverse = {
+                is: {}
+            };
             Appverse.is.iOS = Appverse.is.iPhone = Appverse.is.iPod = Appverse.is.iPad = Appverse.is.Android = Appverse.is.Mac = Appverse.is.Windows = Appverse.is.Linux = Appverse.is.Blackberry = Appverse.is.Tablet = Appverse.is.WindowsPhone = false;
             if (navigator.userAgent.match(/iPhone/i)) {
                 Appverse.is.iPhone = true;
@@ -104,7 +106,6 @@
             Appverse.is.Desktop = Appverse.is.Windows || Appverse.is.Linux || Appverse.is.Mac;
             Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
         }
-
     }
 
 })();
