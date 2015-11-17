@@ -49,10 +49,7 @@ module.exports = function (config) {
             'src/appverse-detection/mobile-detector.provider.js',
             'src/appverse-detection/detection.provider.js',
             // The rest
-            'src/appverse-*/**/*.provider.js',
-            'src/appverse-*/**/*.js',
-
-            'src/appverse/*.js',
+            'src/**/*.js',
 
             'bower_components/angular-mocks/angular-mocks.js',
             'test/unit/**/*.js'

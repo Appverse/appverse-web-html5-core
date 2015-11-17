@@ -8,7 +8,7 @@
      *
      * @requires appverse.configuration
      */
-    angular.module('appverse.utils');
+    angular.module('appverse.utils', []);
 
 })();
 
