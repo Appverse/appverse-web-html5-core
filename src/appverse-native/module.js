@@ -16,93 +16,7 @@
     .config(
         function ($httpProvider, DetectionProvider, REST_CONFIG) {
 
-            function createMap() {
-                return Object.create(null);
-            }
-
-            var trim = function (value) {
-                return angular.isString(value) ? value.trim() : value;
-            };
-
-            function parseHeaders(headers) {
-                var parsed = createMap(),
-                    key, val, i;
-
-                if (!headers) {
-                    return parsed;
-                }
-
-                angular.forEach(headers.split('\n'), function (line) {
-                    i = line.indexOf(':');
-                    key = angular.lowercase(trim(line.substr(0, i)));
-                    val = trim(line.substr(i + 1));
-
-                    if (key) {
-                        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-                    }
-                });
-
-                return parsed;
-            }
-
-            function headersGetter(headers) {
-                var headersObj = angular.isObject(headers) ? headers : undefined;
-
-                return function (name) {
-                    if (!headersObj) {
-                        headersObj = parseHeaders(headers);
-                    }
-
-                    if (name) {
-                        var value = headersObj[angular.lowercase(name)];
-                        if (value === void 0) {
-                            value = null;
-                        }
-                        return value;
-                    }
-
-                    return headersObj;
-                };
-            }
-
-            window.$httpCounter = -1;
-
-            window.$httpCallback = function (result, id) {
-
-                console.log('$httpCallback', id);
-                console.log('$httpCallback', result);
-
-                var response = {};
-                response.config = window['$httpConfig' + id];
-                delete window['$httpConfig' + id];
-
-                if (result !== null) {
-                    var headers = '';
-                    angular.forEach(result.Headers, function (header) {
-                        headers += header.Name + ':' + header.Value + '\n';
-                    });
-
-                    response.headers = headersGetter(headers);
-
-                    if (result.Content.length > 0) {
-                        response.data = JSON.parse(result.Content);
-                    }
-                    response.status = 200;
-                    response.statusText = "OK";
-
-                    if (response.config.cache && $httpProvider.defaults.cache && response.config.method === 'GET') {
-                        $httpProvider.defaults.cache.put(response.config.url, [response.status, response.data, response.headers(), response.statusText]);
-                    }
-
-                    window['$httpPromise' + id].resolve(response);
-                } else {
-                    response.status = 404;
-                    response.statusText = "Error";
-
-                    window['$httpPromise' + id].reject(response);
-                }
-                delete window['$httpPromise' + id];
-            };
+            window.$httpCounter = 0;
 
             var setIoService = function (config) {
                 var ioService = {};
@@ -146,21 +60,21 @@
                 return request;
             };
 
-            $httpProvider.interceptors.push(function ($q) {
+            $httpProvider.interceptors.push(function ($q, $log) {
                 return {
                     request: function (config) {
 
                         if (config.url.indexOf(REST_CONFIG.BaseUrl) !== 0 || !DetectionProvider.hasAppverseMobile()) {
-                            console.log('request fallthrough', config);
+                            $log.debug('request fallthrough', config);
                             return config;
                         }
 
                         if (config.cache && config.method === 'GET' && $httpProvider.defaults.cache && $httpProvider.defaults.cache.get(config.url)) {
-                            console.log('request cached', config);
+                            $log.debug('request cached', config);
                             return config;
                         }
 
-                        console.log('request override', config);
+                        $log.debug('request override', config);
 
                         window.$httpCounter++;
                         window['$httpPromise' + window.$httpCounter] = $q.defer();
@@ -270,7 +184,7 @@
                             return response;
                         }
 
-                        console.log('response override', response);
+                        $log.debug('response override', response);
 
                         var counter = response.config.data.split('callbackid=')[1].split('&')[0];
                         return window['$httpPromise' + counter].promise;
@@ -278,7 +192,97 @@
                 };
             });
 
-        });
+        })
 
+    .run(function ($http, $log) {
+
+        function createMap() {
+            return Object.create(null);
+        }
+
+        var trim = function (value) {
+            return angular.isString(value) ? value.trim() : value;
+        };
+
+        function parseHeaders(headers) {
+            var parsed = createMap(),
+                key, val, i;
+
+            if (!headers) {
+                return parsed;
+            }
+
+            angular.forEach(headers.split('\n'), function (line) {
+                i = line.indexOf(':');
+                key = angular.lowercase(trim(line.substr(0, i)));
+                val = trim(line.substr(i + 1));
+
+                if (key) {
+                    parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+                }
+            });
+
+            return parsed;
+        }
+
+        function headersGetter(headers) {
+            var headersObj = angular.isObject(headers) ? headers : undefined;
+
+            return function (name) {
+                if (!headersObj) {
+                    headersObj = parseHeaders(headers);
+                }
+
+                if (name) {
+                    var value = headersObj[angular.lowercase(name)];
+                    if (value === void 0) {
+                        value = null;
+                    }
+                    return value;
+                }
+
+                return headersObj;
+            };
+        }
+
+        window.$httpCallback = function (result, id) {
+
+            $log.debug('$httpCallback id', id);
+            $log.debug('$httpCallback result', result);
+
+            var response = {};
+            response.config = window['$httpConfig' + id];
+
+            if (result !== null) {
+                var headers = '';
+                angular.forEach(result.Headers, function (header) {
+                    headers += header.Name + ':' + header.Value + '\n';
+                });
+
+                response.headers = headersGetter(headers);
+
+                if (result.Content.length > 0) {
+                    response.data = JSON.parse(result.Content);
+                }
+                response.status = 200;
+                response.statusText = "OK";
+
+                if (response.config.cache && $http.defaults.cache && response.config.method === 'GET') {
+                    $http.defaults.cache.put(response.config.url, [response.status, response.data, response.headers(), response.statusText]);
+                }
+
+                window['$httpPromise' + id].resolve(response);
+            } else {
+                response.status = 404;
+                response.statusText = "Error";
+
+                window['$httpPromise' + id].reject(response);
+            }
+
+            delete window['$httpConfig' + id];
+            delete window['$httpPromise' + id];
+        };
+
+    });
 
 })();
