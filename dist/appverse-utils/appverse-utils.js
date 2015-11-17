@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -8,9 +8,10 @@
      *
      * @requires appverse.configuration
      */
-    angular.module('appverse.utils', ['appverse.configuration']);
+    angular.module('appverse.utils');
 
 })();
+
 (function (angular) {
     'use strict';
 
