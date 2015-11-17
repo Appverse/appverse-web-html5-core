@@ -21,7 +21,7 @@
     "maxcomplexity": 10,
     "globals": {
         "alert": false,
-        "Appverse": false,
+        "Appverse": true,
         "angular": false,
         "browser": false,
         "repeater": false,
