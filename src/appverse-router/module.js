@@ -10,7 +10,7 @@
      */
     angular.module('appverse.router', ['ui.router'])
         .config(function ($locationProvider, ROUTER_CONFIG) {
-            if (ROUTER_CONFIG.removeHashtag) {
+            if (ROUTING_CONFIG.removeHashtag) {
                 $locationProvider.html5Mode({
                     enabled: ROUTER_CONFIG.removeHashtag,
                     requireBase: false
