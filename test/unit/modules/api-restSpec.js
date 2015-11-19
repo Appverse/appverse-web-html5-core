@@ -11,13 +11,7 @@ describe('Unit: Testing appverse.rest module', function () {
         })
     );
 
-    it('should contain a MulticastRESTFactory factory',
-        inject(function (MulticastRESTFactory) {
-            expect(MulticastRESTFactory).to.be.an.object;
-        })
-    );
-
-    describe('when wrapping request in the Rest Service', function() {
+    describe('when wrapping request in the Rest Service', function () {
 
         // Create a mock wrapper that wraps requests by just
         // setting a variable in the restangular object
@@ -28,7 +22,7 @@ describe('Unit: Testing appverse.rest module', function () {
             }
         };
 
-        it('should return the processed Restangular service', inject(function(RESTFactory, Restangular) {
+        it('should return the processed Restangular service', inject(function (RESTFactory, Restangular) {
             expect(Restangular.wrapped).to.not.exist;
             RESTFactory.wrapRequestsWith(wrapper);
             Restangular.wrapped.should.be.true;
@@ -36,11 +30,13 @@ describe('Unit: Testing appverse.rest module', function () {
 
     });
 
-    describe('when enabling default content type', function() {
+    describe('when enabling default content type', function () {
 
-        it('Restangular should set default headers', inject(function(RESTFactory, Restangular) {
+        it('Restangular should set default headers', inject(function (RESTFactory, Restangular) {
             RESTFactory.enableDefaultContentType();
-            Restangular.setDefaultHeaders.calledWith({'Content-Type': 'text/plain;'}).should.be.true;
+            Restangular.setDefaultHeaders.calledWith({
+                'Content-Type': 'text/plain;'
+            }).should.be.true;
         }));
 
     });
@@ -49,9 +45,9 @@ describe('Unit: Testing appverse.rest module', function () {
 
         var $rootScope;
 
-        describe('when request is not resolved yet...', function() {
+        describe('when request is not resolved yet...', function () {
 
-            it("loading state should be true", inject(function($compile, $rootScope) {
+            it("loading state should be true", inject(function ($compile, $rootScope) {
                 // Compile a piece of HTML containing the directive
                 $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
 
@@ -61,19 +57,21 @@ describe('Unit: Testing appverse.rest module', function () {
 
         });
 
-        describe('when request is resolved with success..', function() {
+        describe('when request is resolved with success..', function () {
 
-            beforeEach('mock RESTFactory to return success', module(function($provide) {
-                $provide.service('RESTFactory', function() {
+            beforeEach('mock RESTFactory to return success', module(function ($provide) {
+                $provide.service('RESTFactory', function () {
                     this.enableDefaultContentType = sinon.spy();
                     this.setCache = sinon.spy();
-                    this.readObject = function(path, success) {
-                        success({books: 'mock'});
+                    this.readObject = function (path, success) {
+                        success({
+                            books: 'mock'
+                        });
                     };
                 });
             }));
 
-            beforeEach('compile directive and fire watches', inject(function($compile, _$rootScope_) {
+            beforeEach('compile directive and fire watches', inject(function ($compile, _$rootScope_) {
                 $rootScope = _$rootScope_;
                 // Compile a piece of HTML containing the directive
                 $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
@@ -81,29 +79,31 @@ describe('Unit: Testing appverse.rest module', function () {
                 $rootScope.$digest();
             }));
 
-            it("should load data into a scope variable", function() {
-                $rootScope.mybooks.should.be.eql({books: 'mock'});
+            it("should load data into a scope variable", function () {
+                $rootScope.mybooks.should.be.eql({
+                    books: 'mock'
+                });
             });
 
-            it("loading state should be true when the request is not resolved yet", function() {
+            it("loading state should be true when the request is not resolved yet", function () {
                 $rootScope.mybooksLoading.should.be.false;
             });
 
         });
 
-        describe('when request is resolved with error..', function() {
+        describe('when request is resolved with error..', function () {
 
-            beforeEach('mock RESTFactory to return error', module(function($provide) {
-                $provide.service('RESTFactory', function() {
+            beforeEach('mock RESTFactory to return error', module(function ($provide) {
+                $provide.service('RESTFactory', function () {
                     this.enableDefaultContentType = sinon.spy();
                     this.setCache = sinon.spy();
-                    this.readObject = function(path, success, error) {
+                    this.readObject = function (path, success, error) {
                         error();
                     };
                 });
             }));
 
-            beforeEach('compile directive and fire watches', inject(function($compile, _$rootScope_) {
+            beforeEach('compile directive and fire watches', inject(function ($compile, _$rootScope_) {
                 $rootScope = _$rootScope_;
                 // Compile a piece of HTML containing the directive
                 $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
@@ -111,12 +111,12 @@ describe('Unit: Testing appverse.rest module', function () {
                 $rootScope.$digest();
             }));
 
-            it("should set error state to true", inject(function($compile, $rootScope) {
+            it("should set error state to true", inject(function ($compile, $rootScope) {
                 $rootScope.mybooksError.should.be.true;
             }));
 
             it("loading state should be true when the request is not resolved yet",
-                inject(function($compile, $rootScope) {
+                inject(function ($compile, $rootScope) {
                     $rootScope.mybooksLoading.should.be.false;
                 })
             );
@@ -147,7 +147,7 @@ describe('Unit: Testing appverse.rest module', function () {
         // instead of real ones
         module(function ($provide) {
 
-            $provide.service('Restangular', function() {
+            $provide.service('Restangular', function () {
                 this.setBaseUrl = sinon.spy();
                 this.setExtraFields = sinon.spy();
                 this.setParentless = sinon.spy();
@@ -163,22 +163,22 @@ describe('Unit: Testing appverse.rest module', function () {
                 this.setDefaultHeaders = sinon.spy();
             });
 
-            $provide.factory('CacheFactory', function() {
+            $provide.factory('avCacheFactory', function () {
                 return {
-                    getHttpCache : sinon.stub()
+                    getHttpCache: sinon.stub()
                 };
             });
 
-            $provide.factory('Oauth_RequestWrapper', function() {
+            $provide.factory('Oauth_RequestWrapper', function () {
                 return {};
             });
 
-            $provide.factory('Oauth_AccessToken', function() {
+            $provide.factory('Oauth_AccessToken', function () {
                 return {};
             });
 
             $provide.constant('REST_CONFIG', {
-                ElementTransformer : [],
+                ElementTransformer: [],
                 DefaultContentType: 'text/plain;'
             });
 

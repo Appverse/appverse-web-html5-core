@@ -32,8 +32,8 @@
      * considering the initialization parameters:
      * <pre><code class="javascript">
        function (param){
-           var queryBuilder = CacheFactory.getIDBQueryBuilder();
-           var objStore = CacheFactory.getIDBObjectStore();
+           var queryBuilder = avCacheFactory.getIDBQueryBuilder();
+           var objStore = avCacheFactory.getIDBObjectStore();
            var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
            objStore.each(myQuery).then(function(cursor){
                $scope.key = cursor.key;
@@ -46,23 +46,24 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
-    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache'])
-        .run(run);
+    angular.module('appverse.cache', [
+        'appverse.configuration',
+        'angular-cache'
+    ]).run(run);
 
-    function run($log, CacheFactory, CACHE_CONFIG) {
+    function run($log, avCacheFactory, CACHE_CONFIG) {
 
         $log.info('appverse.cache run');
 
-        /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {
-            CacheFactory.setScopeCache(
+            avCacheFactory.setScopeCache(
                 CACHE_CONFIG.ScopeCache_duration,
                 CACHE_CONFIG.ScopeCache_capacity
             );
         }
 
         if (CACHE_CONFIG.BrowserStorageCache_Enabled) {
-            CacheFactory.setBrowserStorage(
+            avCacheFactory.setBrowserStorage(
                 CACHE_CONFIG.BrowserStorage_type,
                 CACHE_CONFIG.MaxAge,
                 CACHE_CONFIG.CacheFlushInterval,
@@ -71,19 +72,17 @@
             );
         }
 
-        /* The cache for http calls */
         if (CACHE_CONFIG.HttpCache_Enabled) {
-            CacheFactory.setDefaultHttpCacheStorage(
+            avCacheFactory.setDefaultHttpCacheStorage(
                 CACHE_CONFIG.HttpCache_duration,
                 CACHE_CONFIG.HttpCache_capacity);
         }
-
     }
-    run.$inject = ["$log", "CacheFactory", "CACHE_CONFIG"];
+    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
 
 })();
 
-(function(){
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -103,9 +102,9 @@
      * @param {string} cache Name of cached model
      *
      * @requires https://docs.angularjs.org/api/ng/service/$log $log
-     * @requires CacheFactory
+     * @requires avCacheFactory
      */
-    .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
+    .directive('cache', ["$log", "avCacheFactory", function ($log, avCacheFactory) {
 
         return {
             link: function (scope, element, attrs) {
@@ -113,30 +112,30 @@
                 var name = attrs.cache || attrs.cacheName;
 
                 scope.$watch(function () {
-                    return CacheFactory.getScopeCache().get(name);
+                    return avCacheFactory.getScopeCache().get(name);
                 }, function (newVal) {
                     $log.debug('Cache watch {' + name + '}:', newVal);
-                    scope[name] = CacheFactory.getScopeCache().get(name);
+                    scope[name] = avCacheFactory.getScopeCache().get(name);
                 });
 
                 scope.$watch(name, function (newVal) {
                     $log.debug('Cache watch {' + name + '}:', newVal);
-                    CacheFactory.getScopeCache().put(name, scope[name]);
+                    avCacheFactory.getScopeCache().put(name, scope[name]);
                 });
             }
         };
     }]);
 
-
 })();
-(function() {
+
+(function () {
     'use strict';
 
-    angular.module('appverse.cache').factory('CacheFactory', CacheFactory);
+    angular.module('appverse.cache')
 
     /**
      * @ngdoc service
-     * @name CacheFactory
+     * @name avCacheFactory
      * @module appverse.cache
      *
      * @description
@@ -146,185 +145,204 @@
      * @requires https://docs.angularjs.org/api/ng/service/$http $http
      * @requires CACHE_CONFIG
      */
-    function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
+    .factory('avCacheFactory',
+        ["CacheFactory", "$http", "CACHE_CONFIG", function (CacheFactory, $http, CACHE_CONFIG) {
 
-        var factory = {
-            _scopeCache: null,
-            _browserCache: null,
-            _httpCache: null
-        };
+            var factory = {
+                _scopeCache: null,
+                _browserCache: null,
+                _httpCache: null
+            };
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#setScopeCache
-         *
-         * @param {number} duration Items expire after this time.
-         * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
-         * If you don't want $http's default cache to store every response.
-         *
-         * @description Configure the scope cache.
-         */
-        factory.setScopeCache = function(duration, capacity) {
-            factory._scopeCache = $angularCacheFactory(CACHE_CONFIG.DefaultScopeCacheName, {
-                maxAge: duration,
-                capacity: capacity
-            });
-            return factory._scopeCache;
-        };
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#setScopeCache
+             *
+             * @param {number} duration Items expire after this time.
+             * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
+             * If you don't want $http's default cache to store every response.
+             *
+             * @description Configure the scope cache.
+             */
+            factory.setScopeCache = function (duration, capacity) {
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#getScopeCache
-         *
-         * @description getScopeCache is the singleton that CacheFactory
-         * manages as a local cache created with $angularCacheFactory,
-         * which is what we return from the service.
-         * Then, we can inject this into any controller we want and it will always return the same values.
-         *
-         * The newly created cache object has the following set of methods:
-         *
-         * * {object} info() — Returns id, size, and options of cache.
-         *
-         * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
-         *
-         * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
-         *
-         * * {void} remove({string} key) — Removes a key-value pair from the cache.
-         *
-         * * {void} removeAll() — Removes all cached values.
-         *
-         * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
-         */
-        factory.getScopeCache = function() {
-            return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
+                var options = {
+                    maxAge: duration,
+                    capacity: capacity
+                };
+
+                var cache = CacheFactory.get(CACHE_CONFIG.DefaultScopeCacheName);
+
+                if (cache) {
+                    cache.setOptions(options);
+                    factory._scopeCache = cache;
+                } else {
+                    factory._scopeCache = CacheFactory.createCache(CACHE_CONFIG.DefaultScopeCacheName, options);
+                }
+                return factory._scopeCache;
+            };
+
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#getScopeCache
+             *
+             * @description getScopeCache is the singleton that avCacheFactory
+             * manages as a local cache created with $angularCacheFactory,
+             * which is what we return from the service.
+             * Then, we can inject this into any controller we want and it will always return the same values.
+             *
+             * The newly created cache object has the following set of methods:
+             *
+             * * {object} info() — Returns id, size, and options of cache.
+             *
+             * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
+             *
+             * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
+             *
+             * * {void} remove({string} key) — Removes a key-value pair from the cache.
+             *
+             * * {void} removeAll() — Removes all cached values.
+             *
+             * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+             */
+            factory.getScopeCache = function () {
+                return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
                     CACHE_CONFIG.ScopeCache_capacity);
-        };
+            };
 
-        /**
-         @ngdoc function
-         @name CacheFactory#setBrowserStorage
+            /**
+             @ngdoc function
+             @name avCacheFactory#setBrowserStorage
 
-         @param type Type of storage ( 1 local | 2 session).
-         @param maxAgeInit
-         @param cacheFlushIntervalInit
-         @param deleteOnExpireInit
+             @param type Type of storage ( 1 local | 2 session).
+             @param maxAgeInit
+             @param cacheFlushIntervalInit
+             @param deleteOnExpireInit
 
-         @description This object makes Web Storage working in the Angular Way.
-         By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
-         on the device rather than passed back-and-forth with each request to the server.
-         Web storage is useful for storing small amounts of key/value data and preserving functionality
-         online and offline.
-         With web storage, both the keys and values are stored as strings.
+             @description This object makes Web Storage working in the Angular Way.
+             By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
+             on the device rather than passed back-and-forth with each request to the server.
+             Web storage is useful for storing small amounts of key/value data and preserving functionality
+             online and offline.
+             With web storage, both the keys and values are stored as strings.
 
-         We can store anything except those not supported by JSON:
-         Infinity, NaN - Will be replaced with null.
-         undefined, Function - Will be removed.
-         The returned object supports the following set of methods:
-         * {void} $reset() - Clears the Storage in one go.
-         */
-        factory.setBrowserStorage = function(
-            type,
-            maxAgeInit,
-            cacheFlushIntervalInit,
-            deleteOnExpireInit,
-            verifyIntegrityInit
-        ) {
+             We can store anything except those not supported by JSON:
+             Infinity, NaN - Will be replaced with null.
+             undefined, Function - Will be removed.
+             The returned object supports the following set of methods:
+             * {void} $reset() - Clears the Storage in one go.
+             */
+            factory.setBrowserStorage = function (
+                type,
+                maxAgeInit,
+                cacheFlushIntervalInit,
+                deleteOnExpireInit,
+                verifyIntegrityInit
+            ) {
 
-            var selectedStorageType;
-            if (type == '2') {
-                selectedStorageType = CACHE_CONFIG.SessionBrowserStorage;
-            } else {
-                selectedStorageType = CACHE_CONFIG.LocalBrowserStorage;
-            }
+                var selectedStorageType;
+                if (type === '2') {
+                    selectedStorageType = CACHE_CONFIG.SessionBrowserStorage;
+                } else {
+                    selectedStorageType = CACHE_CONFIG.LocalBrowserStorage;
+                }
 
-            factory._browserCache = $angularCacheFactory(CACHE_CONFIG.DefaultBrowserCacheName, {
-                maxAge: maxAgeInit,
-                cacheFlushInterval: cacheFlushIntervalInit,
-                deleteOnExpire: deleteOnExpireInit,
-                storageMode: selectedStorageType,
-                verifyIntegrity: verifyIntegrityInit
-            });
-            return factory._browserCache;
-        };
+                var options = {
+                    maxAge: maxAgeInit,
+                    cacheFlushInterval: cacheFlushIntervalInit,
+                    deleteOnExpire: deleteOnExpireInit,
+                    storageMode: selectedStorageType,
+                    verifyIntegrity: verifyIntegrityInit
+                };
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#setDefaultHttpCacheStorage
-         *
-         * @param {number} duration items expire after this time.
-         * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
-         * @description Default cache configuration for $http service
-         */
-        factory.setDefaultHttpCacheStorage = function(maxAge, capacity) {
+                var cache = CacheFactory.get(CACHE_CONFIG.DefaultBrowserCacheName);
 
-            var cacheId = 'MyHttpAngularCache';
-            factory._httpCache = $angularCacheFactory.get(cacheId);
+                if (cache) {
+                    cache.setOptions(options);
+                    factory._browserCache = cache;
+                } else {
+                    factory._browserCache = CacheFactory.createCache(CACHE_CONFIG.DefaultBrowserCacheName, options);
+                }
+                return factory._browserCache;
+            };
 
-            if (!factory._httpCache) {
-                factory._httpCache = $angularCacheFactory(cacheId, {
-                    // This cache can hold x items
-                    capacity: capacity,
-                    // Items added to this cache expire after x milliseconds
-                    maxAge: maxAge,
-                    // Items will be actively deleted when they expire
-                    deleteOnExpire: 'aggressive',
-                    // This cache will check for expired items every x milliseconds
-                    recycleFreq: 15000,
-                    // This cache will clear itself every x milliseconds
-                    cacheFlushInterval: 15000,
-                    // This cache will sync itself with localStorage
-                    //                        storageMode: 'localStorage',
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#setDefaultHttpCacheStorage
+             *
+             * @param {number} duration items expire after this time.
+             * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
+             * @description Default cache configuration for $http service
+             */
+            factory.setDefaultHttpCacheStorage = function (maxAge, capacity) {
 
-                    // Custom implementation of localStorage
-                    //storageImpl: myLocalStoragePolyfill,
+                var cacheId = 'MyHttpAngularCache';
+                factory._httpCache = CacheFactory.get(cacheId);
 
-                    // Full synchronization with localStorage on every operation
-                    verifyIntegrity: true
-                });
-            } else {
-                factory._httpCache.setOptions({
-                    // This cache can hold x items
-                    capacity: capacity,
-                    // Items added to this cache expire after x milliseconds
-                    maxAge: maxAge,
-                    // Items will be actively deleted when they expire
-                    deleteOnExpire: 'aggressive',
-                    // This cache will check for expired items every x milliseconds
-                    recycleFreq: 15000,
-                    // This cache will clear itself every x milliseconds
-                    cacheFlushInterval: 15000,
-                    // This cache will sync itself with localStorage
-                    storageMode: 'localStorage',
-                    // Custom implementation of localStorage
-                    //storageImpl: myLocalStoragePolyfill,
+                if (!factory._httpCache) {
+                    factory._httpCache = CacheFactory.createCache(cacheId, {
+                        // This cache can hold x items
+                        capacity: capacity,
+                        // Items added to this cache expire after x milliseconds
+                        maxAge: maxAge,
+                        // Items will be actively deleted when they expire
+                        deleteOnExpire: 'aggressive',
+                        // This cache will check for expired items every x milliseconds
+                        recycleFreq: 15000,
+                        // This cache will clear itself every x milliseconds
+                        cacheFlushInterval: 15000,
+                        // This cache will sync itself with localStorage
+                        //                        storageMode: 'localStorage',
 
-                    // Full synchronization with localStorage on every operation
-                    verifyIntegrity: true
-                });
-            }
-            $http.defaults.cache = factory._httpCache;
-            return factory._httpCache;
-        };
+                        // Custom implementation of localStorage
+                        //storageImpl: myLocalStoragePolyfill,
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#getHttpCache
-         * @methodOf CacheFactory
-         * @description Returns the httpcache object in factory
-         * @returns httpcache object
-         */
-        factory.getHttpCache = function() {
-            return factory._httpCache;
-        };
+                        // Full synchronization with localStorage on every operation
+                        verifyIntegrity: true
+                    });
+                } else {
+                    factory._httpCache.setOptions({
+                        // This cache can hold x items
+                        capacity: capacity,
+                        // Items added to this cache expire after x milliseconds
+                        maxAge: maxAge,
+                        // Items will be actively deleted when they expire
+                        deleteOnExpire: 'aggressive',
+                        // This cache will check for expired items every x milliseconds
+                        recycleFreq: 15000,
+                        // This cache will clear itself every x milliseconds
+                        cacheFlushInterval: 15000,
+                        // This cache will sync itself with localStorage
+                        storageMode: 'localStorage',
+                        // Custom implementation of localStorage
+                        //storageImpl: myLocalStoragePolyfill,
 
-        return factory;
-    }
-    CacheFactory.$inject = ["$angularCacheFactory", "$http", "CACHE_CONFIG"];
+                        // Full synchronization with localStorage on every operation
+                        verifyIntegrity: true
+                    });
+                }
+                $http.defaults.cache = factory._httpCache;
+                return factory._httpCache;
+            };
 
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#getHttpCache
+             * @methodOf avCacheFactory
+             * @description Returns the httpcache object in factory
+             * @returns httpcache object
+             */
+            factory.getHttpCache = function () {
+                return factory._httpCache;
+            };
 
+            return factory;
+        }]
+
+    );
 })();
 
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -344,13 +362,13 @@
      * @requires https://docs.angularjs.org/api/ng/service/$q $q
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
-    .service('IDBService', ['$q', '$log', function($q, $log) {
+    .service('IDBService', ['$q', '$log', function ($q, $log) {
         var setUp = false;
         var db;
 
         var service = {};
 
-         /**
+        /**
          * @ngdoc method
          * @name IDBService#init
          * @description Initialize the default Indexed DB in browser if supported
@@ -365,30 +383,37 @@
 
             var openRequest = window.indexedDB.open("indexeddb_appverse", 1);
 
-            openRequest.onerror = function(e) {
+            openRequest.onerror = function (e) {
                 $log.debug("Error opening db");
-                console.dir(e);
                 deferred.reject(e.toString());
             };
 
-            openRequest.onupgradeneeded = function(e) {
+            openRequest.onupgradeneeded = function (e) {
 
                 var thisDb = e.target.result;
                 var objectStore;
 
                 //Create Note
                 if (!thisDb.objectStoreNames.contains("default")) {
-                    objectStore = thisDb.createObjectStore("item", {keyPath: "id", autoIncrement: true});
-                    objectStore.createIndex("titlelc", "titlelc", {unique: false});
-                    objectStore.createIndex("tags", "tags", {unique: false, multiEntry: true});
+                    objectStore = thisDb.createObjectStore("item", {
+                        keyPath: "id",
+                        autoIncrement: true
+                    });
+                    objectStore.createIndex("titlelc", "titlelc", {
+                        unique: false
+                    });
+                    objectStore.createIndex("tags", "tags", {
+                        unique: false,
+                        multiEntry: true
+                    });
                 }
 
             };
 
-            openRequest.onsuccess = function(e) {
+            openRequest.onsuccess = function (e) {
                 db = e.target.result;
 
-                db.onerror = function(event) {
+                db.onerror = function (event) {
                     // Generic error handler for all errors targeted at this database's
                     // requests!
                     deferred.reject("Database error: " + event.target.errorCode);
@@ -407,7 +432,7 @@
          * @name IDBService#isSupported
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
-        service.isSupported = function() {
+        service.isSupported = function () {
             return ("indexedDB" in window);
         };
 
@@ -417,11 +442,11 @@
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
-        service.deleteDefault = function(key) {
+        service.deleteDefault = function (key) {
             var deferred = $q.defer();
             var t = db.transaction(["item"], "readwrite");
             t.objectStore("item").delete(key);
-            t.oncomplete = function() {
+            t.oncomplete = function () {
                 deferred.resolve();
             };
             return deferred.promise;
@@ -435,14 +460,14 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.getDefault = function(key) {
+        service.getDefault = function (key) {
             var deferred = $q.defer();
 
             var transaction = db.transaction(["item"]);
             var objectStore = transaction.objectStore("item");
             var request = objectStore.get(key);
 
-            request.onsuccess = function() {
+            request.onsuccess = function () {
                 var note = request.result;
                 deferred.resolve(note);
             };
@@ -457,18 +482,19 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.getDefaults = function() {
+        service.getDefaults = function () {
             var deferred = $q.defer();
 
-            init().then(function() {
+            init().then(function () {
 
                 var result = [];
 
-                var handleResult = function(event) {
+                var handleResult = function (event) {
                     var cursor = event.target.result;
                     if (cursor) {
                         result.push({
-                            key: cursor.key, title: cursor.value.title,
+                            key: cursor.key,
+                            title: cursor.value.title,
                             body: cursor.value.body,
                             updated: cursor.value.updated,
                             tags: cursor.value.tags
@@ -481,7 +507,7 @@
                 var objectStore = transaction.objectStore("item");
                 objectStore.openCursor().onsuccess = handleResult;
 
-                transaction.oncomplete = function() {
+                transaction.oncomplete = function () {
                     deferred.resolve(result);
                 };
 
@@ -494,7 +520,7 @@
          * @name IDBService#ready
          * @description This flag is true if the IDB has been successfully initializated.
          */
-        service.ready = function() {
+        service.ready = function () {
             return setUp;
         };
 
@@ -506,7 +532,7 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.saveDefault = function(item) {
+        service.saveDefault = function (item) {
             //Should this call init() too? maybe
             var deferred = $q.defer();
 
@@ -538,7 +564,7 @@
                 });
             }
 
-            t.oncomplete = function() {
+            t.oncomplete = function () {
                 deferred.resolve();
             };
 
@@ -555,7 +581,7 @@
          * @param {Array} tags Several tags useful for searches
          * @description This object represents the common default object stored in the IDB
          */
-        service.item = function(id, title, body, tags) {
+        service.item = function (id, title, body, tags) {
             this.id = id;
             this.title = title;
             this.body = body;
@@ -583,63 +609,6 @@
      */
     angular.module('appverse.detection', ['appverse.utils']);
 
-
-})();
-/*globals Appverse:false */
-
-(function () {
-    'use strict';
-
-    angular.module('appverse.detection')
-        .provider('MobileDetector', MobileDetectorProvider);
-
-    /**
-     * @ngdoc provider
-     * @name MobileDetector
-     * @module appverse.detection
-     *
-     * @description
-     * Detects if the browser is mobile
-     */
-    function MobileDetectorProvider() {
-
-        this.$get = function () {
-            return this;
-        };
-
-        /**
-         * @ngdoc method
-         * @name MobileDetector#hasAppverseMobile
-         * @return {Boolean}
-         */
-        this.hasAppverseMobile = function () {
-            if (typeof (_AppverseContext) != "undefined") {
-                return true;
-            } else if (window.localStorage.getItem("_AppverseContext")) {
-                return true;
-            } else {
-                return false;
-            }
-        };
-
-        /**
-         * @ngdoc method
-         * @name MobileDetector#isMobileBrowser
-         * @return {Boolean}
-         */
-        this.isMobileBrowser = function (customAgent) {
-            var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
-            return agentContainsMobileKeyword(agent);
-        };
-
-        function agentContainsMobileKeyword(agent) {
-
-            /*jshint ignore:start,-W101*/
-            // Code adapted from http://detectmobilebrowser.com
-            return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4));
-            /*jshint ignore:end,-W101*/
-        }
-    }
 
 })();
 (function () {
@@ -808,6 +777,64 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 })();
 
+/*globals Appverse:false */
+
+(function () {
+    'use strict';
+
+    angular.module('appverse.detection')
+        .provider('MobileDetector', MobileDetectorProvider);
+
+    /**
+     * @ngdoc provider
+     * @name MobileDetector
+     * @module appverse.detection
+     *
+     * @description
+     * Detects if the browser is mobile
+     */
+    function MobileDetectorProvider() {
+
+        this.$get = function () {
+            return this;
+        };
+
+        /**
+         * @ngdoc method
+         * @name MobileDetector#hasAppverseMobile
+         * @return {Boolean}
+         */
+        this.hasAppverseMobile = function () {
+            if (typeof (_AppverseContext) !== "undefined") {
+                return true;
+            } else if (window.localStorage.getItem("_AppverseContext")) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        /**
+         * @ngdoc method
+         * @name MobileDetector#isMobileBrowser
+         * @return {Boolean}
+         */
+        this.isMobileBrowser = function (customAgent) {
+            var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
+            return agentContainsMobileKeyword(agent);
+        };
+
+        function agentContainsMobileKeyword(agent) {
+
+            /*jshint ignore:start,-W101*/
+            // Code adapted from http://detectmobilebrowser.com
+            return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4));
+            /*jshint ignore:end,-W101*/
+        }
+    }
+
+})();
+
 (function () {
     'use strict';
 
@@ -877,10 +904,50 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
         } else {
             $log.warn('Detection module: window.addEventListener not supported.');
         }
+
+        if (!$window.Appverse) {
+            $window.Appverse = {
+                is: {}
+            };
+            Appverse.is.iOS = Appverse.is.iPhone = Appverse.is.iPod = Appverse.is.iPad = Appverse.is.Android = Appverse.is.Mac = Appverse.is.Windows = Appverse.is.Linux = Appverse.is.Blackberry = Appverse.is.Tablet = Appverse.is.WindowsPhone = false;
+            if (navigator.userAgent.match(/iPhone/i)) {
+                Appverse.is.iPhone = true;
+            }
+            if (navigator.userAgent.match(/iPod/i)) {
+                Appverse.is.iPod = true;
+            }
+            if (navigator.userAgent.match(/iPad/i)) {
+                Appverse.is.iPad = true;
+            }
+            if (navigator.userAgent.indexOf("android") > -1) {
+                Appverse.is.Android = true;
+            }
+            if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+                Appverse.is.Mac = true;
+            }
+            if (navigator.appVersion.indexOf("Win") !== -1) {
+                Appverse.is.Windows = true;
+            }
+            if (navigator.appVersion.indexOf("Linux") !== -1) {
+                Appverse.is.Linux = true;
+            }
+            if (navigator.userAgent.toLowerCase().indexOf("blackberry") >= 0) {
+                Appverse.is.Blackberry = true;
+            }
+            if ((/ipad|android|android 3.0|xoom|sch-i800|playbook|tablet|kindle/i.test(navigator.userAgent.toLowerCase()))) {
+                Appverse.is.Tablet = true;
+            }
+            if (navigator.userAgent.match(/Windows Phone/i) || navigator.userAgent.match(/iemobile/i)) {
+                Appverse.is.WindowsPhone = true;
+            }
+            Appverse.is.Desktop = Appverse.is.Windows || Appverse.is.Linux || Appverse.is.Mac;
+            Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
+        }
     }
     run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 
 })();
+
 (function () {
     'use strict';
 
@@ -932,7 +999,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 
     function run($log, Detection, $rootScope, $state, $modal) {
         $log.info('appverse.ionic run');
-        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+        $rootScope.$on('$stateChangeStart', function (event, toState) {
             //reset templateUrl and controller value if is necessary
             if (toState.templateUrl.indexOf("mobileview") >= 0) {
                 toState.templateUrl = toState.templateUrl.split("mobile")[1];
@@ -940,7 +1007,8 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
             }
 
             //Security checkpoint: check state access permissions before changing state
-            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") == -1) || (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") == -1)) {
+            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") === -1) ||
+                (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") === -1)) {
                 event.preventDefault();
 
                 $modal.open({
@@ -968,6 +1036,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal"];
 
 })();
+
 (function() {
     'use strict';
 
@@ -1019,160 +1088,170 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
         }]);
 
 })();
-(function() { 'use strict';
+(function () {
+    'use strict';
 
-angular.module('appverse.logging')
-    .provider("FormattedLogger", FormattedLoggerProvider);
+    angular.module('appverse.logging')
+        .provider("FormattedLogger", FormattedLoggerProvider);
 
-/**
- * @ngdoc provider
- * @name FormattedLogger
- * @module appverse.logging
- *
- * @description
- * Captures the $log service and decorate it.
- *
- */
-function FormattedLoggerProvider () {
+    /**
+     * @ngdoc provider
+     * @name FormattedLogger
+     * @module appverse.logging
+     *
+     * @description
+     * Captures the $log service and decorate it.
+     *
+     */
+    function FormattedLoggerProvider() {
 
-    var detectionProvider;
+        var detectionProvider;
 
-    this.$get = ["$injector", "LOGGING_CONFIG", function($injector, LOGGING_CONFIG) {
-        return function decorateLog (delegatedLog) {
+        this.$get = ["$injector", "LOGGING_CONFIG", function ($injector, LOGGING_CONFIG) {
+            return function decorateLog(delegatedLog) {
 
-            /**
-             * @function DateTime
-             * @param date The date to be formatted
-             * @param format The format of the returned date
-             *
-             * @description
-             * It formats a date
-             */
-            function dateTime(date, format) {
+                /**
+                 * @function DateTime
+                 * @param date The date to be formatted
+                 * @param format The format of the returned date
+                 *
+                 * @description
+                 * It formats a date
+                 */
+                function dateTime(date, format) {
 
-                date = date || new Date();
-                format = format || LOGGING_CONFIG.LogDateTimeFormat;
+                    date = date || new Date();
+                    format = format || LOGGING_CONFIG.LogDateTimeFormat;
 
-                function pad(value) {
-                    return (value.toString().length < 2) ? '0' + value : value;
-                }
-
-                return format.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
-                    switch (fmtCode) {
-                    case 'Y':
-                        return date.getFullYear();
-                    case 'M':
-                        return pad(date.getMonth() + 1);
-                    case 'd':
-                        return pad(date.getDate());
-                    case 'h':
-                        return pad(date.getHours());
-                    case 'm':
-                        return pad(date.getMinutes());
-                    case 's':
-                        return pad(date.getSeconds());
-                    case 'z':
-                        return pad(date.getMilliseconds());
-                    default:
-                        throw new Error('Unsupported format code: ' + fmtCode);
-                    }
-                });
-            }
-
-            /**
-             * @function handleLogMessage
-             * @param enable Is enabled in configuration
-             * @param logLevel Configures maximumm log level
-             * @param logFunction Explicit method from delegatedLog
-             *
-             * @description
-             * It arranges the log message and send it to the server registry.
-             */
-            function handleLogMessage(enable, logLevel, logFunction) {
-                try {
-
-                    if (!enable) {
-                        return function () {};
+                    function pad(value) {
+                        return (value.toString().length < 2) ? '0' + value : value;
                     }
 
-                    var logMessage = logLevel + " | " + LOGGING_CONFIG.CustomLogPreffix + " | ";
-
-                    return function () {
-                        var args = Array.prototype.slice.call(arguments);
-                        if (Object.prototype.toString.call(args[0]) === '[object String]') {
-                            args[0] = logMessage + dateTime() + " | " + args[0];
-                        } else {
-                            args.push(args[0]);
-                            args[0] = logMessage + dateTime() + " | ";
+                    return format.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
+                        switch (fmtCode) {
+                        case 'Y':
+                            return date.getFullYear();
+                        case 'M':
+                            return pad(date.getMonth() + 1);
+                        case 'd':
+                            return pad(date.getDate());
+                        case 'h':
+                            return pad(date.getHours());
+                        case 'm':
+                            return pad(date.getMinutes());
+                        case 's':
+                            return pad(date.getSeconds());
+                        case 'z':
+                            return pad(date.getMilliseconds());
+                        default:
+                            throw new Error('Unsupported format code: ' + fmtCode);
                         }
-                        logFunction.apply(null, args);
-
-                        if (LOGGING_CONFIG.ServerEnabled) {
-                            var logData = {
-                                logUrl: window.location.href,
-                                logMessage: args[0]
-                            };
-
-                            if (args.length === 2) {
-                                logData.logMessage += ' ' + JSON.stringify(args[1]);
-                            }
-
-                            if (browserIsOnline()) {
-                                var $http = $injector.get('$http');
-                                $http.post(LOGGING_CONFIG.LogServerEndpoint, logData);
-                            }
-                        }
-                    };
-
-                } catch (loggingError) {
-                    // ONLY FOR DEVELOPERS - log the log-failure.
-                    throw loggingError;
+                    });
                 }
-            }
 
-            /*
-            Our calls depend on the $log service methods (http://docs.angularjs.org/api/ng.$log)
+                /**
+                 * @function handleLogMessage
+                 * @param enable Is enabled in configuration
+                 * @param logLevel Configures maximumm log level
+                 * @param logFunction Explicit method from delegatedLog
+                 *
+                 * @description
+                 * It arranges the log message and send it to the server registry.
+                 */
+                function handleLogMessage(enable, logLevel, logFunction) {
+                    try {
 
-            debug() Write a debug message
-            error() Write an error message
-            info() Write an information message
-            log() Write a log message
-            warn() Write a warning message
-             */
-            delegatedLog.log = handleLogMessage(LOGGING_CONFIG.EnabledLogLevel, 'LOG  ', delegatedLog.log);
-            delegatedLog.info = handleLogMessage(LOGGING_CONFIG.EnabledInfoLevel, 'INFO ', delegatedLog.info);
-            delegatedLog.error = handleLogMessage(LOGGING_CONFIG.EnabledErrorLevel, 'ERROR', delegatedLog.error);
-            delegatedLog.warn = handleLogMessage(LOGGING_CONFIG.EnabledWarnLevel, 'WARN ', delegatedLog.warn);
-            delegatedLog.debug = handleLogMessage(LOGGING_CONFIG.EnabledDebugLevel, 'DEBUG', delegatedLog.debug);
+                        if (!enable) {
+                            return function () {};
+                        }
 
-            return delegatedLog;
+                        var logMessage = logLevel + " | " + LOGGING_CONFIG.CustomLogPreffix + " | ";
+
+                        var f = function () {
+                            var args = Array.prototype.slice.call(arguments);
+
+                            if (Object.prototype.toString.call(args[0]) === '[object String]') {
+                                args[0] = logMessage + dateTime() + " | " + args[0];
+                            } else {
+                                args.push(args[0]);
+                                args[0] = logMessage + dateTime() + " | ";
+                            }
+
+                            logFunction.apply(null, args);
+
+                            if (LOGGING_CONFIG.ServerEnabled) {
+                                var logData = {
+                                    logUrl: window.location.href,
+                                    logMessage: args[0]
+                                };
+
+                                if (args.length === 2) {
+                                    logData.logMessage += ' ' + JSON.stringify(args[1]);
+                                }
+
+                                if (browserIsOnline()) {
+                                    var $http = $injector.get('$http');
+                                    $http.post(LOGGING_CONFIG.LogServerEndpoint, logData);
+                                }
+                            }
+                        };
+
+                        // Only needed to support angular-mocks expectations
+                        f.logs = [];
+
+                        return f;
+
+                    } catch (loggingError) {
+                        // ONLY FOR DEVELOPERS - log the log-failure.
+                        throw loggingError;
+                    }
+                }
+
+                /*
+                Our calls depend on the $log service methods (http://docs.angularjs.org/api/ng.$log)
+
+                debug() Write a debug message
+                error() Write an error message
+                info() Write an information message
+                log() Write a log message
+                warn() Write a warning message
+                 */
+                delegatedLog.log = handleLogMessage(LOGGING_CONFIG.EnabledLogLevel, 'LOG  ', delegatedLog.log);
+                delegatedLog.info = handleLogMessage(LOGGING_CONFIG.EnabledInfoLevel, 'INFO ', delegatedLog.info);
+                delegatedLog.error = handleLogMessage(LOGGING_CONFIG.EnabledErrorLevel, 'ERROR', delegatedLog.error);
+                delegatedLog.warn = handleLogMessage(LOGGING_CONFIG.EnabledWarnLevel, 'WARN ', delegatedLog.warn);
+                delegatedLog.debug = handleLogMessage(LOGGING_CONFIG.EnabledDebugLevel, 'DEBUG', delegatedLog.debug);
+
+                return delegatedLog;
+            };
+        }];
+
+
+        this.setDetection = function (detection) {
+            detectionProvider = detection;
         };
-    }];
 
-
-    this.setDetection = function (detection) {
-        detectionProvider = detection;
-    };
-
-    function browserIsOnline() {
-        if (detectionProvider) {
-            return getDetectionService().isOnline;
-        } else {
-            // if no detection service provided, return true
-            return true;
+        function browserIsOnline() {
+            if (detectionProvider) {
+                return getDetectionService().isOnline;
+            } else {
+                // if no detection service provided, return true
+                return true;
+            }
         }
-    }
 
-    function getDetectionService() {
-        var $injector = angular.injector();
-        //invoke the $get function specifing that detectionProvider is 'this'
-        return  $injector.invoke(detectionProvider.$get, detectionProvider);
-    }
+        function getDetectionService() {
+            var $injector = angular.injector();
+            //invoke the $get function specifing that detectionProvider is 'this'
+            return $injector.invoke(detectionProvider.$get, detectionProvider);
+        }
 
-}
+    }
 
 
 })();
+
+/*globals AppverseEmulator, get_params:false, unescape:false */
 (function () {
     'use strict';
 
@@ -1185,209 +1264,428 @@ function FormattedLoggerProvider () {
      *
      * @requires appverse.detection
      */
-    angular.module('appverse.native', ['appverse.detection']);
+    angular.module('appverse.native', ['appverse.detection'])
 
+    .config(
+        ["$httpProvider", "DetectionProvider", "REST_CONFIG", function ($httpProvider, DetectionProvider, REST_CONFIG) {
+
+            window.$httpCounter = 0;
+
+            var setIoService = function (config) {
+                var ioService = {};
+                ioService.Endpoint = {};
+                ioService.Endpoint.Path = config.url.split(REST_CONFIG.BaseUrl)[1];
+
+                if (!REST_CONFIG.HostList[config.ind]) {
+                    console.error("Host not found in Host list: ", REST_CONFIG.HostList);
+                } else {
+                    ioService.Endpoint.Host = REST_CONFIG.HostList[config.ind].Host;
+                    ioService.Endpoint.Port = REST_CONFIG.HostList[config.ind].Port;
+                }
+
+                if (REST_CONFIG.ServerMode === 'MockServer') {
+                    ioService.Endpoint.ProxyUrl = REST_CONFIG.MockServer.URL + ':' + REST_CONFIG.MockServer.Port;
+                } else {
+                    ioService.Endpoint.ProxyUrl = "";
+                }
+
+                return ioService;
+            };
+
+            var setRequestObject = function (config) {
+                var request = {};
+                request.Headers = [];
+
+                //Pending Appverse Mobile format
+                //            angular.forEach(config.headers, function(value, header) {
+                //                request.Headers.push({
+                //                    Name: header,
+                //                    Value: value
+                //                })
+                //            });
+
+                request.Content = config.data;
+                request.ContentType = "application/json";
+                request.Session = {};
+                request.Method = config.method;
+                request.StopAutoRedirect = false;
+
+                return request;
+            };
+
+            $httpProvider.interceptors.push(["$q", "$log", function ($q, $log) {
+                return {
+                    request: function (config) {
+
+                        if (config.url.indexOf(REST_CONFIG.BaseUrl) !== 0 || !DetectionProvider.hasAppverseMobile()) {
+                            $log.debug('request fallthrough', config);
+                            return config;
+                        }
+
+                        if (config.cache && config.method === 'GET' && $httpProvider.defaults.cache && $httpProvider.defaults.cache.get(config.url)) {
+                            $log.debug('request cached', config);
+                            return config;
+                        }
+
+                        $log.debug('request override', config);
+
+                        window.$httpCounter++;
+                        window['$httpPromise' + window.$httpCounter] = $q.defer();
+                        window['$httpConfig' + window.$httpCounter] = angular.copy(config);
+
+                        var methodName = "InvokeService";
+                        var callBackFuncName = "$httpCallback";
+                        var callbackId = window.$httpCounter;
+
+                        if (!config.ind) {
+                            config.ind = 0;
+                        }
+
+                        var params = get_params([setRequestObject(config), setIoService(config)]);
+
+                        var legacyPath = Appverse.SERVICE_URI + Appverse.IO.serviceName + "/" + methodName;
+                        var newPath = Appverse.APPVERSE_SERVICE_URI + Appverse.IO.serviceName + "/" + methodName; // new path for Appverse 5.0 (applied when possible)
+
+                        var path = legacyPath; // by default, use legacy path
+
+                        if (Appverse.is.iOS) {
+                            path = newPath; // we use the new path for all iOS devices
+                        }
+
+                        var reqData = "";
+
+                        if (callBackFuncName !== null) {
+                            reqData = reqData + "callback=" + callBackFuncName;
+                        } else {
+                            reqData = reqData + "callback=NULL";
+                        }
+                        if (callbackId !== null) {
+                            reqData = reqData + "&callbackid=" + callbackId;
+                        } else {
+                            reqData = reqData + "&callbackid=callbackid";
+                            callbackId = "callbackId";
+                        }
+
+                        if (params !== null) {
+                            //reqData = reqData + "&json=" + unescape(params);
+                            if (Appverse.unescapeNextRequestData) {
+                                reqData = reqData + "&json=" + unescape(params);
+                            } else {
+                                reqData = reqData + "&json=" + params; // we don't unscape parameters if configured
+                                Appverse.unescapeNextRequestData = true; // returning to default configuration value
+                            }
+                        }
+
+                        if (window.webkit) {
+                            // using new WKWebView message handlers, if available (iOS 8)
+                            window.webkit.messageHandlers.service.postMessage({
+                                uri: path,
+                                query: reqData
+                            });
+                            return;
+                        }
+
+                        if (window.appverseJSBridge) { // only available for 4.2+ Android devices
+                            path = newPath;
+                            window.appverseJSBridge.postMessage(path, reqData);
+                            return;
+                        }
+
+                        if (window.external && window.external.notify) { // using external post notifications for Windows Phone
+                            var t = {
+                                uri: newPath,
+                                query: reqData
+                            };
+                            window.external.notify(JSON.stringify(t));
+                            return;
+                        }
+
+                        if (AppverseEmulator.eventListenersRegistered && AppverseEmulator.eventListenersRegistered.indexOf(methodName) >= 0) {
+                            AppverseEmulator.queuedListenerMessagesCount++;
+                            console.log("Appverse Emulator - queue listener result for methodName: " + AppverseEmulator.normalizeListenerCallingName(methodName));
+
+                            (function (smn) {
+                                setTimeout(function () {
+                                    AppverseEmulator.appverseListenerPollingTimerFunc(smn);
+                                }, AppverseEmulator.pollingInterval);
+                            })(Appverse.IO.serviceName + "#" + AppverseEmulator.normalizeListenerCallingName(methodName));
+                        }
+
+                        if (Appverse.executingInEmulator) {
+                            if (callBackFuncName !== null) {
+                                AppverseEmulator.queuedCallbackMessagesCount++;
+                                console.log("Appverse Emulator - queue callback result for methodName: " + methodName);
+                                (function (c, ci) {
+                                    setTimeout(function () {
+                                        AppverseEmulator.appverseCallbackPollingTimerFunc(c, ci);
+                                    }, AppverseEmulator.pollingInterval);
+                                })(callBackFuncName, callbackId);
+                            }
+                        }
+
+                        delete config.headers.Accept;
+                        config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+                        config.method = 'POST';
+                        config.url = path;
+                        config.data = reqData;
+
+                        return config;
+                    },
+                    response: function (response) {
+
+                        if (!response.config.url || response.config.url.indexOf(Appverse.SERVICE_URI + Appverse.IO.serviceName + "/InvokeService") !== 0) {
+                            return response;
+                        }
+
+                        $log.debug('response override', response);
+
+                        var counter = response.config.data.split('callbackid=')[1].split('&')[0];
+                        return window['$httpPromise' + counter].promise;
+                    }
+                };
+            }]);
+
+        }])
+
+    .run(["$http", "$log", function ($http, $log) {
+
+        function createMap() {
+            return Object.create(null);
+        }
+
+        var trim = function (value) {
+            return angular.isString(value) ? value.trim() : value;
+        };
+
+        function parseHeaders(headers) {
+            var parsed = createMap(),
+                key, val, i;
+
+            if (!headers) {
+                return parsed;
+            }
+
+            angular.forEach(headers.split('\n'), function (line) {
+                i = line.indexOf(':');
+                key = angular.lowercase(trim(line.substr(0, i)));
+                val = trim(line.substr(i + 1));
+
+                if (key) {
+                    parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+                }
+            });
+
+            return parsed;
+        }
+
+        function headersGetter(headers) {
+            var headersObj = angular.isObject(headers) ? headers : undefined;
+
+            return function (name) {
+                if (!headersObj) {
+                    headersObj = parseHeaders(headers);
+                }
+
+                if (name) {
+                    var value = headersObj[angular.lowercase(name)];
+                    if (value === void 0) {
+                        value = null;
+                    }
+                    return value;
+                }
+
+                return headersObj;
+            };
+        }
+
+        window.$httpCallback = function (result, id) {
+
+            $log.debug('$httpCallback id', id);
+            $log.debug('$httpCallback result', result);
+
+            var response = {};
+            response.config = window['$httpConfig' + id];
+
+            if (result !== null) {
+                var headers = '';
+                angular.forEach(result.Headers, function (header) {
+                    headers += header.Name + ':' + header.Value + '\n';
+                });
+
+                response.headers = headersGetter(headers);
+
+                if (result.Content.length > 0) {
+                    response.data = JSON.parse(result.Content);
+                }
+                response.status = 200;
+                response.statusText = "OK";
+
+                if (response.config.cache && $http.defaults.cache && response.config.method === 'GET') {
+                    $http.defaults.cache.put(response.config.url, [response.status, response.data, response.headers(), response.statusText]);
+                }
+
+                window['$httpPromise' + id].resolve(response);
+            } else {
+                response.status = 404;
+                response.statusText = "Error";
+
+                window['$httpPromise' + id].reject(response);
+            }
+
+            delete window['$httpConfig' + id];
+            delete window['$httpPromise' + id];
+        };
+
+    }]);
 
 })();
+
 (function () {
     'use strict';
 
-    angular.module('appverse.native').factory('AppverseNative', AppverseNative);
+    angular.module('appverse.native')
 
     /**
      * @ngdoc service
      * @name AppverseNative
      * @module appverse.native
      * @description This module provides basic quick standard access to a Native functions
-     *
      */
+    .run(["$log", "$q", "Detection", "$window", "$timeout", "$interval", function ($log, $q, Detection, $window, $timeout, $interval) {
 
-    function AppverseNative($log, $q, Detection, $window) {
-        ////////////////////////////////////////////////////////////////////////////////////
-        // ADVICES ABOUT PROMISES
-        //
-        // 1-PROMISES
-        // All Restangular requests return a Promise. Angular's templates
-        // are able to handle Promises and they're able to show the promise
-        // result in the HTML. So, if the promise isn't yet solved, it shows
-        // nothing and once we get the data from the server, it's shown in the template.
-        // If what we want to do is to edit the object you get and then do a put, in
-        // that case, we cannot work with the promise, as we need to change values.
-        // If that's the case, we need to assign the result of the promise to a $scope variable.
-        ////////////////////////////////////////////////////////////////////////////////////
 
-        var factory, deferredGeo, deferredNetwork, geoTryNumber;
-        factory = deferredGeo = deferredNetwork = {};
-        geoTryNumber = 0;
+        if (!Detection.hasAppverseMobile()) {
+            return;
+        }
 
-        var promises = [];
+        var deferredGeo;
 
         $window.callbackGeo = function (result) {
             if (result) {
-                Appverse.Geo.StartUpdatingLocation('callbackGeoStart', 'callbackGeoStart');
+                Appverse.Geo.StartUpdatingLocation('callbackGeoStart');
             } else {
-                deferredGeo.reject(result);
+                deferredGeo.reject();
             }
         };
 
         $window.callbackGeoStart = function (result) {
             if (result) {
-                Appverse.Geo.GetCoordinates('callbackGeoCoordinates', 'callbackGeoCoordinates');
+                Appverse.Geo.GetCoordinates('callbackGeoCoordinates');
             } else {
-                deferredGeo.reject(result);
+                deferredGeo.reject();
             }
         };
 
         $window.callbackGeoCoordinates = function (coordinates) {
-            geoTryNumber++;
-            if (coordinates.XCoordinate != 0 && coordinates.YCoordinate != 0 && coordinates.XDoP < 500 && coordinates.YDoP < 500) {
+            if (coordinates) {
                 deferredGeo.resolve(coordinates);
-                Appverse.Geo.StopUpdatingLocation('callbackGeoStop', 'callbackGeoStop');
             } else {
-                if (geoTryNumber > 10) {
-                    deferredGeo.reject(coordinates);
-                    Appverse.Geo.StopUpdatingLocation('callbackGeoStop', 'callbackGeoStop');
-                } else {
-                    setTimeout(function () {
-                        callbackGeoStart(true);
-                    }, 2000);
-                }
+                deferredGeo.reject();
             }
         };
 
-        $window.StopUpdatingLocation = function (result) {};
-
-        $window.callbackNetwork = function (result) {
-            if (result) {
-                deferredNetwork.resolve(result);
-            } else {
-                deferredNetwork.reject(result);
-            }
-        };
-
-
-
-        factory.getCoordinates = function () {
-            deferredGeo = $q.defer();
-            if (Detection.hasAppverseMobile()) {
-                Appverse.Geo.IsGPSEnabled('callbackGeo', 'callbackGeo');
-            } else {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(showPosition);
-                } else {
-                    return deferredGeo.reject(false);
-                }
-            }
-            return deferredGeo.promise;
-        };
-
-        function showPosition(position) {
-            var coordinates = {
-                "XCoordinate": position.coords.latitude,
-                "YCoordinate": position.coords.longitude,
-                "ZCoordinate": 0,
-                "XDoP": position.coords.accuracy,
-                "YDoP": position.coords.accuracy
+        $window.onAccessToLocationDenied = function () {
+            var PositionError = {
+                code: 1,
+                message: 'Permission denied.'
             };
-            deferredGeo.resolve(coordinates);
-        }
+            deferredGeo.reject(PositionError);
+        };
 
+        var updatePosition = function (success, error, PositionOptions) {
+            deferredGeo = $q.defer();
 
-        factory.isNetworkReachable = function () {
+            deferredGeo.promise.then(function (data) {
+                var Position = {};
+                Position.coords = {
+                    latitude: data.XCoordinate,
+                    longitude: data.YCoordinate,
+                    altitude: data.ZCoordinate,
+                    accuracy: (data.XDoP + data.YDoP) / 2,
+                    altitudeAccuracy: null,
+                    heading: null,
+                    speed: null
+                };
+                Position.timestamp = new Date().getTime();
+                success(Position);
+                Appverse.Geo.StopUpdatingLocation();
+            }).catch(function (PositionError) {
+                if (!PositionError) {
+                    PositionError = {
+                        code: 2,
+                        message: 'Postion unavailable.'
+                    };
+                }
+                error(PositionError);
+            });
+
+            Appverse.Geo.IsGPSEnabled('callbackGeo');
+
+            if (PositionOptions && PositionOptions.timeout) {
+                $timeout(function () {
+                    var PositionError = {
+                        code: 3,
+                        message: 'Request timed out.'
+                    };
+                    deferredGeo.reject(PositionError);
+                }, PositionOptions.timeout);
+            } else {
+                PositionOptions = {
+                    enableHighAccuracy: false,
+                    timeout: window.Infinity,
+                    maximumAge: 0
+                };
+            }
+        };
+
+        $window.navigator.geolocation = {
+            getCurrentPosition: function (success, error, PositionOptions) {
+
+                updatePosition(success, error, PositionOptions);
+            },
+            watchPosition: function (success, error, PositionOptions) {
+
+                var promise = $interval(function () {
+                    updatePosition(success, error, PositionOptions);
+                }, 1000);
+                return promise;
+            },
+            clearWatch: function (promise) {
+                $interval.cancel(promise);
+                Appverse.Geo.StopUpdatingLocation();
+            }
+
+        };
+
+        var deferredNetwork;
+
+        var updateOnlineStatus = function () {
             deferredNetwork = $q.defer();
 
-            if (Detection.hasAppverseMobile()) {
-                Appverse.Net.IsNetworkReachable("www.google.com", 'callbackNetwork', 'callbackNetwork');
-            } else {
-                if (Detection.isOnline) {
-                    deferredNetwork.resolve(true);
+            deferredNetwork.promise.then(function () {
+                Detection.isOnline = true;
+            }).catch(function () {
+                Detection.isOnline = false;
+            });
+
+            $window.callbackNetwork = function (result) {
+                if (result) {
+                    deferredNetwork.resolve();
                 } else {
-                    deferredNetwork.reject(false);
+                    deferredNetwork.reject();
                 }
-            }
-            return deferredNetwork.promise;
+            };
+            Appverse.Net.IsNetworkReachable('www.google.com', 'callbackNetwork');
         };
 
-        factory.getBrowserInformation = function () {
-            if (Detection.hasAppverseMobile()) {
-                return {
-                    isMobileBrowser: !Appverse.is.Desktop,
-                    isIphone: Appverse.is.iPhone,
-                    isWindowsPhone: Appverse.is.Windows,
-                    isWindows: Appverse.is.Windows,
-                    isBlackberry: Appverse.is.Blackberry,
-                    isAndroid: Appverse.is.Android,
-                    isiOS: Appverse.is.iOS,
-                    isTablet: Appverse.is.Tablet,
-                    isPhone: !Appverse.is.Desktop,
-                    isIpod: Appverse.is.iPod,
-                    isIpad: Appverse.is.iPad,
-                    isLinux: Appverse.is.Linux,
-                    isMac: Appverse.is.Mac
-                };
-            } else {
-                var iOS, iphone, ipod, ipad, android, mac, windows, linux, blackberry, tablet, windowsPhone;
-                iOS = iphone = ipod = ipad = android = mac = windows = linux = blackberry = tablet = windowsPhone = false;
-                if (navigator.userAgent.match(/iPhone/i)) {
-                    iOS = true;
-                    iphone = true;
-                }
-                if (navigator.userAgent.match(/iPod/i)) {
-                    iOS = true;
-                    ipod = true;
-                }
-                if (navigator.userAgent.match(/iPad/i)) {
-                    iOS = true;
-                    ipad = true;
-                }
-                if (navigator.userAgent.indexOf("android") > -1) {
-                    android = true;
-                }
-                if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
-                    mac = true;
-                }
-                if (navigator.appVersion.indexOf("Win") != -1) {
-                    windows = true;
-                };
-                if (navigator.appVersion.indexOf("Linux") != -1) {
-                    linux = true;
-                };
-                if (navigator.userAgent.toLowerCase().indexOf("blackberry") >= 0) {
-                    blackberry = true;
-                }
-                if ((/ipad|android|android 3.0|xoom|sch-i800|playbook|tablet|kindle/i.test(navigator.userAgent.toLowerCase()))) {
-                    tablet = true;
-                }
-                if (navigator.userAgent.match(/Windows Phone/i) || navigator.userAgent.match(/iemobile/i)) {
-                    windowsPhone = true;
-                }
+        updateOnlineStatus();
 
-
-                return {
-                    isMobileBrowser: Detection.isMobileBrowser(),
-                    isIphone: iphone,
-                    isWindowsPhone: windowsPhone,
-                    isWindows: windows,
-                    isBlackberry: blackberry,
-                    isAndroid: android,
-                    isiOS: iOS,
-                    isTablet: tablet,
-                    isPhone: Detection.isMobileBrowser(),
-                    isIpod: ipod,
-                    isIpad: ipad,
-                    isLinux: linux,
-                    isMac: mac
-                };
-            }
+        $window.onConnectivityChange = function () {
+            updateOnlineStatus();
         };
-
-
-        return factory;
-
-    }
-    AppverseNative.$inject = ["$log", "$q", "Detection", "$window"];
-
+    }]);
 })();
+
 (function() {
     'use strict';
 
@@ -1476,21 +1774,6 @@ function FormattedLoggerProvider () {
                         compileTemplate(); // gets the template and compile the desired layout
 
                     });
-
-
-                    //                    scope.$watch(function () {
-                    //                        return CacheFactory.getScopeCache().get(name);
-                    //                    }, function (newVal) {
-                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-                    //                        scope[name] = CacheFactory.getScopeCache().get(name);
-                    //                    });
-                    //
-                    //                    scope.$watch(name, function (newVal) {
-                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-                    //                        CacheFactory.getScopeCache().put(name, scope[name]);
-                    //                    });
-
-
 
                     /**
                      * @function
@@ -1843,7 +2126,7 @@ function FormattedLoggerProvider () {
     WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     var requires = [
@@ -1887,7 +2170,7 @@ function FormattedLoggerProvider () {
     angular.module('appverse.rest', requires).run(run);
 
 
-    function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
+    function run($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
 
         tryToIntegrateSecurity();
         tryToIntegrateCache();
@@ -1921,15 +2204,15 @@ function FormattedLoggerProvider () {
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
 
         function tryToIntegrateSecurity() {
-            var restFactory  = $injector.get('RESTFactory'),
-            $log             = $injector.get('$log'),
-            SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
+            var restFactory = $injector.get('RESTFactory'),
+                $log = $injector.get('$log'),
+                SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
 
             if (ModuleSeeker.exists('appverse.security')) {
                 var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
-                if (SECURITY_GENERAL.securityEnabled){
+                if (SECURITY_GENERAL.securityEnabled) {
                     restFactory.wrapRequestsWith(oauthRequestWrapperService);
-                    $log.debug( "REST communication is secure. Security is enabled." +
+                    $log.debug("REST communication is secure. Security is enabled." +
                         " REST requests will be wrapped with authorization headers.");
                     return;
                 }
@@ -1942,8 +2225,8 @@ function FormattedLoggerProvider () {
         function tryToIntegrateCache() {
             if (ModuleSeeker.exists('appverse.cache')) {
                 var restFactory = $injector.get('RESTFactory'),
-                CacheFactory    = $injector.get('CacheFactory'),
-                cache           = CacheFactory.getHttpCache();
+                    avCacheFactory = $injector.get('avCacheFactory'),
+                    cache = avCacheFactory.getHttpCache();
                 restFactory.setCache(cache);
             }
         }
@@ -1960,41 +2243,7 @@ function FormattedLoggerProvider () {
 
 
 })();
-(function() {
-    'use strict';
 
-    /**
-     * @ngdoc service
-     * @name  MulticastRESTFactory
-     * @module appverse.rest
-     *
-     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
-     * @requires https://github.com/mgonto/restangular Restangular
-     * @requires REST_CONFIG
-     */
-    angular.module('appverse.rest')
-    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-
-        function ($log, Restangular, REST_CONFIG) {
-            var factory = {};
-            var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            $log.debug('Multicast Enabled : ' + multicastSpawn);
-
-            factory.readObject = function (path, params) {
-                if(params && params.length >0){
-
-                }else{
-                    //No params. It is a normal call
-                    return Restangular.one(path).get().$object;
-                }
-
-            };
-
-            return factory;
-        }]);
-
-
-})();
 (function() {
     'use strict';
 
@@ -3128,7 +3377,7 @@ function FormattedLoggerProvider () {
 
 })();
 
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -3138,9 +3387,10 @@ function FormattedLoggerProvider () {
      *
      * @requires appverse.configuration
      */
-    angular.module('appverse.utils', ['appverse.configuration']);
+    angular.module('appverse.utils', []);
 
 })();
+
 (function (angular) {
     'use strict';
 
@@ -3346,7 +3596,7 @@ function FormattedLoggerProvider () {
 
 
 })();
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.utils')
@@ -3358,51 +3608,52 @@ function FormattedLoggerProvider () {
      * @description This factory provides common utilities for API functionalities.
      */
     .factory('UtilFactory', function () {
-            var factory = {};
+        var factory = {};
 
-            /**
-             * @ngdoc method
-             * @name UtilFactory#findPropertyValueByName
-             * @description Deletes an item from a list.
-             *
-             * @param properties content of the static external properties file
-             * @param area group of properties
-             * @param property property to know the value in
-             */
-            factory.findPropertyValueByName = function (properties, area, property) {
-                for (var i = 0; i < properties.length; i++) {
-                    if (properties[i].area == area) {
-                        for (var p = 0; p < properties[i].properties.length; p++) {
-                            if (properties[i].properties[p].property == property) {
-                                return properties[i].properties[p].value;
-                            }
+        /**
+         * @ngdoc method
+         * @name UtilFactory#findPropertyValueByName
+         * @description Deletes an item from a list.
+         *
+         * @param properties content of the static external properties file
+         * @param area group of properties
+         * @param property property to know the value in
+         */
+        factory.findPropertyValueByName = function (properties, area, property) {
+            for (var i = 0; i < properties.length; i++) {
+                if (properties[i].area === area) {
+                    for (var p = 0; p < properties[i].properties.length; p++) {
+                        if (properties[i].properties[p].property === property) {
+                            return properties[i].properties[p].value;
                         }
                     }
                 }
-                return null;
-            };
+            }
+            return null;
+        };
 
-            /**
-             * @ngdoc method
-             * @name UtilFactory#newRandomKey
-             * @description ...
-             *
-             * @param coll
-             * @param key
-             * @param currentKey
-             */
-            factory.newRandomKey = function (coll, key, currentKey) {
-                var randKey;
-                do {
-                    randKey = coll[Math.floor(coll.length * Math.random())][key];
-                } while (randKey === currentKey);
-                return randKey;
-            };
+        /**
+         * @ngdoc method
+         * @name UtilFactory#newRandomKey
+         * @description ...
+         *
+         * @param coll
+         * @param key
+         * @param currentKey
+         */
+        factory.newRandomKey = function (coll, key, currentKey) {
+            var randKey;
+            do {
+                randKey = coll[Math.floor(coll.length * Math.random())][key];
+            } while (randKey === currentKey);
+            return randKey;
+        };
 
-            return factory;
-        });
+        return factory;
+    });
 
 })();
+
 (function() { 'use strict';
 
 /**
@@ -3713,10 +3964,10 @@ run.$inject = ["$log"];
      * @description Basic information related to the application.
      */
     .constant('PROJECT_DATA', {
-        ApplicationName: 'Appverse Web HTML5 Incubator Demo',
+        ApplicationName: 'Appverse HTML5',
         Version: '0.1',
         Company: 'GFT',
-        Year: '2013',
+        Year: '2015',
         Team: 'GFT Appverse Web',
         URL: '',
         LoginViewPath: '/login',
@@ -3875,18 +4126,14 @@ run.$inject = ["$log"];
          * It is possible to add more indexes:
          * indexes : [{ name : 'indexName', unique : 'true/false' },{},...]
          */
-        IndexedDB_options: [
-            {
-                storeName: 'structure-of-items',
-                keyPath: 'id',
-                indexes: [
-                    {
-                        name: 'name',
-                        unique: false
-                }
-            ]
-        }
-    ]
+        IndexedDB_options: [{
+            storeName: 'structure-of-items',
+            keyPath: 'id',
+            indexes: [{
+                name: 'name',
+                unique: false
+            }]
+        }]
 
     })
 
@@ -4005,21 +4252,6 @@ run.$inject = ["$log"];
             BaseUrl: '/api/v1',
 
             /*
-            If enabled, requests via REST module will be multicasted.
-             */
-            //    Multicast_enabled: true,
-
-            /*
-            The base URLs array for all multicast calls to your API.
-            */
-            //    Multicast_baseUrl: ['/api/v1', '/api/v2', '/api/v3', '/api/v4'],
-
-            /*
-            Number of requests to be spawned in multicast mode for each
-             */
-            //    Multicast_spawn: 1,
-
-            /*
             These are the fields that you want to save from your parent resources if you need to display them.
             By default this is an Empty Array which will suit most cases.
             */
@@ -4111,9 +4343,7 @@ run.$inject = ["$log"];
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function (response) {
-                console.log("ErrorInterceptor, server response:", response);
-            },
+            ErrorInterceptor: function () {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:
@@ -4328,16 +4558,13 @@ run.$inject = ["$log"];
         roles: ['user', 'admin', 'editor'],
         adminRoles: ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"],
         users: ['Jesus de Diego'],
-        userRoleMatrix: [
-            {
-                'user': 'Jesus de Diego',
-                'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
-        },
-            {
-                'user': 'Antoine Charnoz',
-                'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
-        }
-    ],
+        userRoleMatrix: [{
+            'user': 'Jesus de Diego',
+            'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
+        }, {
+            'user': 'Antoine Charnoz',
+            'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
+        }],
         routesThatDontRequireAuth: ['/home'],
         routesThatRequireAdmin: ['/about']
     })
@@ -4403,26 +4630,24 @@ run.$inject = ["$log"];
         List of authorized workers with its ID.
         The ID is used to be passed in the directive's attribute.
          */
-        webworker_authorized_workers: [
-            {
-                'id': 'w1',
-                'type': 'dedicated',
-                'poolSize': 4,
-                'file': 'RenderImage.js'
-        },
-            {
-                'id': 'w2',
-                'type': 'dedicated',
-                'poolSize': 4,
-                'file': 'RestMultiRequest.js'
-        }
-    ],
+        webworker_authorized_workers: [{
+            'id': 'w1',
+            'type': 'dedicated',
+            'poolSize': 4,
+            'file': 'RenderImage.js'
+        }, {
+            'id': 'w2',
+            'type': 'dedicated',
+            'poolSize': 4,
+            'file': 'RestMultiRequest.js'
+        }],
         webworker_dedicated_literal: "dedicated",
         webworker_shared_literal: "shared",
         webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
     });
 
 })();
+
 /**
  * @ngdoc object
  * @name  AppInit
