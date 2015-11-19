@@ -954,7 +954,8 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     var requires = [
         'appverse.detection',
         'ui.router',
-        'ui.bootstrap'
+        'ui.bootstrap',
+        'appverse.ionic.templates'
     ];
 
 
@@ -971,70 +972,92 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
      */
 
     angular.module('appverse.ionic', requires);
-
-
 })();
-(function () {
+
+(function() {
     'use strict';
 
     angular.module('appverse.ionic')
-        .run(run).config(['$stateProvider', 'DetectionProvider', 'IONIC_CONFIG', function ($stateProvider, DetectionProvider, IONIC_CONFIG) {
-            if (DetectionProvider.isMobileBrowser()) {
-                $stateProvider.state(IONIC_CONFIG.MainState, {
-                    abstract: true,
-                    // Use a url of "/" to set a states as the "index".
-                    url: "",
-                    templateUrl: 'mobileviews/' + IONIC_CONFIG.MainState + '.html'
-                });
+
+    .controller('ModalNotAllowedCntrl',
+        ["$scope", "$modalInstance", "Detection", "$location", "$timeout", "IONIC_CONFIG", function($scope, $modalInstance, Detection, $location, $timeout, IONIC_CONFIG) {
+            if (Detection.isMobileBrowser()) {
+                $scope.device = 'device';
             } else {
-                $stateProvider.state(IONIC_CONFIG.MainState, {
-                    abstract: true,
-                    // Use a url of "/" to set a states as the "index".
-                    url: "",
-                    templateUrl: 'views/' + IONIC_CONFIG.MainState + '.html'
-                });
+                $scope.device = 'desktop';
             }
 
-    }]);
+            $scope.seconds = 5;
+            var counter = setInterval(timer, 1000); //1000 will  run it every 1 second
 
-    function run($log, Detection, $rootScope, $state, $modal) {
+            function timer() {
+                $scope.seconds = $scope.seconds - 1;
+                $scope.$evalAsync($scope.seconds);
+                if ($scope.seconds <= 0) {
+                    clearInterval(counter);
+                    $modalInstance.close();
+                    $timeout(function() {
+                        $location.path(IONIC_CONFIG.redirectionPath);
+                    }, 300);
+                    return;
+                }
+            }
+        }]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('appverse.ionic')
+        .run(run);
+
+    function run($log, Detection, $rootScope, $state, $modal, IONIC_CONFIG) {
         $log.info('appverse.ionic run');
-        $rootScope.$on('$stateChangeStart', function (event, toState) {
-            //reset templateUrl and controller value if is necessary
-            if (toState.templateUrl.indexOf("mobileview") >= 0) {
-                toState.templateUrl = toState.templateUrl.split("mobile")[1];
-                toState.controller = toState.controller.split("_mobile")[0];
-            }
 
-            //Security checkpoint: check state access permissions before changing state
-            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") === -1) ||
-                (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") === -1)) {
-                event.preventDefault();
+        function showModalPrompt() {
+            if (IONIC_CONFIG.modalPrompt) {
 
                 $modal.open({
-                    templateUrl: 'views/modals/not-allowed.html',
-                    controller: 'ModalNotAllowedCntrl',
-                    resolve: {
-                        isMobile: function () {
-                            return Detection.isMobileBrowser();
-                        }
-                    }
+                    templateUrl: 'appverse-ionic/not-allowed.html',
+                    controller: 'ModalNotAllowedCntrl'
                 });
-
             }
 
-            if (Detection.isMobileBrowser()) {
-                toState.templateUrl = "mobile" + toState.templateUrl;
-                if (toState.data.mobileController) {
-                    toState.controller = toState.data.mobileController;
+        }
+
+        function transformState(toState) {
+            //check if a mobile view exists, if is available in our envirnoment and if needs a different controller
+            if (toState.data.mobile && Detection.isMobileBrowser()) {
+                toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+                if (toState.data.controller) {
+                    toState.controller = toState.controller + IONIC_CONFIG.suffix;
                 }
             }
 
+            //After change (if is necessary) the template and controller, delete data object to avoid all the process the next time
+            delete toState.data;
+        }
+
+        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+
+            if (toState.data) {
+                //if toState.data exists, check restrict attribute
+                if (toState.data.restrict) {
+                  //if restrict, check environment
+                    if ((!Detection.isMobileBrowser() && toState.data.mobile) || (Detection.isMobileBrowser() && !toState.data.mobile)) {
+                        showModalPrompt();
+                    } else {
+                        transformState(toState);
+                    }
+                } else {
+                  //if NOT restrict, check environment
+                  transformState(toState);
+                }
+            }
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal"];
-
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal", "IONIC_CONFIG"];
 })();
 
 (function() {
@@ -2636,7 +2659,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();
-(function () {
+(function() {
     'use strict';
 
     /**
@@ -2647,23 +2670,16 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
      * @requires https://github.com/angular-ui/ui-router ui.router
      */
     angular.module('appverse.router', ['ui.router'])
-        .config(["$locationProvider", "ROUTER_CONFIG", function ($locationProvider, ROUTER_CONFIG) {
-            if (ROUTING_CONFIG.removeHashtag) {
-                $locationProvider.html5Mode({
-                    enabled: ROUTER_CONFIG.removeHashtag,
-                    requireBase: false
-                });
-            }
-        }])
-        .run(['$rootScope', '$state', '$stateParams',
+
+    .run(['$rootScope', '$state', '$stateParams',
             function ($rootScope, $state, $stateParams) {
 
-                // It's very handy to add references to $state and $stateParams to the $rootScope
-                // so that you can access them from any scope within your applications.For example,
-                // <li ng-class="{ active: $state.includes('contacts.list') }"> will set the <li>
-                // to active whenever 'contacts.list' or one of its decendents is active.
-                $rootScope.$state = $state;
-                $rootScope.$stateParams = $stateParams;
+            // It's very handy to add references to $state and $stateParams to the $rootScope
+            // so that you can access them from any scope within your applications.For example,
+            // <li ng-class="{ active: $state.includes('contacts.list') }"> will set the <li>
+            // to active whenever 'contacts.list' or one of its decendents is active.
+            $rootScope.$state = $state;
+            $rootScope.$stateParams = $stateParams;
         }]);
 
 })();
@@ -3984,20 +4000,6 @@ run.$inject = ["$log"];
      */
     .constant('IONIC_CONFIG', {
         MainState: 'menu'
-    })
-
-    /**
-     * @ngdoc object
-     * @name ROUTER_CONFIG
-     * @module  appverse.configuration.default
-     * @description This section contains basic configuration for appverse.router
-     */
-    .constant('ROUTER_CONFIG', {
-        /*
-        This param enables (if true) the $locationProvider.html5Mode.
-        IMPORTANT: This param only works for development environment. For a real server is necessary to config a .htaccess file or equivalent.
-        */
-        removeHashtag: false
     })
 
     /**
