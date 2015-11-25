@@ -362,7 +362,7 @@
      * @requires https://docs.angularjs.org/api/ng/service/$q $q
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
-    .service('IDBService', ['$q', '$log', function ($q, $log) {
+    .service('IDBService', ["$q", "$log", function ($q, $log) {
         var setUp = false;
         var db;
 
@@ -590,7 +590,6 @@
         };
 
         return service;
-
     }]);
 
 })();

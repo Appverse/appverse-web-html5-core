@@ -1,16 +1,18 @@
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-/**
- * @ngdoc module
- * @name appverse.configuration.default
- * @moduleFile appverse-configuration.js
- * @description
- * This module defines default settings.
- *
- */
-angular.module('appverse.configuration.default', ['$browser']);
+    /**
+     * @ngdoc module
+     * @name appverse.configuration.default
+     * @moduleFile appverse-configuration.js
+     * @description
+     * This module defines default settings.
+     *
+     */
+    angular.module('appverse.configuration.default', []);
 
 })();
+
 (function() { 'use strict';
 
 /**
@@ -290,7 +292,7 @@ run.$inject = ["$log"];
     configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -633,7 +635,7 @@ run.$inject = ["$log"];
             @param what: The model that is being modified. This is the "path" of this resource. For example buildings
             @param Restangular: The instanced service to use any of its methods
             */
-            OnElemRestangularized: function (elem) {
+            OnElemRestangularized: function(elem) {
                 return elem;
             },
 
@@ -673,7 +675,7 @@ run.$inject = ["$log"];
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function () {},
+            ErrorInterceptor: function() {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:
@@ -907,10 +909,12 @@ run.$inject = ["$log"];
      * @description Configuration parameters for web sockets
      */
     .constant('WEBSOCKETS_CONFIG', {
-        WS_ECHO_URL: "ws://echo.websocket.org",
-        WS_TYPE: 'native', //auto|sockjs|native
-        WS_PROTOCOL_TYPE: 'none', //auto|stomp|none
-        WS_INTERVAL: 30,
+        //        WS_URL: "ws://echo.websocket.org",
+        WS_URL: "https://appverse.gftlabs.com/websockets/services/websocket/stats",
+        WS_TYPE: 'auto', //auto|sockjs|native
+        WS_PROTOCOL_TYPE: 'auto', //auto|stomp|none
+        HEARTBEAT_OUTGOING: 20000, //in milliseconds
+        HEARTBEAT_INCOMING: 0, //in milliseconds
         WS_CONNECTED: 'Websocket connected',
         WS_DISCONNECTED: 'Websocket disconnected',
         WS_CONNECTING: 'Connecting Websocket...',

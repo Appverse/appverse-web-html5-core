@@ -33,15 +33,17 @@
      *
      * @requires SERVERPUSH_CONFIG
      */
-     .provider('Socket', ['SERVERPUSH_CONFIG',
-        function (SERVERPUSH_CONFIG) {
+    .provider('Socket',
+        function() {
+
+            var SERVERPUSH_CONFIG = angular.injector(['appverse.configuration.default']).get('SERVERPUSH_CONFIG');
 
             // when forwarding events, prefix the event name
             var prefix = 'socket:',
                 ioSocket;
 
             // expose to provider
-            this.$get = function ($rootScope, $timeout) {
+            this.$get = function($rootScope, $timeout) {
                 /* global io */
 
                 /*
@@ -50,36 +52,41 @@
                 * Client configuration: https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO#client
                 * Server configuration: https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO#server
                 */
-                var socket = ioSocket || io.connect(
-                    SERVERPUSH_CONFIG.BaseUrl, {
-                        'resource': SERVERPUSH_CONFIG.Resource,
-                        'connect timeout': SERVERPUSH_CONFIG.ConnectTimeout,
-                        'try multiple transports': SERVERPUSH_CONFIG.TryMultipleTransports,
-                        'reconnect': SERVERPUSH_CONFIG.Reconnect,
-                        'reconnection delay': SERVERPUSH_CONFIG.ReconnectionDelay,
-                        'reconnection limit': SERVERPUSH_CONFIG.ReconnectionLimit,
-                        'max reconnection attempts': SERVERPUSH_CONFIG.MaxReconnectionAttempts,
-                        'sync disconnect on unload': SERVERPUSH_CONFIG.SyncDisconnectOnUnload,
-                        'auto connect': SERVERPUSH_CONFIG.AutoConnect,
-                        'flash policy port': SERVERPUSH_CONFIG.FlashPolicyPort,
-                        'force new connection': SERVERPUSH_CONFIG.ForceNewConnection
-                    }
-                );
+                var socket;
 
-                var asyncAngularify = function (callback) {
-                    return function () {
+                if (ioSocket || window.io) {
+
+                    socket = ioSocket || io.connect(
+                        SERVERPUSH_CONFIG.BaseUrl, {
+                            'resource': SERVERPUSH_CONFIG.Resource,
+                            'connect timeout': SERVERPUSH_CONFIG.ConnectTimeout,
+                            'try multiple transports': SERVERPUSH_CONFIG.TryMultipleTransports,
+                            'reconnect': SERVERPUSH_CONFIG.Reconnect,
+                            'reconnection delay': SERVERPUSH_CONFIG.ReconnectionDelay,
+                            'reconnection limit': SERVERPUSH_CONFIG.ReconnectionLimit,
+                            'max reconnection attempts': SERVERPUSH_CONFIG.MaxReconnectionAttempts,
+                            'sync disconnect on unload': SERVERPUSH_CONFIG.SyncDisconnectOnUnload,
+                            'auto connect': SERVERPUSH_CONFIG.AutoConnect,
+                            'flash policy port': SERVERPUSH_CONFIG.FlashPolicyPort,
+                            'force new connection': SERVERPUSH_CONFIG.ForceNewConnection
+                        }
+                    );
+                }
+
+                var asyncAngularify = function(callback) {
+                    return function() {
                         var args = arguments;
-                        $timeout(function () {
+                        $timeout(function() {
                             callback.apply(socket, args);
                         }, 0);
                     };
                 };
 
-                var addListener = function (eventName, callback) {
+                var addListener = function(eventName, callback) {
                     socket.on(eventName, asyncAngularify(callback));
                 };
 
-                var removeListener = function () {
+                var removeListener = function() {
                     socket.removeAllListeners();
                 };
 
@@ -89,7 +96,7 @@
                     addListener: addListener,
                     off: removeListener,
 
-                    emit: function (eventName, data, callback) {
+                    emit: function(eventName, data, callback) {
                         if (callback) {
                             socket.emit(eventName, data, asyncAngularify(callback));
                         } else {
@@ -97,24 +104,19 @@
                         }
                     },
 
-                    //                removeListener: function () {
-                    //                    var args = arguments;
-                    //                    return socket.removeListener.apply(socket, args);
-                    //                },
-
-                    forward: function (events, scope) {
+                    forward: function(events, scope) {
                         if (events instanceof Array === false) {
                             events = [events];
                         }
                         if (!scope) {
                             scope = $rootScope;
                         }
-                        angular.forEach(events, function (eventName) {
+                        angular.forEach(events, function(eventName) {
                             var prefixed = prefix + eventName;
-                            var forwardEvent = asyncAngularify(function (data) {
+                            var forwardEvent = asyncAngularify(function(data) {
                                 scope.$broadcast(prefixed, data);
                             });
-                            scope.$on('$destroy', function () {
+                            scope.$on('$destroy', function() {
                                 socket.removeListener(eventName, forwardEvent);
                             });
                             socket.on(eventName, forwardEvent);
@@ -125,14 +127,14 @@
                 return wrappedSocket;
             };
 
-            this.prefix = function (newPrefix) {
+            this.prefix = function(newPrefix) {
                 prefix = newPrefix;
             };
 
-            this.ioSocket = function (socket) {
+            this.ioSocket = function(socket) {
                 ioSocket = socket;
             };
-        }]);
+        });
 
 
 })();
