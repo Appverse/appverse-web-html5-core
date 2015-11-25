@@ -1,62 +1,53 @@
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.ionic')
-        .run(run).config(['$stateProvider', 'DetectionProvider', 'IONIC_CONFIG', function ($stateProvider, DetectionProvider, IONIC_CONFIG) {
-            if (DetectionProvider.isMobileBrowser()) {
-                $stateProvider.state(IONIC_CONFIG.MainState, {
-                    abstract: true,
-                    // Use a url of "/" to set a states as the "index".
-                    url: "",
-                    templateUrl: 'mobileviews/' + IONIC_CONFIG.MainState + '.html'
-                });
-            } else {
-                $stateProvider.state(IONIC_CONFIG.MainState, {
-                    abstract: true,
-                    // Use a url of "/" to set a states as the "index".
-                    url: "",
-                    templateUrl: 'views/' + IONIC_CONFIG.MainState + '.html'
-                });
-            }
+        .run(run);
 
-    }]);
-
-    function run($log, Detection, $rootScope, $state, $modal) {
+    function run($log, Detection, $rootScope, $state, $modal, IONIC_CONFIG) {
         $log.info('appverse.ionic run');
-        $rootScope.$on('$stateChangeStart', function (event, toState) {
-            //reset templateUrl and controller value if is necessary
-            if (toState.templateUrl.indexOf("mobileview") >= 0) {
-                toState.templateUrl = toState.templateUrl.split("mobile")[1];
-                toState.controller = toState.controller.split("_mobile")[0];
-            }
 
-            //Security checkpoint: check state access permissions before changing state
-            if ((!Detection.isMobileBrowser() && toState.data.access.indexOf("web") === -1) ||
-                (Detection.isMobileBrowser() && toState.data.access.indexOf("mobile") === -1)) {
-                event.preventDefault();
+        function showModalPrompt() {
+            if (IONIC_CONFIG.modalPrompt) {
 
                 $modal.open({
-                    templateUrl: 'views/modals/not-allowed.html',
-                    controller: 'ModalNotAllowedCntrl',
-                    resolve: {
-                        isMobile: function () {
-                            return Detection.isMobileBrowser();
-                        }
-                    }
+                    templateUrl: 'appverse-ionic/not-allowed.html',
+                    controller: 'ModalNotAllowedCntrl'
                 });
-
             }
 
-            if (Detection.isMobileBrowser()) {
-                toState.templateUrl = "mobile" + toState.templateUrl;
-                if (toState.data.mobileController) {
-                    toState.controller = toState.data.mobileController;
+        }
+
+        function transformState(toState) {
+            //check if a mobile view exists, if is available in our envirnoment and if needs a different controller
+            if (toState.data.mobile && Detection.isMobileBrowser()) {
+                toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+                if (toState.data.controller) {
+                    toState.controller = toState.controller + IONIC_CONFIG.suffix;
                 }
             }
 
+            //After change (if is necessary) the template and controller, delete data object to avoid all the process the next time
+            delete toState.data;
+        }
+
+        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+
+            if (toState.data) {
+                //if toState.data exists, check restrict attribute
+                if (toState.data.restrict) {
+                  //if restrict, check environment
+                    if ((!Detection.isMobileBrowser() && toState.data.mobile) || (Detection.isMobileBrowser() && !toState.data.mobile)) {
+                        showModalPrompt();
+                    } else {
+                        transformState(toState);
+                    }
+                } else {
+                  //if NOT restrict, check environment
+                  transformState(toState);
+                }
+            }
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal"];
-
 })();
