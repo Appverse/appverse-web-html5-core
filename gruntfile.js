@@ -322,43 +322,37 @@ module.exports = function(grunt) {
         },
 
         concurrent: {
-            dist: ['jshint']
+            dist: ['jshint', 'html2js']
+        },
+
+        html2js: {
+            options: {
+                htmlmin: {
+                    removeComments: true,
+                    removeCommentsFromCDATA: true,
+                    removeCDATASectionsFromCDATA: true,
+                    collapseWhitespace: true,
+                    collapseBooleanAttributes: true,
+                    removeAttributeQuotes: false,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeOptionalTags: true,
+                    keepClosingSlash: true,
+                },
+                singleModule: true,
+                quoteChar: '\'',
+                useStrict: true,
+                module: 'appverse.ionic.templates',
+                fileHeaderString: '/*jshint -W101 */'
+            },
+            main: {
+                src: 'src/appverse-ionic/**/*.html',
+                dest: 'src/appverse-ionic/templates.js'
+            }
         }
     });
 
-/*
-'use strict';
-
-module.exports = {
-
-    options: {
-        htmlmin: {
-            removeComments: true,
-            removeCommentsFromCDATA: true,
-            removeCDATASectionsFromCDATA: true,
-            collapseWhitespace: true,
-            collapseBooleanAttributes: true,
-            removeAttributeQuotes: false,
-            removeRedundantAttributes: true,
-            useShortDoctype: true,
-            removeEmptyAttributes: true,
-            removeOptionalTags: true,
-            keepClosingSlash: true,
-        },
-        singleModule: true,
-        quoteChar: '\'',
-        useStrict: true,
-        module: 'appverse.ionic.templates',
-        fileHeaderString: '/-----jshint -W101 /--- '
-   },
-    main: {
-        src: 'src/--/-.html',
-        dest: 'src/templates.js'
-    }
-};
-
-
-*/
     /*---------------------------------------- TASKS DEFINITION -------------------------------------*/
 
     grunt.registerTask('default', [
