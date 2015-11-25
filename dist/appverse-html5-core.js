@@ -32,8 +32,8 @@
      * considering the initialization parameters:
      * <pre><code class="javascript">
        function (param){
-           var queryBuilder = CacheFactory.getIDBQueryBuilder();
-           var objStore = CacheFactory.getIDBObjectStore();
+           var queryBuilder = avCacheFactory.getIDBQueryBuilder();
+           var objStore = avCacheFactory.getIDBObjectStore();
            var myQuery = queryBuilder.$index(CACHE_CONFIG.IndexedDB_mainIndex).$gt(param).$asc.compile;
            objStore.each(myQuery).then(function(cursor){
                $scope.key = cursor.key;
@@ -46,23 +46,24 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
-    angular.module('appverse.cache', ['ng', 'appverse.configuration', 'jmdobry.angular-cache'])
-        .run(run);
+    angular.module('appverse.cache', [
+        'appverse.configuration',
+        'angular-cache'
+    ]).run(run);
 
-    function run($log, CacheFactory, CACHE_CONFIG) {
+    function run($log, avCacheFactory, CACHE_CONFIG) {
 
         $log.info('appverse.cache run');
 
-        /* Initializes the different caches with params in configuration. */
         if (CACHE_CONFIG.ScopeCache_Enabled) {
-            CacheFactory.setScopeCache(
+            avCacheFactory.setScopeCache(
                 CACHE_CONFIG.ScopeCache_duration,
                 CACHE_CONFIG.ScopeCache_capacity
             );
         }
 
         if (CACHE_CONFIG.BrowserStorageCache_Enabled) {
-            CacheFactory.setBrowserStorage(
+            avCacheFactory.setBrowserStorage(
                 CACHE_CONFIG.BrowserStorage_type,
                 CACHE_CONFIG.MaxAge,
                 CACHE_CONFIG.CacheFlushInterval,
@@ -71,19 +72,17 @@
             );
         }
 
-        /* The cache for http calls */
         if (CACHE_CONFIG.HttpCache_Enabled) {
-            CacheFactory.setDefaultHttpCacheStorage(
+            avCacheFactory.setDefaultHttpCacheStorage(
                 CACHE_CONFIG.HttpCache_duration,
                 CACHE_CONFIG.HttpCache_capacity);
         }
-
     }
-    run.$inject = ["$log", "CacheFactory", "CACHE_CONFIG"];
+    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
 
 })();
 
-(function(){
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -103,9 +102,9 @@
      * @param {string} cache Name of cached model
      *
      * @requires https://docs.angularjs.org/api/ng/service/$log $log
-     * @requires CacheFactory
+     * @requires avCacheFactory
      */
-    .directive('cache', ['$log', 'CacheFactory', function ($log, CacheFactory) {
+    .directive('cache', ["$log", "avCacheFactory", function ($log, avCacheFactory) {
 
         return {
             link: function (scope, element, attrs) {
@@ -113,30 +112,30 @@
                 var name = attrs.cache || attrs.cacheName;
 
                 scope.$watch(function () {
-                    return CacheFactory.getScopeCache().get(name);
+                    return avCacheFactory.getScopeCache().get(name);
                 }, function (newVal) {
                     $log.debug('Cache watch {' + name + '}:', newVal);
-                    scope[name] = CacheFactory.getScopeCache().get(name);
+                    scope[name] = avCacheFactory.getScopeCache().get(name);
                 });
 
                 scope.$watch(name, function (newVal) {
                     $log.debug('Cache watch {' + name + '}:', newVal);
-                    CacheFactory.getScopeCache().put(name, scope[name]);
+                    avCacheFactory.getScopeCache().put(name, scope[name]);
                 });
             }
         };
     }]);
 
-
 })();
-(function() {
+
+(function () {
     'use strict';
 
-    angular.module('appverse.cache').factory('CacheFactory', CacheFactory);
+    angular.module('appverse.cache')
 
     /**
      * @ngdoc service
-     * @name CacheFactory
+     * @name avCacheFactory
      * @module appverse.cache
      *
      * @description
@@ -146,185 +145,204 @@
      * @requires https://docs.angularjs.org/api/ng/service/$http $http
      * @requires CACHE_CONFIG
      */
-    function CacheFactory($angularCacheFactory, $http, CACHE_CONFIG) {
+    .factory('avCacheFactory',
+        ["CacheFactory", "$http", "CACHE_CONFIG", function (CacheFactory, $http, CACHE_CONFIG) {
 
-        var factory = {
-            _scopeCache: null,
-            _browserCache: null,
-            _httpCache: null
-        };
+            var factory = {
+                _scopeCache: null,
+                _browserCache: null,
+                _httpCache: null
+            };
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#setScopeCache
-         *
-         * @param {number} duration Items expire after this time.
-         * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
-         * If you don't want $http's default cache to store every response.
-         *
-         * @description Configure the scope cache.
-         */
-        factory.setScopeCache = function(duration, capacity) {
-            factory._scopeCache = $angularCacheFactory(CACHE_CONFIG.DefaultScopeCacheName, {
-                maxAge: duration,
-                capacity: capacity
-            });
-            return factory._scopeCache;
-        };
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#setScopeCache
+             *
+             * @param {number} duration Items expire after this time.
+             * @param {number} capacity Turns the cache into LRU (Least Recently Used) cache.
+             * If you don't want $http's default cache to store every response.
+             *
+             * @description Configure the scope cache.
+             */
+            factory.setScopeCache = function (duration, capacity) {
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#getScopeCache
-         *
-         * @description getScopeCache is the singleton that CacheFactory
-         * manages as a local cache created with $angularCacheFactory,
-         * which is what we return from the service.
-         * Then, we can inject this into any controller we want and it will always return the same values.
-         *
-         * The newly created cache object has the following set of methods:
-         *
-         * * {object} info() — Returns id, size, and options of cache.
-         *
-         * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
-         *
-         * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
-         *
-         * * {void} remove({string} key) — Removes a key-value pair from the cache.
-         *
-         * * {void} removeAll() — Removes all cached values.
-         *
-         * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
-         */
-        factory.getScopeCache = function() {
-            return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
+                var options = {
+                    maxAge: duration,
+                    capacity: capacity
+                };
+
+                var cache = CacheFactory.get(CACHE_CONFIG.DefaultScopeCacheName);
+
+                if (cache) {
+                    cache.setOptions(options);
+                    factory._scopeCache = cache;
+                } else {
+                    factory._scopeCache = CacheFactory.createCache(CACHE_CONFIG.DefaultScopeCacheName, options);
+                }
+                return factory._scopeCache;
+            };
+
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#getScopeCache
+             *
+             * @description getScopeCache is the singleton that avCacheFactory
+             * manages as a local cache created with $angularCacheFactory,
+             * which is what we return from the service.
+             * Then, we can inject this into any controller we want and it will always return the same values.
+             *
+             * The newly created cache object has the following set of methods:
+             *
+             * * {object} info() — Returns id, size, and options of cache.
+             *
+             * * {{*}} put({string} key, {*} value) — Puts a new key-value pair into the cache and returns it.
+             *
+             * * {{*}} get({string} key) — Returns cached value for key or undefined for cache miss.
+             *
+             * * {void} remove({string} key) — Removes a key-value pair from the cache.
+             *
+             * * {void} removeAll() — Removes all cached values.
+             *
+             * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+             */
+            factory.getScopeCache = function () {
+                return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
                     CACHE_CONFIG.ScopeCache_capacity);
-        };
+            };
 
-        /**
-         @ngdoc function
-         @name CacheFactory#setBrowserStorage
+            /**
+             @ngdoc function
+             @name avCacheFactory#setBrowserStorage
 
-         @param type Type of storage ( 1 local | 2 session).
-         @param maxAgeInit
-         @param cacheFlushIntervalInit
-         @param deleteOnExpireInit
+             @param type Type of storage ( 1 local | 2 session).
+             @param maxAgeInit
+             @param cacheFlushIntervalInit
+             @param deleteOnExpireInit
 
-         @description This object makes Web Storage working in the Angular Way.
-         By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
-         on the device rather than passed back-and-forth with each request to the server.
-         Web storage is useful for storing small amounts of key/value data and preserving functionality
-         online and offline.
-         With web storage, both the keys and values are stored as strings.
+             @description This object makes Web Storage working in the Angular Way.
+             By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
+             on the device rather than passed back-and-forth with each request to the server.
+             Web storage is useful for storing small amounts of key/value data and preserving functionality
+             online and offline.
+             With web storage, both the keys and values are stored as strings.
 
-         We can store anything except those not supported by JSON:
-         Infinity, NaN - Will be replaced with null.
-         undefined, Function - Will be removed.
-         The returned object supports the following set of methods:
-         * {void} $reset() - Clears the Storage in one go.
-         */
-        factory.setBrowserStorage = function(
-            type,
-            maxAgeInit,
-            cacheFlushIntervalInit,
-            deleteOnExpireInit,
-            verifyIntegrityInit
-        ) {
+             We can store anything except those not supported by JSON:
+             Infinity, NaN - Will be replaced with null.
+             undefined, Function - Will be removed.
+             The returned object supports the following set of methods:
+             * {void} $reset() - Clears the Storage in one go.
+             */
+            factory.setBrowserStorage = function (
+                type,
+                maxAgeInit,
+                cacheFlushIntervalInit,
+                deleteOnExpireInit,
+                verifyIntegrityInit
+            ) {
 
-            var selectedStorageType;
-            if (type == '2') {
-                selectedStorageType = CACHE_CONFIG.SessionBrowserStorage;
-            } else {
-                selectedStorageType = CACHE_CONFIG.LocalBrowserStorage;
-            }
+                var selectedStorageType;
+                if (type === '2') {
+                    selectedStorageType = CACHE_CONFIG.SessionBrowserStorage;
+                } else {
+                    selectedStorageType = CACHE_CONFIG.LocalBrowserStorage;
+                }
 
-            factory._browserCache = $angularCacheFactory(CACHE_CONFIG.DefaultBrowserCacheName, {
-                maxAge: maxAgeInit,
-                cacheFlushInterval: cacheFlushIntervalInit,
-                deleteOnExpire: deleteOnExpireInit,
-                storageMode: selectedStorageType,
-                verifyIntegrity: verifyIntegrityInit
-            });
-            return factory._browserCache;
-        };
+                var options = {
+                    maxAge: maxAgeInit,
+                    cacheFlushInterval: cacheFlushIntervalInit,
+                    deleteOnExpire: deleteOnExpireInit,
+                    storageMode: selectedStorageType,
+                    verifyIntegrity: verifyIntegrityInit
+                };
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#setDefaultHttpCacheStorage
-         *
-         * @param {number} duration items expire after this time.
-         * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
-         * @description Default cache configuration for $http service
-         */
-        factory.setDefaultHttpCacheStorage = function(maxAge, capacity) {
+                var cache = CacheFactory.get(CACHE_CONFIG.DefaultBrowserCacheName);
 
-            var cacheId = 'MyHttpAngularCache';
-            factory._httpCache = $angularCacheFactory.get(cacheId);
+                if (cache) {
+                    cache.setOptions(options);
+                    factory._browserCache = cache;
+                } else {
+                    factory._browserCache = CacheFactory.createCache(CACHE_CONFIG.DefaultBrowserCacheName, options);
+                }
+                return factory._browserCache;
+            };
 
-            if (!factory._httpCache) {
-                factory._httpCache = $angularCacheFactory(cacheId, {
-                    // This cache can hold x items
-                    capacity: capacity,
-                    // Items added to this cache expire after x milliseconds
-                    maxAge: maxAge,
-                    // Items will be actively deleted when they expire
-                    deleteOnExpire: 'aggressive',
-                    // This cache will check for expired items every x milliseconds
-                    recycleFreq: 15000,
-                    // This cache will clear itself every x milliseconds
-                    cacheFlushInterval: 15000,
-                    // This cache will sync itself with localStorage
-                    //                        storageMode: 'localStorage',
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#setDefaultHttpCacheStorage
+             *
+             * @param {number} duration items expire after this time.
+             * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
+             * @description Default cache configuration for $http service
+             */
+            factory.setDefaultHttpCacheStorage = function (maxAge, capacity) {
 
-                    // Custom implementation of localStorage
-                    //storageImpl: myLocalStoragePolyfill,
+                var cacheId = 'MyHttpAngularCache';
+                factory._httpCache = CacheFactory.get(cacheId);
 
-                    // Full synchronization with localStorage on every operation
-                    verifyIntegrity: true
-                });
-            } else {
-                factory._httpCache.setOptions({
-                    // This cache can hold x items
-                    capacity: capacity,
-                    // Items added to this cache expire after x milliseconds
-                    maxAge: maxAge,
-                    // Items will be actively deleted when they expire
-                    deleteOnExpire: 'aggressive',
-                    // This cache will check for expired items every x milliseconds
-                    recycleFreq: 15000,
-                    // This cache will clear itself every x milliseconds
-                    cacheFlushInterval: 15000,
-                    // This cache will sync itself with localStorage
-                    storageMode: 'localStorage',
-                    // Custom implementation of localStorage
-                    //storageImpl: myLocalStoragePolyfill,
+                if (!factory._httpCache) {
+                    factory._httpCache = CacheFactory.createCache(cacheId, {
+                        // This cache can hold x items
+                        capacity: capacity,
+                        // Items added to this cache expire after x milliseconds
+                        maxAge: maxAge,
+                        // Items will be actively deleted when they expire
+                        deleteOnExpire: 'aggressive',
+                        // This cache will check for expired items every x milliseconds
+                        recycleFreq: 15000,
+                        // This cache will clear itself every x milliseconds
+                        cacheFlushInterval: 15000,
+                        // This cache will sync itself with localStorage
+                        //                        storageMode: 'localStorage',
 
-                    // Full synchronization with localStorage on every operation
-                    verifyIntegrity: true
-                });
-            }
-            $http.defaults.cache = factory._httpCache;
-            return factory._httpCache;
-        };
+                        // Custom implementation of localStorage
+                        //storageImpl: myLocalStoragePolyfill,
 
-        /**
-         * @ngdoc method
-         * @name CacheFactory#getHttpCache
-         * @methodOf CacheFactory
-         * @description Returns the httpcache object in factory
-         * @returns httpcache object
-         */
-        factory.getHttpCache = function() {
-            return factory._httpCache;
-        };
+                        // Full synchronization with localStorage on every operation
+                        verifyIntegrity: true
+                    });
+                } else {
+                    factory._httpCache.setOptions({
+                        // This cache can hold x items
+                        capacity: capacity,
+                        // Items added to this cache expire after x milliseconds
+                        maxAge: maxAge,
+                        // Items will be actively deleted when they expire
+                        deleteOnExpire: 'aggressive',
+                        // This cache will check for expired items every x milliseconds
+                        recycleFreq: 15000,
+                        // This cache will clear itself every x milliseconds
+                        cacheFlushInterval: 15000,
+                        // This cache will sync itself with localStorage
+                        storageMode: 'localStorage',
+                        // Custom implementation of localStorage
+                        //storageImpl: myLocalStoragePolyfill,
 
-        return factory;
-    }
-    CacheFactory.$inject = ["$angularCacheFactory", "$http", "CACHE_CONFIG"];
+                        // Full synchronization with localStorage on every operation
+                        verifyIntegrity: true
+                    });
+                }
+                $http.defaults.cache = factory._httpCache;
+                return factory._httpCache;
+            };
 
+            /**
+             * @ngdoc method
+             * @name avCacheFactory#getHttpCache
+             * @methodOf avCacheFactory
+             * @description Returns the httpcache object in factory
+             * @returns httpcache object
+             */
+            factory.getHttpCache = function () {
+                return factory._httpCache;
+            };
 
+            return factory;
+        }]
+
+    );
 })();
 
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -344,13 +362,13 @@
      * @requires https://docs.angularjs.org/api/ng/service/$q $q
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
-    .service('IDBService', ['$q', '$log', function($q, $log) {
+    .service('IDBService', ["$q", "$log", function ($q, $log) {
         var setUp = false;
         var db;
 
         var service = {};
 
-         /**
+        /**
          * @ngdoc method
          * @name IDBService#init
          * @description Initialize the default Indexed DB in browser if supported
@@ -365,30 +383,37 @@
 
             var openRequest = window.indexedDB.open("indexeddb_appverse", 1);
 
-            openRequest.onerror = function(e) {
+            openRequest.onerror = function (e) {
                 $log.debug("Error opening db");
-                console.dir(e);
                 deferred.reject(e.toString());
             };
 
-            openRequest.onupgradeneeded = function(e) {
+            openRequest.onupgradeneeded = function (e) {
 
                 var thisDb = e.target.result;
                 var objectStore;
 
                 //Create Note
                 if (!thisDb.objectStoreNames.contains("default")) {
-                    objectStore = thisDb.createObjectStore("item", {keyPath: "id", autoIncrement: true});
-                    objectStore.createIndex("titlelc", "titlelc", {unique: false});
-                    objectStore.createIndex("tags", "tags", {unique: false, multiEntry: true});
+                    objectStore = thisDb.createObjectStore("item", {
+                        keyPath: "id",
+                        autoIncrement: true
+                    });
+                    objectStore.createIndex("titlelc", "titlelc", {
+                        unique: false
+                    });
+                    objectStore.createIndex("tags", "tags", {
+                        unique: false,
+                        multiEntry: true
+                    });
                 }
 
             };
 
-            openRequest.onsuccess = function(e) {
+            openRequest.onsuccess = function (e) {
                 db = e.target.result;
 
-                db.onerror = function(event) {
+                db.onerror = function (event) {
                     // Generic error handler for all errors targeted at this database's
                     // requests!
                     deferred.reject("Database error: " + event.target.errorCode);
@@ -407,7 +432,7 @@
          * @name IDBService#isSupported
          * @description Returns true if the browser supports the Indexed DB HTML5 spec.
          */
-        service.isSupported = function() {
+        service.isSupported = function () {
             return ("indexedDB" in window);
         };
 
@@ -417,11 +442,11 @@
          * @param {string} The ID of the item to be deleted.
          * @description Deletes a record with the passed ID
          */
-        service.deleteDefault = function(key) {
+        service.deleteDefault = function (key) {
             var deferred = $q.defer();
             var t = db.transaction(["item"], "readwrite");
             t.objectStore("item").delete(key);
-            t.oncomplete = function() {
+            t.oncomplete = function () {
                 deferred.resolve();
             };
             return deferred.promise;
@@ -435,14 +460,14 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.getDefault = function(key) {
+        service.getDefault = function (key) {
             var deferred = $q.defer();
 
             var transaction = db.transaction(["item"]);
             var objectStore = transaction.objectStore("item");
             var request = objectStore.get(key);
 
-            request.onsuccess = function() {
+            request.onsuccess = function () {
                 var note = request.result;
                 deferred.resolve(note);
             };
@@ -457,18 +482,19 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.getDefaults = function() {
+        service.getDefaults = function () {
             var deferred = $q.defer();
 
-            init().then(function() {
+            init().then(function () {
 
                 var result = [];
 
-                var handleResult = function(event) {
+                var handleResult = function (event) {
                     var cursor = event.target.result;
                     if (cursor) {
                         result.push({
-                            key: cursor.key, title: cursor.value.title,
+                            key: cursor.key,
+                            title: cursor.value.title,
                             body: cursor.value.body,
                             updated: cursor.value.updated,
                             tags: cursor.value.tags
@@ -481,7 +507,7 @@
                 var objectStore = transaction.objectStore("item");
                 objectStore.openCursor().onsuccess = handleResult;
 
-                transaction.oncomplete = function() {
+                transaction.oncomplete = function () {
                     deferred.resolve(result);
                 };
 
@@ -494,7 +520,7 @@
          * @name IDBService#ready
          * @description This flag is true if the IDB has been successfully initializated.
          */
-        service.ready = function() {
+        service.ready = function () {
             return setUp;
         };
 
@@ -506,7 +532,7 @@
          * It returns a promise. remember The Indexed DB provides an asynchronous
          * non-blocking I/O access to browser storage.
          */
-        service.saveDefault = function(item) {
+        service.saveDefault = function (item) {
             //Should this call init() too? maybe
             var deferred = $q.defer();
 
@@ -538,7 +564,7 @@
                 });
             }
 
-            t.oncomplete = function() {
+            t.oncomplete = function () {
                 deferred.resolve();
             };
 
@@ -555,7 +581,7 @@
          * @param {Array} tags Several tags useful for searches
          * @description This object represents the common default object stored in the IDB
          */
-        service.item = function(id, title, body, tags) {
+        service.item = function (id, title, body, tags) {
             this.id = id;
             this.title = title;
             this.body = body;
@@ -564,83 +590,26 @@
         };
 
         return service;
-
     }]);
 
 })();
 
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name appverse.detection
- *
- * @description
- * Provides browser and network detection.
- *
- * @requires appverse.utils
- */
-angular.module('appverse.detection', ['appverse.utils']);
-
-
-})();
-/*globals Appverse:false */
-
 (function () {
     'use strict';
 
-    angular.module('appverse.detection')
-        .provider('MobileDetector', MobileDetectorProvider);
-
     /**
-     * @ngdoc provider
-     * @name MobileDetector
-     * @module appverse.detection
+     * @ngdoc module
+     * @name appverse.detection
      *
      * @description
-     * Detects if the browser is mobile
+     * Provides browser and network detection.
+     *
+     * @requires appverse.utils
      */
-    function MobileDetectorProvider() {
+    angular.module('appverse.detection', ['appverse.utils']);
 
-        this.$get = function () {
-            return this;
-        };
-
-        /**
-         * @ngdoc method
-         * @name MobileDetector#hasAppverseMobile
-         * @return {Boolean}
-         */
-        this.hasAppverseMobile = function () {
-
-            if (typeof Appverse !== 'undefined' && Appverse.System && Appverse.System.GetOSInfo() !== null) {
-                return true;
-            } else {
-                return false;
-            }
-        };
-
-        /**
-         * @ngdoc method
-         * @name MobileDetector#isMobileBrowser
-         * @return {Boolean}
-         */
-        this.isMobileBrowser = function (customAgent) {
-            var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
-            return agentContainsMobileKeyword(agent);
-        };
-
-        function agentContainsMobileKeyword(agent) {
-
-            /*jshint ignore:start,-W101*/
-            // Code adapted from http://detectmobilebrowser.com
-            return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4));
-            /*jshint ignore:end,-W101*/
-        }
-    }
 
 })();
-
 (function () {
     'use strict';
 
@@ -807,78 +776,293 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 })();
 
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-angular.module('appverse.detection')
-    .run(run);
+    angular.module('appverse.detection')
+        .provider('MobileDetector', MobileDetectorProvider);
 
-function run($log, Detection, $rootScope, $window) {
-    $log.info('appverse.detection run');
+    /**
+     * @ngdoc provider
+     * @name MobileDetector
+     * @module appverse.detection
+     *
+     * @description
+     * Detects if the browser is mobile
+     */
+    function MobileDetectorProvider() {
 
-    if ($window.addEventListener) {
-        $window.addEventListener("online", function () {
-            $log.debug('detectionController online');
-            Detection.isOnline = true;
-            $rootScope.$digest();
-        }, true);
+        this.$get = function() {
+            return this;
+        };
 
-        $window.addEventListener("offline", function () {
-            $log.debug('detectionController offline');
-            Detection.isOnline = false;
-            $rootScope.$digest();
-        }, true);
-    } else {
-        $log.warn('Detection module: $window.addEventListener not supported.');
+        /**
+         * @ngdoc method
+         * @name MobileDetector#hasAppverseMobile
+         * @return {Boolean}
+         */
+        this.hasAppverseMobile = function() {
+            if (typeof(_AppverseContext) !== "undefined") {
+                return true;
+            } else if (window.localStorage.getItem("_AppverseContext")) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        /**
+         * @ngdoc method
+         * @name MobileDetector#isMobileBrowser
+         * @return {Boolean}
+         */
+        this.isMobileBrowser = function(customAgent) {
+            var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
+            return agentContainsMobileKeyword(agent);
+        };
+
+        function agentContainsMobileKeyword(agent) {
+
+            /*jshint ignore:start,-W101*/
+            // Code adapted from http://detectmobilebrowser.com
+            return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4));
+            /*jshint ignore:end,-W101*/
+        }
     }
-
-    if ($window.applicationCache) {
-        $window.applicationCache.addEventListener("error", function () {
-            $log.debug("Error fetching manifest: a good chance we are offline");
-        });
-    } else {
-        $log.warn('Detection module: $window.applicationCache not supported.');
-    }
-
-    if (window.addEventListener) {
-        window.addEventListener("goodconnection", function () {
-            $log.debug('detectionController goodconnection');
-            Detection.isOnline = true;
-            $rootScope.$digest();
-        });
-
-        window.addEventListener("connectiontimeout", function () {
-            $log.debug('detectionController connectiontimeout');
-            Detection.isOnline = false;
-            $rootScope.$digest();
-        });
-
-        window.addEventListener("connectionerror", function () {
-            $log.debug('detectionController connectionerror');
-            Detection.isOnline = false;
-            $rootScope.$digest();
-        });
-
-        window.addEventListener("onBandwidthStart", function () {
-            $log.debug('detectionController onBandwidthStart');
-            Detection.bandwidthStartTime = new Date();
-        });
-
-        window.addEventListener("onBandwidthEnd", function (e) {
-            $log.debug('detectionController onBandwidthEnd');
-            var contentLength = parseInt(e.data.getResponseHeader('Content-Length'), 10);
-            var delay = new Date() - Detection.bandwidthStartTime;
-            Detection.bandwidth = parseInt((contentLength / 1024) / (delay / 1000));
-            setTimeout(function () {
-                $rootScope.$digest();
-            });
-        });
-    } else {
-        $log.warn('Detection module: window.addEventListener not supported.');
-    }
-}
-run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 
 })();
+(function () {
+    'use strict';
+
+    angular.module('appverse.detection')
+        .run(run);
+
+    function run($log, Detection, $rootScope, $window) {
+        $log.info('appverse.detection run');
+
+        if ($window.addEventListener) {
+            $window.addEventListener("online", function () {
+                $log.debug('detectionController online');
+                Detection.isOnline = true;
+                $rootScope.$digest();
+            }, true);
+
+            $window.addEventListener("offline", function () {
+                $log.debug('detectionController offline');
+                Detection.isOnline = false;
+                $rootScope.$digest();
+            }, true);
+        } else {
+            $log.warn('Detection module: $window.addEventListener not supported.');
+        }
+
+        if ($window.applicationCache) {
+            $window.applicationCache.addEventListener("error", function () {
+                $log.debug("Error fetching manifest: a good chance we are offline");
+            });
+        } else {
+            $log.warn('Detection module: $window.applicationCache not supported.');
+        }
+
+        if (window.addEventListener) {
+            window.addEventListener("goodconnection", function () {
+                $log.debug('detectionController goodconnection');
+                Detection.isOnline = true;
+                $rootScope.$digest();
+            });
+
+            window.addEventListener("connectiontimeout", function () {
+                $log.debug('detectionController connectiontimeout');
+                Detection.isOnline = false;
+                $rootScope.$digest();
+            });
+
+            window.addEventListener("connectionerror", function () {
+                $log.debug('detectionController connectionerror');
+                Detection.isOnline = false;
+                $rootScope.$digest();
+            });
+
+            window.addEventListener("onBandwidthStart", function () {
+                $log.debug('detectionController onBandwidthStart');
+                Detection.bandwidthStartTime = new Date();
+            });
+
+            window.addEventListener("onBandwidthEnd", function (e) {
+                $log.debug('detectionController onBandwidthEnd');
+                var contentLength = parseInt(e.data.getResponseHeader('Content-Length'), 10);
+                var delay = new Date() - Detection.bandwidthStartTime;
+                Detection.bandwidth = parseInt((contentLength / 1024) / (delay / 1000));
+                setTimeout(function () {
+                    $rootScope.$digest();
+                });
+            });
+        } else {
+            $log.warn('Detection module: window.addEventListener not supported.');
+        }
+
+        if (!$window.Appverse) {
+            $window.Appverse = {
+                is: {}
+            };
+            Appverse.is.iOS = Appverse.is.iPhone = Appverse.is.iPod = Appverse.is.iPad = Appverse.is.Android = Appverse.is.Mac = Appverse.is.Windows = Appverse.is.Linux = Appverse.is.Blackberry = Appverse.is.Tablet = Appverse.is.WindowsPhone = false;
+            if (navigator.userAgent.match(/iPhone/i)) {
+                Appverse.is.iPhone = true;
+            }
+            if (navigator.userAgent.match(/iPod/i)) {
+                Appverse.is.iPod = true;
+            }
+            if (navigator.userAgent.match(/iPad/i)) {
+                Appverse.is.iPad = true;
+            }
+            if (navigator.userAgent.indexOf("android") > -1) {
+                Appverse.is.Android = true;
+            }
+            if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+                Appverse.is.Mac = true;
+            }
+            if (navigator.appVersion.indexOf("Win") !== -1) {
+                Appverse.is.Windows = true;
+            }
+            if (navigator.appVersion.indexOf("Linux") !== -1) {
+                Appverse.is.Linux = true;
+            }
+            if (navigator.userAgent.toLowerCase().indexOf("blackberry") >= 0) {
+                Appverse.is.Blackberry = true;
+            }
+            if ((/ipad|android|android 3.0|xoom|sch-i800|playbook|tablet|kindle/i.test(navigator.userAgent.toLowerCase()))) {
+                Appverse.is.Tablet = true;
+            }
+            if (navigator.userAgent.match(/Windows Phone/i) || navigator.userAgent.match(/iemobile/i)) {
+                Appverse.is.WindowsPhone = true;
+            }
+            Appverse.is.Desktop = Appverse.is.Windows || Appverse.is.Linux || Appverse.is.Mac;
+            Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
+        }
+    }
+    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
+
+})();
+
+(function () {
+    'use strict';
+
+    var requires = [
+        'appverse.detection',
+        'ui.router',
+        'ui.bootstrap',
+        'appverse.ionic.templates'
+    ];
+
+
+    /**
+     * @ngdoc module
+     * @name appverse.ionic
+     *
+     * @description
+     * Provides ionic management views
+     *
+     * @requires appverse.detection
+     * @requires ui.router
+     * @requires ui.bootstrap
+     */
+
+    angular.module('appverse.ionic', requires);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('appverse.ionic')
+
+    .controller('ModalNotAllowedCntrl',
+        ["$scope", "$modalInstance", "Detection", "$location", "$timeout", "IONIC_CONFIG", function($scope, $modalInstance, Detection, $location, $timeout, IONIC_CONFIG) {
+            if (Detection.isMobileBrowser()) {
+                $scope.device = 'device';
+            } else {
+                $scope.device = 'desktop';
+            }
+
+            $scope.seconds = 5;
+            var counter = setInterval(timer, 1000); //1000 will  run it every 1 second
+
+            function timer() {
+                $scope.seconds = $scope.seconds - 1;
+                $scope.$evalAsync($scope.seconds);
+                if ($scope.seconds <= 0) {
+                    clearInterval(counter);
+                    $modalInstance.close();
+                    $timeout(function() {
+                        $location.path(IONIC_CONFIG.redirectionPath);
+                    }, 300);
+                    return;
+                }
+            }
+        }]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('appverse.ionic')
+        .run(run);
+
+    function run($log, Detection, $rootScope, $state, $modal, IONIC_CONFIG) {
+        $log.info('appverse.ionic run');
+
+        function showModalPrompt() {
+            if (IONIC_CONFIG.modalPrompt) {
+
+                $modal.open({
+                    templateUrl: 'appverse-ionic/not-allowed.html',
+                    controller: 'ModalNotAllowedCntrl'
+                });
+            }
+
+        }
+
+        function transformState(toState) {
+            //check if a mobile view exists, if is available in our envirnoment and if needs a different controller
+            if (toState.data.mobile && Detection.isMobileBrowser()) {
+                toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+                if (toState.data.controller) {
+                    toState.controller = toState.controller + IONIC_CONFIG.suffix;
+                }
+            }
+
+            //After change (if is necessary) the template and controller, delete data object to avoid all the process the next time
+            delete toState.data;
+        }
+
+        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+
+            if (toState.data) {
+                //if toState.data exists, check restrict attribute
+                if (toState.data.restrict) {
+                  //if restrict, check environment
+                    if ((!Detection.isMobileBrowser() && toState.data.mobile) || (Detection.isMobileBrowser() && !toState.data.mobile)) {
+                        showModalPrompt();
+                    } else {
+                        transformState(toState);
+                    }
+                } else {
+                  //if NOT restrict, check environment
+                  transformState(toState);
+                }
+            }
+        });
+
+    }
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal", "IONIC_CONFIG"];
+})();
+
+/*jshint -W101 */
+angular.module('appverse.ionic.templates', []).run(['$templateCache', function($templateCache) {
+  'use strict';
+  $templateCache.put('appverse-ionic/modal/not-allowed.html',
+    '<div class="modal-header"><h3 class="modal-title">Not Allowed</h3></div><div class="modal-body">This view is not allowed in {{device}} version, you will be redirected to home page in {{seconds}}...</div>');
+}]);
+
 (function() {
     'use strict';
 
@@ -930,160 +1114,604 @@ run.$inject = ["$log", "Detection", "$rootScope", "$window"];
         }]);
 
 })();
-(function() { 'use strict';
+(function () {
+    'use strict';
 
-angular.module('appverse.logging')
-    .provider("FormattedLogger", FormattedLoggerProvider);
+    angular.module('appverse.logging')
+        .provider("FormattedLogger", FormattedLoggerProvider);
 
-/**
- * @ngdoc provider
- * @name FormattedLogger
- * @module appverse.logging
- *
- * @description
- * Captures the $log service and decorate it.
- *
- */
-function FormattedLoggerProvider () {
+    /**
+     * @ngdoc provider
+     * @name FormattedLogger
+     * @module appverse.logging
+     *
+     * @description
+     * Captures the $log service and decorate it.
+     *
+     */
+    function FormattedLoggerProvider() {
 
-    var detectionProvider;
+        var detectionProvider;
 
-    this.$get = ["$injector", "LOGGING_CONFIG", function($injector, LOGGING_CONFIG) {
-        return function decorateLog (delegatedLog) {
+        this.$get = ["$injector", "LOGGING_CONFIG", function ($injector, LOGGING_CONFIG) {
+            return function decorateLog(delegatedLog) {
 
-            /**
-             * @function DateTime
-             * @param date The date to be formatted
-             * @param format The format of the returned date
-             *
-             * @description
-             * It formats a date
-             */
-            function dateTime(date, format) {
+                /**
+                 * @function DateTime
+                 * @param date The date to be formatted
+                 * @param format The format of the returned date
+                 *
+                 * @description
+                 * It formats a date
+                 */
+                function dateTime(date, format) {
 
-                date = date || new Date();
-                format = format || LOGGING_CONFIG.LogDateTimeFormat;
+                    date = date || new Date();
+                    format = format || LOGGING_CONFIG.LogDateTimeFormat;
 
-                function pad(value) {
-                    return (value.toString().length < 2) ? '0' + value : value;
-                }
-
-                return format.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
-                    switch (fmtCode) {
-                    case 'Y':
-                        return date.getFullYear();
-                    case 'M':
-                        return pad(date.getMonth() + 1);
-                    case 'd':
-                        return pad(date.getDate());
-                    case 'h':
-                        return pad(date.getHours());
-                    case 'm':
-                        return pad(date.getMinutes());
-                    case 's':
-                        return pad(date.getSeconds());
-                    case 'z':
-                        return pad(date.getMilliseconds());
-                    default:
-                        throw new Error('Unsupported format code: ' + fmtCode);
-                    }
-                });
-            }
-
-            /**
-             * @function handleLogMessage
-             * @param enable Is enabled in configuration
-             * @param logLevel Configures maximumm log level
-             * @param logFunction Explicit method from delegatedLog
-             *
-             * @description
-             * It arranges the log message and send it to the server registry.
-             */
-            function handleLogMessage(enable, logLevel, logFunction) {
-                try {
-
-                    if (!enable) {
-                        return function () {};
+                    function pad(value) {
+                        return (value.toString().length < 2) ? '0' + value : value;
                     }
 
-                    var logMessage = logLevel + " | " + LOGGING_CONFIG.CustomLogPreffix + " | ";
-
-                    return function () {
-                        var args = Array.prototype.slice.call(arguments);
-                        if (Object.prototype.toString.call(args[0]) === '[object String]') {
-                            args[0] = logMessage + dateTime() + " | " + args[0];
-                        } else {
-                            args.push(args[0]);
-                            args[0] = logMessage + dateTime() + " | ";
+                    return format.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
+                        switch (fmtCode) {
+                        case 'Y':
+                            return date.getFullYear();
+                        case 'M':
+                            return pad(date.getMonth() + 1);
+                        case 'd':
+                            return pad(date.getDate());
+                        case 'h':
+                            return pad(date.getHours());
+                        case 'm':
+                            return pad(date.getMinutes());
+                        case 's':
+                            return pad(date.getSeconds());
+                        case 'z':
+                            return pad(date.getMilliseconds());
+                        default:
+                            throw new Error('Unsupported format code: ' + fmtCode);
                         }
-                        logFunction.apply(null, args);
-
-                        if (LOGGING_CONFIG.ServerEnabled) {
-                            var logData = {
-                                logUrl: window.location.href,
-                                logMessage: args[0]
-                            };
-
-                            if (args.length === 2) {
-                                logData.logMessage += ' ' + JSON.stringify(args[1]);
-                            }
-
-                            if (browserIsOnline()) {
-                                var $http = $injector.get('$http');
-                                $http.post(LOGGING_CONFIG.LogServerEndpoint, logData);
-                            }
-                        }
-                    };
-
-                } catch (loggingError) {
-                    // ONLY FOR DEVELOPERS - log the log-failure.
-                    throw loggingError;
+                    });
                 }
-            }
 
-            /*
-            Our calls depend on the $log service methods (http://docs.angularjs.org/api/ng.$log)
+                /**
+                 * @function handleLogMessage
+                 * @param enable Is enabled in configuration
+                 * @param logLevel Configures maximumm log level
+                 * @param logFunction Explicit method from delegatedLog
+                 *
+                 * @description
+                 * It arranges the log message and send it to the server registry.
+                 */
+                function handleLogMessage(enable, logLevel, logFunction) {
+                    try {
 
-            debug() Write a debug message
-            error() Write an error message
-            info() Write an information message
-            log() Write a log message
-            warn() Write a warning message
-             */
-            delegatedLog.log = handleLogMessage(LOGGING_CONFIG.EnabledLogLevel, 'LOG  ', delegatedLog.log);
-            delegatedLog.info = handleLogMessage(LOGGING_CONFIG.EnabledInfoLevel, 'INFO ', delegatedLog.info);
-            delegatedLog.error = handleLogMessage(LOGGING_CONFIG.EnabledErrorLevel, 'ERROR', delegatedLog.error);
-            delegatedLog.warn = handleLogMessage(LOGGING_CONFIG.EnabledWarnLevel, 'WARN ', delegatedLog.warn);
-            delegatedLog.debug = handleLogMessage(LOGGING_CONFIG.EnabledDebugLevel, 'DEBUG', delegatedLog.debug);
+                        if (!enable) {
+                            return function () {};
+                        }
 
-            return delegatedLog;
+                        var logMessage = logLevel + " | " + LOGGING_CONFIG.CustomLogPreffix + " | ";
+
+                        var f = function () {
+                            var args = Array.prototype.slice.call(arguments);
+
+                            if (Object.prototype.toString.call(args[0]) === '[object String]') {
+                                args[0] = logMessage + dateTime() + " | " + args[0];
+                            } else {
+                                args.push(args[0]);
+                                args[0] = logMessage + dateTime() + " | ";
+                            }
+
+                            logFunction.apply(null, args);
+
+                            if (LOGGING_CONFIG.ServerEnabled) {
+                                var logData = {
+                                    logUrl: window.location.href,
+                                    logMessage: args[0]
+                                };
+
+                                if (args.length === 2) {
+                                    logData.logMessage += ' ' + JSON.stringify(args[1]);
+                                }
+
+                                if (browserIsOnline()) {
+                                    var $http = $injector.get('$http');
+                                    $http.post(LOGGING_CONFIG.LogServerEndpoint, logData);
+                                }
+                            }
+                        };
+
+                        // Only needed to support angular-mocks expectations
+                        f.logs = [];
+
+                        return f;
+
+                    } catch (loggingError) {
+                        // ONLY FOR DEVELOPERS - log the log-failure.
+                        throw loggingError;
+                    }
+                }
+
+                /*
+                Our calls depend on the $log service methods (http://docs.angularjs.org/api/ng.$log)
+
+                debug() Write a debug message
+                error() Write an error message
+                info() Write an information message
+                log() Write a log message
+                warn() Write a warning message
+                 */
+                delegatedLog.log = handleLogMessage(LOGGING_CONFIG.EnabledLogLevel, 'LOG  ', delegatedLog.log);
+                delegatedLog.info = handleLogMessage(LOGGING_CONFIG.EnabledInfoLevel, 'INFO ', delegatedLog.info);
+                delegatedLog.error = handleLogMessage(LOGGING_CONFIG.EnabledErrorLevel, 'ERROR', delegatedLog.error);
+                delegatedLog.warn = handleLogMessage(LOGGING_CONFIG.EnabledWarnLevel, 'WARN ', delegatedLog.warn);
+                delegatedLog.debug = handleLogMessage(LOGGING_CONFIG.EnabledDebugLevel, 'DEBUG', delegatedLog.debug);
+
+                return delegatedLog;
+            };
+        }];
+
+
+        this.setDetection = function (detection) {
+            detectionProvider = detection;
         };
-    }];
 
-
-    this.setDetection = function (detection) {
-        detectionProvider = detection;
-    };
-
-    function browserIsOnline() {
-        if (detectionProvider) {
-            return getDetectionService().isOnline;
-        } else {
-            // if no detection service provided, return true
-            return true;
+        function browserIsOnline() {
+            if (detectionProvider) {
+                return getDetectionService().isOnline;
+            } else {
+                // if no detection service provided, return true
+                return true;
+            }
         }
-    }
 
-    function getDetectionService() {
-        var $injector = angular.injector();
-        //invoke the $get function specifing that detectionProvider is 'this'
-        return  $injector.invoke(detectionProvider.$get, detectionProvider);
-    }
+        function getDetectionService() {
+            var $injector = angular.injector();
+            //invoke the $get function specifing that detectionProvider is 'this'
+            return $injector.invoke(detectionProvider.$get, detectionProvider);
+        }
 
-}
+    }
 
 
 })();
+
+/*globals AppverseEmulator, get_params:false, unescape:false */
+(function () {
+    'use strict';
+
+    /**
+     * @ngdoc module
+     * @name appverse.native
+     *
+     * @description
+     * Provides native utilities using Appverse mobile
+     *
+     * @requires appverse.detection
+     */
+    angular.module('appverse.native', ['appverse.detection'])
+
+    .config(
+        ["$httpProvider", "DetectionProvider", "REST_CONFIG", function ($httpProvider, DetectionProvider, REST_CONFIG) {
+
+            window.$httpCounter = 0;
+
+            var setIoService = function (config) {
+                var ioService = {};
+                ioService.Endpoint = {};
+                ioService.Endpoint.Path = config.url.split(REST_CONFIG.BaseUrl)[1];
+
+                if (!REST_CONFIG.HostList[config.ind]) {
+                    console.error("Host not found in Host list: ", REST_CONFIG.HostList);
+                } else {
+                    ioService.Endpoint.Host = REST_CONFIG.HostList[config.ind].Host;
+                    ioService.Endpoint.Port = REST_CONFIG.HostList[config.ind].Port;
+                }
+
+                if (REST_CONFIG.ServerMode === 'MockServer') {
+                    ioService.Endpoint.ProxyUrl = REST_CONFIG.MockServer.URL + ':' + REST_CONFIG.MockServer.Port;
+                } else {
+                    ioService.Endpoint.ProxyUrl = "";
+                }
+
+                return ioService;
+            };
+
+            var setRequestObject = function (config) {
+                var request = {};
+                request.Headers = [];
+
+                //Pending Appverse Mobile format
+                //            angular.forEach(config.headers, function(value, header) {
+                //                request.Headers.push({
+                //                    Name: header,
+                //                    Value: value
+                //                })
+                //            });
+
+                request.Content = config.data;
+                request.ContentType = "application/json";
+                request.Session = {};
+                request.Method = config.method;
+                request.StopAutoRedirect = false;
+
+                return request;
+            };
+
+            $httpProvider.interceptors.push(["$q", "$log", function ($q, $log) {
+                return {
+                    request: function (config) {
+
+                        if (config.url.indexOf(REST_CONFIG.BaseUrl) !== 0 || !DetectionProvider.hasAppverseMobile()) {
+                            $log.debug('request fallthrough', config);
+                            return config;
+                        }
+
+                        if (config.cache && config.method === 'GET' && $httpProvider.defaults.cache && $httpProvider.defaults.cache.get(config.url)) {
+                            $log.debug('request cached', config);
+                            return config;
+                        }
+
+                        $log.debug('request override', config);
+
+                        window.$httpCounter++;
+                        window['$httpPromise' + window.$httpCounter] = $q.defer();
+                        window['$httpConfig' + window.$httpCounter] = angular.copy(config);
+
+                        var methodName = "InvokeService";
+                        var callBackFuncName = "$httpCallback";
+                        var callbackId = window.$httpCounter;
+
+                        if (!config.ind) {
+                            config.ind = 0;
+                        }
+
+                        var params = get_params([setRequestObject(config), setIoService(config)]);
+
+                        var legacyPath = Appverse.SERVICE_URI + Appverse.IO.serviceName + "/" + methodName;
+                        var newPath = Appverse.APPVERSE_SERVICE_URI + Appverse.IO.serviceName + "/" + methodName; // new path for Appverse 5.0 (applied when possible)
+
+                        var path = legacyPath; // by default, use legacy path
+
+                        if (Appverse.is.iOS) {
+                            path = newPath; // we use the new path for all iOS devices
+                        }
+
+                        var reqData = "";
+
+                        if (callBackFuncName !== null) {
+                            reqData = reqData + "callback=" + callBackFuncName;
+                        } else {
+                            reqData = reqData + "callback=NULL";
+                        }
+                        if (callbackId !== null) {
+                            reqData = reqData + "&callbackid=" + callbackId;
+                        } else {
+                            reqData = reqData + "&callbackid=callbackid";
+                            callbackId = "callbackId";
+                        }
+
+                        if (params !== null) {
+                            //reqData = reqData + "&json=" + unescape(params);
+                            if (Appverse.unescapeNextRequestData) {
+                                reqData = reqData + "&json=" + unescape(params);
+                            } else {
+                                reqData = reqData + "&json=" + params; // we don't unscape parameters if configured
+                                Appverse.unescapeNextRequestData = true; // returning to default configuration value
+                            }
+                        }
+
+                        if (window.webkit) {
+                            // using new WKWebView message handlers, if available (iOS 8)
+                            window.webkit.messageHandlers.service.postMessage({
+                                uri: path,
+                                query: reqData
+                            });
+                            return;
+                        }
+
+                        if (window.appverseJSBridge) { // only available for 4.2+ Android devices
+                            path = newPath;
+                            window.appverseJSBridge.postMessage(path, reqData);
+                            return;
+                        }
+
+                        if (window.external && window.external.notify) { // using external post notifications for Windows Phone
+                            var t = {
+                                uri: newPath,
+                                query: reqData
+                            };
+                            window.external.notify(JSON.stringify(t));
+                            return;
+                        }
+
+                        if (AppverseEmulator.eventListenersRegistered && AppverseEmulator.eventListenersRegistered.indexOf(methodName) >= 0) {
+                            AppverseEmulator.queuedListenerMessagesCount++;
+                            console.log("Appverse Emulator - queue listener result for methodName: " + AppverseEmulator.normalizeListenerCallingName(methodName));
+
+                            (function (smn) {
+                                setTimeout(function () {
+                                    AppverseEmulator.appverseListenerPollingTimerFunc(smn);
+                                }, AppverseEmulator.pollingInterval);
+                            })(Appverse.IO.serviceName + "#" + AppverseEmulator.normalizeListenerCallingName(methodName));
+                        }
+
+                        if (Appverse.executingInEmulator) {
+                            if (callBackFuncName !== null) {
+                                AppverseEmulator.queuedCallbackMessagesCount++;
+                                console.log("Appverse Emulator - queue callback result for methodName: " + methodName);
+                                (function (c, ci) {
+                                    setTimeout(function () {
+                                        AppverseEmulator.appverseCallbackPollingTimerFunc(c, ci);
+                                    }, AppverseEmulator.pollingInterval);
+                                })(callBackFuncName, callbackId);
+                            }
+                        }
+
+                        delete config.headers.Accept;
+                        config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+                        config.method = 'POST';
+                        config.url = path;
+                        config.data = reqData;
+
+                        return config;
+                    },
+                    response: function (response) {
+
+                        if (!response.config.url || response.config.url.indexOf(Appverse.SERVICE_URI + Appverse.IO.serviceName + "/InvokeService") !== 0) {
+                            return response;
+                        }
+
+                        $log.debug('response override', response);
+
+                        var counter = response.config.data.split('callbackid=')[1].split('&')[0];
+                        return window['$httpPromise' + counter].promise;
+                    }
+                };
+            }]);
+
+        }])
+
+    .run(["$http", "$log", function ($http, $log) {
+
+        function createMap() {
+            return Object.create(null);
+        }
+
+        var trim = function (value) {
+            return angular.isString(value) ? value.trim() : value;
+        };
+
+        function parseHeaders(headers) {
+            var parsed = createMap(),
+                key, val, i;
+
+            if (!headers) {
+                return parsed;
+            }
+
+            angular.forEach(headers.split('\n'), function (line) {
+                i = line.indexOf(':');
+                key = angular.lowercase(trim(line.substr(0, i)));
+                val = trim(line.substr(i + 1));
+
+                if (key) {
+                    parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+                }
+            });
+
+            return parsed;
+        }
+
+        function headersGetter(headers) {
+            var headersObj = angular.isObject(headers) ? headers : undefined;
+
+            return function (name) {
+                if (!headersObj) {
+                    headersObj = parseHeaders(headers);
+                }
+
+                if (name) {
+                    var value = headersObj[angular.lowercase(name)];
+                    if (value === void 0) {
+                        value = null;
+                    }
+                    return value;
+                }
+
+                return headersObj;
+            };
+        }
+
+        window.$httpCallback = function (result, id) {
+
+            $log.debug('$httpCallback id', id);
+            $log.debug('$httpCallback result', result);
+
+            var response = {};
+            response.config = window['$httpConfig' + id];
+
+            if (result !== null) {
+                var headers = '';
+                angular.forEach(result.Headers, function (header) {
+                    headers += header.Name + ':' + header.Value + '\n';
+                });
+
+                response.headers = headersGetter(headers);
+
+                if (result.Content.length > 0) {
+                    response.data = JSON.parse(result.Content);
+                }
+                response.status = 200;
+                response.statusText = "OK";
+
+                if (response.config.cache && $http.defaults.cache && response.config.method === 'GET') {
+                    $http.defaults.cache.put(response.config.url, [response.status, response.data, response.headers(), response.statusText]);
+                }
+
+                window['$httpPromise' + id].resolve(response);
+            } else {
+                response.status = 404;
+                response.statusText = "Error";
+
+                window['$httpPromise' + id].reject(response);
+            }
+
+            delete window['$httpConfig' + id];
+            delete window['$httpPromise' + id];
+        };
+
+    }]);
+
+})();
+
+(function () {
+    'use strict';
+
+    angular.module('appverse.native')
+
+    /**
+     * @ngdoc service
+     * @name AppverseNative
+     * @module appverse.native
+     * @description This module provides basic quick standard access to a Native functions
+     */
+    .run(["$log", "$q", "Detection", "$window", "$timeout", "$interval", function ($log, $q, Detection, $window, $timeout, $interval) {
+
+
+        if (!Detection.hasAppverseMobile()) {
+            return;
+        }
+
+        var deferredGeo;
+
+        $window.callbackGeo = function (result) {
+            if (result) {
+                Appverse.Geo.StartUpdatingLocation('callbackGeoStart');
+            } else {
+                deferredGeo.reject();
+            }
+        };
+
+        $window.callbackGeoStart = function (result) {
+            if (result) {
+                Appverse.Geo.GetCoordinates('callbackGeoCoordinates');
+            } else {
+                deferredGeo.reject();
+            }
+        };
+
+        $window.callbackGeoCoordinates = function (coordinates) {
+            if (coordinates) {
+                deferredGeo.resolve(coordinates);
+            } else {
+                deferredGeo.reject();
+            }
+        };
+
+        $window.onAccessToLocationDenied = function () {
+            var PositionError = {
+                code: 1,
+                message: 'Permission denied.'
+            };
+            deferredGeo.reject(PositionError);
+        };
+
+        var updatePosition = function (success, error, PositionOptions) {
+            deferredGeo = $q.defer();
+
+            deferredGeo.promise.then(function (data) {
+                var Position = {};
+                Position.coords = {
+                    latitude: data.XCoordinate,
+                    longitude: data.YCoordinate,
+                    altitude: data.ZCoordinate,
+                    accuracy: (data.XDoP + data.YDoP) / 2,
+                    altitudeAccuracy: null,
+                    heading: null,
+                    speed: null
+                };
+                Position.timestamp = new Date().getTime();
+                success(Position);
+                Appverse.Geo.StopUpdatingLocation();
+            }).catch(function (PositionError) {
+                if (!PositionError) {
+                    PositionError = {
+                        code: 2,
+                        message: 'Postion unavailable.'
+                    };
+                }
+                error(PositionError);
+            });
+
+            Appverse.Geo.IsGPSEnabled('callbackGeo');
+
+            if (PositionOptions && PositionOptions.timeout) {
+                $timeout(function () {
+                    var PositionError = {
+                        code: 3,
+                        message: 'Request timed out.'
+                    };
+                    deferredGeo.reject(PositionError);
+                }, PositionOptions.timeout);
+            } else {
+                PositionOptions = {
+                    enableHighAccuracy: false,
+                    timeout: window.Infinity,
+                    maximumAge: 0
+                };
+            }
+        };
+
+        $window.navigator.geolocation = {
+            getCurrentPosition: function (success, error, PositionOptions) {
+
+                updatePosition(success, error, PositionOptions);
+            },
+            watchPosition: function (success, error, PositionOptions) {
+
+                var promise = $interval(function () {
+                    updatePosition(success, error, PositionOptions);
+                }, 1000);
+                return promise;
+            },
+            clearWatch: function (promise) {
+                $interval.cancel(promise);
+                Appverse.Geo.StopUpdatingLocation();
+            }
+
+        };
+
+        var deferredNetwork;
+
+        var updateOnlineStatus = function () {
+            deferredNetwork = $q.defer();
+
+            deferredNetwork.promise.then(function () {
+                Detection.isOnline = true;
+            }).catch(function () {
+                Detection.isOnline = false;
+            });
+
+            $window.callbackNetwork = function (result) {
+                if (result) {
+                    deferredNetwork.resolve();
+                } else {
+                    deferredNetwork.reject();
+                }
+            };
+            Appverse.Net.IsNetworkReachable('www.google.com', 'callbackNetwork');
+        };
+
+        updateOnlineStatus();
+
+        $window.onConnectivityChange = function () {
+            updateOnlineStatus();
+        };
+    }]);
+})();
+
 (function() {
     'use strict';
 
@@ -1172,21 +1800,6 @@ function FormattedLoggerProvider () {
                         compileTemplate(); // gets the template and compile the desired layout
 
                     });
-
-
-                    //                    scope.$watch(function () {
-                    //                        return CacheFactory.getScopeCache().get(name);
-                    //                    }, function (newVal) {
-                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-                    //                        scope[name] = CacheFactory.getScopeCache().get(name);
-                    //                    });
-                    //
-                    //                    scope.$watch(name, function (newVal) {
-                    //                        $log.debug('Cache watch {' + name + '}:', newVal);
-                    //                        CacheFactory.getScopeCache().put(name, scope[name]);
-                    //                    });
-
-
 
                     /**
                      * @function
@@ -1539,7 +2152,7 @@ function FormattedLoggerProvider () {
     WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     var requires = [
@@ -1583,7 +2196,7 @@ function FormattedLoggerProvider () {
     angular.module('appverse.rest', requires).run(run);
 
 
-    function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
+    function run($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
 
         tryToIntegrateSecurity();
         tryToIntegrateCache();
@@ -1617,15 +2230,15 @@ function FormattedLoggerProvider () {
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
 
         function tryToIntegrateSecurity() {
-            var restFactory  = $injector.get('RESTFactory'),
-            $log             = $injector.get('$log'),
-            SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
+            var restFactory = $injector.get('RESTFactory'),
+                $log = $injector.get('$log'),
+                SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
 
             if (ModuleSeeker.exists('appverse.security')) {
                 var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
-                if (SECURITY_GENERAL.securityEnabled){
+                if (SECURITY_GENERAL.securityEnabled) {
                     restFactory.wrapRequestsWith(oauthRequestWrapperService);
-                    $log.debug( "REST communication is secure. Security is enabled." +
+                    $log.debug("REST communication is secure. Security is enabled." +
                         " REST requests will be wrapped with authorization headers.");
                     return;
                 }
@@ -1638,8 +2251,8 @@ function FormattedLoggerProvider () {
         function tryToIntegrateCache() {
             if (ModuleSeeker.exists('appverse.cache')) {
                 var restFactory = $injector.get('RESTFactory'),
-                CacheFactory    = $injector.get('CacheFactory'),
-                cache           = CacheFactory.getHttpCache();
+                    avCacheFactory = $injector.get('avCacheFactory'),
+                    cache = avCacheFactory.getHttpCache();
                 restFactory.setCache(cache);
             }
         }
@@ -1656,41 +2269,7 @@ function FormattedLoggerProvider () {
 
 
 })();
-(function() {
-    'use strict';
 
-    /**
-     * @ngdoc service
-     * @name  MulticastRESTFactory
-     * @module appverse.rest
-     *
-     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
-     * @requires https://github.com/mgonto/restangular Restangular
-     * @requires REST_CONFIG
-     */
-    angular.module('appverse.rest')
-    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-
-        function ($log, Restangular, REST_CONFIG) {
-            var factory = {};
-            var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            $log.debug('Multicast Enabled : ' + multicastSpawn);
-
-            factory.readObject = function (path, params) {
-                if(params && params.length >0){
-
-                }else{
-                    //No params. It is a normal call
-                    return Restangular.one(path).get().$object;
-                }
-
-            };
-
-            return factory;
-        }]);
-
-
-})();
 (function() {
     'use strict';
 
@@ -2111,62 +2690,54 @@ function FormattedLoggerProvider () {
     'use strict';
 
     /**
-    * @ngdoc module
-    * @name appverse.serverPush
-    * @description
-    * This module handles server data communication when it pushes them to the client
-    * exposing the factory SocketFactory, which is an API for instantiating sockets
-    * that are integrated with Angular's digest cycle.
-    * It is now based on SocketIO (http://socket.io/). Why?
-    *
-    * Using WebSockets is a modern, bidirectional protocol that enables an interactive communication
-    * session between the browser and a server. Its main current drawback is
-    * that implementation is generally only available in the latest browsers. However, by
-    * using Socket.IO, this low level detail is abstracted away and we, as programmers,
-    * are relieved of the need to write browser-specific code.
-    *
-    * The current release of socket.io is 0.9.10.
-    *
-    * The module appverse.serverPush is included in the main module.
-    *
-    * The private module appverse.socket.io simply wraps SocketIO API to be used by appverse.serverPush.
-    *
-    * So, appverse.serverPush is ready to integrate other Server Push approaches (e.g. Atmosphere) only by including
-    * a new module and injecting it to appverse.serverPush.
-    *
-    *
-    * NOTE ABOUT CLIENT DEPENDENCIES WITH SOCKET.IO
-    *
-    * The Socket.IO server will handle serving the correct version of the Socket.IO client library;
-    *
-    * We should not be using one from elsewhere on the Internet. From the top example on http://socket.io/:
-    *
-    *  <script src="/socket.io/socket.io.js"></script>
-    *
-    * This works because we wrap our HTTP server in Socket.IO (see the example at How To Use) and it intercepts
-    * requests for /socket.io/socket.io.js and sends the appropriate response automatically.
-    *
-    * That is the reason it is not a dependency handled by bower.
-    *
-    * @requires  appverse.socket.io
-    * @requires  appverse.configuration
-    */
+     * @ngdoc module
+     * @name appverse.serverPush
+     * @description
+     * This module handles server data communication when it pushes them to the client
+     * exposing the factory SocketFactory, which is an API for instantiating sockets
+     * that are integrated with Angular's digest cycle.
+     * It is now based on SocketIO (http://socket.io/). Why?
+     *
+     * Using WebSockets is a modern, bidirectional protocol that enables an interactive communication
+     * session between the browser and a server. Its main current drawback is
+     * that implementation is generally only available in the latest browsers. However, by
+     * using Socket.IO, this low level detail is abstracted away and we, as programmers,
+     * are relieved of the need to write browser-specific code.
+     *
+     * The current release of socket.io is 0.9.10.
+     *
+     * The module appverse.serverPush is included in the main module.
+     *
+     * The private module appverse.socket.io simply wraps SocketIO API to be used by appverse.serverPush.
+     *
+     * So, appverse.serverPush is ready to integrate other Server Push approaches (e.g. Atmosphere) only by including
+     * a new module and injecting it to appverse.serverPush.
+     *
+     *
+     * NOTE ABOUT CLIENT DEPENDENCIES WITH SOCKET.IO
+     *
+     * The Socket.IO server will handle serving the correct version of the Socket.IO client library;
+     *
+     * We should not be using one from elsewhere on the Internet. From the top example on http://socket.io/:
+     *
+     *  <script src="/socket.io/socket.io.js"></script>
+     *
+     * This works because we wrap our HTTP server in Socket.IO (see the example at How To Use) and it intercepts
+     * requests for /socket.io/socket.io.js and sends the appropriate response automatically.
+     *
+     * That is the reason it is not a dependency handled by bower.
+     *
+     * @requires  appverse.socket.io
+     * @requires  appverse.configuration
+     */
     angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
-    /*
-         To make socket error events available across an app, in one of the controllers:
 
-         controller('MyCtrl', function ($scope) {
-             $scope.on('socket:error', function (ev, data) {
-                ...
-         });
-         */
-    .run(['$log',
-        function ($log) {
-            $log.info('appverse.serverPush run');
-            //socket.forward('error');
-        }]);
+    .run(["$log", function($log) {
+        $log.info('appverse.serverPush run');
+    }]);
 
 })();
+
 (function() {
     'use strict';
 
@@ -2218,15 +2789,17 @@ function FormattedLoggerProvider () {
      *
      * @requires SERVERPUSH_CONFIG
      */
-     .provider('Socket', ['SERVERPUSH_CONFIG',
-        function (SERVERPUSH_CONFIG) {
+    .provider('Socket',
+        function() {
+
+            var SERVERPUSH_CONFIG = angular.injector(['appverse.configuration.default']).get('SERVERPUSH_CONFIG');
 
             // when forwarding events, prefix the event name
             var prefix = 'socket:',
                 ioSocket;
 
             // expose to provider
-            this.$get = ["$rootScope", "$timeout", function ($rootScope, $timeout) {
+            this.$get = ["$rootScope", "$timeout", function($rootScope, $timeout) {
                 /* global io */
 
                 /*
@@ -2235,36 +2808,41 @@ function FormattedLoggerProvider () {
                 * Client configuration: https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO#client
                 * Server configuration: https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO#server
                 */
-                var socket = ioSocket || io.connect(
-                    SERVERPUSH_CONFIG.BaseUrl, {
-                        'resource': SERVERPUSH_CONFIG.Resource,
-                        'connect timeout': SERVERPUSH_CONFIG.ConnectTimeout,
-                        'try multiple transports': SERVERPUSH_CONFIG.TryMultipleTransports,
-                        'reconnect': SERVERPUSH_CONFIG.Reconnect,
-                        'reconnection delay': SERVERPUSH_CONFIG.ReconnectionDelay,
-                        'reconnection limit': SERVERPUSH_CONFIG.ReconnectionLimit,
-                        'max reconnection attempts': SERVERPUSH_CONFIG.MaxReconnectionAttempts,
-                        'sync disconnect on unload': SERVERPUSH_CONFIG.SyncDisconnectOnUnload,
-                        'auto connect': SERVERPUSH_CONFIG.AutoConnect,
-                        'flash policy port': SERVERPUSH_CONFIG.FlashPolicyPort,
-                        'force new connection': SERVERPUSH_CONFIG.ForceNewConnection
-                    }
-                );
+                var socket;
 
-                var asyncAngularify = function (callback) {
-                    return function () {
+                if (ioSocket || window.io) {
+
+                    socket = ioSocket || io.connect(
+                        SERVERPUSH_CONFIG.BaseUrl, {
+                            'resource': SERVERPUSH_CONFIG.Resource,
+                            'connect timeout': SERVERPUSH_CONFIG.ConnectTimeout,
+                            'try multiple transports': SERVERPUSH_CONFIG.TryMultipleTransports,
+                            'reconnect': SERVERPUSH_CONFIG.Reconnect,
+                            'reconnection delay': SERVERPUSH_CONFIG.ReconnectionDelay,
+                            'reconnection limit': SERVERPUSH_CONFIG.ReconnectionLimit,
+                            'max reconnection attempts': SERVERPUSH_CONFIG.MaxReconnectionAttempts,
+                            'sync disconnect on unload': SERVERPUSH_CONFIG.SyncDisconnectOnUnload,
+                            'auto connect': SERVERPUSH_CONFIG.AutoConnect,
+                            'flash policy port': SERVERPUSH_CONFIG.FlashPolicyPort,
+                            'force new connection': SERVERPUSH_CONFIG.ForceNewConnection
+                        }
+                    );
+                }
+
+                var asyncAngularify = function(callback) {
+                    return function() {
                         var args = arguments;
-                        $timeout(function () {
+                        $timeout(function() {
                             callback.apply(socket, args);
                         }, 0);
                     };
                 };
 
-                var addListener = function (eventName, callback) {
+                var addListener = function(eventName, callback) {
                     socket.on(eventName, asyncAngularify(callback));
                 };
 
-                var removeListener = function () {
+                var removeListener = function() {
                     socket.removeAllListeners();
                 };
 
@@ -2274,7 +2852,7 @@ function FormattedLoggerProvider () {
                     addListener: addListener,
                     off: removeListener,
 
-                    emit: function (eventName, data, callback) {
+                    emit: function(eventName, data, callback) {
                         if (callback) {
                             socket.emit(eventName, data, asyncAngularify(callback));
                         } else {
@@ -2282,24 +2860,19 @@ function FormattedLoggerProvider () {
                         }
                     },
 
-                    //                removeListener: function () {
-                    //                    var args = arguments;
-                    //                    return socket.removeListener.apply(socket, args);
-                    //                },
-
-                    forward: function (events, scope) {
+                    forward: function(events, scope) {
                         if (events instanceof Array === false) {
                             events = [events];
                         }
                         if (!scope) {
                             scope = $rootScope;
                         }
-                        angular.forEach(events, function (eventName) {
+                        angular.forEach(events, function(eventName) {
                             var prefixed = prefix + eventName;
-                            var forwardEvent = asyncAngularify(function (data) {
+                            var forwardEvent = asyncAngularify(function(data) {
                                 scope.$broadcast(prefixed, data);
                             });
-                            scope.$on('$destroy', function () {
+                            scope.$on('$destroy', function() {
                                 socket.removeListener(eventName, forwardEvent);
                             });
                             socket.on(eventName, forwardEvent);
@@ -2310,17 +2883,18 @@ function FormattedLoggerProvider () {
                 return wrappedSocket;
             }];
 
-            this.prefix = function (newPrefix) {
+            this.prefix = function(newPrefix) {
                 prefix = newPrefix;
             };
 
-            this.ioSocket = function (socket) {
+            this.ioSocket = function(socket) {
                 ioSocket = socket;
             };
-        }]);
+        });
 
 
 })();
+
 (function() {
     'use strict';
 
@@ -2344,67 +2918,69 @@ function FormattedLoggerProvider () {
      * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
      * @requires Socket
      */
-    .factory('SocketFactory', ['$rootScope', 'Socket',
-        function ($rootScope, Socket) {
-        var factory = {};
+    .factory('SocketFactory',
+        ["$rootScope", "Socket", function($rootScope, Socket) {
+            var factory = {};
 
-        /**
-             @ngdoc method
-             @name SocketFactory#listen
-             @param {string} eventName The name of the event/channel to be listened
-             The communication is bound to rootScope.
-             @param {object} callback The function to be passed as callback.
-             @description Establishes a communication listening an event/channel from server.
-             Use this method for background communication although the current scope is destyroyed.
-             You should cancel communication manually or when the $rootScope object is destroyed.
-             */
-        factory.listen = function (eventName, callback) {
-            Socket.on(eventName, function () {
-                var args = arguments;
-                $rootScope.$apply(function () {
-                    callback.apply(Socket, args);
-                });
-            });
-        };
-
-        /**
-             @ngdoc method
-             @name SocketFactory#sendMessage
-             @param {string} eventName The name of the event/channel to be sent to server
-             @param {object} scope The scope object to be bound to the listening.
-             The communication will be cancelled when the scope is destroyed.
-             @param {object} callback The function to be passed as callback.
-             @description Establishes a communication listening an event/channel from server.
-             It is bound to a given $scope object.
-             */
-        factory.sendMessage = function (eventName, data, callback) {
-            Socket.emit(eventName, data, function () {
-                var args = arguments;
-                $rootScope.$apply(function () {
-                    if (callback) {
+            /**
+                 @ngdoc method
+                 @name SocketFactory#listen
+                 @param {string} eventName The name of the event/channel to be listened
+                 The communication is bound to rootScope.
+                 @param {object} callback The function to be passed as callback.
+                 @description Establishes a communication listening an event/channel from server.
+                 Use this method for background communication although the current scope is destyroyed.
+                 You should cancel communication manually or when the $rootScope object is destroyed.
+                 */
+            factory.listen = function(eventName, callback) {
+                Socket.on(eventName, function() {
+                    var args = arguments;
+                    $rootScope.$apply(function() {
                         callback.apply(Socket, args);
-                    }
+                    });
                 });
-            });
-        };
+            };
 
-        /**
-             @ngdoc method
-             @name SocketFactory#unsubscribeCommunication
-             @param {object} callback The function to be passed as callback.
-             @description Cancels all communications to server.
-             The communication will be cancelled without regarding other consideration.
-             */
-        factory.unsubscribeCommunication = function (callback) {
-            Socket.off(callback());
-        };
+            /**
+                 @ngdoc method
+                 @name SocketFactory#sendMessage
+                 @param {string} eventName The name of the event/channel to be sent to server
+                 @param {object} scope The scope object to be bound to the listening.
+                 The communication will be cancelled when the scope is destroyed.
+                 @param {object} callback The function to be passed as callback.
+                 @description Establishes a communication listening an event/channel from server.
+                 It is bound to a given $scope object.
+                 */
+            factory.sendMessage = function(eventName, data, callback) {
+                Socket.emit(eventName, data, function() {
+                    var args = arguments;
+                    $rootScope.$apply(function() {
+                        if (callback) {
+                            callback.apply(Socket, args);
+                        }
+                    });
+                });
+            };
+
+            /**
+                 @ngdoc method
+                 @name SocketFactory#unsubscribeCommunication
+                 @param {object} callback The function to be passed as callback.
+                 @description Cancels all communications to server.
+                 The communication will be cancelled without regarding other consideration.
+                 */
+            factory.unsubscribeCommunication = function(callback) {
+                Socket.off(callback());
+            };
 
 
-        return factory;
+            return factory;
 
-    }]);
+        }]);
 
 })();
+
+/*globals SockJS:false, Stomp:false, MozWebSocket:false */
 (function() {
     'use strict';
 
@@ -2418,247 +2994,111 @@ function FormattedLoggerProvider () {
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      * @requires WEBSOCKETS_CONFIG
      */
-    .factory('WebSocketFactory', ['$log', 'WEBSOCKETS_CONFIG',
-        function($log, WEBSOCKETS_CONFIG) {
+    .factory('WebSocketFactory',
+        ["$log", function($log) {
+
+            var WEBSOCKETS_CONFIG = angular.injector(['appverse.configuration.default']).get('WEBSOCKETS_CONFIG');
+
             var factory = {};
 
             /**
                 @ngdoc method
-                @name WebSocketFactory#connect
+                @name WebSocketFactory#open
                 @param {string} itemId The id of the item
                 @description Establishes a connection to a swebsocket endpoint.
             */
-            factory.open = function(url) {
+            factory.open = function(url, onmessage, onopen, onerror, onclose) {
 
-                if(factory.ws) {
+                if (factory.ws) {
+                    $log.warn('WebSocket connection is already opened. Closing it before opening a new one.');
+                    factory.close().then(function() {
+                        factory.open(url, onmessage, onerror, onclose);
+                    });
                     return;
                 }
 
                 var ws = null;
-                //check if SockJS is avaiable
-                if (angular.isUndefined(url)) {
+
+                if (!url) {
                     url = WEBSOCKETS_CONFIG.WS_URL;
                 }
-                
-                if (WEBSOCKETS_CONFIG.WS_TYPE === 'auto'){//auto|sockjs|native
+
+                if (WEBSOCKETS_CONFIG.WS_TYPE === 'auto') {
+                    //check if SockJS is avaiable
                     if ('SockJS' in window) {
-                        ws = new SockJS(url);                
+                        ws = new SockJS(url);
                     }
-                }else if (WEBSOCKETS_CONFIG.WS_TYPE === 'sockjs'){
+                } else if (WEBSOCKETS_CONFIG.WS_TYPE === 'sockjs') {
                     ws = new SockJS(url);
                 }
+
                 //otherwise switches to HTML5 WebSocket native object
-                if (ws === null){
+                if (ws === null) {
                     $log.debug('WS_TYPE: native');
                     if ('WebSocket' in window) {
                         ws = new WebSocket(url);
                     } else if ('MozWebSocket' in window) {
                         ws = new MozWebSocket(url);
                     }
-                }else{
+                } else {
                     $log.debug('WS_TYPE: sockjs');
                 }
-                ws.onopen = function (event) {
+
+                ws.onopen = function() {
                     if (ws !== null) {
                         ws.send('');
-                        factory.callback(event,WEBSOCKETS_CONFIG.WS_CONNECTED);
-                    } else {
-                        factory.callback(event, WEBSOCKETS_CONFIG.WS_DISCONNECTED);
-                     }
+                    }
+                    if (onopen) {
+                        onopen();
+                    }
                 };
 
                 ws.onerror = function(event) {
-                  factory.callback(event, WEBSOCKETS_CONFIG.WS_FAILED_CONNECTION);
+                    if (onerror) {
+                        onerror(event);
+                    }
                 };
 
                 ws.onmessage = function(message) {
-                  factory.onmessagecallback(message);
+                    if (onmessage) {
+                        onmessage(message);
+                    }
                 };
 
-                ws.onclose = function () {
-                    if (ws !== null) {
-                        ws.close();
-                        ws = null;
+                ws.onclose = function() {
+                    if (onclose) {
+                        onclose();
                     }
                 };
 
                 factory.ws = ws;
             };
-            factory.onprotocolconnectcallback = function(event) {
-              factory.callback(event, WEBSOCKETS_CONFIG.WS_PROTOCOL_CONNECTED);
-            };
-            factory.onprotocoldisconnectcallback = function(event) {
-              factory.callback(event,WEBSOCKETS_CONFIG.WS_PROTOCOL_DISCONNECTED);
-            };
-            
-            
-            /**
-                @ngdoc method
-                @name WebSocketFactory#connect
-                @param {object} username 
-                @param {object} password 
-                @param {object} onconnectcallback 
-                @description Stablishes a protocol connection over a websocket connection
-            */
-            factory.connect = function(user, password, onconnectcallback) {
-                if(factory.client) {
-                    $log.warn('factory.client already exists: ' + factory.client + 'close it to reconect');
-                    return;
-                }
-                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'none'){
-                    $log.warn('No protocol configured WS_PROTOCOL_TYPE=none');
-                    throw new TypeError('No protocol configured WS_PROTOCOL_TYPE=none');
-                }
-                if (factory.ws === null){
-                    $log.warn('No underling websocket connection stablished, ' +
-                              'stablish a websocket connection first');
-                    return;
-                }
-                var client = null;
-                //protocol
-                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'auto' ||
-                    WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'stomp'){
-                    if ('Stomp' in window){
-                        if (factory.ws !== null && !angular.isUndefined(factory.ws)){
-                            client = Stomp.over(factory.ws);
-                        }else{
-                            $log.warn('No underling websocket connection stablished, ' +
-                                      'stablish a websocket connection first');
-                            return;
-                        }
-                        $log.debug('WS_TYPE: sockjs');
-                        //configure
-                        if (WEBSOCKETS_CONFIG.WS_INTERVAL !== null){
-                            client.heartbeat.outgoing = WEBSOCKETS_CONFIG.WS_INTERVAL * 1000;
-                        }
-                        //stablish connection
-                        if (!angular.isUndefined(onconnectcallback)){
-                            client.connect(user, password, onconnectcallback, factory.onprotocoldisconnectcallback);
-                        }else{
-                            client.connect(user, password, factory.onprotocolconnectcallback, 
-                                factory.onprotocoldisconectcallback, factory.onprotocoldisconnectcallback);
-                        }
-                        client.disconect(factory.onprotocoldisconnectcallback);
-                    }else{
-                        $log.debug('WS_TYPE: none');
-                    }
-                }
-                factory.client = client;
-            };
-            /**
-                @ngdoc method
-                @name WebSocketFactory#subscribe
-                @param {object} queueName String that represents the endpoint queue name.
-                @param {object} callback .
-                @description Subscribe to an specific queue on server side.
-                @returns subscription variable (required to unsubscribe)
-                
-            */
-            factory.subscribe = function(queueName, callback){
-                if(factory.client === null || angular.isUndefined(factory.client)) {
-                    $log.warn('factory.client does not exists');
-                    return null;
-                }
-                if (typeof callback !== "function") {
-                    throw new TypeError(callback + " is not a function");
-                }
-                return factory.client.subscribe(queueName, callback);
-            };
-            
-             /**
-                @ngdoc method
-                @name WebSocketFactory#send
-                @param {object} queueName String that represents the endpoint queue name.
-                @param {object} headers special headers.
-                @param {object} message .
-                @description Send a protocol message to the server.
-            */            
-            factory.send = function(queueName, headers, message){
-                if(factory.client === null || angular.isUndefined(factory.client)) {
-                    $log.warn('factory.client does not exists');
-                    return ;
-                }
-                factory.client.send(queueName, headers, message);
-            };
-             /**
-                @ngdoc method
-                @name WebSocketFactory#unsubscribe
-                @param {object} subscription subscription object provided on subscribe.
-                @description Unsubscribe to an specific queue on server side.
-                
-            */
-            factory.unsubscribe = function(subscription){
-                if(!subscription || angular.isUndefined(subscription)) {
-                    $log.warn('subscription does not exists');
-                    return;
-                }                
-                subscription.unsubscribe();
-            };
-            
-            /**
-                @ngdoc method
-                @name WebSocketFactory#disconnect                
-                @description Disconnects a protocol connection over a websocket connection
-            */
-            factory.disconnect = function(){
-                if(!factory.client || angular.isUndefined(factory.client)) {
-                    $log.warn('factory.client does not exists');
-                    return;
-                }
-                factory.client.disconnect();
-            };
-            
 
             /**
-                @ngdoc method
-                @name WebSocketFactory#sendRaw
-                @param {object} message Message payload in JSON format.
-                @description Send a raw message to the ws server (without protocol).
-            */
-            factory.sendRaw = function(message) {
-              $log.debug('factory.ws: ' + factory.ws);
-              factory.ws.send(message);
-            };
-            /**
-                @ngdoc method
-                @name WebSocketFactory#onmessage
-                @param {object} callback .
-                @description Retrieve a raw message of the websocket connection.
-            */
-            factory.onmessage = function(callback) {
-                if (typeof callback !== "function") {
-                    throw new TypeError(callback + " is not a function");
-                }
-                factory.onmessagecallback = callback;
-            };
-            /**
-                @ngdoc method
-                @name WebSocketFactory#onstatuschanged
-                @param {object} callback .
-                @description Retrieve the websocket changes of status.
-            */
-            factory.onstatuschanged = function(callback) {
-                if (typeof callback !== "function") {
-                    throw new TypeError(callback + " is not a function");
-                }
-                factory.callback = callback;
-            };
-
-            /**
-                @ngdoc method
-                @name WebSocketFactory#disconnect
-                @param {string} itemId The id of the item
-                @description Close the WebSocket connection.
-            */
+                   @ngdoc method
+                   @name WebSocketFactory#close
+                   @param {string} itemId The id of the item
+                   @description Close the WebSocket connection.
+               */
             factory.close = function() {
-                if (factory.ws){
+                if (factory.ws) {
                     factory.ws.close();
+                    factory.ws = null;
                 }
             };
 
+            /**
+                   @ngdoc method
+                   @name WebSocketFactory#sendRaw
+                   @param {object} message Message payload in JSON format.
+                   @description Send a raw message to the ws server (without protocol).
+               */
+            factory.sendRaw = function(message) {
+                $log.debug('factory.ws: ' + factory.ws);
+                factory.ws.send(message);
+            };
 
-
-             /**
+            /**
                 @ngdoc method
                 @name WebSocketFactory#status
                 @param {string} itemId The id of the item
@@ -2666,7 +3106,7 @@ function FormattedLoggerProvider () {
                 @returns websocket status code
             */
             factory.status = function() {
-                if (factory.ws === null || angular.isUndefined(factory.ws)){
+                if (factory.ws === null || angular.isUndefined(factory.ws)) {
                     return WebSocket.CLOSED;
                 }
                 return factory.ws.readyState;
@@ -2680,23 +3120,139 @@ function FormattedLoggerProvider () {
                 @returns status text
             */
             factory.statusAsText = function() {
-                        var readyState = factory.status();
-                        if (readyState === WebSocket.CONNECTING){
-                                return WEBSOCKETS_CONFIG.CONNECTING;
-                        } else if (readyState === WebSocket.OPEN){
-                                return WEBSOCKETS_CONFIG.OPEN;
-                        } else if (readyState === WebSocket.CLOSING){
-                                return WEBSOCKETS_CONFIG.WS_CLOSING;
-                        } else if (readyState === WebSocket.CLOSED){
-                                return WEBSOCKETS_CONFIG.WS_CLOSED;
-                        } else {
-                                return WEBSOCKETS_CONFIG.WS_UNKNOWN;
-                        }
+                var readyState = factory.status();
+                if (readyState === WebSocket.CONNECTING) {
+                    return WEBSOCKETS_CONFIG.CONNECTING;
+                } else if (readyState === WebSocket.OPEN) {
+                    return WEBSOCKETS_CONFIG.OPEN;
+                } else if (readyState === WebSocket.CLOSING) {
+                    return WEBSOCKETS_CONFIG.WS_CLOSING;
+                } else if (readyState === WebSocket.CLOSED) {
+                    return WEBSOCKETS_CONFIG.WS_CLOSED;
+                } else {
+                    return WEBSOCKETS_CONFIG.WS_UNKNOWN;
+                }
             };
 
 
+            /**
+                @ngdoc method
+                @name WebSocketFactory#connect
+                @param {object} username
+                @param {object} password
+                @param {object} onconnectcallback
+                @description Stablishes a protocol connection over a websocket connection
+            */
+            factory.connect = function(login, passcode, connectCallback, errorCallback, debugFunction) {
+
+                if (factory.client) {
+                    $log.warn('Client already exists. Please disconnect it before reconnecting.');
+                    return;
+                }
+                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'none') {
+                    $log.warn('No protocol configured WS_PROTOCOL_TYPE=none');
+                    throw new TypeError('No protocol configured WS_PROTOCOL_TYPE=none');
+                }
+                if (!factory.ws) {
+                    $log.debug('No underlying WebSocket connection found. Opening default one...');
+                    factory.open(null, null, function() {
+                        factory.connect(login, passcode, connectCallback, errorCallback);
+                    });
+                    return;
+                }
+                var client = null;
+                //protocol
+                if (WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'auto' ||
+                    WEBSOCKETS_CONFIG.WS_PROTOCOL_TYPE === 'stomp') {
+                    if ('Stomp' in window) {
+                        client = Stomp.over(factory.ws);
+
+                        $log.debug('WS_TYPE: sockjs');
+                        //configure
+                        if (WEBSOCKETS_CONFIG.HEARTBEAT_OUTGOING !== null) {
+                            client.heartbeat.outgoing = WEBSOCKETS_CONFIG.HEARTBEAT_OUTGOING;
+                        }
+                        if (WEBSOCKETS_CONFIG.HEARTBEAT_INCOMING !== null) {
+                            client.heartbeat.incoming = WEBSOCKETS_CONFIG.HEARTBEAT_INCOMING;
+                        }
+
+                        client.debug = debugFunction;
+
+                        //Establish connection
+                        client.connect(login, passcode, connectCallback, errorCallback);
+                    } else {
+                        $log.debug('WS_TYPE: none');
+                    }
+                }
+                factory.client = client;
+            };
+            /**
+                @ngdoc method
+                @name WebSocketFactory#subscribe
+                @param {object} queueName String that represents the endpoint queue name.
+                @param {object} callback .
+                @description Subscribe to an specific queue on server side.
+                @returns subscription variable (required to unsubscribe)
+
+            */
+            factory.subscribe = function(destination, callback, headers) {
+                if (!factory.client) {
+                    $log.debug('Client does not exists. Connecting to default one...');
+                    factory.connect();
+                }
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + " is not a function.");
+                }
+                return factory.client.subscribe(destination, callback, headers);
+            };
+
+            /**
+                @ngdoc method
+                @name WebSocketFactory#send
+                @param {object} queueName String that represents the endpoint queue name.
+                @param {object} headers special headers.
+                @param {object} message .
+                @description Send a protocol message to the server.
+            */
+            factory.send = function(queueName, headers, message) {
+                if (factory.client === null || angular.isUndefined(factory.client)) {
+                    $log.warn('Client does not exists. Please connect first.');
+                    return;
+                }
+                factory.client.send(queueName, headers, message);
+            };
+            /**
+                @ngdoc method
+                @name WebSocketFactory#unsubscribe
+                @param {object} subscription subscription object provided on subscribe.
+                @description Unsubscribe to an specific queue on server side.
+
+            */
+            factory.unsubscribe = function(subscription) {
+                if (!subscription || angular.isUndefined(subscription)) {
+                    $log.warn('Subscription missing. Please provide the subcription object you got when subscribing.');
+                    return;
+                }
+                subscription.unsubscribe();
+            };
+
+            /**
+                @ngdoc method
+                @name WebSocketFactory#disconnect
+                @description Disconnects a protocol connection over a websocket connection
+            */
+            factory.disconnect = function() {
+                if (!factory.client || angular.isUndefined(factory.client)) {
+                    $log.warn('Client does not exists, please connect first.');
+                    return;
+                }
+                factory.client.disconnect();
+                factory.client = null;
+            };
+
             return factory;
-    }]);
+        }]
+    );
 
 
 })();
@@ -2817,7 +3373,7 @@ function FormattedLoggerProvider () {
 
 })();
 
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -2827,9 +3383,10 @@ function FormattedLoggerProvider () {
      *
      * @requires appverse.configuration
      */
-    angular.module('appverse.utils', ['appverse.configuration']);
+    angular.module('appverse.utils', []);
 
 })();
+
 (function (angular) {
     'use strict';
 
@@ -3035,7 +3592,7 @@ function FormattedLoggerProvider () {
 
 
 })();
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.utils')
@@ -3047,64 +3604,67 @@ function FormattedLoggerProvider () {
      * @description This factory provides common utilities for API functionalities.
      */
     .factory('UtilFactory', function () {
-            var factory = {};
+        var factory = {};
 
-            /**
-             * @ngdoc method
-             * @name UtilFactory#findPropertyValueByName
-             * @description Deletes an item from a list.
-             *
-             * @param properties content of the static external properties file
-             * @param area group of properties
-             * @param property property to know the value in
-             */
-            factory.findPropertyValueByName = function (properties, area, property) {
-                for (var i = 0; i < properties.length; i++) {
-                    if (properties[i].area == area) {
-                        for (var p = 0; p < properties[i].properties.length; p++) {
-                            if (properties[i].properties[p].property == property) {
-                                return properties[i].properties[p].value;
-                            }
+        /**
+         * @ngdoc method
+         * @name UtilFactory#findPropertyValueByName
+         * @description Deletes an item from a list.
+         *
+         * @param properties content of the static external properties file
+         * @param area group of properties
+         * @param property property to know the value in
+         */
+        factory.findPropertyValueByName = function (properties, area, property) {
+            for (var i = 0; i < properties.length; i++) {
+                if (properties[i].area === area) {
+                    for (var p = 0; p < properties[i].properties.length; p++) {
+                        if (properties[i].properties[p].property === property) {
+                            return properties[i].properties[p].value;
                         }
                     }
                 }
-                return null;
-            };
+            }
+            return null;
+        };
 
-            /**
-             * @ngdoc method
-             * @name UtilFactory#newRandomKey
-             * @description ...
-             *
-             * @param coll
-             * @param key
-             * @param currentKey
-             */
-            factory.newRandomKey = function (coll, key, currentKey) {
-                var randKey;
-                do {
-                    randKey = coll[Math.floor(coll.length * Math.random())][key];
-                } while (randKey === currentKey);
-                return randKey;
-            };
+        /**
+         * @ngdoc method
+         * @name UtilFactory#newRandomKey
+         * @description ...
+         *
+         * @param coll
+         * @param key
+         * @param currentKey
+         */
+        factory.newRandomKey = function (coll, key, currentKey) {
+            var randKey;
+            do {
+                randKey = coll[Math.floor(coll.length * Math.random())][key];
+            } while (randKey === currentKey);
+            return randKey;
+        };
 
-            return factory;
-        });
-
-})();
-(function() { 'use strict';
-
-/**
- * @ngdoc module
- * @name appverse.configuration.default
- * @moduleFile appverse-configuration.js
- * @description
- * This module defines default settings.
- *
- */
-angular.module('appverse.configuration.default', ['$browser']);
+        return factory;
+    });
 
 })();
+
+(function() {
+    'use strict';
+
+    /**
+     * @ngdoc module
+     * @name appverse.configuration.default
+     * @moduleFile appverse-configuration.js
+     * @description
+     * This module defines default settings.
+     *
+     */
+    angular.module('appverse.configuration.default', []);
+
+})();
+
 (function() { 'use strict';
 
 /**
@@ -3384,708 +3944,696 @@ run.$inject = ["$log"];
     configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-angular.module('appverse.configuration.default')
+    angular.module('appverse.configuration.default')
 
-/*
-PROJECT CONFIGURATION
-This constants can be used to set basic information related to the application.
-All data are auto-explained because their names ;)
- */
-
-/**
- * @ngdoc object
- * @name PROJECT_DATA
- * @module  appverse.configuration.default
- * @description Basic information related to the application.
- */
-.constant('PROJECT_DATA', {
-    ApplicationName: 'Appverse Web HTML5 Incubator Demo',
-    Version: '0.1',
-    Company: 'GFT',
-    Year: '2013',
-    Team: 'GFT Appverse Web',
-    URL: '',
-    LoginViewPath: '/login',
-    myUrl: '',
-    VendorLibrariesBaseUrl: 'bower_components'
-})
-
-/**
- * @ngdoc object
- * @name LOGGING_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.logging
- * These params do not affect normal usage of $log service.
- */
-.constant('LOGGING_CONFIG', {
     /*
-    This param enables (if true) sending log messages to server.
-    The server side REST service must record messages from client in order to be analyzed.
-    ALL messages are sent. It is not yet possible select which type of log messages are sent.
+    PROJECT CONFIGURATION
+    This constants can be used to set basic information related to the application.
+    All data are auto-explained because their names ;)
      */
-    ServerEnabled: false,
-    LogServerEndpoint: 'http://localhost:9000/log',
-    /*
-    This preffix will be included at the beginning of each message.
-     */
-    CustomLogPreffix: 'APPLOG',
-    /*
-    Enabled levels will be written in the custom format.
-    This param does not affect to $log service.
-     */
-    EnabledLogLevel: true,
-    EnabledErrorLevel: true,
-    EnabledDebugLevel: true,
-    EnabledWarnLevel: true,
-    EnabledInfoLevel: true,
-    /*
-    Format of the datetime information.
-     */
-    LogDateTimeFormat: '%Y-%M-%d %h:%m:%s:%z',
-    /*
-    Fields that will be included in the log message if containing information.
-     */
-    LogTextFormat: ''
-})
-
-/**
- * @ngdoc object
- * @name CACHE_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.cache
- */
-.constant('CACHE_CONFIG', {
-    /////////////////////////////
-    //SCOPE CACHE
-    /////////////////////////////
-    ScopeCache_Enabled: true,
-    DefaultScopeCacheName: 'appverseScopeDataCache',
-    /*
-     Max duration in milliseconds of the scope cache
-      */
-    ScopeCache_duration: 10000,
-    /*
-     This param turns the scope cache into a LRU one.
-     The cache’s capacity is used together to track available memory.
-      */
-    ScopeCache_capacity: 10,
-
-    /////////////////////////////
-    //BROWSER STORAGE TYPE
-    //This sets the preferred browser storage in the app.
-    //Most of times it is convenient follow a policy for browser storage, using only one of the two types.
-    //If you prefer flexibility (the developer makes a choice for each case) do not use the provided API.
-    /////////////////////////////
-    BrowserStorageCache_Enabled: true,
-    /*
-     1 = $localStorage
-     2 = $sessionStorage
-      */
-    BrowserStorage_type: '2',
-    DefaultBrowserCacheName: 'appverseBrowserCache',
-    // Items added to this cache expire after 15 minutes.
-    MaxAge: 900000,
-    // This cache will clear itself every hour.
-    CacheFlushInterval: 3600000,
-    // Items will be deleted from this cache right when they expire.
-    DeleteOnExpire: 'aggressive',
-    //Constant for the literal
-    SessionBrowserStorage: 'sessionStorage',
-    //Constant for the literal
-    LocalBrowserStorage: 'localStorage',
-    //Constant for the literal
-    NoBrowserStorage: 'none',
-
-    //Direct browser storage (0 local | 1 session)
-    browserDirectCacheType: '1',
-    /*
-     * Specify whether to verify integrity of data saved in localStorage on every operation.
-     * If true, angular-cache will perform a full sync with localStorage on every operation.
-     * Increases reliability of data synchronization, but may incur a performance penalty.
-     * Has no effect if storageMode is set to "none".
-     */
-    VerifyIntegrity: true,
-    /////////////////////////////
-    //$http SERVICE CACHE
-    /////////////////////////////
-    HttpCache_Enabled: true,
-    /*
-     Max duration in milliseconds of the http service cache.
-     */
-    HttpCache_duration: 20000,
-    /*
-     This param turns the http cache into a LRU one.
-     The cache’s capacity is used together to track available memory.
-     */
-    HttpCache_capacity: 10,
-    /////////////////////////////
-    //BROWSER'S INDEXED DB CACHE
-    /////////////////////////////
-    IndexedDBCache_Enabled: false,
-    /*
-     Name of the default object store
-      */
-    IndexedDB_name: 'DefaultIDBCache',
-    /*
-     The version for the version (mandatory)
-      */
-    IndexedDB_version: 1,
-    /*
-     * The options for the db.
-     * The default structure is defined as id/name pairs.
-     * It is possible to add more indexes:
-     * indexes : [{ name : 'indexName', unique : 'true/false' },{},...]
-     */
-    IndexedDB_options: [
-        {
-            storeName: 'structure-of-items',
-            keyPath: 'id',
-            indexes: [
-                {
-                    name: 'name',
-                    unique: false
-                }
-            ]
-        }
-    ]
-
-})
-
-/**
- * @ngdoc object
- * @name SERVERPUSH_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.serverpush.
- * It si related to socket.io configuration params.
- * Read Configuration section in socket.io documentation for further details.
- * https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
- */
-.constant('SERVERPUSH_CONFIG', {
-    /*
-     URL of the listened server
-      */
-    BaseUrl: 'http://localhost:3000',
-    /*
-     Port to be listened at the base url.
-      */
-    ListenedPort: '3000',
-    /*
-      resource
-      defaults to socket.io
-      Note the subtle difference between the server, this one is missing a /.
-      These 2 should be in sync with the server to prevent mismatches.
-      */
-    Resource: 'socket.io',
-    /*
-      connect timeout
-      defaults to 10000 ms
-      How long should Socket.IO wait before it aborts the connection attempt with the server to try another fall-back.
-      Please note that some transports require a longer timeout than others.
-      Setting this really low could potentially harm them.
-      */
-    ConnectTimeout: '10000',
-    /*
-      try multiple transports
-      defaults to true
-      When Socket.IO reconnects and it keeps failing over and over again,
-      should it try all available transports when it finally gives up.
-      */
-    TryMultipleTransports: true,
-    /*
-      reconnect
-      defaults to true
-      Should Socket.IO automatically reconnect when it detects a dropped connection or timeout.
-      */
-    Reconnect: true,
-    /*
-      reconnection delay
-      defaults to 500 ms
-      The initial timeout to start a reconnect,
-      this is increased using an exponential back off algorithm each
-      time a new reconnection attempt has been made.
-      */
-    ReconnectionDelay: 1000,
-    /*
-      reconnection limit
-      defaults to Infinity
-      The maximum reconnection delay in milliseconds, or Infinity.
-      */
-    ReconnectionLimit: 'Infinity',
-    /*
-      max reconnection attempts
-      defaults to 10
-      How many times should Socket.IO attempt to reconnect with the server after a a dropped connection.
-      After this we will emit the reconnect_failed event.
-      */
-    MaxReconnectionAttempts: 5,
-    /*
-      sync disconnect on unload
-      defaults to false
-      Do we need to send a disconnect packet to server when the browser unloads.
-      */
-    SyncDisconnectOnUnload: false,
-    /*
-      auto connect
-      defaults to true
-      When code calls io.connect() should Socket.IO automatically establish a connection with the server.
-      */
-    AutoConnect: true,
-    /*
-      flash policy port
-      defaults to 10843
-      If the server has Flashsocket enabled, this should match the same port as the server.
-      */
-    FlashPolicyPort: '',
-    /*
-      force new connection
-      defaults to false
-      Force multiple io.connect() calls to the same server to use different connections.
-      */
-    ForceNewConnection: false
-})
-
-/**
- * @ngdoc object
- * @name REST_CONFIG
- * @module  appverse.configuration.default
- * @description This section contains basic configuration for appverse.rest.
- * This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
- * So, all configuration params are based on its configuration
- * (https://github.com/mgonto/restangular#configuring-restangular).
- * Future updates of Restangular imply review of this section in order
- * to keep consistency between config and the module.
- */
-.constant('REST_CONFIG', {
-    /*
-    The base URL for all calls to your API.
-    For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
-    The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
-    so you can also set an absolute url like http://api.example.com/api/v1
-    if you need do set another domain.
-    */
-    BaseUrl: '/api/v1',
-
-    /*
-    If enabled, requests via REST module will be multicasted.
-     */
-//    Multicast_enabled: true,
-
-     /*
-     The base URLs array for all multicast calls to your API.
-     */
-//    Multicast_baseUrl: ['/api/v1', '/api/v2', '/api/v3', '/api/v4'],
-
-    /*
-    Number of requests to be spawned in multicast mode for each
-     */
-//    Multicast_spawn: 1,
-
-    /*
-    These are the fields that you want to save from your parent resources if you need to display them.
-    By default this is an Empty Array which will suit most cases.
-    */
-    ExtraFields: [],
-
-    /*
-    Use this property to control whether Restangularized elements to have a parent or not.
-    This method accepts 2 parameters:
-    Boolean: Specifies if all elements should be parentless or not
-    Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
-    */
-    ParentLess: false,
-
-    /*
-    HTTP methods will be validated whether they are cached or not.
-    */
-    NoCacheHttpMethods: {
-        'get': false,
-        'post': true,
-        'put': false,
-        'delete': true,
-        'option': false
-    },
-
-    /*
-    This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
-    the corresponding transformer will be called if it fits.
-    This should be used to add your own methods / functions to entities of certain types.
-    You can add as many element transformers as you want.
-    The signature of this method can be one of the following:
-
-    1-Transformer is called with all elements that have been restangularized, no matter if they're collections or not:
-    addElementTransformer(route, transformer)
-    2-Transformer is called with all elements that have been restangularized and match the specification regarding
-    if it's a collection or not (true | false):
-    addElementTransformer(route, isCollection, transformer)
-    */
-    ElementTransformer: [],
-
-    /*
-    This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
-    this will be called. It means that if you receive a list of objects in one call, this method will be called
-    first for the collection and then for each element of the collection.
-    It is recommended the usage of addElementTransformer instead of onElemRestangularized whenever
-    possible as the implementation is much cleaner.
-    This callback is a function that has 3 parameters:
-    @param elem: The element that has just been restangularized. Can be a collection or a single element.
-    @param isCollection: Boolean indicating if this is a collection or a single element.
-    @param what: The model that is being modified. This is the "path" of this resource. For example buildings
-    @param Restangular: The instanced service to use any of its methods
-    */
-    OnElemRestangularized: function (elem) {
-        return elem;
-    },
-
-    /*
-    The requestInterceptor is called before sending any data to the server.
-    It's a function that must return the element to be requested.
-
-    @param element: The element to send to the server.
-    @param operation: The operation made. It'll be the HTTP method used except for a GET which returns a list
-    of element which will return getList so that you can distinguish them.
-    @param what: The model that's being requested. It can be for example: accounts, buildings, etc.
-    @param url: The relative URL being requested. For example: /api/v1/accounts/123
-    */
-    RequestInterceptor: null,
-
-    /*
-    The fullRequestInterceptor is similar to the requestInterceptor but more powerful.
-    It lets you change the element, the request parameters and the headers as well.
-    It's a function that receives the same as the requestInterceptor
-    plus the headers and the query parameters (in that order).
-    It must return an object with the following properties:
-    headers: The headers to send
-    params: The request parameters to send
-    element: The element to send
-    httpConfig: The httpConfig to call with
-    */
-    FullRequestInterceptor: null,
-
-    /*
-    The errorInterceptor is called whenever there's an error.
-    It's a function that receives the response as a parameter.
-    The errorInterceptor function, whenever it returns false, prevents the promise
-    linked to a Restangular request to be executed.
-    All other return values (besides false) are ignored and the promise follows the usual path,
-    eventually reaching the success or error hooks.
-    The feature to prevent the promise to complete is useful whenever you need to intercept
-    each Restangular error response for every request in your AngularJS application in a single place,
-    increasing debugging capabilities and hooking security features in a single place.
-    */
-    ErrorInterceptor: function (response) {
-        console.log("ErrorInterceptor, server response:", response);
-    },
-
-    /*
-    Restangular required 3 fields for every "Restangularized" element. These are:
-
-    id: Id of the element. Default: id
-    route: Name of the route of this element. Default: route
-    parentResource: The reference to the parent resource. Default: parentResource
-    restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
-    cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
-    etag: Where to save the ETag received from the server. Defaults to restangularEtag
-    selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
-    URL to an item, you can just leave it blank. Defaults to href
-    Also all of Restangular methods and functions are configurable through restangularFields property.
-    All of these fields except for id and selfLink are handled by Restangular,
-    so most of the time you won't change them.
-    You can configure the name of the property that will be binded to all
-    of this fields by setting restangularFields property.
-    */
-    RestangularFields: {
-        id: 'id',
-        route: 'route'
-    },
-
-    /*
-    You can now Override HTTP Methods. You can set here the array of methods to override.
-    All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
-    header with the real HTTP method we wanted to do.
-    */
-    MethodOverriders: [],
-
-    /*
-    You can set default Query parameters to be sent with every request and every method.
-    Additionally, if you want to configure request params per method, you can use
-    requestParams configuration similar to $http.
-    For example RestangularProvider.requestParams.get = {single: true}.
-    Supported method to configure are: remove, get, post, put, common (all).
-    */
-    DefaultRequestParams: {},
-
-    /*
-    You can set fullResponse to true to get the whole response every time you do any request.
-    The full response has the restangularized data in the data field,
-    and also has the headers and config sent. By default, it's set to false.
-    */
-    FullResponse: false,
-
-    /*
-    You can set default Headers to be sent with every request.
-    Example:
-    DefaultHeaders: {'Content-Type': 'application/json'}
-    */
-    DefaultHeaders: {
-        'Content-Type': 'application/json',
-        'X-XSRF-TOKEN': 'juan'
-        //SECURITY_GENERAL.XSRFCSRFHeaderName: SECURITY_GENERAL.XSRFCSRFCookieValue
-
-    },
-
-    /*
-    If all of your requests require to send some suffix to work, you can set it here.
-    For example, if you need to send the format like /users/123.json you can add that .json
-    to the suffix using the setRequestSuffix method
-    */
-    RequestSuffix: '.json',
-
-    /*
-    You can set this to either true or false.
-    If set to true, then the cannonical ID from the element will be used for URL creation
-    (in DELETE, PUT, POST, etc.).
-    What this means is that if you change the ID of the element and then you do a put,
-    if you set this to true, it'll use the "old" ID which was received from the server.
-    If set to false, it'll use the new ID assigned to the element.
-    */
-    UseCannonicalId: false,
-
-    /*
-    You can set here if you want to URL Encode IDs or not.
-    */
-    EncodeIds: true,
-    /*
-     *
-     */
-    DefaultContentType: 'application/json',
 
     /**
-     * If true, it will mock backend $http calls
-     * by decorating the default "real" $http service with a mocked
-     * one from angular-mocks.
-     * (remember to include the  angular-mocks.js script if this option is set to true)
-     * @type {Boolean}
+     * @ngdoc object
+     * @name PROJECT_DATA
+     * @module  appverse.configuration.default
+     * @description Basic information related to the application.
      */
-    MockBackend: false
-})
-/**
- * @ngdoc object
- * @name AD_CONFIG
- * @module appverse.configuration.default
- * @description Defines ConsumerKey and ConsumerSecret
- */
-.constant('AD_CONFIG', {
-    ConsumerKey: '',
-    ConsumerSecret: ''
-})
+    .constant('PROJECT_DATA', {
+        ApplicationName: 'Appverse HTML5',
+        Version: '0.1',
+        Company: 'GFT',
+        Year: '2015',
+        Team: 'GFT Appverse Web',
+        URL: '',
+        LoginViewPath: '/login',
+        myUrl: '',
+        VendorLibrariesBaseUrl: 'bower_components'
+    })
 
-/**
- * @ngdoc object
- * @name I18N_CONFIG
- * @module appverse.configuration.default
- * @description This section contains basic configuration for appverse.translate.
- */
-.constant('I18N_CONFIG', {
-    PreferredLocale: 'en-US',
-    LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
-    DetectLocale: true
-})
 
-/**
- * @ngdoc object
- * @name SECURITY_GENERAL
- * @module appverse.configuration.default
- * @description Includes default information about authentication and authorization configuration based on OAUTH 2.0.
- */
-.constant('SECURITY_GENERAL', {
-    securityEnabled: false,
-    XSRFCSRFRequestHeaderName: 'X-XSRF-TOKEN',
-    XSRFCSRFResponseCookieName: 'XSRF-TOKEN',
-    BearerTokenResponseHeader: 'access_token',
-    BearerTokenRequestHeader: 'Authorization',
-    RefreshTokenResponseHeader: 'refresh_token',
-    BearerTokenExpiringResponseHeader: 'expires_in',
-    TokenTypeResponseHeader: 'token_type',
-    /*
-    The XSRF policy type is the level of complexity to calculate the value to be returned in the xsrf header in request
-    against the authorization server:
-    0: No value is included (The domain is the same one)
-    1: $http service built-in solution. The $http service will extract this token from the response header,
-     and then included in the X-XSRF-TOKEN header to every HTTP request. The server must check the token
-     on each request, and then block access if it is not valid.
-    2: Additional calculation of the cookie value using a secret hash. The value is included in the X-XSRF-TOKEN
-     request header.
+    /**
+     * @ngdoc object
+     * @name IONIC_CONFIG
+     * @module  appverse.configuration.default
+     * @description Parent state name of desktop + Ionic application.
      */
-    XSRFPolicyType: 1,
-    XSRFSecret: '',
-    Headers_ContentType: 'application/json',
-    loginHTTPMethod: 'POST',
-    loginURL: 'http://localhost:8080/html5-incubator-server/rest/sec/login',
-    username: 'admin',
-    password: 'admin',
-    connected: 'connected',
-    disconnected: 'disconnected',
-    notEnabled: 'Security not enabled'
+    .constant('IONIC_CONFIG', {
+        MainState: 'menu'
+    })
 
-})
-
-/**
- * @ngdoc object
- * @name SECURITY_OAUTH
- * @module appverse.configuration.default
- * @description Includes default specific settings for OAUTH
- */
-.constant('SECURITY_OAUTH', {
-    oauth2_endpoint: 'appverse',
-    clientID: '',
-    profile: 'http://localhost:8080/html5-incubator-server',
-    scope: 'resources',
-    scopeURL: 'http://localhost:8080/html5-incubator-server',
-    scope_authorizePath: '/oauth/authorize',
-    scope_tokenPath: '/oauth/token',
-    scope_flow: 'implicit',
-    scope_view: 'standard',
-    scope_storage: 'none',
-    scope_template: 'views/demo/security/oauth_default.html',
-    redirectURL: 'http://localhost:9000',
-    storage: 'cookies',
-    storage_cookies: 'cookies',
-    storage_header: 'header',
-    tokenResponseHeaderName: 'Authorization'
-})
-
-/**
- * @ngdoc object
- * @name GOOGLE_AUTH
- * @module appverse.configuration.default
- * @description Defines settings to use Google Oauth2 autentication service
- */
-.constant('GOOGLE_AUTH', {
-    clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
-    scopeURL: 'https://www.googleapis.com/auth/plus.login',
-    requestvisibleactionsURL: 'http://schemas.google.com/AddActivity',
-    theme: 'dark',
-    cookiepolicy: 'single_host_origin',
-    revocationURL: 'https://accounts.google.com/o/oauth2/revoke?token=',
-    /*
-     * Policy about token renewal:
-     * revocation: if the token is invalid the user is fordec to logout and warned.
-     * manual_renovation: the user is warned about the token validity. Renewal is proposed.
-     * automatic_renovation: the token is automatically renewed.
+    /**
+     * @ngdoc object
+     * @name LOGGING_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.logging
+     * These params do not affect normal usage of $log service.
      */
-    revocation: 'revocation',
-    manual_renovation: 'manual_renovation',
-    automatic_renovation: 'automatic_renovation',
-    tokenRenewalPolicy: 'automatic_renovation'
-})
+    .constant('LOGGING_CONFIG', {
+        /*
+        This param enables (if true) sending log messages to server.
+        The server side REST service must record messages from client in order to be analyzed.
+        ALL messages are sent. It is not yet possible select which type of log messages are sent.
+         */
+        ServerEnabled: false,
+        LogServerEndpoint: 'http://localhost:9000/log',
+        /*
+        This preffix will be included at the beginning of each message.
+         */
+        CustomLogPreffix: 'APPLOG',
+        /*
+        Enabled levels will be written in the custom format.
+        This param does not affect to $log service.
+         */
+        EnabledLogLevel: true,
+        EnabledErrorLevel: true,
+        EnabledDebugLevel: true,
+        EnabledWarnLevel: true,
+        EnabledInfoLevel: true,
+        /*
+        Format of the datetime information.
+         */
+        LogDateTimeFormat: '%Y-%M-%d %h:%m:%s:%z',
+        /*
+        Fields that will be included in the log message if containing information.
+         */
+        LogTextFormat: ''
+    })
 
-/**
- * @ngdoc object
- * @name AUTHORIZATION_DATA
- * @module appverse.configuration.default
- * @description Defines default authorization and roles data
- */
-.constant('AUTHORIZATION_DATA', {
-    roles: ['user', 'admin', 'editor'],
-    adminRoles: ["ROLE_EXAMPLE","ROLE_EXAMPLE_2","ROLE_REMOTE_LOGGING_WRITER","ROLE_USER"],
-    users: ['Jesus de Diego'],
-    userRoleMatrix: [
-        {
+    /**
+     * @ngdoc object
+     * @name CACHE_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.cache
+     */
+    .constant('CACHE_CONFIG', {
+        /////////////////////////////
+        //SCOPE CACHE
+        /////////////////////////////
+        ScopeCache_Enabled: true,
+        DefaultScopeCacheName: 'appverseScopeDataCache',
+        /*
+         Max duration in milliseconds of the scope cache
+          */
+        ScopeCache_duration: 10000,
+        /*
+         This param turns the scope cache into a LRU one.
+         The cache’s capacity is used together to track available memory.
+          */
+        ScopeCache_capacity: 10,
+
+        /////////////////////////////
+        //BROWSER STORAGE TYPE
+        //This sets the preferred browser storage in the app.
+        //Most of times it is convenient follow a policy for browser storage, using only one of the two types.
+        //If you prefer flexibility (the developer makes a choice for each case) do not use the provided API.
+        /////////////////////////////
+        BrowserStorageCache_Enabled: true,
+        /*
+         1 = $localStorage
+         2 = $sessionStorage
+          */
+        BrowserStorage_type: '2',
+        DefaultBrowserCacheName: 'appverseBrowserCache',
+        // Items added to this cache expire after 15 minutes.
+        MaxAge: 900000,
+        // This cache will clear itself every hour.
+        CacheFlushInterval: 3600000,
+        // Items will be deleted from this cache right when they expire.
+        DeleteOnExpire: 'aggressive',
+        //Constant for the literal
+        SessionBrowserStorage: 'sessionStorage',
+        //Constant for the literal
+        LocalBrowserStorage: 'localStorage',
+        //Constant for the literal
+        NoBrowserStorage: 'none',
+
+        //Direct browser storage (0 local | 1 session)
+        browserDirectCacheType: '1',
+        /*
+         * Specify whether to verify integrity of data saved in localStorage on every operation.
+         * If true, angular-cache will perform a full sync with localStorage on every operation.
+         * Increases reliability of data synchronization, but may incur a performance penalty.
+         * Has no effect if storageMode is set to "none".
+         */
+        VerifyIntegrity: true,
+        /////////////////////////////
+        //$http SERVICE CACHE
+        /////////////////////////////
+        HttpCache_Enabled: true,
+        /*
+         Max duration in milliseconds of the http service cache.
+         */
+        HttpCache_duration: 20000,
+        /*
+         This param turns the http cache into a LRU one.
+         The cache’s capacity is used together to track available memory.
+         */
+        HttpCache_capacity: 10,
+        /////////////////////////////
+        //BROWSER'S INDEXED DB CACHE
+        /////////////////////////////
+        IndexedDBCache_Enabled: false,
+        /*
+         Name of the default object store
+          */
+        IndexedDB_name: 'DefaultIDBCache',
+        /*
+         The version for the version (mandatory)
+          */
+        IndexedDB_version: 1,
+        /*
+         * The options for the db.
+         * The default structure is defined as id/name pairs.
+         * It is possible to add more indexes:
+         * indexes : [{ name : 'indexName', unique : 'true/false' },{},...]
+         */
+        IndexedDB_options: [{
+            storeName: 'structure-of-items',
+            keyPath: 'id',
+            indexes: [{
+                name: 'name',
+                unique: false
+            }]
+        }]
+
+    })
+
+    /**
+     * @ngdoc object
+     * @name SERVERPUSH_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.serverpush.
+     * It si related to socket.io configuration params.
+     * Read Configuration section in socket.io documentation for further details.
+     * https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
+     */
+    .constant('SERVERPUSH_CONFIG', {
+        /*
+         URL of the listened server
+          */
+        BaseUrl: 'http://localhost:3000',
+        /*
+         Port to be listened at the base url.
+          */
+        ListenedPort: '3000',
+        /*
+          resource
+          defaults to socket.io
+          Note the subtle difference between the server, this one is missing a /.
+          These 2 should be in sync with the server to prevent mismatches.
+          */
+        Resource: 'socket.io',
+        /*
+          connect timeout
+          defaults to 10000 ms
+          How long should Socket.IO wait before it aborts the connection attempt with the server to try another fall-back.
+          Please note that some transports require a longer timeout than others.
+          Setting this really low could potentially harm them.
+          */
+        ConnectTimeout: '10000',
+        /*
+          try multiple transports
+          defaults to true
+          When Socket.IO reconnects and it keeps failing over and over again,
+          should it try all available transports when it finally gives up.
+          */
+        TryMultipleTransports: true,
+        /*
+          reconnect
+          defaults to true
+          Should Socket.IO automatically reconnect when it detects a dropped connection or timeout.
+          */
+        Reconnect: true,
+        /*
+          reconnection delay
+          defaults to 500 ms
+          The initial timeout to start a reconnect,
+          this is increased using an exponential back off algorithm each
+          time a new reconnection attempt has been made.
+          */
+        ReconnectionDelay: 1000,
+        /*
+          reconnection limit
+          defaults to Infinity
+          The maximum reconnection delay in milliseconds, or Infinity.
+          */
+        ReconnectionLimit: 'Infinity',
+        /*
+          max reconnection attempts
+          defaults to 10
+          How many times should Socket.IO attempt to reconnect with the server after a a dropped connection.
+          After this we will emit the reconnect_failed event.
+          */
+        MaxReconnectionAttempts: 5,
+        /*
+          sync disconnect on unload
+          defaults to false
+          Do we need to send a disconnect packet to server when the browser unloads.
+          */
+        SyncDisconnectOnUnload: false,
+        /*
+          auto connect
+          defaults to true
+          When code calls io.connect() should Socket.IO automatically establish a connection with the server.
+          */
+        AutoConnect: true,
+        /*
+          flash policy port
+          defaults to 10843
+          If the server has Flashsocket enabled, this should match the same port as the server.
+          */
+        FlashPolicyPort: '',
+        /*
+          force new connection
+          defaults to false
+          Force multiple io.connect() calls to the same server to use different connections.
+          */
+        ForceNewConnection: false
+    })
+
+    /**
+     * @ngdoc object
+     * @name REST_CONFIG
+     * @module  appverse.configuration.default
+     * @description This section contains basic configuration for appverse.rest.
+     * This module (and/or) its clones is based on Restangular (https://github.com/mgonto/restangular).
+     * So, all configuration params are based on its configuration
+     * (https://github.com/mgonto/restangular#configuring-restangular).
+     * Future updates of Restangular imply review of this section in order
+     * to keep consistency between config and the module.
+     */
+    .constant('REST_CONFIG', {
+            /*
+            The base URL for all calls to your API.
+            For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
+            The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
+            so you can also set an absolute url like http://api.example.com/api/v1
+            if you need do set another domain.
+            */
+            BaseUrl: '/api/v1',
+
+            /*
+            These are the fields that you want to save from your parent resources if you need to display them.
+            By default this is an Empty Array which will suit most cases.
+            */
+            ExtraFields: [],
+
+            /*
+            Use this property to control whether Restangularized elements to have a parent or not.
+            This method accepts 2 parameters:
+            Boolean: Specifies if all elements should be parentless or not
+            Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
+            */
+            ParentLess: false,
+
+            /*
+            HTTP methods will be validated whether they are cached or not.
+            */
+            NoCacheHttpMethods: {
+                'get': false,
+                'post': true,
+                'put': false,
+                'delete': true,
+                'option': false
+            },
+
+            /*
+            This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
+            the corresponding transformer will be called if it fits.
+            This should be used to add your own methods / functions to entities of certain types.
+            You can add as many element transformers as you want.
+            The signature of this method can be one of the following:
+
+            1-Transformer is called with all elements that have been restangularized, no matter if they're collections or not:
+            addElementTransformer(route, transformer)
+            2-Transformer is called with all elements that have been restangularized and match the specification regarding
+            if it's a collection or not (true | false):
+            addElementTransformer(route, isCollection, transformer)
+            */
+            ElementTransformer: [],
+
+            /*
+            This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
+            this will be called. It means that if you receive a list of objects in one call, this method will be called
+            first for the collection and then for each element of the collection.
+            It is recommended the usage of addElementTransformer instead of onElemRestangularized whenever
+            possible as the implementation is much cleaner.
+            This callback is a function that has 3 parameters:
+            @param elem: The element that has just been restangularized. Can be a collection or a single element.
+            @param isCollection: Boolean indicating if this is a collection or a single element.
+            @param what: The model that is being modified. This is the "path" of this resource. For example buildings
+            @param Restangular: The instanced service to use any of its methods
+            */
+            OnElemRestangularized: function(elem) {
+                return elem;
+            },
+
+            /*
+            The requestInterceptor is called before sending any data to the server.
+            It's a function that must return the element to be requested.
+
+            @param element: The element to send to the server.
+            @param operation: The operation made. It'll be the HTTP method used except for a GET which returns a list
+            of element which will return getList so that you can distinguish them.
+            @param what: The model that's being requested. It can be for example: accounts, buildings, etc.
+            @param url: The relative URL being requested. For example: /api/v1/accounts/123
+            */
+            RequestInterceptor: null,
+
+            /*
+            The fullRequestInterceptor is similar to the requestInterceptor but more powerful.
+            It lets you change the element, the request parameters and the headers as well.
+            It's a function that receives the same as the requestInterceptor
+            plus the headers and the query parameters (in that order).
+            It must return an object with the following properties:
+            headers: The headers to send
+            params: The request parameters to send
+            element: The element to send
+            httpConfig: The httpConfig to call with
+            */
+            FullRequestInterceptor: null,
+
+            /*
+            The errorInterceptor is called whenever there's an error.
+            It's a function that receives the response as a parameter.
+            The errorInterceptor function, whenever it returns false, prevents the promise
+            linked to a Restangular request to be executed.
+            All other return values (besides false) are ignored and the promise follows the usual path,
+            eventually reaching the success or error hooks.
+            The feature to prevent the promise to complete is useful whenever you need to intercept
+            each Restangular error response for every request in your AngularJS application in a single place,
+            increasing debugging capabilities and hooking security features in a single place.
+            */
+            ErrorInterceptor: function() {},
+
+            /*
+            Restangular required 3 fields for every "Restangularized" element. These are:
+
+            id: Id of the element. Default: id
+            route: Name of the route of this element. Default: route
+            parentResource: The reference to the parent resource. Default: parentResource
+            restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
+            cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
+            etag: Where to save the ETag received from the server. Defaults to restangularEtag
+            selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
+            URL to an item, you can just leave it blank. Defaults to href
+            Also all of Restangular methods and functions are configurable through restangularFields property.
+            All of these fields except for id and selfLink are handled by Restangular,
+            so most of the time you won't change them.
+            You can configure the name of the property that will be binded to all
+            of this fields by setting restangularFields property.
+            */
+            RestangularFields: {
+                id: 'id',
+                route: 'route'
+            },
+
+            /*
+            You can now Override HTTP Methods. You can set here the array of methods to override.
+            All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
+            header with the real HTTP method we wanted to do.
+            */
+            MethodOverriders: [],
+
+            /*
+            You can set default Query parameters to be sent with every request and every method.
+            Additionally, if you want to configure request params per method, you can use
+            requestParams configuration similar to $http.
+            For example RestangularProvider.requestParams.get = {single: true}.
+            Supported method to configure are: remove, get, post, put, common (all).
+            */
+            DefaultRequestParams: {},
+
+            /*
+            You can set fullResponse to true to get the whole response every time you do any request.
+            The full response has the restangularized data in the data field,
+            and also has the headers and config sent. By default, it's set to false.
+            */
+            FullResponse: false,
+
+            /*
+            You can set default Headers to be sent with every request.
+            Example:
+            DefaultHeaders: {'Content-Type': 'application/json'}
+            */
+            DefaultHeaders: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': 'juan'
+                    //SECURITY_GENERAL.XSRFCSRFHeaderName: SECURITY_GENERAL.XSRFCSRFCookieValue
+
+            },
+
+            /*
+            If all of your requests require to send some suffix to work, you can set it here.
+            For example, if you need to send the format like /users/123.json you can add that .json
+            to the suffix using the setRequestSuffix method
+            */
+            RequestSuffix: '.json',
+
+            /*
+            You can set this to either true or false.
+            If set to true, then the cannonical ID from the element will be used for URL creation
+            (in DELETE, PUT, POST, etc.).
+            What this means is that if you change the ID of the element and then you do a put,
+            if you set this to true, it'll use the "old" ID which was received from the server.
+            If set to false, it'll use the new ID assigned to the element.
+            */
+            UseCannonicalId: false,
+
+            /*
+            You can set here if you want to URL Encode IDs or not.
+            */
+            EncodeIds: true,
+            /*
+             *
+             */
+            DefaultContentType: 'application/json',
+
+            /**
+             * If true, it will mock backend $http calls
+             * by decorating the default "real" $http service with a mocked
+             * one from angular-mocks.
+             * (remember to include the  angular-mocks.js script if this option is set to true)
+             * @type {Boolean}
+             */
+            MockBackend: false
+        })
+        /**
+         * @ngdoc object
+         * @name AD_CONFIG
+         * @module appverse.configuration.default
+         * @description Defines ConsumerKey and ConsumerSecret
+         */
+        .constant('AD_CONFIG', {
+            ConsumerKey: '',
+            ConsumerSecret: ''
+        })
+
+    /**
+     * @ngdoc object
+     * @name I18N_CONFIG
+     * @module appverse.configuration.default
+     * @description This section contains basic configuration for appverse.translate.
+     */
+    .constant('I18N_CONFIG', {
+        PreferredLocale: 'en-US',
+        LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
+        DetectLocale: true
+    })
+
+    /**
+     * @ngdoc object
+     * @name SECURITY_GENERAL
+     * @module appverse.configuration.default
+     * @description Includes default information about authentication and authorization configuration based on OAUTH 2.0.
+     */
+    .constant('SECURITY_GENERAL', {
+        securityEnabled: false,
+        XSRFCSRFRequestHeaderName: 'X-XSRF-TOKEN',
+        XSRFCSRFResponseCookieName: 'XSRF-TOKEN',
+        BearerTokenResponseHeader: 'access_token',
+        BearerTokenRequestHeader: 'Authorization',
+        RefreshTokenResponseHeader: 'refresh_token',
+        BearerTokenExpiringResponseHeader: 'expires_in',
+        TokenTypeResponseHeader: 'token_type',
+        /*
+        The XSRF policy type is the level of complexity to calculate the value to be returned in the xsrf header in request
+        against the authorization server:
+        0: No value is included (The domain is the same one)
+        1: $http service built-in solution. The $http service will extract this token from the response header,
+         and then included in the X-XSRF-TOKEN header to every HTTP request. The server must check the token
+         on each request, and then block access if it is not valid.
+        2: Additional calculation of the cookie value using a secret hash. The value is included in the X-XSRF-TOKEN
+         request header.
+         */
+        XSRFPolicyType: 1,
+        XSRFSecret: '',
+        Headers_ContentType: 'application/json',
+        loginHTTPMethod: 'POST',
+        loginURL: 'http://localhost:8080/html5-incubator-server/rest/sec/login',
+        username: 'admin',
+        password: 'admin',
+        connected: 'connected',
+        disconnected: 'disconnected',
+        notEnabled: 'Security not enabled'
+
+    })
+
+    /**
+     * @ngdoc object
+     * @name SECURITY_OAUTH
+     * @module appverse.configuration.default
+     * @description Includes default specific settings for OAUTH
+     */
+    .constant('SECURITY_OAUTH', {
+        oauth2_endpoint: 'appverse',
+        clientID: '',
+        profile: 'http://localhost:8080/html5-incubator-server',
+        scope: 'resources',
+        scopeURL: 'http://localhost:8080/html5-incubator-server',
+        scope_authorizePath: '/oauth/authorize',
+        scope_tokenPath: '/oauth/token',
+        scope_flow: 'implicit',
+        scope_view: 'standard',
+        scope_storage: 'none',
+        scope_template: 'views/demo/security/oauth_default.html',
+        redirectURL: 'http://localhost:9000',
+        storage: 'cookies',
+        storage_cookies: 'cookies',
+        storage_header: 'header',
+        tokenResponseHeaderName: 'Authorization'
+    })
+
+    /**
+     * @ngdoc object
+     * @name GOOGLE_AUTH
+     * @module appverse.configuration.default
+     * @description Defines settings to use Google Oauth2 autentication service
+     */
+    .constant('GOOGLE_AUTH', {
+        clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
+        scopeURL: 'https://www.googleapis.com/auth/plus.login',
+        requestvisibleactionsURL: 'http://schemas.google.com/AddActivity',
+        theme: 'dark',
+        cookiepolicy: 'single_host_origin',
+        revocationURL: 'https://accounts.google.com/o/oauth2/revoke?token=',
+        /*
+         * Policy about token renewal:
+         * revocation: if the token is invalid the user is fordec to logout and warned.
+         * manual_renovation: the user is warned about the token validity. Renewal is proposed.
+         * automatic_renovation: the token is automatically renewed.
+         */
+        revocation: 'revocation',
+        manual_renovation: 'manual_renovation',
+        automatic_renovation: 'automatic_renovation',
+        tokenRenewalPolicy: 'automatic_renovation'
+    })
+
+    /**
+     * @ngdoc object
+     * @name AUTHORIZATION_DATA
+     * @module appverse.configuration.default
+     * @description Defines default authorization and roles data
+     */
+    .constant('AUTHORIZATION_DATA', {
+        roles: ['user', 'admin', 'editor'],
+        adminRoles: ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"],
+        users: ['Jesus de Diego'],
+        userRoleMatrix: [{
             'user': 'Jesus de Diego',
-            'roles': ["ROLE_EXAMPLE","ROLE_EXAMPLE_2","ROLE_REMOTE_LOGGING_WRITER","ROLE_USER"]
-        },
-        {
+            'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
+        }, {
             'user': 'Antoine Charnoz',
-            'roles': ["ROLE_EXAMPLE","ROLE_EXAMPLE_2","ROLE_REMOTE_LOGGING_WRITER","ROLE_USER"]
-        }
-    ],
-    routesThatDontRequireAuth: ['/home'],
-    routesThatRequireAdmin: ['/about']
-})
+            'roles': ["ROLE_EXAMPLE", "ROLE_EXAMPLE_2", "ROLE_REMOTE_LOGGING_WRITER", "ROLE_USER"]
+        }],
+        routesThatDontRequireAuth: ['/home'],
+        routesThatRequireAdmin: ['/about']
+    })
 
 
-/**
- * @ngdoc object
- * @name WEBSOCKETS_CONFIG
- * @module appverse.configuration.default
- * @description Configuration parameters for web sockets
- */
-.constant('WEBSOCKETS_CONFIG', {
-    WS_ECHO_URL: "ws://echo.websocket.org",
-    WS_TYPE: 'native',//auto|sockjs|native
-    WS_PROTOCOL_TYPE: 'none',//auto|stomp|none
-    WS_INTERVAL: 30,
-    WS_CONNECTED: 'Websocket connected',
-    WS_DISCONNECTED: 'Websocket disconnected',
-    WS_CONNECTING: 'Connecting Websocket...',
-    WS_CLOSED: 'Websocket connection closed',
-    WS_CLOSING: 'Websocket connection closing...',
-    WS_OPEN: 'Websocket connection is open',
-    WS_UNKNOWN: 'Websocket status is unknown',
-    WS_PROTOCOL_CONNECTED:'Websocket protocol connected',
-    WS_PROTOCOL_DISCONNECTED:'Websocket protocol disconnected',    
-    WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
-    WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
-    WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
-})
+    /**
+     * @ngdoc object
+     * @name WEBSOCKETS_CONFIG
+     * @module appverse.configuration.default
+     * @description Configuration parameters for web sockets
+     */
+    .constant('WEBSOCKETS_CONFIG', {
+        //        WS_URL: "ws://echo.websocket.org",
+        WS_URL: "https://appverse.gftlabs.com/websockets/services/websocket/stats",
+        WS_TYPE: 'auto', //auto|sockjs|native
+        WS_PROTOCOL_TYPE: 'auto', //auto|stomp|none
+        HEARTBEAT_OUTGOING: 20000, //in milliseconds
+        HEARTBEAT_INCOMING: 0, //in milliseconds
+        WS_CONNECTED: 'Websocket connected',
+        WS_DISCONNECTED: 'Websocket disconnected',
+        WS_CONNECTING: 'Connecting Websocket...',
+        WS_CLOSED: 'Websocket connection closed',
+        WS_CLOSING: 'Websocket connection closing...',
+        WS_OPEN: 'Websocket connection is open',
+        WS_UNKNOWN: 'Websocket status is unknown',
+        WS_PROTOCOL_CONNECTED: 'Websocket protocol connected',
+        WS_PROTOCOL_DISCONNECTED: 'Websocket protocol disconnected',
+        WS_FAILED_CONNECTION: 'Failed to open a Websocket connection',
+        WS_NOT_SUPPORTED: 'HTML5 Websockets specification is not supported in this browser.',
+        WS_SUPPORTED: 'HTML5 Websockets specification is supported in this browser.'
+    })
 
-/**
- * @ngdoc object
- * @name PERFORMANCE_CONFIG
- * @module appverse.configuration.default
- * @description Includes default information about the different facets for a better performance in the app.
- * There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
- */
-.constant('PERFORMANCE_CONFIG', {
-/*
- * WEBWORKERS SECTION
- * To test multiple parallelized threads with web workers a thread pool or task queue is defined.
- * The goal is focused on using enough threads to improve the execution but not too much or the browser system can turn
- * into unstable.
- * You can configure the maximum number of concurrent web workers when this pool is instantiated,
- * and any 'task' you submit will be executed using one of the available threads from the pool.
- * Note that the app is not really pooling threads, but just using this pool to control the number of concurrently
- * executing web workers due to the high cost for start them.
- */
-    /*
-    Maximum number of simultaneous executing threads used by workers
+    /**
+     * @ngdoc object
+     * @name PERFORMANCE_CONFIG
+     * @module appverse.configuration.default
+     * @description Includes default information about the different facets for a better performance in the app.
+     * There are three main sections: webworkers management, shadow dom objetc and High performance DOM directive.
      */
-    webworker_pooled_threads: 4,
-    /*
-    If true, only workers in the web worker_authorized_workers property might be executed.
-    Other invoked workers will not result in a worker call.
-     */
-    webworker_authorized_workers_only: true,
-    /*
-    Folder for workers' files
-     */
-    webworker_directory: "resources/webworkers/",
-    /*
-    List of authorized workers with its ID.
-    The ID is used to be passed in the directive's attribute.
-     */
-    webworker_authorized_workers: [
-        {
+    .constant('PERFORMANCE_CONFIG', {
+        /*
+         * WEBWORKERS SECTION
+         * To test multiple parallelized threads with web workers a thread pool or task queue is defined.
+         * The goal is focused on using enough threads to improve the execution but not too much or the browser system can turn
+         * into unstable.
+         * You can configure the maximum number of concurrent web workers when this pool is instantiated,
+         * and any 'task' you submit will be executed using one of the available threads from the pool.
+         * Note that the app is not really pooling threads, but just using this pool to control the number of concurrently
+         * executing web workers due to the high cost for start them.
+         */
+        /*
+        Maximum number of simultaneous executing threads used by workers
+         */
+        webworker_pooled_threads: 4,
+        /*
+        If true, only workers in the web worker_authorized_workers property might be executed.
+        Other invoked workers will not result in a worker call.
+         */
+        webworker_authorized_workers_only: true,
+        /*
+        Folder for workers' files
+         */
+        webworker_directory: "resources/webworkers/",
+        /*
+        List of authorized workers with its ID.
+        The ID is used to be passed in the directive's attribute.
+         */
+        webworker_authorized_workers: [{
             'id': 'w1',
             'type': 'dedicated',
             'poolSize': 4,
             'file': 'RenderImage.js'
-        },
-        {
+        }, {
             'id': 'w2',
             'type': 'dedicated',
             'poolSize': 4,
             'file': 'RestMultiRequest.js'
-        }
-    ],
-    webworker_dedicated_literal: "dedicated",
-    webworker_shared_literal: "shared",
-    webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
-});
+        }],
+        webworker_dedicated_literal: "dedicated",
+        webworker_shared_literal: "shared",
+        webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
+    });
 
 })();
+
 /**
  * @ngdoc object
  * @name  AppInit

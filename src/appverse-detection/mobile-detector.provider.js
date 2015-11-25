@@ -1,6 +1,4 @@
-/*globals Appverse:false */
-
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.detection')
@@ -16,7 +14,7 @@
      */
     function MobileDetectorProvider() {
 
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
@@ -25,9 +23,10 @@
          * @name MobileDetector#hasAppverseMobile
          * @return {Boolean}
          */
-        this.hasAppverseMobile = function () {
-
-            if (typeof Appverse !== 'undefined' && Appverse.System && Appverse.System.GetOSInfo() !== null) {
+        this.hasAppverseMobile = function() {
+            if (typeof(_AppverseContext) !== "undefined") {
+                return true;
+            } else if (window.localStorage.getItem("_AppverseContext")) {
                 return true;
             } else {
                 return false;
@@ -39,7 +38,7 @@
          * @name MobileDetector#isMobileBrowser
          * @return {Boolean}
          */
-        this.isMobileBrowser = function (customAgent) {
+        this.isMobileBrowser = function(customAgent) {
             var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
             return agentContainsMobileKeyword(agent);
         };

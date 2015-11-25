@@ -1,30 +1,34 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 'use strict';
 
-describe('Unit: Api Detection Module', function() {
+describe('Unit: Api Detection Module', function () {
 
     var DetectionProvider;
     var Detection;
 
 
-    describe('when browser is not mobile...', function() {
+    describe('when browser is not mobile...', function () {
 
         beforeEach('inject mocks', function () {
 
             var mocks = {
 
-                MobileDetector : function() {
-                    this.hasAppverseMobile = function() {
+                MobileDetector: function () {
+                    this.hasAppverseMobile = function () {
                         return false;
                     };
-                    this.isMobileBrowser = function() {
+                    this.isMobileBrowser = function () {
                         return false;
                     };
-                    this.$get = function() { return this;};
+                    this.$get = function () {
+                        return this;
+                    };
                 },
 
-                LibrariesLoader : function() {
-                    this.$get = function() { return this;};
+                LibrariesLoader: function () {
+                    this.$get = function () {
+                        return this;
+                    };
                 },
             };
 
@@ -32,19 +36,19 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        it ('hasAppverseMobile property should be false', function() {
+        it('hasAppverseMobile property should be false', function () {
 
-           expect(DetectionProvider).to.not.be.undefined;
+            expect(DetectionProvider).to.not.be.undefined;
 
-           Detection.hasAppverseMobile().should.be.false;
+            Detection.hasAppverseMobile().should.be.false;
 
         });
 
-        it ('isMobileBrowser property should be false', function() {
+        it('isMobileBrowser property should be false', function () {
 
-           expect(DetectionProvider).to.not.be.undefined;
+            expect(DetectionProvider).to.not.be.undefined;
 
-           Detection.isMobileBrowser().should.be.false;
+            Detection.isMobileBrowser().should.be.false;
 
         });
 
@@ -53,21 +57,23 @@ describe('Unit: Api Detection Module', function() {
     });
 
 
-    describe('when appverseMobile is present...', function() {
+    describe('when appverseMobile is present...', function () {
 
         beforeEach('inject mocks', function () {
 
             var mocks = {
 
-                MobileDetector : function() {
-                    this.hasAppverseMobile = function() {
+                MobileDetector: function () {
+                    this.hasAppverseMobile = function () {
                         return true;
                     };
-                    this.isMobileBrowser = function() {
+                    this.isMobileBrowser = function () {
                         return false;
                     };
 
-                    this.$get = function() { return this;};
+                    this.$get = function () {
+                        return this;
+                    };
                 }
             };
 
@@ -75,7 +81,7 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        it ('hasAppverseMobile() should be true', function() {
+        it('hasAppverseMobile() should be true', function () {
 
             DetectionProvider.hasAppverseMobile().should.be.true;
 
@@ -86,21 +92,23 @@ describe('Unit: Api Detection Module', function() {
     });
 
 
-    describe('when mobileBrowser is present...', function() {
+    describe('when mobileBrowser is present...', function () {
 
         beforeEach('inject mocks', function () {
 
             var mocks = {
 
-                MobileDetector : function() {
-                    this.hasAppverseMobile = function() {
+                MobileDetector: function () {
+                    this.hasAppverseMobile = function () {
                         return false;
                     };
-                    this.isMobileBrowser = function() {
+                    this.isMobileBrowser = function () {
                         return true;
                     };
 
-                    this.$get = function() { return this;};
+                    this.$get = function () {
+                        return this;
+                    };
                 }
             };
 
@@ -108,7 +116,7 @@ describe('Unit: Api Detection Module', function() {
 
         });
 
-        it ('isMobileBrowser property should be true', function() {
+        it('isMobileBrowser property should be true', function () {
 
             Detection.isMobileBrowser().should.be.true;
 
@@ -127,9 +135,9 @@ describe('Unit: Api Detection Module', function() {
         // Configure the service provider
         // by injecting it to a fake module's config block
         angular.module('fakeModule', [])
-        .config( function (_DetectionProvider_) {
-            DetectionProvider = _DetectionProvider_;
-        });
+            .config(function (_DetectionProvider_) {
+                DetectionProvider = _DetectionProvider_;
+            });
 
         // Manually mock providers by overriding them in the invokeQueue
         // Each item in the queue is an array with three elements.
@@ -137,15 +145,15 @@ describe('Unit: Api Detection Module', function() {
         // the second is the method on the provider to use
         // and the third element is an array of any arguments passed to the service.
         var appverseDetection = angular.module('appverse.detection');
-        originalMobileDetector  = appverseDetection._invokeQueue[0][2][1];
+        originalMobileDetector = appverseDetection._invokeQueue[0][2][1];
         appverseDetection._invokeQueue[0][2][1] = mocks.MobileDetector;
 
         // Initialize injector for the real and fake modules
-        module('appverse.detection','fakeModule');
+        module('appverse.detection', 'fakeModule');
 
         // Kickstart the injector
         // and get reference to the Detection Service
-        inject(function() {
+        inject(function () {
             Detection = DetectionProvider.$get();
         });
     }

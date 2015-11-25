@@ -1,47 +1,26 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 "use strict";
 
-describe('Unit: Testing appverse.cache module', function () {
+describe('Unit: Testing appverse.cache module', function() {
 
-    beforeEach(setupCacheTesting);
+    var idb, rootScope;
 
-    it('should contain a CacheFactory factory', inject(function (CacheFactory) {
-        expect(CacheFactory).to.be.an.object;
+    beforeEach(module('appverse.cache'));
+    beforeEach(inject(function(IDBService, $rootScope) {
+        idb = IDBService;
+        rootScope = $rootScope;
     }));
 
-    it('should contain a IDBService service',
-        inject(function (IDBService) {
-            expect(IDBService).to.be.an.object;
-            expect(IDBService.isSupported()).to.be.false;
-        })
-    );
+    it('should contain a avCacheFactory factory', inject(function(avCacheFactory) {
+        expect(avCacheFactory).to.be.an.object;
+    }));
 
-    /////////////// HELPER FUNCTIONS
+    it('should contain a IDBService service', function() {
+        expect(idb).to.be.an.object;
+        expect(idb.item()).to.be.an.object;
+        expect(idb.isSupported()).to.be.true;
+        expect(idb.ready()).to.be.false;
+        expect(idb.getDefaults()).to.be.a.promise;
+    });
 
-    function setupCacheTesting() {
-
-        // Generate mock modules and providers
-        mockDependencies();
-
-        // Load the module to be tested
-        module("appverse.cache");
-    }
-
-    function mockDependencies() {
-
-        // mock modules by creating empty ones
-        angular.module('appverse.configuration', []);
-        angular.module('jmdobry.angular-cache', []);
-
-        // Provide the dependency injector with mock empty objects
-        // instead of real ones
-        module(function ($provide) {
-
-            $provide.factory('$angularCacheFactory', function(){
-                return {};
-            });
-
-            $provide.constant('CACHE_CONFIG', {});
-        });
-    }
 });

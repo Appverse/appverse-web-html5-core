@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var requires = [
@@ -42,7 +42,7 @@
     angular.module('appverse.rest', requires).run(run);
 
 
-    function run ($injector, $log, Restangular, ModuleSeeker,  REST_CONFIG) {
+    function run($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
 
         tryToIntegrateSecurity();
         tryToIntegrateCache();
@@ -76,15 +76,15 @@
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
 
         function tryToIntegrateSecurity() {
-            var restFactory  = $injector.get('RESTFactory'),
-            $log             = $injector.get('$log'),
-            SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
+            var restFactory = $injector.get('RESTFactory'),
+                $log = $injector.get('$log'),
+                SECURITY_GENERAL = $injector.get('SECURITY_GENERAL');
 
             if (ModuleSeeker.exists('appverse.security')) {
                 var oauthRequestWrapperService = $injector.get('Oauth_RequestWrapper');
-                if (SECURITY_GENERAL.securityEnabled){
+                if (SECURITY_GENERAL.securityEnabled) {
                     restFactory.wrapRequestsWith(oauthRequestWrapperService);
-                    $log.debug( "REST communication is secure. Security is enabled." +
+                    $log.debug("REST communication is secure. Security is enabled." +
                         " REST requests will be wrapped with authorization headers.");
                     return;
                 }
@@ -97,8 +97,8 @@
         function tryToIntegrateCache() {
             if (ModuleSeeker.exists('appverse.cache')) {
                 var restFactory = $injector.get('RESTFactory'),
-                CacheFactory    = $injector.get('CacheFactory'),
-                cache           = CacheFactory.getHttpCache();
+                    avCacheFactory = $injector.get('avCacheFactory'),
+                    cache = avCacheFactory.getHttpCache();
                 restFactory.setCache(cache);
             }
         }
@@ -115,41 +115,7 @@
 
 
 })();
-(function() {
-    'use strict';
 
-    /**
-     * @ngdoc service
-     * @name  MulticastRESTFactory
-     * @module appverse.rest
-     *
-     * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
-     * @requires https://github.com/mgonto/restangular Restangular
-     * @requires REST_CONFIG
-     */
-    angular.module('appverse.rest')
-    .factory('MulticastRESTFactory', ['$log', 'Restangular', 'REST_CONFIG',
-
-        function ($log, Restangular, REST_CONFIG) {
-            var factory = {};
-            var multicastSpawn = REST_CONFIG.Multicast_enabled;
-            $log.debug('Multicast Enabled : ' + multicastSpawn);
-
-            factory.readObject = function (path, params) {
-                if(params && params.length >0){
-
-                }else{
-                    //No params. It is a normal call
-                    return Restangular.one(path).get().$object;
-                }
-
-            };
-
-            return factory;
-        }]);
-
-
-})();
 (function() {
     'use strict';
 
