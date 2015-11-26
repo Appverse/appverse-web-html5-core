@@ -10,7 +10,7 @@
      *
      * @requires appverse.utils
      */
-    angular.module('appverse.detection', ['appverse.utils']);
+    angular.module('appverse.detection', ['appverse.utils','appverse.detection.mobile']);
 
 
 })();
