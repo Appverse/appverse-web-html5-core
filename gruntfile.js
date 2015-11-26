@@ -4,7 +4,7 @@
 
 var bowerFile = require('./bower.json');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -295,7 +295,7 @@ module.exports = function(grunt) {
                 options: {
                     port: 9999,
                     keepalive: true,
-                    middleware: function(connect) {
+                    middleware: function (connect) {
                         return [
                             require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
                             mountFolder(connect, configPaths.doc),
@@ -350,6 +350,13 @@ module.exports = function(grunt) {
                 src: 'src/appverse-ionic/**/*.html',
                 dest: 'src/appverse-ionic/templates.js'
             }
+        },
+
+        watch: {
+            dist: {
+                files: ['src/**'],
+                tasks: ['dist']
+            }
         }
     });
 
@@ -365,6 +372,11 @@ module.exports = function(grunt) {
         'concat',
         'ngAnnotate',
         'uglify'
+    ]);
+
+    grunt.registerTask('dist:watch', [
+        'dist',
+        'watch:dist'
     ]);
 
     grunt.registerTask('test', [
