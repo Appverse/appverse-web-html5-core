@@ -10,10 +10,11 @@
      *
      * @requires appverse.utils
      */
-    angular.module('appverse.detection', ['appverse.utils']);
+    angular.module('appverse.detection', ['appverse.utils','appverse.detection.mobile']);
 
 
 })();
+
 (function () {
     'use strict';
 
@@ -183,7 +184,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function() {
     'use strict';
 
-    angular.module('appverse.detection')
+    angular.module('appverse.detection.mobile',[])
         .provider('MobileDetector', MobileDetectorProvider);
 
     /**
@@ -235,6 +236,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     }
 
 })();
+
 (function () {
     'use strict';
 

@@ -65,9 +65,6 @@ module.exports = function (config) {
             'bower_components/stomp-websocket/lib/stomp.min.js',
 
             'src/appverse-*/**/module.js',
-            // Detection providers need to be loaded in this order
-            'src/appverse-detection/mobile-detector.provider.js',
-            'src/appverse-detection/detection.provider.js',
             // The rest
             'src/**/*.js',
 
