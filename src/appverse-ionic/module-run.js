@@ -4,13 +4,13 @@
     angular.module('appverse.ionic')
         .run(run);
 
-    function run($log, Detection, $rootScope, $state, $modal, IONIC_CONFIG) {
+    function run($log, Detection, $rootScope, $state, $uibModal, IONIC_CONFIG) {
         $log.info('appverse.ionic run');
 
         function showModalPrompt() {
             if (IONIC_CONFIG.modalPrompt) {
 
-                $modal.open({
+                $uibModal.open({
                     templateUrl: 'appverse-ionic/not-allowed.html',
                     controller: 'ModalNotAllowedCntrl'
                 });

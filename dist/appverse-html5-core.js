@@ -980,7 +980,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     angular.module('appverse.ionic')
 
     .controller('ModalNotAllowedCntrl',
-        ["$scope", "$modalInstance", "Detection", "$location", "$timeout", "IONIC_CONFIG", function($scope, $modalInstance, Detection, $location, $timeout, IONIC_CONFIG) {
+        ["$scope", "$uibModalInstance", "Detection", "$location", "$timeout", "IONIC_CONFIG", function($scope, $uibModalInstance, Detection, $location, $timeout, IONIC_CONFIG) {
             if (Detection.isMobileBrowser()) {
                 $scope.device = 'device';
             } else {
@@ -995,7 +995,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
                 $scope.$evalAsync($scope.seconds);
                 if ($scope.seconds <= 0) {
                     clearInterval(counter);
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                     $timeout(function() {
                         $location.path(IONIC_CONFIG.redirectionPath);
                     }, 300);
@@ -1011,13 +1011,13 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     angular.module('appverse.ionic')
         .run(run);
 
-    function run($log, Detection, $rootScope, $state, $modal, IONIC_CONFIG) {
+    function run($log, Detection, $rootScope, $state, $uibModal, IONIC_CONFIG) {
         $log.info('appverse.ionic run');
 
         function showModalPrompt() {
             if (IONIC_CONFIG.modalPrompt) {
 
-                $modal.open({
+                $uibModal.open({
                     templateUrl: 'appverse-ionic/not-allowed.html',
                     controller: 'ModalNotAllowedCntrl'
                 });
@@ -1057,7 +1057,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal", "IONIC_CONFIG"];
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG"];
 })();
 
 (function() {
