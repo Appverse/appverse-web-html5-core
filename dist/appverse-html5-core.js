@@ -1018,7 +1018,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
             if (IONIC_CONFIG.modalPrompt) {
 
                 $uibModal.open({
-                    templateUrl: 'appverse-ionic/not-allowed.html',
+                    templateUrl: 'appverse-ionic/modal/not-allowed.html',
                     controller: 'ModalNotAllowedCntrl'
                 });
             }
