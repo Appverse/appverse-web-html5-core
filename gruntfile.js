@@ -266,7 +266,7 @@ module.exports = function (grunt) {
 
         bump: {
             options: {
-                files: ['package.json', 'bower.json', 'sonar-project.properties'],
+                files: ['package.json', 'bower.json'],
                 updateConfigs: [],
                 commit: true,
                 commitMessage: 'Release v%VERSION%',
@@ -274,7 +274,7 @@ module.exports = function (grunt) {
                 createTag: true,
                 tagName: 'v%VERSION%',
                 tagMessage: 'Version %VERSION%',
-                push: true,
+                push: false,
                 pushTo: 'origin',
                 gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
