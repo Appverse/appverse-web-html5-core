@@ -21,64 +21,64 @@
      * @requires https://docs.angularjs.org/api/ng/service/$rootScope $rootScope
      * @requires Socket
      */
-    .factory('SocketFactory', ['$rootScope', 'Socket',
-        function ($rootScope, Socket) {
-        var factory = {};
+    .factory('SocketFactory',
+        function($rootScope, Socket) {
+            var factory = {};
 
-        /**
-             @ngdoc method
-             @name SocketFactory#listen
-             @param {string} eventName The name of the event/channel to be listened
-             The communication is bound to rootScope.
-             @param {object} callback The function to be passed as callback.
-             @description Establishes a communication listening an event/channel from server.
-             Use this method for background communication although the current scope is destyroyed.
-             You should cancel communication manually or when the $rootScope object is destroyed.
-             */
-        factory.listen = function (eventName, callback) {
-            Socket.on(eventName, function () {
-                var args = arguments;
-                $rootScope.$apply(function () {
-                    callback.apply(Socket, args);
-                });
-            });
-        };
-
-        /**
-             @ngdoc method
-             @name SocketFactory#sendMessage
-             @param {string} eventName The name of the event/channel to be sent to server
-             @param {object} scope The scope object to be bound to the listening.
-             The communication will be cancelled when the scope is destroyed.
-             @param {object} callback The function to be passed as callback.
-             @description Establishes a communication listening an event/channel from server.
-             It is bound to a given $scope object.
-             */
-        factory.sendMessage = function (eventName, data, callback) {
-            Socket.emit(eventName, data, function () {
-                var args = arguments;
-                $rootScope.$apply(function () {
-                    if (callback) {
+            /**
+                 @ngdoc method
+                 @name SocketFactory#listen
+                 @param {string} eventName The name of the event/channel to be listened
+                 The communication is bound to rootScope.
+                 @param {object} callback The function to be passed as callback.
+                 @description Establishes a communication listening an event/channel from server.
+                 Use this method for background communication although the current scope is destyroyed.
+                 You should cancel communication manually or when the $rootScope object is destroyed.
+                 */
+            factory.listen = function(eventName, callback) {
+                Socket.on(eventName, function() {
+                    var args = arguments;
+                    $rootScope.$apply(function() {
                         callback.apply(Socket, args);
-                    }
+                    });
                 });
-            });
-        };
+            };
 
-        /**
-             @ngdoc method
-             @name SocketFactory#unsubscribeCommunication
-             @param {object} callback The function to be passed as callback.
-             @description Cancels all communications to server.
-             The communication will be cancelled without regarding other consideration.
-             */
-        factory.unsubscribeCommunication = function (callback) {
-            Socket.off(callback());
-        };
+            /**
+                 @ngdoc method
+                 @name SocketFactory#sendMessage
+                 @param {string} eventName The name of the event/channel to be sent to server
+                 @param {object} scope The scope object to be bound to the listening.
+                 The communication will be cancelled when the scope is destroyed.
+                 @param {object} callback The function to be passed as callback.
+                 @description Establishes a communication listening an event/channel from server.
+                 It is bound to a given $scope object.
+                 */
+            factory.sendMessage = function(eventName, data, callback) {
+                Socket.emit(eventName, data, function() {
+                    var args = arguments;
+                    $rootScope.$apply(function() {
+                        if (callback) {
+                            callback.apply(Socket, args);
+                        }
+                    });
+                });
+            };
+
+            /**
+                 @ngdoc method
+                 @name SocketFactory#unsubscribeCommunication
+                 @param {object} callback The function to be passed as callback.
+                 @description Cancels all communications to server.
+                 The communication will be cancelled without regarding other consideration.
+                 */
+            factory.unsubscribeCommunication = function(callback) {
+                Socket.off(callback());
+            };
 
 
-        return factory;
+            return factory;
 
-    }]);
+        });
 
 })();

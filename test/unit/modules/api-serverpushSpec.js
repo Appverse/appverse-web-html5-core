@@ -1,36 +1,42 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 
 "use strict";
 
-describe('Unit: Testing appverse.serverPush module', function () {
+describe('Unit: Testing appverse.serverPush module', function() {
 
-    beforeEach(setupServerPushTesting);
+    var WebSocketFactory, $httpBackend;
 
-    it('should contain a SocketFactory factory',  inject(function (SocketFactory) {
+    beforeEach(module('appverse.serverPush'));
+
+    beforeEach(inject(function(_WebSocketFactory_, _$httpBackend_) {
+        WebSocketFactory = _WebSocketFactory_;
+        $httpBackend = _$httpBackend_;
+
+        expect(WebSocketFactory).to.be.an.object;
+    }));
+
+    afterEach(function() {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    });
+
+    it('should contain a SocketFactory factory', inject(function(SocketFactory) {
         expect(SocketFactory).to.be.an.object;
     }));
 
-    /////////////// HELPER FUNCTIONS
-
-    function setupServerPushTesting() {
-
-        // Generate mock modules and providers
-        mockDependencies();
-
-        // Load the module to be tested and initialized a mocked socketIo
-        module('appverse.serverPush', function(SocketProvider) {
-            SocketProvider.ioSocket({
-                on : sinon.spy()
+    it('should open a WebSocket connection', function(done) {
+        WebSocketFactory.open(null, null,
+            function() {
+                expect(WebSocketFactory.ws).to.be.defined;
+                WebSocketFactory.connect('user', 'password');
+                done();
             });
-        });
-    }
+    });
 
-    function mockDependencies() {
-
-        // Provide the dependency injector with mock empty objects
-        // instead of real ones
-        module(function ($provide) {
-            $provide.constant('SERVERPUSH_CONFIG', {});
+    it('should connect to a WebSocket connection ', function(done) {
+        WebSocketFactory.connect('user', 'password', function() {
+            expect(WebSocketFactory.client).to.be.defined;
         });
-    }
+        done();
+    });
 });

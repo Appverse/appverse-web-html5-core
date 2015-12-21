@@ -9,7 +9,6 @@
     "indent": 4,
     "latedef": "nofunc",
     "strict": true,
-    "maxlen": 120,
     "newcap": true,
     "noarg": true,
     "regexp": true,
