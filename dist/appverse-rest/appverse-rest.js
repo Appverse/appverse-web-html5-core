@@ -1,6 +1,7 @@
 (function () {
     'use strict';
 
+    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
     var requires = [
         'restangular',
         'appverse.configuration',
@@ -106,7 +107,6 @@
         $log.info('appverse.rest run');
 
     }
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
 
 
 
@@ -119,6 +119,7 @@
 (function() {
     'use strict';
 
+    restDirective.$inject = ["$log", "RESTFactory"];
     angular.module('appverse.rest')
     .directive('rest', restDirective);
 
@@ -187,13 +188,13 @@
             }
         };
     }
-    restDirective.$inject = ["$log", "RESTFactory"];
 
 
 })();
 (function () {
     'use strict';
 
+    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
     angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
 
     /**
@@ -505,6 +506,5 @@
         return factory;
 
     }
-    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();

@@ -18,6 +18,7 @@
 (function () {
     'use strict';
 
+DetectionProvider.$inject = ["MobileDetectorProvider"];
 angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
 
@@ -176,7 +177,6 @@ function DetectionProvider (MobileDetectorProvider) {
         this.isPollingBandwidth = false;
     };
 }
-DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 
 })();
@@ -240,6 +240,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function () {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
     angular.module('appverse.detection')
         .run(run);
 
@@ -346,6 +347,5 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
             Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
         }
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 
 })();

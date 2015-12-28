@@ -40,13 +40,13 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  *
  * @requires appverse.configuration.loader
  */
+run.$inject = ["$log"];
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
 
 function run($log) {
     $log.info('appverse.configuration run');
 }
-run.$inject = ["$log"];
 
 })();
 (function () {
@@ -76,6 +76,8 @@ run.$inject = ["$log"];
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
+    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
+    run.$inject = ["$log", "REST_CONFIG"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
 
@@ -110,14 +112,12 @@ run.$inject = ["$log"];
 
         }
     }
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
 
     function run($log, REST_CONFIG) {
         if (REST_CONFIG.MockBackend) {
             $log.debug('REST: You are using a MOCKED backend!');
         }
     }
-    run.$inject = ["$log", "REST_CONFIG"];
 
 
 })();
@@ -125,6 +125,7 @@ run.$inject = ["$log"];
 (function () {
     'use strict';
 
+    configFn.$inject = ["ConfigLoaderProvider"];
     angular.module('appverse.configuration.loader')
         .provider('ConfigLoader', ConfigLoaderProvider)
         .config(configFn);
@@ -289,7 +290,6 @@ run.$inject = ["$log"];
             mobileBrowser: {}
         });
     }
-    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
 (function() {
@@ -994,6 +994,7 @@ run.$inject = ["$log"];
 var AppInit = AppInit || (function (angular) {
     'use strict';
 
+    loadConfig.$inject = ["ConfigLoaderProvider"];
     var
         settings,
         mainModuleName;
@@ -1057,7 +1058,6 @@ var AppInit = AppInit || (function (angular) {
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
     }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
         setMainModuleName: setMainModuleName,
