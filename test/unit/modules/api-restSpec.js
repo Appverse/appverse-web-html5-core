@@ -1,188 +1,105 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 "use strict";
 
 describe('Unit: Testing appverse.rest module', function () {
 
-    beforeEach(setupRestTesting);
+    var $httpBackend;
 
-    it('should contain a RESTFactory factory',
-        inject(function (RESTFactory) {
-            expect(RESTFactory).to.be.an.object;
-        })
-    );
+    beforeEach(module('restangular', 'appverse.configuration.default', 'appverse.cache', 'appverse.rest'));
 
-    describe('when wrapping request in the Rest Service', function () {
+    beforeEach(inject(function ($injector) {
+        $httpBackend = $injector.get('$httpBackend');
 
-        // Create a mock wrapper that wraps requests by just
-        // setting a variable in the restangular object
-        var wrapper = {
-            wrapRequest: function (restangularService) {
-                restangularService.wrapped = true;
-                return restangularService;
-            }
-        };
+        $httpBackend.when('GET', '/api/books.json')
+            .respond([{
+                id: 1,
+                title: 'title1'
+            }, {
+                id: 2,
+                title: 'title2'
+            }]);
 
-        it('should return the processed Restangular service', inject(function (RESTFactory, Restangular) {
-            expect(Restangular.wrapped).to.not.exist;
-            RESTFactory.wrapRequestsWith(wrapper);
-            Restangular.wrapped.should.be.true;
-        }));
+        $httpBackend.when('GET', '/api/books/1.json')
+            .respond({
+                id: 1,
+                title: 'title1'
+            });
 
+        $httpBackend.when('GET', '/api/nobooks.json')
+            .respond(404);
+
+        $injector.get('$http').defaults.cache.removeAll();
+    }));
+
+    afterEach(function () {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
     });
 
-    describe('when enabling default content type', function () {
+    it("GET directive should retrieve a list", inject(function ($compile, $rootScope) {
 
-        it('Restangular should set default headers', inject(function (RESTFactory, Restangular) {
-            RESTFactory.enableDefaultContentType();
-            Restangular.setDefaultHeaders.calledWith({
-                'Content-Type': 'text/plain;'
-            }).should.be.true;
-        }));
+        $compile('<div av-rest-get="books"></div>')($rootScope);
 
-    });
+        expect($rootScope.booksLoading).to.be.true;
 
-    describe('when testing a directive...', function () {
+        $httpBackend.flush();
 
-        var $rootScope;
+        expect($rootScope.booksLoading).to.be.false;
 
-        describe('when request is not resolved yet...', function () {
+        expect($rootScope.books.length).to.equal(2);
+    }));
 
-            it("loading state should be true", inject(function ($compile, $rootScope) {
-                // Compile a piece of HTML containing the directive
-                $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
+    it("GET directive should retrieve an object", inject(function ($compile, $rootScope) {
 
-                // Check that the compiled element contains the templated content
-                $rootScope.mybooksLoading.should.be.true;
-            }));
+        $compile('<div av-rest-get="books" rest-id="1"></div>')($rootScope);
 
-        });
+        expect($rootScope.bookLoading).to.be.true;
 
-        describe('when request is resolved with success..', function () {
+        $httpBackend.flush();
 
-            beforeEach('mock RESTFactory to return success', module(function ($provide) {
-                $provide.service('RESTFactory', function () {
-                    this.enableDefaultContentType = sinon.spy();
-                    this.setCache = sinon.spy();
-                    this.readObject = function (path, success) {
-                        success({
-                            books: 'mock'
-                        });
-                    };
-                });
-            }));
+        expect($rootScope.bookLoading).to.be.false;
 
-            beforeEach('compile directive and fire watches', inject(function ($compile, _$rootScope_) {
-                $rootScope = _$rootScope_;
-                // Compile a piece of HTML containing the directive
-                $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
-                // fire all the watches, so text is evaluated
-                $rootScope.$digest();
-            }));
+        expect($rootScope.book).to.be.an.object;
+        expect($rootScope.book.id).to.equal(1);
+    }));
 
-            it("should load data into a scope variable", function () {
-                $rootScope.mybooks.should.be.eql({
-                    books: 'mock'
-                });
-            });
+    it("GET directive should set the correct variable name", inject(function ($compile, $rootScope) {
 
-            it("loading state should be true when the request is not resolved yet", function () {
-                $rootScope.mybooksLoading.should.be.false;
-            });
+        $compile('<div av-rest-get="books" rest-name="mybooks"></div>')($rootScope);
 
-        });
+        expect($rootScope.mybooksLoading).to.be.true;
 
-        describe('when request is resolved with error..', function () {
+        $httpBackend.flush();
 
-            beforeEach('mock RESTFactory to return error', module(function ($provide) {
-                $provide.service('RESTFactory', function () {
-                    this.enableDefaultContentType = sinon.spy();
-                    this.setCache = sinon.spy();
-                    this.readObject = function (path, success, error) {
-                        error();
-                    };
-                });
-            }));
+        expect($rootScope.mybooksLoading).to.be.false;
 
-            beforeEach('compile directive and fire watches', inject(function ($compile, _$rootScope_) {
-                $rootScope = _$rootScope_;
-                // Compile a piece of HTML containing the directive
-                $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
-                // fire all the watches, so text is evaluated
-                $rootScope.$digest();
-            }));
+        expect($rootScope.mybooks.length).to.equal(2);
+    }));
 
-            it("should set error state to true", inject(function ($compile, $rootScope) {
-                $rootScope.mybooksError.should.be.true;
-            }));
+    it("GET directive should fail with error", inject(function ($compile, $rootScope) {
 
-            it("loading state should be true when the request is not resolved yet",
-                inject(function ($compile, $rootScope) {
-                    $rootScope.mybooksLoading.should.be.false;
-                })
-            );
+        $compile('<div av-rest-get="nobooks"></div>')($rootScope);
 
-        });
+        expect($rootScope.nobooksLoading).to.be.true;
 
-    });
+        $httpBackend.flush();
 
+        expect($rootScope.nobooksLoading).to.be.false;
+        expect($rootScope.nobooksError).to.be.true;
 
-    /////////////// HELPER FUNCTIONS
+        expect($rootScope.nobooks).to.be.undefined;
+    }));
 
-    function setupRestTesting() {
+    it("DELETE directive should remove element", inject(function ($compile, $rootScope) {
 
-        // Generate mock modules and providers
-        mockDependencies();
+        $compile('<div av-rest-get="books" ng-repeat="book in books"><button av-rest-delete="book"></button></div>')($rootScope);
 
-        // Load the module to be tested
-        module("appverse.rest");
-    }
+        //        expect($rootScope.bookDeleting).to.be.true;
 
-    function mockDependencies() {
+        //        $httpBackend.flush();
 
-        // mock modules by creating empty ones
-        angular.module('appverse.configuration', []);
-        angular.module('restangular', []);
+        //        expect($rootScope.bookDeleting).to.be.false;
 
-        // Provide the dependency injector with mock empty objects
-        // instead of real ones
-        module(function ($provide) {
-
-            $provide.service('Restangular', function () {
-                this.setBaseUrl = sinon.spy();
-                this.setExtraFields = sinon.spy();
-                this.setParentless = sinon.spy();
-                this.setOnElemRestangularized = sinon.spy();
-                this.setResponseInterceptor = sinon.spy();
-                this.setErrorInterceptor = sinon.spy();
-                this.setRestangularFields = sinon.spy();
-                this.setMethodOverriders = sinon.spy();
-                this.setFullResponse = sinon.spy();
-                this.setRequestSuffix = sinon.spy();
-                this.setUseCannonicalId = sinon.spy();
-                this.setEncodeIds = sinon.spy();
-                this.setDefaultHeaders = sinon.spy();
-            });
-
-            $provide.factory('avCacheFactory', function () {
-                return {
-                    getHttpCache: sinon.stub()
-                };
-            });
-
-            $provide.factory('Oauth_RequestWrapper', function () {
-                return {};
-            });
-
-            $provide.factory('Oauth_AccessToken', function () {
-                return {};
-            });
-
-            $provide.constant('REST_CONFIG', {
-                ElementTransformer: [],
-                DefaultContentType: 'text/plain;'
-            });
-
-            $provide.constant('SECURITY_GENERAL', {});
-        });
-    }
+        //        expect($rootScope.books.length).to.equal(1);
+    }));
 });

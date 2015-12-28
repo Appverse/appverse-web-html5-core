@@ -61,6 +61,8 @@ module.exports = function (config) {
             'bower_components/angular-translate/angular-translate.min.js',
             'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
             'bower_components/angular-dynamic-locale/dist/tmhDynamicLocale.js',
+            'bower_components/lodash/lodash.min.js',
+            'bower_components/restangular/dist/restangular.min.js',
             'bower_components/sockjs-client/dist/sockjs.js',
             'bower_components/stomp-websocket/lib/stomp.min.js',
 
