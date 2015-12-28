@@ -12,13 +12,13 @@
      *
      * @requires appverse.configuration
      */
+    run.$inject = ["$log"];
     angular.module('appverse.performance', ['appverse.configuration'])
         .run(run);
 
     function run ($log) {
         $log.info('appverse.performance run');
     }
-    run.$inject = ["$log"];
 
 })();
 (function () {
@@ -140,6 +140,7 @@
 (function() {
     'use strict';
 
+    WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
     angular.module('appverse.performance')
         .factory('WebWorkerPoolFactory', WebWorkerPoolFactory);
 
@@ -435,6 +436,5 @@
 
         return factory;
     }
-    WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
 
 })();
