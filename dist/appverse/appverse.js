@@ -40,13 +40,13 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  *
  * @requires appverse.configuration.loader
  */
+run.$inject = ["$log"];
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
 
 function run($log) {
     $log.info('appverse.configuration run');
 }
-run.$inject = ["$log"];
 
 })();
 (function () {
@@ -76,6 +76,8 @@ run.$inject = ["$log"];
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
+    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
+    run.$inject = ["$log", "REST_CONFIG"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
 
@@ -110,14 +112,12 @@ run.$inject = ["$log"];
 
         }
     }
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
 
     function run($log, REST_CONFIG) {
         if (REST_CONFIG.MockBackend) {
             $log.debug('REST: You are using a MOCKED backend!');
         }
     }
-    run.$inject = ["$log", "REST_CONFIG"];
 
 
 })();
@@ -125,6 +125,7 @@ run.$inject = ["$log"];
 (function () {
     'use strict';
 
+    configFn.$inject = ["ConfigLoaderProvider"];
     angular.module('appverse.configuration.loader')
         .provider('ConfigLoader', ConfigLoaderProvider)
         .config(configFn);
@@ -289,10 +290,9 @@ run.$inject = ["$log"];
             mobileBrowser: {}
         });
     }
-    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -584,6 +584,11 @@ run.$inject = ["$log"];
             BaseUrl: '/api/v1',
 
             /*
+            Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
+            */
+            Timeout: 1000,
+
+            /*
             These are the fields that you want to save from your parent resources if you need to display them.
             By default this is an Empty Array which will suit most cases.
             */
@@ -635,7 +640,7 @@ run.$inject = ["$log"];
             @param what: The model that is being modified. This is the "path" of this resource. For example buildings
             @param Restangular: The instanced service to use any of its methods
             */
-            OnElemRestangularized: function(elem) {
+            OnElemRestangularized: function (elem) {
                 return elem;
             },
 
@@ -675,7 +680,7 @@ run.$inject = ["$log"];
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function() {},
+            ErrorInterceptor: function () {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:
@@ -994,6 +999,7 @@ run.$inject = ["$log"];
 var AppInit = AppInit || (function (angular) {
     'use strict';
 
+    loadConfig.$inject = ["ConfigLoaderProvider"];
     var
         settings,
         mainModuleName;
@@ -1057,7 +1063,6 @@ var AppInit = AppInit || (function (angular) {
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
     }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
         setMainModuleName: setMainModuleName,

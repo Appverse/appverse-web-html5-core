@@ -46,6 +46,7 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
+    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
     angular.module('appverse.cache', [
         'appverse.configuration',
         'angular-cache'
@@ -78,7 +79,6 @@
                 CACHE_CONFIG.HttpCache_capacity);
         }
     }
-    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
 
 })();
 
@@ -614,6 +614,7 @@
 (function () {
     'use strict';
 
+DetectionProvider.$inject = ["MobileDetectorProvider"];
 angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
 
@@ -772,7 +773,6 @@ function DetectionProvider (MobileDetectorProvider) {
         this.isPollingBandwidth = false;
     };
 }
-DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 
 })();
@@ -836,6 +836,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function () {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
     angular.module('appverse.detection')
         .run(run);
 
@@ -942,7 +943,6 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
             Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
         }
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 
 })();
 
@@ -1006,6 +1006,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function() {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG"];
     angular.module('appverse.ionic')
         .run(run);
 
@@ -1055,7 +1056,6 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG"];
 })();
 
 /*jshint -W101 */
@@ -1728,13 +1728,13 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      *
      * @requires appverse.configuration
      */
+    run.$inject = ["$log"];
     angular.module('appverse.performance', ['appverse.configuration'])
         .run(run);
 
     function run ($log) {
         $log.info('appverse.performance run');
     }
-    run.$inject = ["$log"];
 
 })();
 (function () {
@@ -1856,6 +1856,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 (function() {
     'use strict';
 
+    WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
     angular.module('appverse.performance')
         .factory('WebWorkerPoolFactory', WebWorkerPoolFactory);
 
@@ -2151,12 +2152,12 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
         return factory;
     }
-    WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
 
 })();
 (function () {
     'use strict';
 
+    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
     var requires = [
         'restangular',
         'appverse.configuration',
@@ -2262,7 +2263,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $log.info('appverse.rest run');
 
     }
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
 
 
 
@@ -2272,84 +2272,256 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
 })();
 
-(function() {
-    'use strict';
-
-    angular.module('appverse.rest')
-    .directive('rest', restDirective);
-
-    /**
-     * @ngdoc directive
-     * @name rest
-     * @module appverse.rest
-     * @restrict A
-     *
-     * @description
-     * Retrieves JSON data
-     *
-     * @example
-     <example module="appverse.rest">
-       <file name="index.html">
-         <p>REST test</p>
-         <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
-       </file>
-     </example>
-     *
-     * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
-     * @requires  RESTFactory
-     */
-    function restDirective ($log, RESTFactory) {
-        return {
-            link: function (scope, element, attrs) {
-
-                var defaultName = 'restData',
-                    loadingSuffix = 'Loading',
-                    errorSuffix = 'Error',
-                    name = attrs.restName || defaultName,
-                    path = attrs.rest || attrs.restPath;
-
-                $log.debug('rest directive');
-
-                scope[name + loadingSuffix] = true;
-                element.html(attrs.restLoadingText || "");
-
-                scope.$watchCollection(function () {
-                    return [path, name, attrs.restErrorText, attrs.restLoadingText];
-                }, function (newCollection, oldCollection, scope) {
-                    $log.debug('REST watch ' + name + ':', newCollection);
-                    scope[name + errorSuffix] = false;
-
-                    var object;
-                    if (attrs.restId) {
-                        object = RESTFactory.readListItem(path, attrs.restId, onSuccess, onError);
-                    } else {
-                        object = RESTFactory.readObject(path, onSuccess, onError);
-                    }
-
-                    function onSuccess(data) {
-                        $log.debug('get data', data);
-                        element.html("");
-                        scope[name] = data;
-                        scope[name + loadingSuffix] = false;
-                    }
-
-                    function onError() {
-                        element.html(attrs.restErrorText || "");
-                        scope[name + loadingSuffix] = false;
-                        scope[name + errorSuffix] = true;
-                    }
-
-                });
-            }
-        };
-    }
-    restDirective.$inject = ["$log", "RESTFactory"];
-
-
-})();
 (function () {
     'use strict';
 
+    angular.module('appverse.rest')
+
+    .directive('avRestGet',
+
+        /**
+         * @ngdoc directive
+         * @name avRestGet
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <div av-rest-get="accounts" ng-repeat="account in accounts">
+            <p ng-bind="account.name"></p>
+            <p ng-bind="account.total"></p>
+         </div>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @requires  Restangular
+         */
+        ["$log", "Restangular", "$rootScope", "$timeout", "REST_CONFIG", function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    $log.debug('avRestGet directive', attrs);
+
+                    var gettingSuffix = 'Getting',
+                        errorSuffix = 'Error',
+                        name;
+
+                    if (attrs.restName) {
+                        name = attrs.restName;
+                    } else {
+                        name = attrs.avRestGet.split('/').reverse()[0];
+
+                        if (attrs.restId && name.charAt(name.length - 1) === 's') {
+                            name = name.substr(0, name.length - 1);
+                        }
+                    }
+
+                    scope[name + gettingSuffix] = true;
+
+                    scope.$watchCollection(function () {
+                        return [attrs.avRestGet, attrs.restId, attrs.restName];
+                    }, function (newCollection, oldCollection, scope) {
+                        $log.debug('avRestGet watch ' + name + ':', newCollection);
+                        scope[name + errorSuffix] = false;
+
+                        if (attrs.restId) {
+                            Restangular.all(attrs.avRestGet).one(attrs.restId).get().then(onSuccess, onError);
+                        } else {
+                            Restangular.all(attrs.avRestGet).getList().then(onSuccess, onError);
+                        }
+
+                        function onSuccess(data) {
+                            $log.debug('onSuccess', data);
+                            $timeout(function () {
+                                scope[name + gettingSuffix] = false;
+                                if (scope.$headerContainer) {
+                                    scope.$parent[name] = data;
+                                } else {
+                                    scope[name] = data;
+                                }
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + gettingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
+                        }
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestRemove',
+
+        /**
+         * @ngdoc directive
+         * @name avRestRemove
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-delete="account"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", "$rootScope", "$timeout", "REST_CONFIG", function ($log, $rootScope, $timeout, REST_CONFIG) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.click(function () {
+
+                        var removingSuffix = 'Removing',
+                            errorSuffix = 'Error',
+                            item = scope.$eval(attrs.avRestRemove),
+                            name = attrs.restName || item.route.split('/').reverse()[0];
+
+                        $log.debug('avRestRemove directive', item);
+
+                        if (attrs.restIf && !scope.$eval(attrs.restIf)) {
+                            return;
+                        }
+
+                        scope[name + removingSuffix] = true;
+                        scope[name + errorSuffix] = false;
+
+                        item.remove().then(onSuccess, onError);
+
+                        function onSuccess(data) {
+                            $log.debug('onSuccess', data);
+                            $timeout(function () {
+                                scope[name + removingSuffix] = false;
+                                var index = scope[name].indexOf(item);
+                                if (index > -1) {
+                                    scope[name].splice(index, 1);
+                                }
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + removingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestSave',
+
+        /**
+         * @ngdoc directive
+         * @name avRestSave
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-put="newAccount"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", "$rootScope", "Restangular", "$timeout", "REST_CONFIG", function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.click(function () {
+
+                        var savingSuffix = 'Saving',
+                            errorSuffix = 'Error',
+                            item = scope.$eval(attrs.avRestSave),
+                            name = attrs.restName;
+
+                        $log.debug('avRestSave directive', item);
+
+                        if (!name) {
+                            if (item.route) {
+                                name = item.route.split('/').reverse()[0];
+                            } else {
+                                name = attrs.avRestSave + 's';
+                            }
+                        }
+
+                        if (attrs.restIf && !scope.$eval(attrs.restIf)) {
+                            return;
+                        }
+
+                        scope[name + savingSuffix] = true;
+                        scope[name + errorSuffix] = false;
+
+                        if (!item.save) {
+                            Restangular.restangularizeElement(null, item, name);
+                        }
+                        item.save().then(onSuccess, onError);
+
+                        function onSuccess(data) {
+                            $log.debug('onSuccess', data);
+                            $timeout(function () {
+                                scope[name + savingSuffix] = false;
+                                var index = scope[name].indexOf(item);
+                                scope[name][index] = item;
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + savingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+
+                                if (!item.fromServer) {
+                                    var collection = scope[name];
+                                    if (!collection) {
+                                        collection = scope.$parent[name];
+                                    }
+                                    var index = collection.indexOf(item);
+                                    if (index > -1) {
+                                        collection.splice(index, 1);
+                                    }
+                                }
+
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                    });
+                }
+            };
+        }]);
+
+
+})();
+
+(function () {
+    'use strict';
+
+    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
     angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
 
     /**
@@ -2428,71 +2600,16 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          */
         factory.setCache = function (cache) {
             Restangular.setResponseInterceptor(
-                function (data, operation, what, url, response) {
+                function (data, operation) {
                     // Caches response data or not according to configuration.
                     if (cache) {
                         if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
                             cache.removeAll();
-                        } else if (operation === 'put') {
-                            cache.put(response.config.url, response.config.data);
                         }
                     }
                     return data;
                 }
             );
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readObject
-         *
-         * @param {String} path The item URL
-         * @param {String} successFn Optional function to be called when request is successful
-         * @param {String} errorFn Optional function to be called when request has errors
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} List of values
-         */
-        factory.readObject = function (path, successFn, errorFn) {
-            successFn = successFn || function () {};
-            errorFn = errorFn || function () {};
-            var promise = Restangular.one(path).get();
-            promise.then(successFn, errorFn);
-            return promise.$object;
-        };
-
-        /*
-         * Returns a complete list from a REST resource.
-            Use to get data to a scope var. For example:
-            $scope.people = readList('people');
-            Then, use the var in templates:
-            <li ng-repeat="person in people">{{person.Name}}</li>
-         */
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readList
-         *
-         * @param {String} path The item URL
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} Does a GET to path
-         * Returns an empty array by default. Once a value is returned from the server
-         * that array is filled with those values.
-         */
-        factory.readList = function (path) {
-            return Restangular.all(path).getList().$object;
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readList
-         *
-         * @param {String} path The item URL
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} Does a GET to path
-         * It does not return an empty array by default.
-         * Once a value is returned from the server that array is filled with those values.
-         */
-        factory.readListNoEmpty = function (path) {
-            return Restangular.all(path).getList();
         };
 
         /**
@@ -2550,118 +2667,9 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
             return $q.all(promises);
         };
 
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readListItem
-         *
-         * @param {String} path The item URL
-         * @param {String} key The item key
-         * @param {String} successFn Optional function to be called when request is successful
-         * @param {String} errorFn Optional function to be called when request has errors
-         * @description Returns a unique value.
-         * @returns {object} An item value
-         */
-        factory.readListItem = function (path, key, successFn, errorFn) {
-            successFn = successFn || function () {};
-            errorFn = errorFn || function () {};
-            var promise = Restangular.one(path, key).get();
-            promise.then(successFn, errorFn);
-            return promise.$object;
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readListItems
-         *
-         * @param {String} path The item URL
-         * @param {String} keys The item keys array
-         * @description Returns a unique value.
-         * @returns {object} List of values
-         */
-        factory.readListItems = function (path, keys) {
-            return Restangular.several(path, keys).getList().$object;
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#createListItem
-         *
-         * @param {String} path The item URL
-         * @param {object} newData The item to be created
-         * @param {object} callback The function for callbacking
-         * @description Returns result code.
-         * @returns {object} The created item
-         */
-        factory.createListItem = function (path, newData, callback) {
-            Restangular.all(path).post(newData).then(callback, restErrorHandler);
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#updateObject
-         *
-         * @param {String} path The item URL
-         * @param {object} newData The item to be updated
-         * @param {object} callback The function for callbacking
-         * @description Returns result code.
-         * @returns {object} The updated item
-         */
-        factory.updateObject = function (path, newData, callback) {
-            Restangular.one(path).put(newData).then(callback, restErrorHandler);
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#deleteListItem
-         *
-         * @param {String} path The item URL
-         * @param {object} key The item key to be deleted
-         * @param {object} callback The function for callbacking
-         * @description Deletes an item from a list.
-         * @returns {object} The deleted item
-         */
-        factory.deleteListItem = function (path, key, callback) {
-            // Use 'then' to resolve the promise.
-            Restangular.one(path, key).get().then(function (item) {
-                item.remove().then(callback, restErrorHandler);
-            });
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#deleteObject
-         *
-         * @param {String} path The item URL
-         * @param {object} callback The function for callbacking
-         * @description Deletes an item from a list.
-         * @returns {object} The deleted item
-         */
-
-        factory.deleteObject = function (path, callback) {
-            // Use 'then' to resolve the promise.
-            Restangular.one(path).delete().then(callback, restErrorHandler);
-        };
-
-        /**
-        @function
-        @param response Response to know its status
-        @description Provides a handler for errors.
-        */
-        function restErrorHandler(response) {
-            $log.error("Error with status code", response.status);
-        }
-
-
         return factory;
 
     }
-    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();
 (function() {
@@ -3273,6 +3281,8 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      * @requires https://github.com/lgalfaso/angular-dynamic-locale tmh.dynamicLocale
      * @requires appverse.configuration
      */
+    configBlock.$inject = ["$translateProvider", "I18N_CONFIG", "tmhDynamicLocaleProvider", "$provide"];
+    runBlock.$inject = ["$log"];
     angular.module('appverse.translate', [
         'pascalprecht.translate',
         'appverse.configuration',
@@ -3302,7 +3312,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $provide.decorator('translateDirective',  decorateTranslateDirective);
 
     }
-    configBlock.$inject = ["$translateProvider", "I18N_CONFIG", "tmhDynamicLocaleProvider", "$provide"];
 
 
     function runBlock($log) {
@@ -3310,7 +3319,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $log.info('appverse.translate run');
 
     }
-    runBlock.$inject = ["$log"];
 
 
     /**
@@ -3694,13 +3702,13 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  *
  * @requires appverse.configuration.loader
  */
+run.$inject = ["$log"];
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
 
 function run($log) {
     $log.info('appverse.configuration run');
 }
-run.$inject = ["$log"];
 
 })();
 (function () {
@@ -3730,6 +3738,8 @@ run.$inject = ["$log"];
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
+    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
+    run.$inject = ["$log", "REST_CONFIG"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
 
@@ -3764,14 +3774,12 @@ run.$inject = ["$log"];
 
         }
     }
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
 
     function run($log, REST_CONFIG) {
         if (REST_CONFIG.MockBackend) {
             $log.debug('REST: You are using a MOCKED backend!');
         }
     }
-    run.$inject = ["$log", "REST_CONFIG"];
 
 
 })();
@@ -3779,6 +3787,7 @@ run.$inject = ["$log"];
 (function () {
     'use strict';
 
+    configFn.$inject = ["ConfigLoaderProvider"];
     angular.module('appverse.configuration.loader')
         .provider('ConfigLoader', ConfigLoaderProvider)
         .config(configFn);
@@ -3943,10 +3952,9 @@ run.$inject = ["$log"];
             mobileBrowser: {}
         });
     }
-    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -4238,6 +4246,11 @@ run.$inject = ["$log"];
             BaseUrl: '/api/v1',
 
             /*
+            Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
+            */
+            Timeout: 1000,
+
+            /*
             These are the fields that you want to save from your parent resources if you need to display them.
             By default this is an Empty Array which will suit most cases.
             */
@@ -4289,7 +4302,7 @@ run.$inject = ["$log"];
             @param what: The model that is being modified. This is the "path" of this resource. For example buildings
             @param Restangular: The instanced service to use any of its methods
             */
-            OnElemRestangularized: function(elem) {
+            OnElemRestangularized: function (elem) {
                 return elem;
             },
 
@@ -4329,7 +4342,7 @@ run.$inject = ["$log"];
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function() {},
+            ErrorInterceptor: function () {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:
@@ -4648,6 +4661,7 @@ run.$inject = ["$log"];
 var AppInit = AppInit || (function (angular) {
     'use strict';
 
+    loadConfig.$inject = ["ConfigLoaderProvider"];
     var
         settings,
         mainModuleName;
@@ -4711,7 +4725,6 @@ var AppInit = AppInit || (function (angular) {
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
     }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
         setMainModuleName: setMainModuleName,
