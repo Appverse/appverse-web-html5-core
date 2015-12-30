@@ -23,13 +23,14 @@
          * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
          * @requires  Restangular
          */
-        function ($log, Restangular) {
+        function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
             return {
+                restrict: 'A',
                 link: function (scope, element, attrs) {
 
                     $log.debug('avRestGet directive', attrs);
 
-                    var loadingSuffix = 'Loading',
+                    var gettingSuffix = 'Getting',
                         errorSuffix = 'Error',
                         name;
 
@@ -43,7 +44,7 @@
                         }
                     }
 
-                    scope[name + loadingSuffix] = true;
+                    scope[name + gettingSuffix] = true;
 
                     scope.$watchCollection(function () {
                         return [attrs.avRestGet, attrs.restId, attrs.restName];
@@ -59,25 +60,37 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            scope.$parent[name] = data;
-                            scope[name + loadingSuffix] = false;
+                            $timeout(function () {
+                                scope[name + gettingSuffix] = false;
+                                if (scope.$headerContainer) {
+                                    scope.$parent[name] = data;
+                                } else {
+                                    scope[name] = data;
+                                }
+                            }, REST_CONFIG.Timeout);
                         }
 
-                        function onError() {
-                            $log.debug('onError');
-                            scope[name + loadingSuffix] = false;
-                            scope[name + errorSuffix] = true;
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + gettingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
                         }
                     });
                 }
             };
         })
 
-    .directive('avRestDelete',
+    .directive('avRestRemove',
 
         /**
          * @ngdoc directive
-         * @name avRestDelete
+         * @name avRestRemove
          * @module appverse.rest
          * @restrict A
          *
@@ -89,48 +102,50 @@
          *
          * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
          */
-        function ($log, $rootScope) {
+        function ($log, $rootScope, $timeout, REST_CONFIG) {
             return {
+                restrict: 'A',
                 link: function (scope, element, attrs) {
 
                     element.click(function () {
 
-                        var deletingSuffix = 'Deleting',
+                        var removingSuffix = 'Removing',
                             errorSuffix = 'Error',
-                            element = scope.$eval(attrs.avRestDelete),
-                            name = attrs.restName || element.route.split('/').reverse()[0];
+                            item = scope.$eval(attrs.avRestRemove),
+                            name = attrs.restName || item.route.split('/').reverse()[0];
 
-                        $log.debug('avRestDelete directive', element);
+                        $log.debug('avRestRemove directive', item);
 
-                        if (attrs.restClick && !scope.$eval(attrs.restClick)) {
+                        if (attrs.restIf && !scope.$eval(attrs.restIf)) {
                             return;
                         }
 
-                        scope[name + deletingSuffix] = true;
+                        scope[name + removingSuffix] = true;
                         scope[name + errorSuffix] = false;
 
-                        element.remove().then(onSuccess, onError);
+                        item.remove().then(onSuccess, onError);
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            var index = scope[name].indexOf(element);
-                            if (index > -1) {
-                                scope[name].splice(index, 0);
-                            }
-                            scope[name + deletingSuffix] = false;
+                            $timeout(function () {
+                                scope[name + removingSuffix] = false;
+                                var index = scope[name].indexOf(item);
+                                if (index > -1) {
+                                    scope[name].splice(index, 1);
+                                }
+                            }, REST_CONFIG.Timeout);
                         }
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            scope[name + deletingSuffix] = false;
-                            scope[name + errorSuffix] = true;
-                            if (!$rootScope[name + 'Errors']) {
-                                $rootScope[name + 'Errors'] = [];
-                            }
-                            $rootScope[name + 'Errors'].push({
-                                response: response,
-                                element: element
-                            });
+                            $timeout(function () {
+                                scope[name + removingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
                         }
 
                     });
@@ -142,7 +157,7 @@
 
         /**
          * @ngdoc directive
-         * @name avRestPut
+         * @name avRestSave
          * @module appverse.rest
          * @restrict A
          *
@@ -154,46 +169,71 @@
          *
          * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
          */
-        function ($log, $rootScope) {
+        function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
             return {
+                restrict: 'A',
                 link: function (scope, element, attrs) {
 
                     element.click(function () {
 
-                        var updatingSuffix = 'Updating',
+                        var savingSuffix = 'Saving',
                             errorSuffix = 'Error',
-                            element = scope.$eval(attrs.avRestPut),
-                            name = attrs.restName || element.route.split('/').reverse()[0];
+                            item = scope.$eval(attrs.avRestSave),
+                            name = attrs.restName;
 
-                        $log.debug('avRestPut directive', element);
+                        $log.debug('avRestSave directive', item);
 
-                        if (attrs.restClick && !scope.$eval(attrs.restClick)) {
+                        if (!name) {
+                            if (item.route) {
+                                name = item.route.split('/').reverse()[0];
+                            } else {
+                                name = attrs.avRestSave + 's';
+                            }
+                        }
+
+                        if (attrs.restIf && !scope.$eval(attrs.restIf)) {
                             return;
                         }
 
-                        scope[name + updatingSuffix] = true;
+                        scope[name + savingSuffix] = true;
                         scope[name + errorSuffix] = false;
 
-                        element.put().then(onSuccess, onError);
+                        if (!item.save) {
+                            Restangular.restangularizeElement(null, item, name);
+                        }
+                        item.save().then(onSuccess, onError);
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            var index = scope[name].indexOf(element);
-                            scope[name][index] = element;
-                            scope[name + updatingSuffix] = false;
+                            $timeout(function () {
+                                scope[name + savingSuffix] = false;
+                                var index = scope[name].indexOf(item);
+                                scope[name][index] = item;
+                            }, REST_CONFIG.Timeout);
                         }
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            scope[name + updatingSuffix] = false;
-                            scope[name + errorSuffix] = true;
-                            if (!$rootScope[name + 'Errors']) {
-                                $rootScope[name + 'Errors'] = [];
-                            }
-                            $rootScope[name + 'Errors'].push({
-                                response: response,
-                                element: element
-                            });
+                            $timeout(function () {
+                                scope[name + savingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+
+                                if (!item.fromServer) {
+                                    var collection = scope[name];
+                                    if (!collection) {
+                                        collection = scope.$parent[name];
+                                    }
+                                    var index = collection.indexOf(item);
+                                    if (index > -1) {
+                                        collection.splice(index, 1);
+                                    }
+                                }
+
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
                         }
 
                     });

@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -290,6 +290,11 @@
             BaseUrl: '/api/v1',
 
             /*
+            Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
+            */
+            Timeout: 1000,
+
+            /*
             These are the fields that you want to save from your parent resources if you need to display them.
             By default this is an Empty Array which will suit most cases.
             */
@@ -341,7 +346,7 @@
             @param what: The model that is being modified. This is the "path" of this resource. For example buildings
             @param Restangular: The instanced service to use any of its methods
             */
-            OnElemRestangularized: function(elem) {
+            OnElemRestangularized: function (elem) {
                 return elem;
             },
 
@@ -381,7 +386,7 @@
             each Restangular error response for every request in your AngularJS application in a single place,
             increasing debugging capabilities and hooking security features in a single place.
             */
-            ErrorInterceptor: function() {},
+            ErrorInterceptor: function () {},
 
             /*
             Restangular required 3 fields for every "Restangularized" element. These are:
