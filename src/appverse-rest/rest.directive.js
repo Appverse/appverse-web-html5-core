@@ -112,7 +112,7 @@
                         var removingSuffix = 'Removing',
                             errorSuffix = 'Error',
                             item = scope.$eval(attrs.avRestRemove),
-                            name = attrs.restName || item.route.split('/').reverse()[0];
+                            name = item.route.split('/').reverse()[0];
 
                         $log.debug('avRestRemove directive', item);
 
@@ -129,9 +129,10 @@
                             $log.debug('onSuccess', data);
                             $timeout(function () {
                                 scope[name + removingSuffix] = false;
-                                var index = scope[name].indexOf(item);
+                                var collection = item.getParentList(),
+                                    index = collection.indexOf(item);
                                 if (index > -1) {
-                                    scope[name].splice(index, 1);
+                                    collection.splice(index, 1);
                                 }
                             }, REST_CONFIG.Timeout);
                         }
@@ -179,17 +180,11 @@
                         var savingSuffix = 'Saving',
                             errorSuffix = 'Error',
                             item = scope.$eval(attrs.avRestSave),
-                            name = attrs.restName;
+                            collection = item.getParentList(),
+                            index = collection.indexOf(item),
+                            name = collection.route.split('/').reverse()[0];
 
                         $log.debug('avRestSave directive', item);
-
-                        if (!name) {
-                            if (item.route) {
-                                name = item.route.split('/').reverse()[0];
-                            } else {
-                                name = attrs.avRestSave + 's';
-                            }
-                        }
 
                         if (attrs.restIf && !scope.$eval(attrs.restIf)) {
                             return;
@@ -198,7 +193,9 @@
                         scope[name + savingSuffix] = true;
                         scope[name + errorSuffix] = false;
 
-                        if (!item.save) {
+                        if (item.save) {
+                            delete item.editing;
+                        } else {
                             Restangular.restangularizeElement(null, item, name);
                         }
                         item.save().then(onSuccess, onError);
@@ -207,8 +204,7 @@
                             $log.debug('onSuccess', data);
                             $timeout(function () {
                                 scope[name + savingSuffix] = false;
-                                var index = scope[name].indexOf(item);
-                                scope[name][index] = item;
+                                collection[index] = item;
                             }, REST_CONFIG.Timeout);
                         }
 
@@ -218,13 +214,12 @@
                                 scope[name + savingSuffix] = false;
                                 scope[name + errorSuffix] = true;
 
-                                if (!item.fromServer) {
-                                    var collection = scope[name];
-                                    if (!collection) {
-                                        collection = scope.$parent[name];
-                                    }
-                                    var index = collection.indexOf(item);
-                                    if (index > -1) {
+                                collection = item.getParentList();
+
+                                if (index > -1) {
+                                    if (item.fromServer) {
+                                        collection.splice(index, 1, scope.copy);
+                                    } else {
                                         collection.splice(index, 1);
                                     }
                                 }
@@ -239,7 +234,170 @@
                     });
                 }
             };
+        })
+
+    .directive('avRestAdd',
+
+        /**
+         * @ngdoc directive
+         * @name avRestAdd
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-add="users"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.click(function () {
+
+                        var collection = scope.$eval(attrs.avRestAdd);
+
+                        $log.debug('avRestAdd directive', collection);
+
+                        collection.unshift({
+                            editing: true,
+                            getParentList: function () {
+                                return collection;
+                            }
+                        });
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        })
+
+    .directive('avRestClone',
+
+        /**
+         * @ngdoc directive
+         * @name avRestClone
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-clone="user"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.click(function () {
+
+                        var item = scope.$eval(attrs.avRestClone),
+                            collection = item.getParentList();
+
+                        $log.debug('avRestClone directive', item);
+
+                        var copy = item.clone();
+                        copy.fromServer = false;
+                        copy.editing = true;
+                        collection.unshift(copy);
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        })
+
+    .directive('avRestEdit',
+
+        /**
+         * @ngdoc directive
+         * @name avRestEdit
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-edit="user"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.click(function () {
+
+                        var item = scope.$eval(attrs.avRestEdit);
+
+                        $log.debug('avRestEdit directive', item);
+
+                        scope.copy = item.clone();
+                        item.editing = true;
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        })
+
+    .directive('avRestCancel',
+
+        /**
+         * @ngdoc directive
+         * @name avRestCancel
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-cancel="user"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.click(function () {
+
+                        $log.debug('avRestCancel directive', scope);
+
+                        var item = scope.$eval(attrs.avRestCancel),
+                            collection;
+
+                        if (item.getParentList) {
+                            collection = item.getParentList();
+                        } else {
+                            collection = scope[attrs.restName || attrs.avRestCancel + 's'];
+                        }
+
+                        var index = collection.indexOf(item);
+
+                        if (index > -1) {
+                            if (scope.copy) {
+                                collection.splice(index, 1, scope.copy);
+                            } else {
+                                collection.splice(index, 1);
+                            }
+                        }
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
         });
-
-
 })();
