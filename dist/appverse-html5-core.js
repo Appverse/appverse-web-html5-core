@@ -1009,16 +1009,18 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
     angular.module('appverse.ionic')
         .run(run);
 
-    function run($log, Detection, $rootScope, $state, $modal, IONIC_CONFIG) {
+    function run($log, Detection, $rootScope, $state, $uibModal, IONIC_CONFIG, $location) {
         $log.info('appverse.ionic run');
 
         function showModalPrompt() {
             if (IONIC_CONFIG.modalPrompt) {
 
-                $modal.open({
-                    templateUrl: 'appverse-ionic/not-allowed.html',
+                $uibModal.open({
+                    templateUrl: 'appverse-ionic/modal/not-allowed.html',
                     controller: 'ModalNotAllowedCntrl'
                 });
+            } else {
+                $location.path(IONIC_CONFIG.redirectionPath);
             }
 
         }
@@ -1055,7 +1057,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$modal", "IONIC_CONFIG"];
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
 })();
 
 /*jshint -W101 */
