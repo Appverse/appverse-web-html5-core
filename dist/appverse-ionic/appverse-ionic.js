@@ -30,7 +30,7 @@
     angular.module('appverse.ionic')
 
     .controller('ModalNotAllowedCntrl',
-        ["$scope", "$modalInstance", "Detection", "$location", "$timeout", "IONIC_CONFIG", function($scope, $modalInstance, Detection, $location, $timeout, IONIC_CONFIG) {
+        ["$scope", "$uibModalInstance", "Detection", "$location", "$timeout", "IONIC_CONFIG", function($scope, $uibModalInstance, Detection, $location, $timeout, IONIC_CONFIG) {
             if (Detection.isMobileBrowser()) {
                 $scope.device = 'device';
             } else {
@@ -45,7 +45,7 @@
                 $scope.$evalAsync($scope.seconds);
                 if ($scope.seconds <= 0) {
                     clearInterval(counter);
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                     $timeout(function() {
                         $location.path(IONIC_CONFIG.redirectionPath);
                     }, 300);

@@ -79,71 +79,16 @@
          */
         factory.setCache = function (cache) {
             Restangular.setResponseInterceptor(
-                function (data, operation, what, url, response) {
+                function (data, operation) {
                     // Caches response data or not according to configuration.
                     if (cache) {
                         if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
                             cache.removeAll();
-                        } else if (operation === 'put') {
-                            cache.put(response.config.url, response.config.data);
                         }
                     }
                     return data;
                 }
             );
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readObject
-         *
-         * @param {String} path The item URL
-         * @param {String} successFn Optional function to be called when request is successful
-         * @param {String} errorFn Optional function to be called when request has errors
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} List of values
-         */
-        factory.readObject = function (path, successFn, errorFn) {
-            successFn = successFn || function () {};
-            errorFn = errorFn || function () {};
-            var promise = Restangular.one(path).get();
-            promise.then(successFn, errorFn);
-            return promise.$object;
-        };
-
-        /*
-         * Returns a complete list from a REST resource.
-            Use to get data to a scope var. For example:
-            $scope.people = readList('people');
-            Then, use the var in templates:
-            <li ng-repeat="person in people">{{person.Name}}</li>
-         */
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readList
-         *
-         * @param {String} path The item URL
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} Does a GET to path
-         * Returns an empty array by default. Once a value is returned from the server
-         * that array is filled with those values.
-         */
-        factory.readList = function (path) {
-            return Restangular.all(path).getList().$object;
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readList
-         *
-         * @param {String} path The item URL
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} Does a GET to path
-         * It does not return an empty array by default.
-         * Once a value is returned from the server that array is filled with those values.
-         */
-        factory.readListNoEmpty = function (path) {
-            return Restangular.all(path).getList();
         };
 
         /**
@@ -200,114 +145,6 @@
 
             return $q.all(promises);
         };
-
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readListItem
-         *
-         * @param {String} path The item URL
-         * @param {String} key The item key
-         * @param {String} successFn Optional function to be called when request is successful
-         * @param {String} errorFn Optional function to be called when request has errors
-         * @description Returns a unique value.
-         * @returns {object} An item value
-         */
-        factory.readListItem = function (path, key, successFn, errorFn) {
-            successFn = successFn || function () {};
-            errorFn = errorFn || function () {};
-            var promise = Restangular.one(path, key).get();
-            promise.then(successFn, errorFn);
-            return promise.$object;
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readListItems
-         *
-         * @param {String} path The item URL
-         * @param {String} keys The item keys array
-         * @description Returns a unique value.
-         * @returns {object} List of values
-         */
-        factory.readListItems = function (path, keys) {
-            return Restangular.several(path, keys).getList().$object;
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#createListItem
-         *
-         * @param {String} path The item URL
-         * @param {object} newData The item to be created
-         * @param {object} callback The function for callbacking
-         * @description Returns result code.
-         * @returns {object} The created item
-         */
-        factory.createListItem = function (path, newData, callback) {
-            Restangular.all(path).post(newData).then(callback, restErrorHandler);
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#updateObject
-         *
-         * @param {String} path The item URL
-         * @param {object} newData The item to be updated
-         * @param {object} callback The function for callbacking
-         * @description Returns result code.
-         * @returns {object} The updated item
-         */
-        factory.updateObject = function (path, newData, callback) {
-            Restangular.one(path).put(newData).then(callback, restErrorHandler);
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#deleteListItem
-         *
-         * @param {String} path The item URL
-         * @param {object} key The item key to be deleted
-         * @param {object} callback The function for callbacking
-         * @description Deletes an item from a list.
-         * @returns {object} The deleted item
-         */
-        factory.deleteListItem = function (path, key, callback) {
-            // Use 'then' to resolve the promise.
-            Restangular.one(path, key).get().then(function (item) {
-                item.remove().then(callback, restErrorHandler);
-            });
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#deleteObject
-         *
-         * @param {String} path The item URL
-         * @param {object} callback The function for callbacking
-         * @description Deletes an item from a list.
-         * @returns {object} The deleted item
-         */
-
-        factory.deleteObject = function (path, callback) {
-            // Use 'then' to resolve the promise.
-            Restangular.one(path).delete().then(callback, restErrorHandler);
-        };
-
-        /**
-        @function
-        @param response Response to know its status
-        @description Provides a handler for errors.
-        */
-        function restErrorHandler(response) {
-            $log.error("Error with status code", response.status);
-        }
-
 
         return factory;
 

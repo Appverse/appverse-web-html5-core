@@ -96,23 +96,22 @@
             }
         };
 
-        $window.navigator.geolocation = {
-            getCurrentPosition: function (success, error, PositionOptions) {
+        $window.navigator.geolocation.getCurrentPosition = function (success, error, PositionOptions) {
 
+            updatePosition(success, error, PositionOptions);
+        };
+
+        $window.navigator.geolocation.watchPosition = function (success, error, PositionOptions) {
+
+            var watchId = $interval(function () {
                 updatePosition(success, error, PositionOptions);
-            },
-            watchPosition: function (success, error, PositionOptions) {
+            }, 1000);
+            return watchId;
+        };
 
-                var promise = $interval(function () {
-                    updatePosition(success, error, PositionOptions);
-                }, 1000);
-                return promise;
-            },
-            clearWatch: function (promise) {
-                $interval.cancel(promise);
-                Appverse.Geo.StopUpdatingLocation();
-            }
-
+        $window.navigator.geolocation.clearWatch = function (watchId) {
+            $interval.cancel(watchId);
+            Appverse.Geo.StopUpdatingLocation();
         };
 
         var deferredNetwork;

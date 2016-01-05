@@ -11,7 +11,7 @@
      *
      * @requires appverse.detection
      */
-    angular.module('appverse.native', ['appverse.detection'])
+    angular.module('appverse.native', ['appverse.detection', 'appverse.cache'])
 
     .config(
         function ($httpProvider, DetectionProvider, REST_CONFIG) {
