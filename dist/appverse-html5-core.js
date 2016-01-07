@@ -46,6 +46,7 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
+    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
     angular.module('appverse.cache', [
         'appverse.configuration',
         'angular-cache'
@@ -78,7 +79,6 @@
                 CACHE_CONFIG.HttpCache_capacity);
         }
     }
-    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
 
 })();
 
@@ -614,6 +614,7 @@
 (function () {
     'use strict';
 
+DetectionProvider.$inject = ["MobileDetectorProvider"];
 angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
 
@@ -772,7 +773,6 @@ function DetectionProvider (MobileDetectorProvider) {
         this.isPollingBandwidth = false;
     };
 }
-DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 
 })();
@@ -836,6 +836,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function () {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
     angular.module('appverse.detection')
         .run(run);
 
@@ -942,7 +943,6 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
             Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
         }
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 
 })();
 
@@ -1006,6 +1006,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function() {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
     angular.module('appverse.ionic')
         .run(run);
 
@@ -1057,7 +1058,6 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
 })();
 
 /*jshint -W101 */
@@ -1728,13 +1728,13 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      *
      * @requires appverse.configuration
      */
+    run.$inject = ["$log"];
     angular.module('appverse.performance', ['appverse.configuration'])
         .run(run);
 
     function run ($log) {
         $log.info('appverse.performance run');
     }
-    run.$inject = ["$log"];
 
 })();
 (function () {
@@ -1856,6 +1856,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 (function() {
     'use strict';
 
+    WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
     angular.module('appverse.performance')
         .factory('WebWorkerPoolFactory', WebWorkerPoolFactory);
 
@@ -2151,12 +2152,12 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
         return factory;
     }
-    WebWorkerPoolFactory.$inject = ["$log", "$q", "PERFORMANCE_CONFIG"];
 
 })();
 (function () {
     'use strict';
 
+    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
     var requires = [
         'restangular',
         'appverse.configuration',
@@ -2262,7 +2263,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $log.info('appverse.rest run');
 
     }
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
 
 
 
@@ -2679,6 +2679,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 (function () {
     'use strict';
 
+    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
     angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
 
     /**
@@ -2827,7 +2828,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         return factory;
 
     }
-    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();
 (function() {
@@ -3439,6 +3439,8 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      * @requires https://github.com/lgalfaso/angular-dynamic-locale tmh.dynamicLocale
      * @requires appverse.configuration
      */
+    configBlock.$inject = ["$translateProvider", "I18N_CONFIG", "tmhDynamicLocaleProvider", "$provide"];
+    runBlock.$inject = ["$log"];
     angular.module('appverse.translate', [
         'pascalprecht.translate',
         'appverse.configuration',
@@ -3468,7 +3470,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $provide.decorator('translateDirective',  decorateTranslateDirective);
 
     }
-    configBlock.$inject = ["$translateProvider", "I18N_CONFIG", "tmhDynamicLocaleProvider", "$provide"];
 
 
     function runBlock($log) {
@@ -3476,7 +3477,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $log.info('appverse.translate run');
 
     }
-    runBlock.$inject = ["$log"];
 
 
     /**
@@ -3860,13 +3860,13 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  *
  * @requires appverse.configuration.loader
  */
+run.$inject = ["$log"];
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
 
 function run($log) {
     $log.info('appverse.configuration run');
 }
-run.$inject = ["$log"];
 
 })();
 (function () {
@@ -3896,6 +3896,8 @@ run.$inject = ["$log"];
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
+    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
+    run.$inject = ["$log", "REST_CONFIG"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
 
@@ -3930,14 +3932,12 @@ run.$inject = ["$log"];
 
         }
     }
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
 
     function run($log, REST_CONFIG) {
         if (REST_CONFIG.MockBackend) {
             $log.debug('REST: You are using a MOCKED backend!');
         }
     }
-    run.$inject = ["$log", "REST_CONFIG"];
 
 
 })();
@@ -3945,6 +3945,7 @@ run.$inject = ["$log"];
 (function () {
     'use strict';
 
+    configFn.$inject = ["ConfigLoaderProvider"];
     angular.module('appverse.configuration.loader')
         .provider('ConfigLoader', ConfigLoaderProvider)
         .config(configFn);
@@ -4109,7 +4110,6 @@ run.$inject = ["$log"];
             mobileBrowser: {}
         });
     }
-    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
 (function () {
@@ -4819,6 +4819,7 @@ run.$inject = ["$log"];
 var AppInit = AppInit || (function (angular) {
     'use strict';
 
+    loadConfig.$inject = ["ConfigLoaderProvider"];
     var
         settings,
         mainModuleName;
@@ -4882,7 +4883,6 @@ var AppInit = AppInit || (function (angular) {
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
     }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
         setMainModuleName: setMainModuleName,

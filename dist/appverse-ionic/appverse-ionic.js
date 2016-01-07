@@ -58,6 +58,7 @@
 (function() {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
     angular.module('appverse.ionic')
         .run(run);
 
@@ -109,7 +110,6 @@
         });
 
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
 })();
 
 /*jshint -W101 */

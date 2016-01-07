@@ -46,6 +46,7 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
+    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
     angular.module('appverse.cache', [
         'appverse.configuration',
         'angular-cache'
@@ -78,7 +79,6 @@
                 CACHE_CONFIG.HttpCache_capacity);
         }
     }
-    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
 
 })();
 
