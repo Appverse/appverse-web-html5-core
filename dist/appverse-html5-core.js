@@ -1006,11 +1006,11 @@ function DetectionProvider (MobileDetectorProvider) {
 (function() {
     'use strict';
 
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG"];
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
     angular.module('appverse.ionic')
         .run(run);
 
-    function run($log, Detection, $rootScope, $state, $uibModal, IONIC_CONFIG) {
+    function run($log, Detection, $rootScope, $state, $uibModal, IONIC_CONFIG, $location) {
         $log.info('appverse.ionic run');
 
         function showModalPrompt() {
@@ -1020,6 +1020,8 @@ function DetectionProvider (MobileDetectorProvider) {
                     templateUrl: 'appverse-ionic/modal/not-allowed.html',
                     controller: 'ModalNotAllowedCntrl'
                 });
+            } else {
+                $location.path(IONIC_CONFIG.redirectionPath);
             }
 
         }
