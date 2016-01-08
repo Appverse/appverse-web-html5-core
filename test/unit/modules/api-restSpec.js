@@ -3,11 +3,12 @@
 
 describe('Unit: Testing appverse.rest module', function () {
 
-    var $httpBackend;
+    var $httpBackend, scope;
 
     beforeEach(module('restangular', 'appverse.configuration.default', 'appverse.cache', 'appverse.rest'));
 
-    beforeEach(inject(function ($injector) {
+    beforeEach(inject(function ($injector, $rootScope) {
+
         $httpBackend = $injector.get('$httpBackend');
 
         $httpBackend.when('GET', '/api/books.json')
@@ -28,7 +29,24 @@ describe('Unit: Testing appverse.rest module', function () {
         $httpBackend.when('GET', '/api/nobooks.json')
             .respond(404);
 
+        $httpBackend.when('POST', '/api/books.json')
+            .respond(201);
+
+        $httpBackend.when('PUT', '/api/books/1.json')
+            .respond(201);
+
+        $httpBackend.when('POST', '/api/nobooks.json')
+            .respond(404);
+
+        $httpBackend.when('DELETE', '/api/books/1.json')
+            .respond(200);
+
+        $httpBackend.when('DELETE', '/api/nobooks/1.json')
+            .respond(404);
+
         $injector.get('$http').defaults.cache.removeAll();
+
+        scope = $rootScope.$new();
     }));
 
     afterEach(function () {
@@ -36,70 +54,271 @@ describe('Unit: Testing appverse.rest module', function () {
         $httpBackend.verifyNoOutstandingRequest();
     });
 
-    it("GET directive should retrieve a list", inject(function ($compile, $rootScope) {
+    it("GET directive should retrieve a list", inject(function ($compile, $rootScope, $timeout) {
 
         $compile('<div av-rest-get="books"></div>')($rootScope);
 
-        expect($rootScope.booksLoading).to.be.true;
+        expect($rootScope.booksGetting).to.be.true;
 
         $httpBackend.flush();
+        $timeout.flush();
 
-        expect($rootScope.booksLoading).to.be.false;
+        expect($rootScope.booksGetting).to.be.false;
 
         expect($rootScope.books.length).to.equal(2);
     }));
 
-    it("GET directive should retrieve an object", inject(function ($compile, $rootScope) {
+    it("GET directive should retrieve an object", inject(function ($compile, $rootScope, $timeout) {
 
         $compile('<div av-rest-get="books" rest-id="1"></div>')($rootScope);
 
-        expect($rootScope.bookLoading).to.be.true;
+        expect($rootScope.bookGetting).to.be.true;
 
         $httpBackend.flush();
+        $timeout.flush();
 
-        expect($rootScope.bookLoading).to.be.false;
+        expect($rootScope.bookGetting).to.be.false;
 
         expect($rootScope.book).to.be.an.object;
         expect($rootScope.book.id).to.equal(1);
     }));
 
-    it("GET directive should set the correct variable name", inject(function ($compile, $rootScope) {
+    it("GET directive should set the correct variable name", inject(function ($compile, $rootScope, $timeout) {
 
         $compile('<div av-rest-get="books" rest-name="mybooks"></div>')($rootScope);
 
-        expect($rootScope.mybooksLoading).to.be.true;
+        expect($rootScope.mybooksGetting).to.be.true;
 
         $httpBackend.flush();
+        $timeout.flush();
 
-        expect($rootScope.mybooksLoading).to.be.false;
+        expect($rootScope.mybooksGetting).to.be.false;
 
         expect($rootScope.mybooks.length).to.equal(2);
     }));
 
-    it("GET directive should fail with error", inject(function ($compile, $rootScope) {
+    it("GET directive should fail with error", inject(function ($compile, $rootScope, $timeout) {
 
         $compile('<div av-rest-get="nobooks"></div>')($rootScope);
 
-        expect($rootScope.nobooksLoading).to.be.true;
+        expect($rootScope.nobooksGetting).to.be.true;
 
         $httpBackend.flush();
+        $timeout.flush();
 
-        expect($rootScope.nobooksLoading).to.be.false;
+        expect($rootScope.nobooksGetting).to.be.false;
         expect($rootScope.nobooksError).to.be.true;
 
         expect($rootScope.nobooks).to.be.undefined;
     }));
 
-    it("DELETE directive should remove element", inject(function ($compile, $rootScope) {
+    it("Remove directive should remove element", inject(function ($compile, $timeout, Restangular) {
 
-        $compile('<div av-rest-get="books" ng-repeat="book in books"><button av-rest-delete="book"></button></div>')($rootScope);
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
 
-        //        expect($rootScope.bookDeleting).to.be.true;
+        var element = $compile(angular.element('<button av-rest-remove="book"></button>'))(scope);
 
-        //        $httpBackend.flush();
+        element.triggerHandler('click');
 
-        //        expect($rootScope.bookDeleting).to.be.false;
+        expect(scope.booksRemoving).to.be.true;
 
-        //        expect($rootScope.books.length).to.equal(1);
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect(scope.booksRemoving).to.be.false;
+    }));
+
+    it("Remove directive should fail properly", inject(function ($compile, $rootScope, $timeout, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'nobooks');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
+
+        var element = $compile(angular.element('<button av-rest-remove="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.nobooksRemoving).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect(scope.nobooksRemoving).to.be.false;
+        expect(scope.nobooksError).to.be.true;
+
+        expect($rootScope.nobooksErrors.length).to.equal(1);
+    }));
+
+    it("Save directive should create a new element", inject(function ($compile, $rootScope, $timeout, Restangular) {
+
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = {
+            editing: true,
+            getParentList: function () {
+                return scope.books;
+            }
+        };
+        scope.books.unshift(scope.book);
+
+        var element = $compile(angular.element('<button av-rest-save="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.booksSaving).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect(scope.booksSaving).to.be.false;
+    }));
+
+    it("Save directive should update an existing element", inject(function ($compile, $rootScope, $timeout, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
+        scope.copy = scope.book.clone();
+        scope.book.editing = true;
+
+        var element = $compile(angular.element('<button av-rest-save="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.booksSaving).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect(scope.booksSaving).to.be.false;
+    }));
+
+    it("Save directive should fail properly", inject(function ($compile, $rootScope, $timeout, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title',
+            editing: true
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'nobooks');
+        scope.book = {
+            editing: true,
+            getParentList: function () {
+                return scope.books;
+            }
+        };
+        scope.books.unshift(scope.book);
+
+        var element = $compile(angular.element('<button av-rest-save="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.nobooksSaving).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect(scope.nobooksSaving).to.be.false;
+        expect($rootScope.nobooksErrors.length).to.equal(1);
+    }));
+
+    it("Add directive should add an empty element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+
+        var element = $compile(angular.element('<button av-rest-add="books"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(2);
+        expect(scope.books[0].editing).to.be.true;
+        expect(scope.books[0].fromServer).not.to.be.true;
+        expect(scope.books[0].getParentList()).to.equal(scope.books);
+    }));
+
+    it("Clone directive should clone an existing element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
+
+        var element = $compile(angular.element('<button av-rest-clone="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(2);
+        expect(scope.books[0].editing).to.be.true;
+        expect(scope.books[0].fromServer).to.be.false;
+    }));
+
+    it("Edit directive should edit an existing element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+
+        var element = $compile(angular.element('<button av-rest-edit="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(1);
+        expect(scope.books[0].editing).to.be.true;
+    }));
+
+    it("Cancel directive should edit an existing element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title',
+            editing: true
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.copy = scope.book.clone();
+        delete scope.copy.editing;
+
+        var element = $compile(angular.element('<button av-rest-cancel="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(1);
+        expect(scope.books[0].editing).to.be.undefined;
     }));
 });
