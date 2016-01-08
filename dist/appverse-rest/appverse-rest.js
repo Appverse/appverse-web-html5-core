@@ -216,7 +216,7 @@
          * Retrieves JSON data
          *
          * @example
-         <button av-rest-delete="account"></button>
+         <button av-rest-remove="account"></button>
          *
          * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
          */
@@ -225,7 +225,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var removingSuffix = 'Removing',
                             errorSuffix = 'Error',
@@ -284,7 +284,7 @@
          * Retrieves JSON data
          *
          * @example
-         <button av-rest-put="newAccount"></button>
+         <button av-rest-save="account"></button>
          *
          * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
          */
@@ -293,7 +293,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var savingSuffix = 'Saving',
                             errorSuffix = 'Error',
@@ -311,12 +311,12 @@
                         scope[name + savingSuffix] = true;
                         scope[name + errorSuffix] = false;
 
-                        if (item.save) {
-                            delete item.editing;
+                        delete item.editing;
+                        if (item.fromServer) {
+                            item.put().then(onSuccess, onError);
                         } else {
-                            Restangular.restangularizeElement(null, item, name);
+                            collection.post(item).then(onSuccess, onError);
                         }
-                        item.save().then(onSuccess, onError);
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
@@ -331,8 +331,6 @@
                             $timeout(function () {
                                 scope[name + savingSuffix] = false;
                                 scope[name + errorSuffix] = true;
-
-                                collection = item.getParentList();
 
                                 if (index > -1) {
                                     if (item.fromServer) {
@@ -375,7 +373,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var collection = scope.$eval(attrs.avRestAdd);
 
@@ -415,7 +413,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var item = scope.$eval(attrs.avRestClone),
                             collection = item.getParentList();
@@ -454,7 +452,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var item = scope.$eval(attrs.avRestEdit);
 
@@ -490,7 +488,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         $log.debug('avRestCancel directive', scope);
 
@@ -519,7 +517,6 @@
             };
         }]);
 })();
-
 (function () {
     'use strict';
 
