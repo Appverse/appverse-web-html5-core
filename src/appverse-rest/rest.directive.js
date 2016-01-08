@@ -107,7 +107,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var removingSuffix = 'Removing',
                             errorSuffix = 'Error',
@@ -175,7 +175,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var savingSuffix = 'Saving',
                             errorSuffix = 'Error',
@@ -257,7 +257,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var collection = scope.$eval(attrs.avRestAdd);
 
@@ -297,7 +297,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var item = scope.$eval(attrs.avRestClone),
                             collection = item.getParentList();
@@ -336,7 +336,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         var item = scope.$eval(attrs.avRestEdit);
 
@@ -372,7 +372,7 @@
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
-                    element.click(function () {
+                    element.bind('click', function () {
 
                         $log.debug('avRestCancel directive', scope);
 
