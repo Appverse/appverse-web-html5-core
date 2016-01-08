@@ -22,8 +22,7 @@ module.exports = function (config) {
                         webSecurityEnabled: false
                     }
                 },
-                flags: ['--load-images=true', '--local-to-remote-url-access=true'],
-                debug: true
+                flags: ['--load-images=true', '--local-to-remote-url-access=true', '--remote-debugger-autorun=yes', '--remote-debugger-port=9090']
             }
         },
 
