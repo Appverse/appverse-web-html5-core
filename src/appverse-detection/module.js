@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
 
     /**
@@ -10,7 +10,10 @@
      *
      * @requires appverse.utils
      */
-    angular.module('appverse.detection', ['appverse.utils','appverse.detection.mobile']);
-
+    angular.module('appverse.detection', [
+        'appverse.utils',
+        'appverse.detection.mobile',
+        'appverse.detection.provider'
+    ]);
 
 })();
