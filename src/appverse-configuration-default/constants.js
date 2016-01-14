@@ -391,17 +391,8 @@
             /*
             You can set here if you want to URL Encode IDs or not.
             */
-            EncodeIds: true,
+            EncodeIds: true,           
            
-            /**
-             * If true, it will mock backend $http calls
-             * by decorating the default "real" $http service with a mocked
-             * one from angular-mocks.
-             * (remember to include the  angular-mocks.js script if this option is set to true)
-             * @type {Boolean}
-             */
-            MockBackend: false,
-
             /*
              * If true, a response extractor is added to use content property and self links
              */
