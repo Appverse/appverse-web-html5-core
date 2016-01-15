@@ -1,188 +1,324 @@
-/*jshint expr:true */
+/*jshint expr:true, node:true */
 "use strict";
 
 describe('Unit: Testing appverse.rest module', function () {
 
-    beforeEach(setupRestTesting);
+    var $httpBackend, scope;
 
-    it('should contain a RESTFactory factory',
-        inject(function (RESTFactory) {
-            expect(RESTFactory).to.be.an.object;
-        })
-    );
+    beforeEach(module('restangular', 'appverse.configuration.default', 'appverse.cache', 'appverse.rest'));
 
-    describe('when wrapping request in the Rest Service', function () {
+    beforeEach(inject(function ($injector, $rootScope) {
 
-        // Create a mock wrapper that wraps requests by just
-        // setting a variable in the restangular object
-        var wrapper = {
-            wrapRequest: function (restangularService) {
-                restangularService.wrapped = true;
-                return restangularService;
-            }
+        $httpBackend = $injector.get('$httpBackend');
+
+        $httpBackend.when('GET', '/api/books.json')
+            .respond([{
+                id: 1,
+                title: 'title1'
+            }, {
+                id: 2,
+                title: 'title2'
+            }]);
+
+        $httpBackend.when('GET', '/api/books/1.json')
+            .respond({
+                id: 1,
+                title: 'title1'
+            });
+
+        $httpBackend.when('GET', '/api/nobooks.json')
+            .respond(404);
+
+        $httpBackend.when('POST', '/api/books.json')
+            .respond(201);
+
+        $httpBackend.when('PUT', '/api/books/1.json')
+            .respond(201);
+
+        $httpBackend.when('POST', '/api/nobooks.json')
+            .respond(404);
+
+        $httpBackend.when('DELETE', '/api/books/1.json')
+            .respond(200);
+
+        $httpBackend.when('DELETE', '/api/nobooks/1.json')
+            .respond(404);
+
+        $injector.get('$http').defaults.cache.removeAll();
+
+        scope = $rootScope.$new();
+    }));
+
+    afterEach(function () {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    });
+
+    it("GET directive should retrieve a list", inject(function ($compile, $rootScope, $timeout) {
+
+        $compile('<div av-rest-get="books"></div>')($rootScope);
+
+        expect($rootScope.booksGetting).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect($rootScope.booksGetting).to.be.false;
+
+        expect($rootScope.books.length).to.equal(2);
+    }));
+
+    it("GET directive should retrieve an object", inject(function ($compile, $rootScope, $timeout) {
+
+        $compile('<div av-rest-get="books" rest-id="1"></div>')($rootScope);
+
+        expect($rootScope.bookGetting).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect($rootScope.bookGetting).to.be.false;
+
+        expect($rootScope.book).to.be.an.object;
+        expect($rootScope.book.id).to.equal(1);
+    }));
+
+    it("GET directive should set the correct variable name", inject(function ($compile, $rootScope, $timeout) {
+
+        $compile('<div av-rest-get="books" rest-name="mybooks"></div>')($rootScope);
+
+        expect($rootScope.mybooksGetting).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect($rootScope.mybooksGetting).to.be.false;
+
+        expect($rootScope.mybooks.length).to.equal(2);
+    }));
+
+    it("GET directive should fail with error", inject(function ($compile, $rootScope, $timeout) {
+
+        $compile('<div av-rest-get="nobooks"></div>')($rootScope);
+
+        expect($rootScope.nobooksGetting).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect($rootScope.nobooksGetting).to.be.false;
+        expect($rootScope.nobooksError).to.be.true;
+
+        expect($rootScope.nobooks).to.be.undefined;
+    }));
+
+    it("Remove directive should remove element", inject(function ($compile, $timeout, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
         };
 
-        it('should return the processed Restangular service', inject(function (RESTFactory, Restangular) {
-            expect(Restangular.wrapped).to.not.exist;
-            RESTFactory.wrapRequestsWith(wrapper);
-            Restangular.wrapped.should.be.true;
-        }));
+        var element = $compile(angular.element('<button av-rest-remove="book"></button>'))(scope);
 
-    });
+        element.triggerHandler('click');
 
-    describe('when enabling default content type', function () {
+        expect(scope.booksRemoving).to.be.true;
 
-        it('Restangular should set default headers', inject(function (RESTFactory, Restangular) {
-            RESTFactory.enableDefaultContentType();
-            Restangular.setDefaultHeaders.calledWith({
-                'Content-Type': 'text/plain;'
-            }).should.be.true;
-        }));
+        $httpBackend.flush();
+        $timeout.flush();
 
-    });
+        expect(scope.booksRemoving).to.be.false;
+    }));
 
-    describe('when testing a directive...', function () {
+    it("Remove directive should fail properly", inject(function ($compile, $rootScope, $timeout, Restangular) {
 
-        var $rootScope;
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'nobooks');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
 
-        describe('when request is not resolved yet...', function () {
+        var element = $compile(angular.element('<button av-rest-remove="book"></button>'))(scope);
 
-            it("loading state should be true", inject(function ($compile, $rootScope) {
-                // Compile a piece of HTML containing the directive
-                $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
+        element.triggerHandler('click');
 
-                // Check that the compiled element contains the templated content
-                $rootScope.mybooksLoading.should.be.true;
-            }));
+        expect(scope.nobooksRemoving).to.be.true;
 
-        });
+        $httpBackend.flush();
+        $timeout.flush();
 
-        describe('when request is resolved with success..', function () {
+        expect(scope.nobooksRemoving).to.be.false;
+        expect(scope.nobooksError).to.be.true;
 
-            beforeEach('mock RESTFactory to return success', module(function ($provide) {
-                $provide.service('RESTFactory', function () {
-                    this.enableDefaultContentType = sinon.spy();
-                    this.setCache = sinon.spy();
-                    this.readObject = function (path, success) {
-                        success({
-                            books: 'mock'
-                        });
-                    };
-                });
-            }));
+        expect($rootScope.nobooksErrors.length).to.equal(1);
+    }));
 
-            beforeEach('compile directive and fire watches', inject(function ($compile, _$rootScope_) {
-                $rootScope = _$rootScope_;
-                // Compile a piece of HTML containing the directive
-                $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
-                // fire all the watches, so text is evaluated
-                $rootScope.$digest();
-            }));
-
-            it("should load data into a scope variable", function () {
-                $rootScope.mybooks.should.be.eql({
-                    books: 'mock'
-                });
-            });
-
-            it("loading state should be true when the request is not resolved yet", function () {
-                $rootScope.mybooksLoading.should.be.false;
-            });
-
-        });
-
-        describe('when request is resolved with error..', function () {
-
-            beforeEach('mock RESTFactory to return error', module(function ($provide) {
-                $provide.service('RESTFactory', function () {
-                    this.enableDefaultContentType = sinon.spy();
-                    this.setCache = sinon.spy();
-                    this.readObject = function (path, success, error) {
-                        error();
-                    };
-                });
-            }));
-
-            beforeEach('compile directive and fire watches', inject(function ($compile, _$rootScope_) {
-                $rootScope = _$rootScope_;
-                // Compile a piece of HTML containing the directive
-                $compile('<div rest rest-path="data/books.json" rest-name="mybooks">')($rootScope);
-                // fire all the watches, so text is evaluated
-                $rootScope.$digest();
-            }));
-
-            it("should set error state to true", inject(function ($compile, $rootScope) {
-                $rootScope.mybooksError.should.be.true;
-            }));
-
-            it("loading state should be true when the request is not resolved yet",
-                inject(function ($compile, $rootScope) {
-                    $rootScope.mybooksLoading.should.be.false;
-                })
-            );
-
-        });
-
-    });
+    it("Save directive should create a new element", inject(function ($compile, $rootScope, $timeout, Restangular) {
 
 
-    /////////////// HELPER FUNCTIONS
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = {
+            editing: true,
+            getParentList: function () {
+                return scope.books;
+            }
+        };
+        scope.books.unshift(scope.book);
 
-    function setupRestTesting() {
+        var element = $compile(angular.element('<button av-rest-save="book"></button>'))(scope);
 
-        // Generate mock modules and providers
-        mockDependencies();
+        element.triggerHandler('click');
 
-        // Load the module to be tested
-        module("appverse.rest");
-    }
+        expect(scope.booksSaving).to.be.true;
 
-    function mockDependencies() {
+        $httpBackend.flush();
+        $timeout.flush();
 
-        // mock modules by creating empty ones
-        angular.module('appverse.configuration', []);
-        angular.module('restangular', []);
+        expect(scope.booksSaving).to.be.false;
+    }));
 
-        // Provide the dependency injector with mock empty objects
-        // instead of real ones
-        module(function ($provide) {
+    it("Save directive should update an existing element", inject(function ($compile, $rootScope, $timeout, Restangular) {
 
-            $provide.service('Restangular', function () {
-                this.setBaseUrl = sinon.spy();
-                this.setExtraFields = sinon.spy();
-                this.setParentless = sinon.spy();
-                this.setOnElemRestangularized = sinon.spy();
-                this.setResponseInterceptor = sinon.spy();
-                this.setErrorInterceptor = sinon.spy();
-                this.setRestangularFields = sinon.spy();
-                this.setMethodOverriders = sinon.spy();
-                this.setFullResponse = sinon.spy();
-                this.setRequestSuffix = sinon.spy();
-                this.setUseCannonicalId = sinon.spy();
-                this.setEncodeIds = sinon.spy();
-                this.setDefaultHeaders = sinon.spy();
-            });
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
+        scope.copy = scope.book.clone();
+        scope.book.editing = true;
 
-            $provide.factory('avCacheFactory', function () {
-                return {
-                    getHttpCache: sinon.stub()
-                };
-            });
+        var element = $compile(angular.element('<button av-rest-save="book"></button>'))(scope);
 
-            $provide.factory('Oauth_RequestWrapper', function () {
-                return {};
-            });
+        element.triggerHandler('click');
 
-            $provide.factory('Oauth_AccessToken', function () {
-                return {};
-            });
+        expect(scope.booksSaving).to.be.true;
 
-            $provide.constant('REST_CONFIG', {
-                ElementTransformer: [],
-                DefaultContentType: 'text/plain;'
-            });
+        $httpBackend.flush();
+        $timeout.flush();
 
-            $provide.constant('SECURITY_GENERAL', {});
-        });
-    }
+        expect(scope.booksSaving).to.be.false;
+    }));
+
+    it("Save directive should fail properly", inject(function ($compile, $rootScope, $timeout, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title',
+            editing: true
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'nobooks');
+        scope.book = {
+            editing: true,
+            getParentList: function () {
+                return scope.books;
+            }
+        };
+        scope.books.unshift(scope.book);
+
+        var element = $compile(angular.element('<button av-rest-save="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.nobooksSaving).to.be.true;
+
+        $httpBackend.flush();
+        $timeout.flush();
+
+        expect(scope.nobooksSaving).to.be.false;
+        expect($rootScope.nobooksErrors.length).to.equal(1);
+    }));
+
+    it("Add directive should add an empty element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+
+        var element = $compile(angular.element('<button av-rest-add="books"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(2);
+        expect(scope.books[0].editing).to.be.true;
+        expect(scope.books[0].fromServer).not.to.be.true;
+        expect(scope.books[0].getParentList()).to.equal(scope.books);
+    }));
+
+    it("Clone directive should clone an existing element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.book.getParentList = function () {
+            return scope.books;
+        };
+
+        var element = $compile(angular.element('<button av-rest-clone="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(2);
+        expect(scope.books[0].editing).to.be.true;
+        expect(scope.books[0].fromServer).to.be.false;
+    }));
+
+    it("Edit directive should edit an existing element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title'
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+
+        var element = $compile(angular.element('<button av-rest-edit="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(1);
+        expect(scope.books[0].editing).to.be.true;
+    }));
+
+    it("Cancel directive should edit an existing element", inject(function ($compile, Restangular) {
+
+        scope.books = [{
+            id: 1,
+            title: 'title',
+            editing: true
+        }];
+        scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
+        scope.book = scope.books[0];
+        scope.copy = scope.book.clone();
+        delete scope.copy.editing;
+
+        var element = $compile(angular.element('<button av-rest-cancel="book"></button>'))(scope);
+
+        element.triggerHandler('click');
+
+        expect(scope.books.length).to.equal(1);
+        expect(scope.books[0].editing).to.be.undefined;
+    }));
 });

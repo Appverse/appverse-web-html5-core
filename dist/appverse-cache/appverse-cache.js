@@ -46,6 +46,7 @@
      * @requires  https://github.com/jmdobry/angular-cache jmdobry.angular-cache
      */
 
+    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
     angular.module('appverse.cache', [
         'appverse.configuration',
         'angular-cache'
@@ -78,7 +79,6 @@
                 CACHE_CONFIG.HttpCache_capacity);
         }
     }
-    run.$inject = ["$log", "avCacheFactory", "CACHE_CONFIG"];
 
 })();
 
@@ -362,7 +362,7 @@
      * @requires https://docs.angularjs.org/api/ng/service/$q $q
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
      */
-    .service('IDBService', ['$q', '$log', function ($q, $log) {
+    .service('IDBService', ["$q", "$log", function ($q, $log) {
         var setUp = false;
         var db;
 
@@ -590,7 +590,6 @@
         };
 
         return service;
-
     }]);
 
 })();

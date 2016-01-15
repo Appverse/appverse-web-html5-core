@@ -252,13 +252,14 @@ module.exports = function (grunt) {
         },
 
         karma: {
+            options: {
+                configFile: '<%= appverse.testsConfig %>/karma.unit.conf.js'
+            },
             unit: {
-                configFile: '<%= appverse.testsConfig %>/karma.unit.conf.js',
                 autoWatch: false,
                 singleRun: true
             },
-            'unit:watch': {
-                configFile: '<%= appverse.testsConfig %>/karma.unit.watch.conf.js',
+            'unit-watch': {
                 autoWatch: true
             }
         },
@@ -269,11 +270,11 @@ module.exports = function (grunt) {
                 updateConfigs: [],
                 commit: true,
                 commitMessage: 'Release v%VERSION%',
-                commitFiles: ['package.json', 'bower.json', 'dist'],
+                commitFiles: ['package.json', 'bower.json', 'sonar-project.properties', 'dist'],
                 createTag: true,
                 tagName: 'v%VERSION%',
                 tagMessage: 'Version %VERSION%',
-                push: true,
+                push: false,
                 pushTo: 'origin',
                 gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
@@ -321,43 +322,70 @@ module.exports = function (grunt) {
         },
 
         concurrent: {
-            dist: ['jshint', 'test:unit', 'analysis']
+            dist: ['jshint', 'html2js']
+        },
+
+        html2js: {
+            options: {
+                htmlmin: {
+                    removeComments: true,
+                    removeCommentsFromCDATA: true,
+                    removeCDATASectionsFromCDATA: true,
+                    collapseWhitespace: true,
+                    collapseBooleanAttributes: true,
+                    removeAttributeQuotes: false,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeOptionalTags: true,
+                    keepClosingSlash: true,
+                },
+                singleModule: true,
+                quoteChar: '\'',
+                useStrict: true,
+                module: 'appverse.ionic.templates',
+                fileHeaderString: '/*jshint -W101 */'
+            },
+            main: {
+                src: 'src/appverse-ionic/**/*.html',
+                dest: 'src/appverse-ionic/templates.js'
+            }
+        },
+
+        watch: {
+            dist: {
+                files: ['src/**'],
+                tasks: ['dist']
+            }
         }
     });
 
-
     /*---------------------------------------- TASKS DEFINITION -------------------------------------*/
-
-
-    // ------ Dist task. Builds the project -----
 
     grunt.registerTask('default', [
         'dist'
     ]);
 
     grunt.registerTask('dist', [
-        'concurrent:dist',
-        'dist:make'
-    ]);
-
-    grunt.registerTask('dist:make', [
         'clean:dist',
+        'concurrent:dist',
         'concat',
         'ngAnnotate',
         'uglify'
     ]);
 
-    // ------ Tests tasks -----
-
-    grunt.registerTask('test', [
-        'test:unit'
+    grunt.registerTask('dist:watch', [
+        'dist',
+        'watch:dist'
     ]);
 
-    grunt.registerTask('test:unit:watch', [
-        'karma:unit:watch'
+    grunt.registerTask('test', [
+        'clean:reports',
+        'karma:unit-watch'
     ]);
 
     grunt.registerTask('test:unit', [
+        'clean:reports',
         'karma:unit'
     ]);
 
@@ -389,50 +417,6 @@ module.exports = function (grunt) {
         'dist',
         'maven:deploy-min'
     ]);
-
-    // -------- Special task for websockets demo ---------
-
-    grunt.registerTask('wsserver', 'Start a new web socket demo server', function () {
-
-        var http = require('http');
-        var CpuUsage = require('./config/grunt-tasks/cpu-usage');
-        var server = http.createServer(function handler() {});
-
-        // Never end grunt task
-        this.async();
-
-        server.listen(8080, function () {
-            console.log('Websockets Server is listening on port 8080');
-        });
-
-        var WebSocketServer = require('websocket').server;
-
-        var wsServer = new WebSocketServer({
-            httpServer: server,
-            autoAcceptConnections: false
-        });
-
-        var cpuUsage = new CpuUsage();
-
-        wsServer.on('request', function (request) {
-            var connection = request.accept('', request.origin);
-            console.log(' Connection accepted from peer ' + connection.remoteAddress);
-
-            var sendInterval = setInterval(function () {
-                var payLoad = (cpuUsage.get() * 100).toFixed(0);
-                connection.sendUTF(payLoad);
-            }, 100);
-
-            connection.on('close', function (reasonCode, description) {
-                clearInterval(sendInterval);
-                console.log('Peer ' + connection.remoteAddress + ' disconnected.');
-                console.log('Closing Reason: ' + reasonCode);
-                console.log('Closing Description: ' + description);
-            });
-        });
-
-    });
-
 };
 
 /*---------------------------------------- HELPER METHODS -------------------------------------*/

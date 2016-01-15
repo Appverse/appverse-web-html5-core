@@ -143,19 +143,12 @@
 
         function browserIsOnline() {
             if (detectionProvider) {
-                return getDetectionService().isOnline;
+                return detectionProvider.isOnline;
             } else {
                 // if no detection service provided, return true
                 return true;
             }
         }
-
-        function getDetectionService() {
-            var $injector = angular.injector();
-            //invoke the $get function specifing that detectionProvider is 'this'
-            return $injector.invoke(detectionProvider.$get, detectionProvider);
-        }
-
     }
 
 

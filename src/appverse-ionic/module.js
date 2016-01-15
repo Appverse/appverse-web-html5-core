@@ -4,7 +4,8 @@
     var requires = [
         'appverse.detection',
         'ui.router',
-        'ui.bootstrap'
+        'ui.bootstrap',
+        'appverse.ionic.templates'
     ];
 
 
@@ -21,6 +22,4 @@
      */
 
     angular.module('appverse.ionic', requires);
-
-
 })();

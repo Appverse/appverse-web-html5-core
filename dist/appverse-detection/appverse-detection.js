@@ -10,13 +10,15 @@
      *
      * @requires appverse.utils
      */
-    angular.module('appverse.detection', ['appverse.utils']);
+    angular.module('appverse.detection', ['appverse.utils','appverse.detection.mobile']);
 
 
 })();
+
 (function () {
     'use strict';
 
+DetectionProvider.$inject = ["MobileDetectorProvider"];
 angular.module('appverse.detection')
     .provider('Detection', DetectionProvider);
 
@@ -175,17 +177,14 @@ function DetectionProvider (MobileDetectorProvider) {
         this.isPollingBandwidth = false;
     };
 }
-DetectionProvider.$inject = ["MobileDetectorProvider"];
 
 
 })();
 
-/*globals Appverse:false */
-
-(function () {
+(function() {
     'use strict';
 
-    angular.module('appverse.detection')
+    angular.module('appverse.detection.mobile',[])
         .provider('MobileDetector', MobileDetectorProvider);
 
     /**
@@ -198,7 +197,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
      */
     function MobileDetectorProvider() {
 
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
@@ -207,8 +206,8 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
          * @name MobileDetector#hasAppverseMobile
          * @return {Boolean}
          */
-        this.hasAppverseMobile = function () {
-            if (typeof (_AppverseContext) !== "undefined") {
+        this.hasAppverseMobile = function() {
+            if (typeof(_AppverseContext) !== "undefined") {
                 return true;
             } else if (window.localStorage.getItem("_AppverseContext")) {
                 return true;
@@ -222,7 +221,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
          * @name MobileDetector#isMobileBrowser
          * @return {Boolean}
          */
-        this.isMobileBrowser = function (customAgent) {
+        this.isMobileBrowser = function(customAgent) {
             var agent = customAgent || navigator.userAgent || navigator.vendor || window.opera;
             return agentContainsMobileKeyword(agent);
         };
@@ -241,6 +240,7 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
 (function () {
     'use strict';
 
+    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
     angular.module('appverse.detection')
         .run(run);
 
@@ -347,6 +347,5 @@ DetectionProvider.$inject = ["MobileDetectorProvider"];
             Appverse.is.Phone = !Appverse.is.Desktop && !Appverse.is.Tablet;
         }
     }
-    run.$inject = ["$log", "Detection", "$rootScope", "$window"];
 
 })();

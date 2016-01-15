@@ -1,6 +1,7 @@
 (function () {
     'use strict';
 
+    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
     var requires = [
         'restangular',
         'appverse.configuration',
@@ -106,7 +107,6 @@
         $log.info('appverse.rest run');
 
     }
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
 
 
 
@@ -116,84 +116,411 @@
 
 })();
 
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.rest')
-    .directive('rest', restDirective);
 
-    /**
-     * @ngdoc directive
-     * @name rest
-     * @module appverse.rest
-     * @restrict A
-     *
-     * @description
-     * Retrieves JSON data
-     *
-     * @example
-     <example module="appverse.rest">
-       <file name="index.html">
-         <p>REST test</p>
-         <div rest rest-path="" rest-id="" rest-name="" rest-loading-text="" rest-error-text="" />
-       </file>
-     </example>
-     *
-     * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
-     * @requires  RESTFactory
-     */
-    function restDirective ($log, RESTFactory) {
-        return {
-            link: function (scope, element, attrs) {
+    .directive('avRestGet',
 
-                var defaultName = 'restData',
-                    loadingSuffix = 'Loading',
-                    errorSuffix = 'Error',
-                    name = attrs.restName || defaultName,
-                    path = attrs.rest || attrs.restPath;
+        /**
+         * @ngdoc directive
+         * @name avRestGet
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <div av-rest-get="accounts" ng-repeat="account in accounts">
+            <p ng-bind="account.name"></p>
+            <p ng-bind="account.total"></p>
+         </div>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @requires  Restangular
+         */
+        ["$log", "Restangular", "$rootScope", "$timeout", "REST_CONFIG", function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
 
-                $log.debug('rest directive');
+                    $log.debug('avRestGet directive', attrs);
 
-                scope[name + loadingSuffix] = true;
-                element.html(attrs.restLoadingText || "");
+                    var gettingSuffix = 'Getting',
+                        errorSuffix = 'Error',
+                        name;
 
-                scope.$watchCollection(function () {
-                    return [path, name, attrs.restErrorText, attrs.restLoadingText];
-                }, function (newCollection, oldCollection, scope) {
-                    $log.debug('REST watch ' + name + ':', newCollection);
-                    scope[name + errorSuffix] = false;
-
-                    var object;
-                    if (attrs.restId) {
-                        object = RESTFactory.readListItem(path, attrs.restId, onSuccess, onError);
+                    if (attrs.restName) {
+                        name = attrs.restName;
                     } else {
-                        object = RESTFactory.readObject(path, onSuccess, onError);
+                        name = attrs.avRestGet.split('/').reverse()[0];
+
+                        if (attrs.restId && name.charAt(name.length - 1) === 's') {
+                            name = name.substr(0, name.length - 1);
+                        }
                     }
 
-                    function onSuccess(data) {
-                        $log.debug('get data', data);
-                        element.html("");
-                        scope[name] = data;
-                        scope[name + loadingSuffix] = false;
-                    }
+                    scope[name + gettingSuffix] = true;
 
-                    function onError() {
-                        element.html(attrs.restErrorText || "");
-                        scope[name + loadingSuffix] = false;
-                        scope[name + errorSuffix] = true;
-                    }
+                    scope.$watchCollection(function () {
+                        return [attrs.avRestGet, attrs.restId, attrs.restName];
+                    }, function (newCollection, oldCollection, scope) {
+                        $log.debug('avRestGet watch ' + name + ':', newCollection);
+                        scope[name + errorSuffix] = false;
 
-                });
-            }
-        };
-    }
-    restDirective.$inject = ["$log", "RESTFactory"];
+                        if (attrs.restId) {
+                            Restangular.all(attrs.avRestGet).one(attrs.restId).get().then(onSuccess, onError);
+                        } else {
+                            Restangular.all(attrs.avRestGet).getList().then(onSuccess, onError);
+                        }
 
+                        function onSuccess(data) {
+                            $log.debug('onSuccess', data);
+                            $timeout(function () {
+                                scope[name + gettingSuffix] = false;
+                                if (scope.$headerContainer) {
+                                    scope.$parent[name] = data;
+                                } else {
+                                    scope[name] = data;
+                                }
+                            }, REST_CONFIG.Timeout);
+                        }
 
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + gettingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
+                        }
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestRemove',
+
+        /**
+         * @ngdoc directive
+         * @name avRestRemove
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-remove="account"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", "$rootScope", "$timeout", "REST_CONFIG", function ($log, $rootScope, $timeout, REST_CONFIG) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.bind('click', function () {
+
+                        var removingSuffix = 'Removing',
+                            errorSuffix = 'Error',
+                            item = scope.$eval(attrs.avRestRemove),
+                            name = item.route.split('/').reverse()[0];
+
+                        $log.debug('avRestRemove directive', item);
+
+                        if (attrs.restIf && !scope.$eval(attrs.restIf)) {
+                            return;
+                        }
+
+                        scope[name + removingSuffix] = true;
+                        scope[name + errorSuffix] = false;
+
+                        item.remove().then(onSuccess, onError);
+
+                        function onSuccess(data) {
+                            $log.debug('onSuccess', data);
+                            $timeout(function () {
+                                scope[name + removingSuffix] = false;
+                                var collection = item.getParentList(),
+                                    index = collection.indexOf(item);
+                                if (index > -1) {
+                                    collection.splice(index, 1);
+                                }
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + removingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestSave',
+
+        /**
+         * @ngdoc directive
+         * @name avRestSave
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-save="account"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", "$rootScope", "Restangular", "$timeout", "REST_CONFIG", function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.bind('click', function () {
+
+                        var savingSuffix = 'Saving',
+                            errorSuffix = 'Error',
+                            item = scope.$eval(attrs.avRestSave),
+                            collection = item.getParentList(),
+                            index = collection.indexOf(item),
+                            name = collection.route.split('/').reverse()[0];
+
+                        $log.debug('avRestSave directive', item);
+
+                        if (attrs.restIf && !scope.$eval(attrs.restIf)) {
+                            return;
+                        }
+
+                        scope[name + savingSuffix] = true;
+                        scope[name + errorSuffix] = false;
+
+                        delete item.editing;
+                        if (item.fromServer) {
+                            item.put().then(onSuccess, onError);
+                        } else {
+                            collection.post(item).then(onSuccess, onError);
+                        }
+
+                        function onSuccess(data) {
+                            $log.debug('onSuccess', data);
+                            $timeout(function () {
+                                scope[name + savingSuffix] = false;
+                                collection[index] = item;
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                        function onError(response) {
+                            $log.debug('onError', response);
+                            $timeout(function () {
+                                scope[name + savingSuffix] = false;
+                                scope[name + errorSuffix] = true;
+
+                                if (index > -1) {
+                                    if (item.fromServer) {
+                                        collection.splice(index, 1, scope.copy);
+                                    } else {
+                                        collection.splice(index, 1);
+                                    }
+                                }
+
+                                if (!$rootScope[name + 'Errors']) {
+                                    $rootScope[name + 'Errors'] = [];
+                                }
+                                $rootScope[name + 'Errors'].push(response);
+                            }, REST_CONFIG.Timeout);
+                        }
+
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestAdd',
+
+        /**
+         * @ngdoc directive
+         * @name avRestAdd
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-add="users"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.bind('click', function () {
+
+                        var collection = scope.$eval(attrs.avRestAdd);
+
+                        $log.debug('avRestAdd directive', collection);
+
+                        collection.unshift({
+                            editing: true,
+                            getParentList: function () {
+                                return collection;
+                            }
+                        });
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestClone',
+
+        /**
+         * @ngdoc directive
+         * @name avRestClone
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-clone="user"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.bind('click', function () {
+
+                        var item = scope.$eval(attrs.avRestClone),
+                            collection = item.getParentList();
+
+                        $log.debug('avRestClone directive', item);
+
+                        var copy = item.clone();
+                        copy.fromServer = false;
+                        copy.editing = true;
+                        collection.unshift(copy);
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestEdit',
+
+        /**
+         * @ngdoc directive
+         * @name avRestEdit
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-edit="user"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.bind('click', function () {
+
+                        var item = scope.$eval(attrs.avRestEdit);
+
+                        $log.debug('avRestEdit directive', item);
+
+                        scope.copy = item.clone();
+                        item.editing = true;
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        }])
+
+    .directive('avRestCancel',
+
+        /**
+         * @ngdoc directive
+         * @name avRestCancel
+         * @module appverse.rest
+         * @restrict A
+         *
+         * @description
+         * Retrieves JSON data
+         *
+         * @example
+         <button av-rest-cancel="user"></button>
+         *
+         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         */
+        ["$log", function ($log) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+
+                    element.bind('click', function () {
+
+                        $log.debug('avRestCancel directive', scope);
+
+                        var item = scope.$eval(attrs.avRestCancel),
+                            collection;
+
+                        if (item.getParentList) {
+                            collection = item.getParentList();
+                        } else {
+                            collection = scope[attrs.restName || attrs.avRestCancel + 's'];
+                        }
+
+                        var index = collection.indexOf(item);
+
+                        if (index > -1) {
+                            if (scope.copy) {
+                                collection.splice(index, 1, scope.copy);
+                            } else {
+                                collection.splice(index, 1);
+                            }
+                        }
+
+                        scope.$applyAsync();
+                    });
+                }
+            };
+        }]);
 })();
 (function () {
     'use strict';
 
+    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
     angular.module('appverse.rest').factory('RESTFactory', RESTFactory);
 
     /**
@@ -272,71 +599,16 @@
          */
         factory.setCache = function (cache) {
             Restangular.setResponseInterceptor(
-                function (data, operation, what, url, response) {
+                function (data, operation) {
                     // Caches response data or not according to configuration.
                     if (cache) {
                         if (REST_CONFIG.NoCacheHttpMethods[operation] === true) {
                             cache.removeAll();
-                        } else if (operation === 'put') {
-                            cache.put(response.config.url, response.config.data);
                         }
                     }
                     return data;
                 }
             );
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readObject
-         *
-         * @param {String} path The item URL
-         * @param {String} successFn Optional function to be called when request is successful
-         * @param {String} errorFn Optional function to be called when request has errors
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} List of values
-         */
-        factory.readObject = function (path, successFn, errorFn) {
-            successFn = successFn || function () {};
-            errorFn = errorFn || function () {};
-            var promise = Restangular.one(path).get();
-            promise.then(successFn, errorFn);
-            return promise.$object;
-        };
-
-        /*
-         * Returns a complete list from a REST resource.
-            Use to get data to a scope var. For example:
-            $scope.people = readList('people');
-            Then, use the var in templates:
-            <li ng-repeat="person in people">{{person.Name}}</li>
-         */
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readList
-         *
-         * @param {String} path The item URL
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} Does a GET to path
-         * Returns an empty array by default. Once a value is returned from the server
-         * that array is filled with those values.
-         */
-        factory.readList = function (path) {
-            return Restangular.all(path).getList().$object;
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readList
-         *
-         * @param {String} path The item URL
-         * @description Returns a complete list from a REST resource.
-         * @returns {object} Does a GET to path
-         * It does not return an empty array by default.
-         * Once a value is returned from the server that array is filled with those values.
-         */
-        factory.readListNoEmpty = function (path) {
-            return Restangular.all(path).getList();
         };
 
         /**
@@ -394,117 +666,8 @@
             return $q.all(promises);
         };
 
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readListItem
-         *
-         * @param {String} path The item URL
-         * @param {String} key The item key
-         * @param {String} successFn Optional function to be called when request is successful
-         * @param {String} errorFn Optional function to be called when request has errors
-         * @description Returns a unique value.
-         * @returns {object} An item value
-         */
-        factory.readListItem = function (path, key, successFn, errorFn) {
-            successFn = successFn || function () {};
-            errorFn = errorFn || function () {};
-            var promise = Restangular.one(path, key).get();
-            promise.then(successFn, errorFn);
-            return promise.$object;
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#readListItems
-         *
-         * @param {String} path The item URL
-         * @param {String} keys The item keys array
-         * @description Returns a unique value.
-         * @returns {object} List of values
-         */
-        factory.readListItems = function (path, keys) {
-            return Restangular.several(path, keys).getList().$object;
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#createListItem
-         *
-         * @param {String} path The item URL
-         * @param {object} newData The item to be created
-         * @param {object} callback The function for callbacking
-         * @description Returns result code.
-         * @returns {object} The created item
-         */
-        factory.createListItem = function (path, newData, callback) {
-            Restangular.all(path).post(newData).then(callback, restErrorHandler);
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#updateObject
-         *
-         * @param {String} path The item URL
-         * @param {object} newData The item to be updated
-         * @param {object} callback The function for callbacking
-         * @description Returns result code.
-         * @returns {object} The updated item
-         */
-        factory.updateObject = function (path, newData, callback) {
-            Restangular.one(path).put(newData).then(callback, restErrorHandler);
-        };
-
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#deleteListItem
-         *
-         * @param {String} path The item URL
-         * @param {object} key The item key to be deleted
-         * @param {object} callback The function for callbacking
-         * @description Deletes an item from a list.
-         * @returns {object} The deleted item
-         */
-        factory.deleteListItem = function (path, key, callback) {
-            // Use 'then' to resolve the promise.
-            Restangular.one(path, key).get().then(function (item) {
-                item.remove().then(callback, restErrorHandler);
-            });
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#deleteObject
-         *
-         * @param {String} path The item URL
-         * @param {object} callback The function for callbacking
-         * @description Deletes an item from a list.
-         * @returns {object} The deleted item
-         */
-
-        factory.deleteObject = function (path, callback) {
-            // Use 'then' to resolve the promise.
-            Restangular.one(path).delete().then(callback, restErrorHandler);
-        };
-
-        /**
-        @function
-        @param response Response to know its status
-        @description Provides a handler for errors.
-        */
-        function restErrorHandler(response) {
-            $log.error("Error with status code", response.status);
-        }
-
-
         return factory;
 
     }
-    RESTFactory.$inject = ["$log", "$q", "$http", "Restangular", "REST_CONFIG"];
 
 })();

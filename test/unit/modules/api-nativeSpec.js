@@ -35,20 +35,19 @@ describe('Unit: Testing appverse.native module', function () {
             },
             SERVICE_URI: '/service/'
         };
+
         window.AppverseEmulator = {};
         window._AppverseContext = {};
         window.get_params = function () {};
 
-        module('appverse.cache', 'appverse.native');
+        module('appverse.native');
         AppInit.setConfig({
             environment: {
                 REST_CONFIG: {
                     BaseUrl: '/api',
-                    HostList: [
-                        {
-                            host: ''
-                            }
-                        ]
+                    HostList: [{
+                        Host: ''
+                    }]
                 }
             }
         });
@@ -67,25 +66,33 @@ describe('Unit: Testing appverse.native module', function () {
     it('should get the location', function (done) {
 
         inject(function ($rootScope) {
-            navigator.geolocation.getCurrentPosition(function (Position) {
-                expect(Position).to.be.an.object;
-                expect(Position.coords.latitude).to.be.equal(1);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (Position) {
+                    expect(Position).to.be.an.object;
+                    expect(Position.coords.latitude).to.be.equal(1);
+                    done();
+                });
+                $rootScope.$apply();
+            } else {
                 done();
-            });
-            $rootScope.$apply();
+            }
         });
     });
 
     it('should watch the location and clear', function (done) {
 
         inject(function ($rootScope, $interval) {
-            var id = navigator.geolocation.watchPosition(function (Position) {
-                expect(Position).to.be.an.object;
-                expect(Position.coords.latitude).to.be.equal(1);
+            if (navigator.geolocation) {
+                var id = navigator.geolocation.watchPosition(function (Position) {
+                    expect(Position).to.be.an.object;
+                    expect(Position.coords.latitude).to.be.equal(1);
+                    done();
+                });
+                $interval.flush(1000);
+                navigator.geolocation.clearWatch(id);
+            } else {
                 done();
-            });
-            $interval.flush(1000);
-            navigator.geolocation.clearWatch(id);
+            }
         });
     });
 
@@ -94,15 +101,19 @@ describe('Unit: Testing appverse.native module', function () {
         window.Appverse.Geo.GetCoordinates = function () {};
 
         inject(function ($rootScope) {
-            navigator.geolocation.getCurrentPosition(function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function () {
 
-            }, function (PositionError) {
-                expect(PositionError).to.be.an.object;
-                expect(PositionError.code).to.be.equal(1);
+                }, function (PositionError) {
+                    expect(PositionError).to.be.an.object;
+                    expect(PositionError.code).to.be.equal(1);
+                    done();
+                });
+                window.onAccessToLocationDenied();
+                $rootScope.$apply();
+            } else {
                 done();
-            });
-            window.onAccessToLocationDenied();
-            $rootScope.$apply();
+            }
         });
     });
 
@@ -113,14 +124,18 @@ describe('Unit: Testing appverse.native module', function () {
         };
 
         inject(function ($rootScope) {
-            navigator.geolocation.getCurrentPosition(function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function () {
 
-            }, function (PositionError) {
-                expect(PositionError).to.be.an.object;
-                expect(PositionError.code).to.be.equal(2);
+                }, function (PositionError) {
+                    expect(PositionError).to.be.an.object;
+                    expect(PositionError.code).to.be.equal(2);
+                    done();
+                });
+                $rootScope.$apply();
+            } else {
                 done();
-            });
-            $rootScope.$apply();
+            }
         });
     });
 
@@ -129,16 +144,20 @@ describe('Unit: Testing appverse.native module', function () {
         window.Appverse.Geo.GetCoordinates = function () {};
 
         inject(function ($rootScope, $timeout) {
-            navigator.geolocation.getCurrentPosition(function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function () {
 
-            }, function (PositionError) {
-                expect(PositionError).to.be.an.object;
-                expect(PositionError.code).to.be.equal(3);
+                }, function (PositionError) {
+                    expect(PositionError).to.be.an.object;
+                    expect(PositionError.code).to.be.equal(3);
+                    done();
+                }, {
+                    timeout: 1000
+                });
+                $timeout.flush();
+            } else {
                 done();
-            }, {
-                timeout: 1000
-            });
-            $timeout.flush();
+            }
         });
     });
 
@@ -165,9 +184,11 @@ describe('Unit: Testing appverse.native module', function () {
 
     it('should send an HTTP GET request and cache the second request', function (done) {
 
-        inject(function ($http, $rootScope) {
+        inject(function ($http) {
 
             expect($http.defaults.cache).to.be.an.object;
+
+            $http.defaults.cache.removeAll(); //Needed if running karma with autoWatch:true
 
             $httpBackend.whenPOST('/service/io/InvokeService').respond(200);
 
@@ -179,19 +200,16 @@ describe('Unit: Testing appverse.native module', function () {
                 expect(response.headers('Content-Type')).to.equal('application/json');
                 expect(response.data).to.deep.equal({});
             });
+
             $httpBackend.flush();
 
             window.$httpCallback({
                 Content: '{}',
-                Headers: [
-                    {
-                        Name: 'Content-Type',
-                        Value: 'application/json'
-                    }
-                ]
+                Headers: [{
+                    Name: 'Content-Type',
+                    Value: 'application/json'
+                }]
             }, '1');
-
-            $rootScope.$apply();
 
             $http.get('/api/test', {
                 cache: true
@@ -203,7 +221,7 @@ describe('Unit: Testing appverse.native module', function () {
                 done();
             });
 
-            $rootScope.$apply();
+            $httpBackend.flush();
         });
     });
 

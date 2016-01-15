@@ -1,16 +1,18 @@
-(function() { 'use strict';
+(function() {
+    'use strict';
 
-/**
- * @ngdoc module
- * @name appverse.configuration.default
- * @moduleFile appverse-configuration.js
- * @description
- * This module defines default settings.
- *
- */
-angular.module('appverse.configuration.default', ['$browser']);
+    /**
+     * @ngdoc module
+     * @name appverse.configuration.default
+     * @moduleFile appverse-configuration.js
+     * @description
+     * This module defines default settings.
+     *
+     */
+    angular.module('appverse.configuration.default', []);
 
 })();
+
 (function() { 'use strict';
 
 /**
@@ -38,13 +40,13 @@ angular.module('appverse.configuration.loader', ['appverse.utils']);
  *
  * @requires appverse.configuration.loader
  */
+run.$inject = ["$log"];
 angular.module('appverse.configuration', ['appverse.configuration.loader'])
     .run(run);
 
 function run($log) {
     $log.info('appverse.configuration run');
 }
-run.$inject = ["$log"];
 
 })();
 (function () {
@@ -74,6 +76,8 @@ run.$inject = ["$log"];
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
+    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
+    run.$inject = ["$log", "REST_CONFIG"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
 
@@ -108,14 +112,12 @@ run.$inject = ["$log"];
 
         }
     }
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
 
     function run($log, REST_CONFIG) {
         if (REST_CONFIG.MockBackend) {
             $log.debug('REST: You are using a MOCKED backend!');
         }
     }
-    run.$inject = ["$log", "REST_CONFIG"];
 
 
 })();
@@ -123,6 +125,7 @@ run.$inject = ["$log"];
 (function () {
     'use strict';
 
+    configFn.$inject = ["ConfigLoaderProvider"];
     angular.module('appverse.configuration.loader')
         .provider('ConfigLoader', ConfigLoaderProvider)
         .config(configFn);
@@ -287,7 +290,6 @@ run.$inject = ["$log"];
             mobileBrowser: {}
         });
     }
-    configFn.$inject = ["ConfigLoaderProvider"];
 
 })();
 (function () {
@@ -580,6 +582,11 @@ run.$inject = ["$log"];
             if you need do set another domain.
             */
             BaseUrl: '/api/v1',
+
+            /*
+            Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
+            */
+            Timeout: 1000,
 
             /*
             These are the fields that you want to save from your parent resources if you need to display them.
@@ -907,10 +914,12 @@ run.$inject = ["$log"];
      * @description Configuration parameters for web sockets
      */
     .constant('WEBSOCKETS_CONFIG', {
-        WS_ECHO_URL: "ws://echo.websocket.org",
-        WS_TYPE: 'native', //auto|sockjs|native
-        WS_PROTOCOL_TYPE: 'none', //auto|stomp|none
-        WS_INTERVAL: 30,
+        //        WS_URL: "ws://echo.websocket.org",
+        WS_URL: "https://appverse.gftlabs.com/websockets/services/websocket/stats",
+        WS_TYPE: 'auto', //auto|sockjs|native
+        WS_PROTOCOL_TYPE: 'auto', //auto|stomp|none
+        HEARTBEAT_OUTGOING: 20000, //in milliseconds
+        HEARTBEAT_INCOMING: 0, //in milliseconds
         WS_CONNECTED: 'Websocket connected',
         WS_DISCONNECTED: 'Websocket disconnected',
         WS_CONNECTING: 'Connecting Websocket...',
@@ -990,6 +999,7 @@ run.$inject = ["$log"];
 var AppInit = AppInit || (function (angular) {
     'use strict';
 
+    loadConfig.$inject = ["ConfigLoaderProvider"];
     var
         settings,
         mainModuleName;
@@ -1053,7 +1063,6 @@ var AppInit = AppInit || (function (angular) {
     function loadConfig(ConfigLoaderProvider) {
         ConfigLoaderProvider.load(settings);
     }
-    loadConfig.$inject = ["ConfigLoaderProvider"];
 
     return {
         setMainModuleName: setMainModuleName,

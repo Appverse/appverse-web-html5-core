@@ -13,6 +13,8 @@
      * @requires https://github.com/lgalfaso/angular-dynamic-locale tmh.dynamicLocale
      * @requires appverse.configuration
      */
+    configBlock.$inject = ["$translateProvider", "I18N_CONFIG", "tmhDynamicLocaleProvider", "$provide"];
+    runBlock.$inject = ["$log"];
     angular.module('appverse.translate', [
         'pascalprecht.translate',
         'appverse.configuration',
@@ -42,7 +44,6 @@
         $provide.decorator('translateDirective',  decorateTranslateDirective);
 
     }
-    configBlock.$inject = ["$translateProvider", "I18N_CONFIG", "tmhDynamicLocaleProvider", "$provide"];
 
 
     function runBlock($log) {
@@ -50,7 +51,6 @@
         $log.info('appverse.translate run');
 
     }
-    runBlock.$inject = ["$log"];
 
 
     /**

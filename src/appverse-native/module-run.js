@@ -96,24 +96,25 @@
             }
         };
 
-        $window.navigator.geolocation = {
-            getCurrentPosition: function (success, error, PositionOptions) {
+        if ($window.navigator && $window.navigator.geolocation) {
+            $window.navigator.geolocation.getCurrentPosition = function (success, error, PositionOptions) {
 
                 updatePosition(success, error, PositionOptions);
-            },
-            watchPosition: function (success, error, PositionOptions) {
+            };
 
-                var promise = $interval(function () {
+            $window.navigator.geolocation.watchPosition = function (success, error, PositionOptions) {
+
+                var watchId = $interval(function () {
                     updatePosition(success, error, PositionOptions);
                 }, 1000);
-                return promise;
-            },
-            clearWatch: function (promise) {
-                $interval.cancel(promise);
-                Appverse.Geo.StopUpdatingLocation();
-            }
+                return watchId;
+            };
 
-        };
+            $window.navigator.geolocation.clearWatch = function (watchId) {
+                $interval.cancel(watchId);
+                Appverse.Geo.StopUpdatingLocation();
+            };
+        }
 
         var deferredNetwork;
 
