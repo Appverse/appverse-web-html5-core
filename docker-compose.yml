@@ -1,0 +1,7 @@
+build:
+  #image: jdubois/jhipster-docker
+  build: .
+  volumes:
+   - .:/workdir
+  working_dir: /workdir
+  command: bash -c "node --version install ;  grunt test:unit"
