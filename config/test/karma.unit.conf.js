@@ -10,6 +10,12 @@ module.exports = function (config) {
 
         frameworks: ['mocha', 'chai', 'sinon'],
 
+        client: {
+            mocha: {
+                timeout: 10000
+            }
+        },
+
         browsers: ['PhantomJS_custom'],
 
         // you can define custom flags
