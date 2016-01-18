@@ -21,13 +21,11 @@
      */
 
     /**
-
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
-
 
     /**
      * Preliminary configuration.
@@ -35,17 +33,14 @@
      * Configures the integration between modules that need to be integrated
      * at the config phase.
      */
-    function config($compileProvider, $injector, $provide, ModuleSeekerProvider, REST_CONFIG) {
-
-        //Mock backend if necessary
-        if (REST_CONFIG.MockBackend) {
-
-            $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
-        }
+    function config($compileProvider) {
 
         // sanitize hrefs
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
+    }
 
+    function run($log, REST_CONFIG, $provide, ModuleSeekerProvider, $injector) {
+        
         // Integrate modules that have a dependency
         if (ModuleSeekerProvider.exists('appverse.detection')) {
             var detectionProvider = $injector.get('DetectionProvider');
@@ -56,15 +51,7 @@
                 var formattedLoggerProvider = $injector.get('FormattedLoggerProvider');
                 formattedLoggerProvider.setDetection(detectionProvider);
             }
-
         }
     }
-
-    function run($log, REST_CONFIG) {
-        if (REST_CONFIG.MockBackend) {
-            $log.debug('REST: You are using a MOCKED backend!');
-        }
-    }
-
 
 })();
