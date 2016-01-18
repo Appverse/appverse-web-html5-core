@@ -61,18 +61,6 @@
 
         /**
          * @ngdoc method
-         * @name RESTFactory#wrapRequestWith
-         *
-         * @description Sets the default Content-Type as header.
-         */
-        factory.enableDefaultContentType = function () {
-            Restangular.setDefaultHeaders({
-                'Content-Type': REST_CONFIG.DefaultContentType
-            });
-        };
-
-        /**
-         * @ngdoc method
          * @name RESTFactory#setCache
          *
          * @description Sets the cache. Caching also depends on REST_CONFIG

@@ -303,7 +303,6 @@
                         $log.debug('avRestClone directive', item);
 
                         var copy = item.clone();
-                        copy.fromServer = false;
                         copy.editing = true;
                         collection.unshift(copy);
 
