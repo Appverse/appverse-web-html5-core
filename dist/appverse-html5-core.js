@@ -594,7 +594,7 @@
 
 })();
 
-(function () {
+(function() {
     'use strict';
 
     /**
@@ -606,177 +606,178 @@
      *
      * @requires appverse.utils
      */
-    angular.module('appverse.detection', ['appverse.utils','appverse.detection.mobile']);
-
+    angular.module('appverse.detection', [
+        'appverse.utils',
+        'appverse.detection.mobile',
+        'appverse.detection.provider'
+    ]);
 
 })();
-
-(function () {
+(function() {
     'use strict';
 
-DetectionProvider.$inject = ["MobileDetectorProvider"];
-angular.module('appverse.detection')
-    .provider('Detection', DetectionProvider);
-
-/**
- * @ngdoc provider
- * @name Detection
- * @module appverse.detection
- *
- * @description
- * Contains methods for browser and network detection.
- *
- * @requires  MobileDetectorProvider
- */
-function DetectionProvider (MobileDetectorProvider) {
-
-    this.mobileDetector        = MobileDetectorProvider;
-    this.bandwidth             = 0;
-    this.isPollingBandwidth    = false;
-    // Injected when the detection service is created
-    this.$http                 = undefined;
-
-    // Get the service
-    this.$get = ["$http", function ($http) {
-        this.$http = $http;
-        return this;
-    }];
+    DetectionProvider.$inject = ["MobileDetectorProvider"];
+    angular.module('appverse.detection.provider', ['appverse.detection.mobile'])
+        .provider('Detection', DetectionProvider);
 
     /**
-     * @ngdoc method
-     * @name  AppDetection#hasAppverseMobile
-     * @return {Boolean} Whether the application has Appverse mobile or not
+     * @ngdoc provider
+     * @name Detection
+     * @module appverse.detection
+     *
+     * @description
+     * Contains methods for browser and network detection.
+     *
+     * @requires  MobileDetectorProvider
      */
-    this.hasAppverseMobile = function() {
-        return this.mobileDetector.hasAppverseMobile();
-    };
+    function DetectionProvider(MobileDetectorProvider) {
 
-    /**
-     * @ngdoc method
-     * @name  AppDetection#isMobileBrowser
-     * @return {Boolean} Whether the application is running on a mobile browser
-     */
-    this.isMobileBrowser = function() {
-        return this.mobileDetector.isMobileBrowser();
-    };
+        this.mobileDetector = MobileDetectorProvider;
+        this.bandwidth = 0;
+        this.isPollingBandwidth = false;
+        // Injected when the detection service is created
+        this.$http = undefined;
 
-    // Do some initialization
-    if (this.hasAppverseMobile() || this.isMobileBrowser()) {
-        // Do something for mobile...
-    }
+        // Get the service
+        this.$get = ["$http", function($http) {
+            this.$http = $http;
+            return this;
+        }];
 
-    var fireEvent = function (name, data) {
-        var e = document.createEvent("Event");
-        e.initEvent(name, true, true);
-        e.data = data;
-        window.dispatchEvent(e);
-    };
-
-    var fetch = function (url, callback) {
-        var xhr = new XMLHttpRequest();
-
-        var noResponseTimer = setTimeout(function () {
-            xhr.abort();
-            fireEvent("connectiontimeout", {});
-        }, 5000);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState !== 4) {
-                return;
-            }
-
-            if (xhr.status === 200) {
-                fireEvent("goodconnection", {});
-                clearTimeout(noResponseTimer);
-                if (callback) {
-                    callback(xhr.responseText);
-                }
-            } else {
-                fireEvent("connectionerror", {});
-            }
+        /**
+         * @ngdoc method
+         * @name  AppDetection#hasAppverseMobile
+         * @return {Boolean} Whether the application has Appverse mobile or not
+         */
+        this.hasAppverseMobile = function() {
+            return this.mobileDetector.hasAppverseMobile();
         };
-        xhr.open("GET", url);
-        xhr.send();
-    };
 
-    this.isOnline = window.navigator.onLine;
-    this.isPollingOnlineStatus = false;
+        /**
+         * @ngdoc method
+         * @name  AppDetection#isMobileBrowser
+         * @return {Boolean} Whether the application is running on a mobile browser
+         */
+        this.isMobileBrowser = function() {
+            return this.mobileDetector.isMobileBrowser();
+        };
 
-    /**
-     * @ngdoc method
-     * @name Detection#testOnlineStatus
-     *
-     * @param {String} path The item URL
-     * @description Tries to fetch a file on the server and fire events for fail and success.
-     */
-    this.testOnlineStatus = function () {
-        fetch("resources/detection/ping.json");
-    };
+        // Do some initialization
+        if (this.hasAppverseMobile() || this.isMobileBrowser()) {
+            // Do something for mobile...
+        }
 
-    /**
-     * @ngdoc method
-     * @name Detection#startPollingOnlineStatus
-     *
-     * @param {number} interval Time in milliseconds
-     * @description Tries to fetch a file on the server at regular intervals and fire events for fail and success.
-     */
-    this.startPollingOnlineStatus = function (interval) {
-        this.isPollingOnlineStatus = setInterval(this.testOnlineStatus, interval);
-    };
+        var fireEvent = function(name, data) {
+            var e = document.createEvent("Event");
+            e.initEvent(name, true, true);
+            e.data = data;
+            window.dispatchEvent(e);
+        };
 
-    /**
-     * @ngdoc method
-     * @name Detection#stopPollingOnlineStatus
-     *
-     * @description Stops fetching the file from the server.
-     */
-    this.stopPollingOnlineStatus = function () {
-        clearInterval(this.isPollingOnlineStatus);
+        var fetch = function(url, callback) {
+            var xhr = new XMLHttpRequest();
+
+            var noResponseTimer = setTimeout(function() {
+                xhr.abort();
+                fireEvent("connectiontimeout", {});
+            }, 5000);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) {
+                    return;
+                }
+
+                if (xhr.status === 200) {
+                    fireEvent("goodconnection", {});
+                    clearTimeout(noResponseTimer);
+                    if (callback) {
+                        callback(xhr.responseText);
+                    }
+                } else {
+                    fireEvent("connectionerror", {});
+                }
+            };
+            xhr.open("GET", url);
+            xhr.send();
+        };
+
+        this.isOnline = window.navigator.onLine;
         this.isPollingOnlineStatus = false;
-    };
 
-    /**
-     * @ngdoc method
-     * @name Detection#testBandwidth
-     */
-    this.testBandwidth = function () {
-        var jsonUrl = "resources/detection/bandwidth.json?bust=" +  (new Date()).getTime();
-        fireEvent("onBandwidthStart");
-        this.$http.get(jsonUrl).success(function(data, status, headersFn) {
+        /**
+         * @ngdoc method
+         * @name Detection#testOnlineStatus
+         *
+         * @param {String} path The item URL
+         * @description Tries to fetch a file on the server and fire events for fail and success.
+         */
+        this.testOnlineStatus = function() {
+            fetch("resources/detection/ping.json");
+        };
+
+        /**
+         * @ngdoc method
+         * @name Detection#startPollingOnlineStatus
+         *
+         * @param {number} interval Time in milliseconds
+         * @description Tries to fetch a file on the server at regular intervals and fire events for fail and success.
+         */
+        this.startPollingOnlineStatus = function(interval) {
+            this.isPollingOnlineStatus = setInterval(this.testOnlineStatus, interval);
+        };
+
+        /**
+         * @ngdoc method
+         * @name Detection#stopPollingOnlineStatus
+         *
+         * @description Stops fetching the file from the server.
+         */
+        this.stopPollingOnlineStatus = function() {
+            clearInterval(this.isPollingOnlineStatus);
+            this.isPollingOnlineStatus = false;
+        };
+
+        /**
+         * @ngdoc method
+         * @name Detection#testBandwidth
+         */
+        this.testBandwidth = function() {
+            var jsonUrl = "resources/detection/bandwidth.json?bust=" + (new Date()).getTime();
+            fireEvent("onBandwidthStart");
+            this.$http.get(jsonUrl).success(function(data, status, headersFn) {
                 fireEvent("onBandwidthEnd", {
                     status: status,
                     data: data,
                     getResponseHeader: headersFn
-        });
+                });
             });
-    };
+        };
 
-    /**
-     * @ngdoc method
-     * @name Detection#startPollingBandwidth
-     *
-     * @param {number} interval Time in milliseconds
-     */
-    this.startPollingBandwidth = function (interval) {
-        this.testBandwidth();
-        this.isPollingBandwidth = setInterval(this.testBandwidth.bind(this), interval);
-    };
+        /**
+         * @ngdoc method
+         * @name Detection#startPollingBandwidth
+         *
+         * @param {number} interval Time in milliseconds
+         */
+        this.startPollingBandwidth = function(interval) {
+            this.testBandwidth();
+            this.isPollingBandwidth = setInterval(this.testBandwidth.bind(this), interval);
+        };
 
-    /**
-     * @ngdoc method
-     * @name Detection#stopPollingBandwidth
-     *
-     * @param {number} interval Time in milliseconds
-     */
-    this.stopPollingBandwidth = function () {
-        clearInterval(this.isPollingBandwidth);
-        this.isPollingBandwidth = false;
-    };
-}
+        /**
+         * @ngdoc method
+         * @name Detection#stopPollingBandwidth
+         *
+         * @param {number} interval Time in milliseconds
+         */
+        this.stopPollingBandwidth = function() {
+            clearInterval(this.isPollingBandwidth);
+            this.isPollingBandwidth = false;
+        };
+    }
 
 
 })();
-
 (function() {
     'use strict';
 
@@ -2148,15 +2149,8 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
     }
 
 })();
-(function () {
+(function() {
     'use strict';
-
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
-    var requires = [
-        'restangular',
-        'appverse.configuration',
-        'appverse.utils'
-    ];
 
     /**
      * @ngdoc module
@@ -2190,10 +2184,15 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      * @requires  appverse.utils
      *
      */
-    angular.module('appverse.rest', requires).run(run);
+    angular.module('appverse.rest', [
+        'restangular',
+        'appverse.configuration',
+        'appverse.utils'
+    ])
 
+    .run(["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG", function($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
 
-    function run($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
+        $log.info('appverse.rest run');
 
         tryToIntegrateSecurity();
         tryToIntegrateCache();
@@ -2201,27 +2200,12 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
         Restangular.setExtraFields(REST_CONFIG.ExtraFields);
         Restangular.setParentless(REST_CONFIG.Parentless);
-        var transformer;
-        for (var i = 0; i < REST_CONFIG.ElementTransformer.length; i++) {
-            $log.debug('Adding transformer');
-            transformer = REST_CONFIG.ElementTransformer[i];
-            Restangular.addElementTransformer(transformer.route, transformer.transformer);
-        }
-        Restangular.setOnElemRestangularized(REST_CONFIG.OnElemRestangularized);
-
-        if (typeof REST_CONFIG.RequestInterceptor === 'function') {
-            $log.debug('Setting RequestInterceptor');
-            Restangular.setRequestInterceptor(REST_CONFIG.RequestInterceptor);
-        }
-        if (typeof REST_CONFIG.FullRequestInterceptor === 'function') {
-            $log.debug('Setting FullRequestInterceptor');
-            Restangular.setFullRequestInterceptor(REST_CONFIG.FullRequestInterceptor);
-        }
-        Restangular.setErrorInterceptor(REST_CONFIG.ErrorInterceptor);
         Restangular.setRestangularFields(REST_CONFIG.RestangularFields);
         Restangular.setMethodOverriders(REST_CONFIG.MethodOverriders);
         Restangular.setFullResponse(REST_CONFIG.FullResponse);
-        //Restangular.setDefaultHeaders(REST_CONFIG.DefaultHeaders);
+        if (REST_CONFIG.DefaultHeaders) {
+            Restangular.setDefaultHeaders(REST_CONFIG.DefaultHeaders);
+        }
         Restangular.setRequestSuffix(REST_CONFIG.RequestSuffix);
         Restangular.setUseCannonicalId(REST_CONFIG.UseCannonicalId);
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
@@ -2241,7 +2225,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                 }
             }
 
-            restFactory.enableDefaultContentType();
             $log.debug("REST communication is not secure. Security is not enabled.");
         }
 
@@ -2254,18 +2237,31 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
             }
         }
 
-        $log.info('appverse.rest run');
+        if (REST_CONFIG.HATEOAS) {
 
-    }
+            var CONTENT_TAG = 'content';
+            var HREF_TAG = 'href';
+            var LINKS_TAG = 'links';
 
-
-
-
-
-
+            Restangular.setResponseExtractor(function(data, operation) {
+                var returnData = data;
+                if (operation === 'getList' && CONTENT_TAG in data) {
+                    for (var i = 0; i < data[CONTENT_TAG].length; i++) {
+                        data[CONTENT_TAG][i][HREF_TAG] = data[CONTENT_TAG][i][LINKS_TAG][0][HREF_TAG];
+                        delete data[CONTENT_TAG][i][LINKS_TAG];
+                    }
+                    returnData = data[CONTENT_TAG];
+                    delete data[CONTENT_TAG];
+                    for (var key in data) {
+                        returnData[key] = data[key];
+                    }
+                }
+                return returnData;
+            });
+        }
+    }]);
 
 })();
-
 (function () {
     'use strict';
 
@@ -2571,7 +2567,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                         $log.debug('avRestClone directive', item);
 
                         var copy = item.clone();
-                        copy.fromServer = false;
                         copy.editing = true;
                         collection.unshift(copy);
 
@@ -2727,18 +2722,6 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          */
         factory.wrapRequestsWith = function (wrapper) {
             Restangular = wrapper.wrapRequest(Restangular);
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#wrapRequestWith
-         *
-         * @description Sets the default Content-Type as header.
-         */
-        factory.enableDefaultContentType = function () {
-            Restangular.setDefaultHeaders({
-                'Content-Type': REST_CONFIG.DefaultContentType
-            });
         };
 
         /**
@@ -3883,15 +3866,13 @@ function run($log) {
      */
 
     /**
-
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
-    config.$inject = ["$compileProvider", "$injector", "$provide", "ModuleSeekerProvider", "REST_CONFIG"];
-    run.$inject = ["$log", "REST_CONFIG"];
+    config.$inject = ["$compileProvider"];
+    run.$inject = ["$log", "REST_CONFIG", "$provide", "ModuleSeekerProvider", "$injector"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
         .config(config).run(run);
-
 
     /**
      * Preliminary configuration.
@@ -3899,17 +3880,14 @@ function run($log) {
      * Configures the integration between modules that need to be integrated
      * at the config phase.
      */
-    function config($compileProvider, $injector, $provide, ModuleSeekerProvider, REST_CONFIG) {
-
-        //Mock backend if necessary
-        if (REST_CONFIG.MockBackend) {
-
-            $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
-        }
+    function config($compileProvider) {
 
         // sanitize hrefs
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
+    }
 
+    function run($log, REST_CONFIG, $provide, ModuleSeekerProvider, $injector) {
+        
         // Integrate modules that have a dependency
         if (ModuleSeekerProvider.exists('appverse.detection')) {
             var detectionProvider = $injector.get('DetectionProvider');
@@ -3920,19 +3898,10 @@ function run($log) {
                 var formattedLoggerProvider = $injector.get('FormattedLoggerProvider');
                 formattedLoggerProvider.setDetection(detectionProvider);
             }
-
         }
     }
-
-    function run($log, REST_CONFIG) {
-        if (REST_CONFIG.MockBackend) {
-            $log.debug('REST: You are using a MOCKED backend!');
-        }
-    }
-
 
 })();
-
 (function () {
     'use strict';
 
@@ -4103,7 +4072,7 @@ function run($log) {
     }
 
 })();
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -4425,75 +4394,6 @@ function run($log) {
             },
 
             /*
-            This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
-            the corresponding transformer will be called if it fits.
-            This should be used to add your own methods / functions to entities of certain types.
-            You can add as many element transformers as you want.
-            The signature of this method can be one of the following:
-
-            1-Transformer is called with all elements that have been restangularized, no matter if they're collections or not:
-            addElementTransformer(route, transformer)
-            2-Transformer is called with all elements that have been restangularized and match the specification regarding
-            if it's a collection or not (true | false):
-            addElementTransformer(route, isCollection, transformer)
-            */
-            ElementTransformer: [],
-
-            /*
-            This is a hook. After each element has been "restangularized" (Added the new methods from Restangular),
-            this will be called. It means that if you receive a list of objects in one call, this method will be called
-            first for the collection and then for each element of the collection.
-            It is recommended the usage of addElementTransformer instead of onElemRestangularized whenever
-            possible as the implementation is much cleaner.
-            This callback is a function that has 3 parameters:
-            @param elem: The element that has just been restangularized. Can be a collection or a single element.
-            @param isCollection: Boolean indicating if this is a collection or a single element.
-            @param what: The model that is being modified. This is the "path" of this resource. For example buildings
-            @param Restangular: The instanced service to use any of its methods
-            */
-            OnElemRestangularized: function (elem) {
-                return elem;
-            },
-
-            /*
-            The requestInterceptor is called before sending any data to the server.
-            It's a function that must return the element to be requested.
-
-            @param element: The element to send to the server.
-            @param operation: The operation made. It'll be the HTTP method used except for a GET which returns a list
-            of element which will return getList so that you can distinguish them.
-            @param what: The model that's being requested. It can be for example: accounts, buildings, etc.
-            @param url: The relative URL being requested. For example: /api/v1/accounts/123
-            */
-            RequestInterceptor: null,
-
-            /*
-            The fullRequestInterceptor is similar to the requestInterceptor but more powerful.
-            It lets you change the element, the request parameters and the headers as well.
-            It's a function that receives the same as the requestInterceptor
-            plus the headers and the query parameters (in that order).
-            It must return an object with the following properties:
-            headers: The headers to send
-            params: The request parameters to send
-            element: The element to send
-            httpConfig: The httpConfig to call with
-            */
-            FullRequestInterceptor: null,
-
-            /*
-            The errorInterceptor is called whenever there's an error.
-            It's a function that receives the response as a parameter.
-            The errorInterceptor function, whenever it returns false, prevents the promise
-            linked to a Restangular request to be executed.
-            All other return values (besides false) are ignored and the promise follows the usual path,
-            eventually reaching the success or error hooks.
-            The feature to prevent the promise to complete is useful whenever you need to intercept
-            each Restangular error response for every request in your AngularJS application in a single place,
-            increasing debugging capabilities and hooking security features in a single place.
-            */
-            ErrorInterceptor: function () {},
-
-            /*
             Restangular required 3 fields for every "Restangularized" element. These are:
 
             id: Id of the element. Default: id
@@ -4543,12 +4443,7 @@ function run($log) {
             Example:
             DefaultHeaders: {'Content-Type': 'application/json'}
             */
-            DefaultHeaders: {
-                'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': 'juan'
-                    //SECURITY_GENERAL.XSRFCSRFHeaderName: SECURITY_GENERAL.XSRFCSRFCookieValue
-
-            },
+            DefaultHeaders: null,
 
             /*
             If all of your requests require to send some suffix to work, you can set it here.
@@ -4570,20 +4465,12 @@ function run($log) {
             /*
             You can set here if you want to URL Encode IDs or not.
             */
-            EncodeIds: true,
+            EncodeIds: true,           
+           
             /*
-             *
+             * If true, a response extractor is added to use content property and self links
              */
-            DefaultContentType: 'application/json',
-
-            /**
-             * If true, it will mock backend $http calls
-             * by decorating the default "real" $http service with a mocked
-             * one from angular-mocks.
-             * (remember to include the  angular-mocks.js script if this option is set to true)
-             * @type {Boolean}
-             */
-            MockBackend: false
+            HATEOAS: false
         })
         /**
          * @ngdoc object
@@ -4797,7 +4684,6 @@ function run($log) {
     });
 
 })();
-
 /**
  * @ngdoc object
  * @name  AppInit

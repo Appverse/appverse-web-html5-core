@@ -1,12 +1,5 @@
-(function () {
+(function() {
     'use strict';
-
-    run.$inject = ["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG"];
-    var requires = [
-        'restangular',
-        'appverse.configuration',
-        'appverse.utils'
-    ];
 
     /**
      * @ngdoc module
@@ -40,10 +33,15 @@
      * @requires  appverse.utils
      *
      */
-    angular.module('appverse.rest', requires).run(run);
+    angular.module('appverse.rest', [
+        'restangular',
+        'appverse.configuration',
+        'appverse.utils'
+    ])
 
+    .run(["$injector", "$log", "Restangular", "ModuleSeeker", "REST_CONFIG", function($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
 
-    function run($injector, $log, Restangular, ModuleSeeker, REST_CONFIG) {
+        $log.info('appverse.rest run');
 
         tryToIntegrateSecurity();
         tryToIntegrateCache();
@@ -51,27 +49,12 @@
         Restangular.setBaseUrl(REST_CONFIG.BaseUrl);
         Restangular.setExtraFields(REST_CONFIG.ExtraFields);
         Restangular.setParentless(REST_CONFIG.Parentless);
-        var transformer;
-        for (var i = 0; i < REST_CONFIG.ElementTransformer.length; i++) {
-            $log.debug('Adding transformer');
-            transformer = REST_CONFIG.ElementTransformer[i];
-            Restangular.addElementTransformer(transformer.route, transformer.transformer);
-        }
-        Restangular.setOnElemRestangularized(REST_CONFIG.OnElemRestangularized);
-
-        if (typeof REST_CONFIG.RequestInterceptor === 'function') {
-            $log.debug('Setting RequestInterceptor');
-            Restangular.setRequestInterceptor(REST_CONFIG.RequestInterceptor);
-        }
-        if (typeof REST_CONFIG.FullRequestInterceptor === 'function') {
-            $log.debug('Setting FullRequestInterceptor');
-            Restangular.setFullRequestInterceptor(REST_CONFIG.FullRequestInterceptor);
-        }
-        Restangular.setErrorInterceptor(REST_CONFIG.ErrorInterceptor);
         Restangular.setRestangularFields(REST_CONFIG.RestangularFields);
         Restangular.setMethodOverriders(REST_CONFIG.MethodOverriders);
         Restangular.setFullResponse(REST_CONFIG.FullResponse);
-        //Restangular.setDefaultHeaders(REST_CONFIG.DefaultHeaders);
+        if (REST_CONFIG.DefaultHeaders) {
+            Restangular.setDefaultHeaders(REST_CONFIG.DefaultHeaders);
+        }
         Restangular.setRequestSuffix(REST_CONFIG.RequestSuffix);
         Restangular.setUseCannonicalId(REST_CONFIG.UseCannonicalId);
         Restangular.setEncodeIds(REST_CONFIG.EncodeIds);
@@ -91,7 +74,6 @@
                 }
             }
 
-            restFactory.enableDefaultContentType();
             $log.debug("REST communication is not secure. Security is not enabled.");
         }
 
@@ -104,18 +86,31 @@
             }
         }
 
-        $log.info('appverse.rest run');
+        if (REST_CONFIG.HATEOAS) {
 
-    }
+            var CONTENT_TAG = 'content';
+            var HREF_TAG = 'href';
+            var LINKS_TAG = 'links';
 
-
-
-
-
-
+            Restangular.setResponseExtractor(function(data, operation) {
+                var returnData = data;
+                if (operation === 'getList' && CONTENT_TAG in data) {
+                    for (var i = 0; i < data[CONTENT_TAG].length; i++) {
+                        data[CONTENT_TAG][i][HREF_TAG] = data[CONTENT_TAG][i][LINKS_TAG][0][HREF_TAG];
+                        delete data[CONTENT_TAG][i][LINKS_TAG];
+                    }
+                    returnData = data[CONTENT_TAG];
+                    delete data[CONTENT_TAG];
+                    for (var key in data) {
+                        returnData[key] = data[key];
+                    }
+                }
+                return returnData;
+            });
+        }
+    }]);
 
 })();
-
 (function () {
     'use strict';
 
@@ -421,7 +416,6 @@
                         $log.debug('avRestClone directive', item);
 
                         var copy = item.clone();
-                        copy.fromServer = false;
                         copy.editing = true;
                         collection.unshift(copy);
 
@@ -577,18 +571,6 @@
          */
         factory.wrapRequestsWith = function (wrapper) {
             Restangular = wrapper.wrapRequest(Restangular);
-        };
-
-        /**
-         * @ngdoc method
-         * @name RESTFactory#wrapRequestWith
-         *
-         * @description Sets the default Content-Type as header.
-         */
-        factory.enableDefaultContentType = function () {
-            Restangular.setDefaultHeaders({
-                'Content-Type': REST_CONFIG.DefaultContentType
-            });
         };
 
         /**
