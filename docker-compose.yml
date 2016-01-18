@@ -4,4 +4,4 @@ build:
   volumes:
    - .:/workdir
   working_dir: /workdir
-  command: bash -c "node --version; npm install ;  grunt test:unit"
+  command: bash -c "node --version; npm install; bower install; grunt test:unit"
