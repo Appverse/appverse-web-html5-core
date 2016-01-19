@@ -75,10 +75,9 @@ function run($log) {
      * Main module.
      * Bootstraps the application by integrating services that have any relation.
      */
-    config.$inject = ["$compileProvider"];
-    run.$inject = ["$log", "REST_CONFIG", "$provide", "ModuleSeekerProvider", "$injector"];
+    config.$inject = ["$compileProvider", "ModuleSeekerProvider", "$injector"];
     angular.module('appverse', ['appverse.utils', 'appverse.configuration'])
-        .config(config).run(run);
+        .config(config);
 
     /**
      * Preliminary configuration.
@@ -86,14 +85,11 @@ function run($log) {
      * Configures the integration between modules that need to be integrated
      * at the config phase.
      */
-    function config($compileProvider) {
+    function config($compileProvider, ModuleSeekerProvider, $injector) {
 
         // sanitize hrefs
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|itms-services):/);
-    }
 
-    function run($log, REST_CONFIG, $provide, ModuleSeekerProvider, $injector) {
-        
         // Integrate modules that have a dependency
         if (ModuleSeekerProvider.exists('appverse.detection')) {
             var detectionProvider = $injector.get('DetectionProvider');
@@ -108,6 +104,7 @@ function run($log) {
     }
 
 })();
+
 (function () {
     'use strict';
 
