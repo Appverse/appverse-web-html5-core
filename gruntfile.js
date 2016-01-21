@@ -4,7 +4,7 @@
 
 var bowerFile = require('./bower.json');
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -295,11 +295,10 @@ module.exports = function (grunt) {
                 options: {
                     port: 9999,
                     keepalive: true,
-                    middleware: function (connect) {
+                    middleware: function(connect) {
                         return [
                             require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
-                            mountFolder(connect, configPaths.doc),
-
+                            mountFolder(connect, configPaths.doc)
                         ];
                     }
                 }
@@ -356,6 +355,10 @@ module.exports = function (grunt) {
             dist: {
                 files: ['src/**'],
                 tasks: ['dist']
+            },
+            doc: {
+                files: ['src/**'],
+                tasks: ['doc']
             }
         }
     });
@@ -389,13 +392,22 @@ module.exports = function (grunt) {
         'karma:unit'
     ]);
 
+    grunt.registerTask('docgen', 'Generates docs', require('./config/grunt-tasks/docgen/grunt-task'));
+
     grunt.registerTask('doc', [
         'clean:doc',
         'docgen'
     ]);
 
-    grunt.registerTask('docgen', 'Generates docs', require('./config/grunt-tasks/docgen/grunt-task'));
+    grunt.registerTask('doc:watch', [
+        'doc',
+        'watch:doc'
+    ]);
 
+    grunt.registerTask('serve:doc', [
+        'connect:doc',
+        'watch:doc'
+    ]);
 
     // ------ Analysis tasks. Runs code analysis -----
 
