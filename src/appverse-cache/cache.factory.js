@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.cache')
@@ -16,7 +16,7 @@
      * @requires CACHE_CONFIG
      */
     .factory('avCacheFactory',
-        function (CacheFactory, $http, CACHE_CONFIG) {
+        function(CacheFactory, $http, CACHE_CONFIG) {
 
             var factory = {
                 _scopeCache: null,
@@ -34,7 +34,7 @@
              *
              * @description Configure the scope cache.
              */
-            factory.setScopeCache = function (duration, capacity) {
+            factory.setScopeCache = function(duration, capacity) {
 
                 var options = {
                     maxAge: duration,
@@ -75,34 +75,34 @@
              *
              * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
              */
-            factory.getScopeCache = function () {
+            factory.getScopeCache = function() {
                 return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
                     CACHE_CONFIG.ScopeCache_capacity);
             };
 
             /**
-             @ngdoc function
-             @name avCacheFactory#setBrowserStorage
-
-             @param type Type of storage ( 1 local | 2 session).
-             @param maxAgeInit
-             @param cacheFlushIntervalInit
-             @param deleteOnExpireInit
-
-             @description This object makes Web Storage working in the Angular Way.
-             By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
-             on the device rather than passed back-and-forth with each request to the server.
-             Web storage is useful for storing small amounts of key/value data and preserving functionality
-             online and offline.
-             With web storage, both the keys and values are stored as strings.
-
-             We can store anything except those not supported by JSON:
-             Infinity, NaN - Will be replaced with null.
-             undefined, Function - Will be removed.
-             The returned object supports the following set of methods:
+             * @ngdoc method
+             * @name avCacheFactory#setBrowserStorage
+             *
+             * @param type Type of storage ( 1 local | 2 session).
+             * @param maxAgeInit
+             * @param cacheFlushIntervalInit
+             * @param deleteOnExpireInit
+             *
+             * @description This object makes Web Storage working in the Angular Way.
+             * By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
+             * on the device rather than passed back-and-forth with each request to the server.
+             * Web storage is useful for storing small amounts of key/value data and preserving functionality
+             * online and offline.
+             * With web storage, both the keys and values are stored as strings.
+             *
+             * We can store anything except those not supported by JSON:
+             * Infinity, NaN - Will be replaced with null.
+             * undefined, Function - Will be removed.
+             * The returned object supports the following set of methods:
              * {void} $reset() - Clears the Storage in one go.
              */
-            factory.setBrowserStorage = function (
+            factory.setBrowserStorage = function(
                 type,
                 maxAgeInit,
                 cacheFlushIntervalInit,
@@ -144,7 +144,7 @@
              * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
              * @description Default cache configuration for $http service
              */
-            factory.setDefaultHttpCacheStorage = function (maxAge, capacity) {
+            factory.setDefaultHttpCacheStorage = function(maxAge, capacity) {
 
                 var cacheId = 'MyHttpAngularCache';
                 factory._httpCache = CacheFactory.get(cacheId);
@@ -198,11 +198,10 @@
             /**
              * @ngdoc method
              * @name avCacheFactory#getHttpCache
-             * @methodOf avCacheFactory
              * @description Returns the httpcache object in factory
              * @returns httpcache object
              */
-            factory.getHttpCache = function () {
+            factory.getHttpCache = function() {
                 return factory._httpCache;
             };
 

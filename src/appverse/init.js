@@ -7,7 +7,7 @@
  * Just call the initalization code after having loaded angular and the configuration module:
  * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
-var AppInit = AppInit || (function (angular) {
+var AppInit = AppInit || (function(angular) {
     'use strict';
 
     var
@@ -24,7 +24,7 @@ var AppInit = AppInit || (function (angular) {
         settings = settingsObject;
         var module = angular.module('appverse.configuration.loader');
         // Remove default config function
-        module._invokeQueue.some(function (currentValue, index) {
+        module._invokeQueue.some(function(currentValue, index) {
             if (currentValue[0] === '$injector' && currentValue[1] === 'invoke') {
                 module._invokeQueue.splice(index);
                 return true;
@@ -45,7 +45,7 @@ var AppInit = AppInit || (function (angular) {
      */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function () {
+        angular.element(document).ready(function() {
             angular.bootstrap(document, [moduleName]);
         });
     }
@@ -61,7 +61,7 @@ var AppInit = AppInit || (function (angular) {
 
     /**
      * @ngdoc method
-     * @name AppInit#setMainModuleName
+     * @name AppInit#getMainModule
      * @return {string} The name of the main application module.
      */
     function getMainModule() {

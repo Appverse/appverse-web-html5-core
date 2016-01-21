@@ -1,8 +1,7 @@
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.logging')
-        .provider("FormattedLogger", FormattedLoggerProvider);
 
     /**
      * @ngdoc provider
@@ -11,13 +10,14 @@
      *
      * @description
      * Captures the $log service and decorate it.
-     *
      */
+    .provider("FormattedLogger", FormattedLoggerProvider);
+
     function FormattedLoggerProvider() {
 
         var detectionProvider;
 
-        this.$get = function ($injector, LOGGING_CONFIG) {
+        this.$get = function($injector, LOGGING_CONFIG) {
             return function decorateLog(delegatedLog) {
 
                 /**
@@ -37,24 +37,24 @@
                         return (value.toString().length < 2) ? '0' + value : value;
                     }
 
-                    return format.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
+                    return format.replace(/%([a-zA-Z])/g, function(_, fmtCode) {
                         switch (fmtCode) {
-                        case 'Y':
-                            return date.getFullYear();
-                        case 'M':
-                            return pad(date.getMonth() + 1);
-                        case 'd':
-                            return pad(date.getDate());
-                        case 'h':
-                            return pad(date.getHours());
-                        case 'm':
-                            return pad(date.getMinutes());
-                        case 's':
-                            return pad(date.getSeconds());
-                        case 'z':
-                            return pad(date.getMilliseconds());
-                        default:
-                            throw new Error('Unsupported format code: ' + fmtCode);
+                            case 'Y':
+                                return date.getFullYear();
+                            case 'M':
+                                return pad(date.getMonth() + 1);
+                            case 'd':
+                                return pad(date.getDate());
+                            case 'h':
+                                return pad(date.getHours());
+                            case 'm':
+                                return pad(date.getMinutes());
+                            case 's':
+                                return pad(date.getSeconds());
+                            case 'z':
+                                return pad(date.getMilliseconds());
+                            default:
+                                throw new Error('Unsupported format code: ' + fmtCode);
                         }
                     });
                 }
@@ -72,12 +72,12 @@
                     try {
 
                         if (!enable) {
-                            return function () {};
+                            return function() {};
                         }
 
                         var logMessage = logLevel + " | " + LOGGING_CONFIG.CustomLogPreffix + " | ";
 
-                        var f = function () {
+                        var f = function() {
                             var args = Array.prototype.slice.call(arguments);
 
                             if (Object.prototype.toString.call(args[0]) === '[object String]') {
@@ -137,7 +137,7 @@
         };
 
 
-        this.setDetection = function (detection) {
+        this.setDetection = function(detection) {
             detectionProvider = detection;
         };
 

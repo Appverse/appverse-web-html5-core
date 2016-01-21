@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.rest')
@@ -12,21 +12,17 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Retrieves JSON data using Restangular API. By default it will retrieve a list. If rest-id attribute is set, it will retrieve an object.
          *
-         * @example
-         <div av-rest-get="accounts" ng-repeat="account in accounts">
-            <p ng-bind="account.name"></p>
-            <p ng-bind="account.total"></p>
-         </div>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
-         * @requires  Restangular
+         *      <div av-rest-get="accounts" ng-repeat="account in accounts">
+         *          <p ng-bind="account.name"></p>
+         *          <p ng-bind="account.total"></p>
+         *      </div>
          */
-        function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
+        function($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
                     $log.debug('avRestGet directive', attrs);
 
@@ -46,9 +42,9 @@
 
                     scope[name + gettingSuffix] = true;
 
-                    scope.$watchCollection(function () {
+                    scope.$watchCollection(function() {
                         return [attrs.avRestGet, attrs.restId, attrs.restName];
-                    }, function (newCollection, oldCollection, scope) {
+                    }, function(newCollection, oldCollection, scope) {
                         $log.debug('avRestGet watch ' + name + ':', newCollection);
                         scope[name + errorSuffix] = false;
 
@@ -60,7 +56,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + gettingSuffix] = false;
                                 if (scope.$headerContainer) {
                                     scope.$parent[name] = data;
@@ -72,7 +68,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + gettingSuffix] = false;
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
@@ -95,19 +91,16 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls Restangular remove function on object passed as attribute value.
          *
-         * @example
-         <button av-rest-remove="account"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-remove="account"></button>
          */
-        function ($log, $rootScope, $timeout, REST_CONFIG) {
+        function($log, $rootScope, $timeout, REST_CONFIG) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var removingSuffix = 'Removing',
                             errorSuffix = 'Error',
@@ -127,7 +120,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + removingSuffix] = false;
                                 var collection = item.getParentList(),
                                     index = collection.indexOf(item);
@@ -139,7 +132,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + removingSuffix] = false;
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
@@ -163,19 +156,16 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls post or put on the object passed as attribute value depending on fromServer property value.
          *
-         * @example
-         <button av-rest-save="account"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-save="account"></button>
          */
-        function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
+        function($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var savingSuffix = 'Saving',
                             errorSuffix = 'Error',
@@ -202,7 +192,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + savingSuffix] = false;
                                 collection[index] = item;
                             }, REST_CONFIG.Timeout);
@@ -210,7 +200,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + savingSuffix] = false;
                                 scope[name + errorSuffix] = true;
 
@@ -243,19 +233,16 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Adds an empty object to the Restangular list passed as attribute value. The empty object is added the editing property to true.
          *
-         * @example
-         <button av-rest-add="users"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-add="users"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var collection = scope.$eval(attrs.avRestAdd);
 
@@ -263,7 +250,7 @@
 
                         collection.unshift({
                             editing: true,
-                            getParentList: function () {
+                            getParentList: function() {
                                 return collection;
                             }
                         });
@@ -283,19 +270,16 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls the Restangular clone function on the object passed as attribute value and adds the clone to the beginning of the Restangular collection. The editing property is also set to true on the clone.
          *
-         * @example
-         <button av-rest-clone="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-clone="user"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var item = scope.$eval(attrs.avRestClone),
                             collection = item.getParentList();
@@ -321,19 +305,16 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Clones the object passed as attribute value and store it in the copy variable. Then, sets the editing property to true.
          *
-         * @example
-         <button av-rest-edit="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-edit="user"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var item = scope.$eval(attrs.avRestEdit);
 
@@ -357,19 +338,16 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Removes the Restangular object passed as attribute value and replaces it with the saved copy if needed.
          *
-         * @example
-         <button av-rest-cancel="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-cancel="user"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         $log.debug('avRestCancel directive', scope);
 
