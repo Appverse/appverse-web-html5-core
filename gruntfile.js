@@ -4,7 +4,7 @@
 
 var bowerFile = require('./bower.json');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -294,10 +294,9 @@ module.exports = function(grunt) {
             doc: {
                 options: {
                     port: 9999,
-                    keepalive: true,
-                    middleware: function(connect) {
+                    livereload: true,
+                    middleware: function (connect) {
                         return [
-                            require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
                             mountFolder(connect, configPaths.doc)
                         ];
                     }
@@ -357,7 +356,10 @@ module.exports = function(grunt) {
                 tasks: ['dist']
             },
             doc: {
-                files: ['src/**'],
+                options: {
+                    livereload: true
+                },
+                files: ['src/**', 'config/grunt-tasks/docgen/**'],
                 tasks: ['doc']
             }
         }
@@ -405,6 +407,7 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('serve:doc', [
+        'doc',
         'connect:doc',
         'watch:doc'
     ]);
