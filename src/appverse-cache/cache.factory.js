@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.cache')
@@ -11,12 +11,12 @@
      * @description
      * Returns an object that exposes methods for cache management.
      *
-     * @requires http://jmdobry.github.io/angular-cache/ $angularCacheFactory
+     * @requires http://jmdobry.github.io/angular-cache/ CacheFactory
      * @requires https://docs.angularjs.org/api/ng/service/$http $http
      * @requires CACHE_CONFIG
      */
     .factory('avCacheFactory',
-        function(CacheFactory, $http, CACHE_CONFIG) {
+        function (CacheFactory, $http, CACHE_CONFIG) {
 
             var factory = {
                 _scopeCache: null,
@@ -34,7 +34,7 @@
              *
              * @description Configure the scope cache.
              */
-            factory.setScopeCache = function(duration, capacity) {
+            factory.setScopeCache = function (duration, capacity) {
 
                 var options = {
                     maxAge: duration,
@@ -74,8 +74,10 @@
              * * {void} removeAll() — Removes all cached values.
              *
              * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+             *
+             * @returns {object} scope cache object.
              */
-            factory.getScopeCache = function() {
+            factory.getScopeCache = function () {
                 return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
                     CACHE_CONFIG.ScopeCache_capacity);
             };
@@ -84,10 +86,10 @@
              * @ngdoc method
              * @name avCacheFactory#setBrowserStorage
              *
-             * @param type Type of storage ( 1 local | 2 session).
-             * @param maxAgeInit
-             * @param cacheFlushIntervalInit
-             * @param deleteOnExpireInit
+             * @param {string} type Type of storage ( '1' localStorage | '2' sessionStorage).
+             * @param {number} maxAgeInit
+             * @param {number} cacheFlushIntervalInit
+             * @param {number} deleteOnExpireInit
              *
              * @description This object makes Web Storage working in the Angular Way.
              * By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
@@ -102,7 +104,7 @@
              * The returned object supports the following set of methods:
              * {void} $reset() - Clears the Storage in one go.
              */
-            factory.setBrowserStorage = function(
+            factory.setBrowserStorage = function (
                 type,
                 maxAgeInit,
                 cacheFlushIntervalInit,
@@ -141,10 +143,10 @@
              * @name avCacheFactory#setDefaultHttpCacheStorage
              *
              * @param {number} duration items expire after this time.
-             * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
-             * @description Default cache configuration for $http service
+             * @param {number} capacity  turns the cache into LRU (Least Recently Used) cache.
+             * @description Default cache configuration for $http service.
              */
-            factory.setDefaultHttpCacheStorage = function(maxAge, capacity) {
+            factory.setDefaultHttpCacheStorage = function (maxAge, capacity) {
 
                 var cacheId = 'MyHttpAngularCache';
                 factory._httpCache = CacheFactory.get(cacheId);
@@ -199,9 +201,9 @@
              * @ngdoc method
              * @name avCacheFactory#getHttpCache
              * @description Returns the httpcache object in factory
-             * @returns httpcache object
+             * @returns {object} http cache object.
              */
-            factory.getHttpCache = function() {
+            factory.getHttpCache = function () {
                 return factory._httpCache;
             };
 

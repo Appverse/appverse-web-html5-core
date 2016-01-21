@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.rest')
@@ -18,11 +18,14 @@
          *          <p ng-bind="account.name"></p>
          *          <p ng-bind="account.total"></p>
          *      </div>
+         *
+         * @param {string} restName Name of the scope variable to store the results.
+         * @param {string} restId Id of the object to get through <b>Restangular.one()</b>.
          */
-        function($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
+        function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
                     $log.debug('avRestGet directive', attrs);
 
@@ -42,9 +45,9 @@
 
                     scope[name + gettingSuffix] = true;
 
-                    scope.$watchCollection(function() {
+                    scope.$watchCollection(function () {
                         return [attrs.avRestGet, attrs.restId, attrs.restName];
-                    }, function(newCollection, oldCollection, scope) {
+                    }, function (newCollection, oldCollection, scope) {
                         $log.debug('avRestGet watch ' + name + ':', newCollection);
                         scope[name + errorSuffix] = false;
 
@@ -56,7 +59,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function() {
+                            $timeout(function () {
                                 scope[name + gettingSuffix] = false;
                                 if (scope.$headerContainer) {
                                     scope.$parent[name] = data;
@@ -68,7 +71,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function() {
+                            $timeout(function () {
                                 scope[name + gettingSuffix] = false;
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
@@ -94,13 +97,15 @@
          * Calls Restangular remove function on object passed as attribute value.
          *
          *     <button av-rest-remove="account"></button>
+         *
+         * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
-        function($log, $rootScope, $timeout, REST_CONFIG) {
+        function ($log, $rootScope, $timeout, REST_CONFIG) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
-                    element.bind('click', function() {
+                    element.bind('click', function () {
 
                         var removingSuffix = 'Removing',
                             errorSuffix = 'Error',
@@ -120,7 +125,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function() {
+                            $timeout(function () {
                                 scope[name + removingSuffix] = false;
                                 var collection = item.getParentList(),
                                     index = collection.indexOf(item);
@@ -132,7 +137,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function() {
+                            $timeout(function () {
                                 scope[name + removingSuffix] = false;
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
@@ -159,13 +164,15 @@
          * Calls post or put on the object passed as attribute value depending on fromServer property value.
          *
          *     <button av-rest-save="account"></button>
+         *
+         * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
-        function($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
+        function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
-                    element.bind('click', function() {
+                    element.bind('click', function () {
 
                         var savingSuffix = 'Saving',
                             errorSuffix = 'Error',
@@ -192,7 +199,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function() {
+                            $timeout(function () {
                                 scope[name + savingSuffix] = false;
                                 collection[index] = item;
                             }, REST_CONFIG.Timeout);
@@ -200,7 +207,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function() {
+                            $timeout(function () {
                                 scope[name + savingSuffix] = false;
                                 scope[name + errorSuffix] = true;
 
@@ -237,12 +244,12 @@
          *
          *     <button av-rest-add="users"></button>
          */
-        function($log) {
+        function ($log) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
-                    element.bind('click', function() {
+                    element.bind('click', function () {
 
                         var collection = scope.$eval(attrs.avRestAdd);
 
@@ -250,7 +257,7 @@
 
                         collection.unshift({
                             editing: true,
-                            getParentList: function() {
+                            getParentList: function () {
                                 return collection;
                             }
                         });
@@ -274,12 +281,12 @@
          *
          *     <button av-rest-clone="user"></button>
          */
-        function($log) {
+        function ($log) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
-                    element.bind('click', function() {
+                    element.bind('click', function () {
 
                         var item = scope.$eval(attrs.avRestClone),
                             collection = item.getParentList();
@@ -309,12 +316,12 @@
          *
          *     <button av-rest-edit="user"></button>
          */
-        function($log) {
+        function ($log) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
-                    element.bind('click', function() {
+                    element.bind('click', function () {
 
                         var item = scope.$eval(attrs.avRestEdit);
 
@@ -341,13 +348,15 @@
          * Removes the Restangular object passed as attribute value and replaces it with the saved copy if needed.
          *
          *     <button av-rest-cancel="user"></button>
+         *
+         * @param {string} restName Name of the scope variable that contains the collection to modify.
          */
-        function($log) {
+        function ($log) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
 
-                    element.bind('click', function() {
+                    element.bind('click', function () {
 
                         $log.debug('avRestCancel directive', scope);
 
