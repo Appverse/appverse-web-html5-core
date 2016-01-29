@@ -1,19 +1,25 @@
 (function() {
     'use strict';
 
+    /**
+     * @ngdoc module
+     * @name appverse.detection.provider
+     *
+     * @description
+     * Defines the Detection provider.
+     */
     angular.module('appverse.detection.provider', ['appverse.detection.mobile'])
-        .provider('Detection', DetectionProvider);
 
     /**
      * @ngdoc provider
      * @name Detection
-     * @module appverse.detection
+     * @module appverse.detection.provider
      *
      * @description
      * Contains methods for browser and network detection.
-     *
-     * @requires  MobileDetectorProvider
      */
+    .provider('Detection', DetectionProvider);
+
     function DetectionProvider(MobileDetectorProvider) {
 
         this.mobileDetector = MobileDetectorProvider;
@@ -30,7 +36,7 @@
 
         /**
          * @ngdoc method
-         * @name  AppDetection#hasAppverseMobile
+         * @name  Detection#hasAppverseMobile
          * @return {Boolean} Whether the application has Appverse mobile or not
          */
         this.hasAppverseMobile = function() {
@@ -39,7 +45,7 @@
 
         /**
          * @ngdoc method
-         * @name  AppDetection#isMobileBrowser
+         * @name  Detection#isMobileBrowser
          * @return {Boolean} Whether the application is running on a mobile browser
          */
         this.isMobileBrowser = function() {

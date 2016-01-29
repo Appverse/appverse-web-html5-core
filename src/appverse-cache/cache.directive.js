@@ -15,7 +15,7 @@
      * and updates the value in cache when the "name" model changes.
      * You can also use "cache-name" instead of "cache" to specify the model name.
      *
-     * @param {string} cache Name of cached model
+     * @param {string} cacheName Name of cached model
      *
      * @requires https://docs.angularjs.org/api/ng/service/$log $log
      * @requires avCacheFactory

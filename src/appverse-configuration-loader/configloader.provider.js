@@ -1,9 +1,7 @@
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.configuration.loader')
-        .provider('ConfigLoader', ConfigLoaderProvider)
-        .config(configFn);
 
     /**
      * @ngdoc provider
@@ -13,6 +11,9 @@
      * @description
      * Loads configuration parameters int the AppConfiguration module.
      */
+    .provider('ConfigLoader', ConfigLoaderProvider)
+        .config(configFn);
+
     function ConfigLoaderProvider() {
 
         // By default, no detection is present
@@ -25,7 +26,7 @@
          * @name  ConfigLoader#$get
          * @description Factory function. Gets the service instance
          */
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
@@ -35,7 +36,7 @@
          * @param {object} settings See appverse.configuration.default for available settings
          * @description Loads the custom config, overriding defaults
          */
-        this.load = function (settings) {
+        this.load = function(settings) {
             this.loadDefaultConfig()
                 .loadCustomConfig(settings)
                 .overrideDefaultConfig();
@@ -46,19 +47,19 @@
          * @name  ConfigLoader#setDetection
          * @param {object} detectionProvider Detection provider from appverse.detection
          */
-        this.setDetection = function (detectionProvider) {
+        this.setDetection = function(detectionProvider) {
             detection = detectionProvider;
         };
 
         // ---- Privates -----
-        this.loadDefaultConfig = function () {
-            angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
+        this.loadDefaultConfig = function() {
+            angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function(element) {
                 appConfigTemp[element[2][0]] = element[2][1];
             });
             return this;
         };
 
-        this.loadCustomConfig = function (settings) {
+        this.loadCustomConfig = function(settings) {
             if (settings) {
                 this.settings = settings;
             }
@@ -67,13 +68,13 @@
             return this;
         };
 
-        this.overrideDefaultConfig = function () {
-            angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
+        this.overrideDefaultConfig = function() {
+            angular.forEach(appConfigTemp, function(propertyValue, propertyName) {
                 angular.module('appverse.configuration').constant(propertyName, propertyValue);
             });
         };
 
-        this.loadMobileConfigIfRequired = function () {
+        this.loadMobileConfigIfRequired = function() {
             if (detection.hasAppverseMobile()) {
                 this.loadAppverseMobileConfig();
             } else if (detection.isMobileBrowser()) {
@@ -81,7 +82,7 @@
             }
         };
 
-        this.loadEnvironmentConfig = function () {
+        this.loadEnvironmentConfig = function() {
             if (this.settings && this.settings.environment) {
                 this.addConfig(this.settings.environment);
             } else {
@@ -90,7 +91,7 @@
             return this;
         };
 
-        this.loadAppverseMobileConfig = function () {
+        this.loadAppverseMobileConfig = function() {
             if (this.settings && this.settings.appverseMobile) {
                 this.addConfig(this.settings.appverseMobile);
             } else {
@@ -99,7 +100,7 @@
             return this;
         };
 
-        this.loadMobileBrowserConfig = function () {
+        this.loadMobileBrowserConfig = function() {
             if (this.settings && this.settings.mobileBrowser) {
                 this.addConfig(this.settings.mobileBrowser);
             } else {
@@ -109,12 +110,12 @@
             return this;
         };
 
-        this.addConfig = function (settings) {
-            angular.forEach(settings, function (constantObject, constantName) {
+        this.addConfig = function(settings) {
+            angular.forEach(settings, function(constantObject, constantName) {
                 var appConfigObject = appConfigTemp[constantName];
 
                 if (appConfigObject) {
-                    angular.forEach(constantObject, function (propertyValue, propertyName) {
+                    angular.forEach(constantObject, function(propertyValue, propertyName) {
                         appConfigObject[propertyName] = propertyValue;
                     });
                     appConfigTemp[constantName] = appConfigObject;
@@ -125,7 +126,7 @@
 
         };
 
-        this.addConfigFromJSON = function (jsonUrl) {
+        this.addConfigFromJSON = function(jsonUrl) {
 
             // Make syncrhonous request.
             // TODO: make asyncrhonous. Synchronous requests block the browser.
@@ -147,11 +148,11 @@
      */
     function NoDetection() {
 
-        this.hasAppverseMobile = function () {
+        this.hasAppverseMobile = function() {
             return false;
         };
 
-        this.isMobileBrowser = function () {
+        this.isMobileBrowser = function() {
             return false;
         };
     }

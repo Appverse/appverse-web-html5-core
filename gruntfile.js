@@ -294,12 +294,10 @@ module.exports = function (grunt) {
             doc: {
                 options: {
                     port: 9999,
-                    keepalive: true,
+                    livereload: true,
                     middleware: function (connect) {
                         return [
-                            require('connect-modrewrite')(['!^/partials/api/.* /index.html [L]']),
-                            mountFolder(connect, configPaths.doc),
-
+                            mountFolder(connect, configPaths.doc)
                         ];
                     }
                 }
@@ -356,6 +354,13 @@ module.exports = function (grunt) {
             dist: {
                 files: ['src/**'],
                 tasks: ['dist']
+            },
+            doc: {
+                options: {
+                    livereload: true
+                },
+                files: ['src/**', 'config/grunt-tasks/docgen/**'],
+                tasks: ['doc']
             }
         }
     });
@@ -389,13 +394,23 @@ module.exports = function (grunt) {
         'karma:unit'
     ]);
 
+    grunt.registerTask('docgen', 'Generates docs', require('./config/grunt-tasks/docgen/grunt-task'));
+
     grunt.registerTask('doc', [
         'clean:doc',
         'docgen'
     ]);
 
-    grunt.registerTask('docgen', 'Generates docs', require('./config/grunt-tasks/docgen/grunt-task'));
+    grunt.registerTask('doc:watch', [
+        'doc',
+        'watch:doc'
+    ]);
 
+    grunt.registerTask('serve:doc', [
+        'doc',
+        'connect:doc',
+        'watch:doc'
+    ]);
 
     // ------ Analysis tasks. Runs code analysis -----
 

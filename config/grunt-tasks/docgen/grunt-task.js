@@ -1,9 +1,9 @@
 'use strict';
 var
-Dgeni                = require('dgeni'),
-path                 = require('canonical-path'),
-bowerFile            = require('../../../bower.json'),
-appverseDgeniPackage = require('./package');
+    Dgeni = require('dgeni'),
+    path = require('canonical-path'),
+    bowerFile = require('../../../bower.json'),
+    appverseDgeniPackage = require('./package');
 
 /**
  * Grunt task responsible for generating documentation
@@ -19,8 +19,11 @@ function generateDocsTask () {
         .config(setVersion);
 
     // Create dgeni instance and generate docs
-    var dgeni = new Dgeni( [appverseDgeniPackage] );
-    dgeni.generate().then(finishTask);
+    var dgeni = new Dgeni([appverseDgeniPackage]);
+    dgeni.generate().then(finishTask).catch(function (error) {
+        console.error(error);
+        done();
+    });
 
     function finishTask(docs) {
         console.info(docs.length, 'docs generated');
@@ -52,7 +55,7 @@ function setGeneralSettings(log, readFilesProcessor, templateFinder, writeFilesP
     }];
 
     // Specify where the writeFilesProcessor will write our generated doc files
-    writeFilesProcessor.outputFolder  =  'doc/' + bowerFile.version;
+    writeFilesProcessor.outputFolder = 'doc/' + bowerFile.version;
 }
 
 /**
@@ -60,15 +63,15 @@ function setGeneralSettings(log, readFilesProcessor, templateFinder, writeFilesP
  * All params are autoinjected by Dgeni
  */
 function setGithubInfo(renderDocsProcessor) {
-  renderDocsProcessor.extraData.git = {
-    info: {
-      owner : 'Appverse',
-      repo : 'appverse-web-html5-core',
-    },
-    version : {
-      isSnapshot : 'true'
-    }
-  };
+    renderDocsProcessor.extraData.git = {
+        info: {
+            owner: 'Appverse',
+            repo: 'appverse-web-html5-core',
+        },
+        version: {
+            isSnapshot: 'true'
+        }
+    };
 }
 
 /**
@@ -76,7 +79,7 @@ function setGithubInfo(renderDocsProcessor) {
  * All params are autoinjected by Dgeni
  */
 function setVersion(renderDocsProcessor) {
-  renderDocsProcessor.extraData.version = bowerFile.version;
+    renderDocsProcessor.extraData.version = bowerFile.version;
 }
 
 
