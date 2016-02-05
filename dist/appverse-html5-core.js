@@ -99,7 +99,7 @@
      * and updates the value in cache when the "name" model changes.
      * You can also use "cache-name" instead of "cache" to specify the model name.
      *
-     * @param {string} cache Name of cached model
+     * @param {string} cacheName Name of cached model
      *
      * @requires https://docs.angularjs.org/api/ng/service/$log $log
      * @requires avCacheFactory
@@ -141,7 +141,7 @@
      * @description
      * Returns an object that exposes methods for cache management.
      *
-     * @requires http://jmdobry.github.io/angular-cache/ $angularCacheFactory
+     * @requires http://jmdobry.github.io/angular-cache/ CacheFactory
      * @requires https://docs.angularjs.org/api/ng/service/$http $http
      * @requires CACHE_CONFIG
      */
@@ -204,6 +204,8 @@
              * * {void} removeAll() — Removes all cached values.
              *
              * * {void} destroy() — Removes references to this cache from $angularCacheFactory.
+             *
+             * @returns {object} scope cache object.
              */
             factory.getScopeCache = function () {
                 return factory._scopeCache || factory.setScopeCache(CACHE_CONFIG.ScopeCache_duration,
@@ -211,25 +213,25 @@
             };
 
             /**
-             @ngdoc function
-             @name avCacheFactory#setBrowserStorage
-
-             @param type Type of storage ( 1 local | 2 session).
-             @param maxAgeInit
-             @param cacheFlushIntervalInit
-             @param deleteOnExpireInit
-
-             @description This object makes Web Storage working in the Angular Way.
-             By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
-             on the device rather than passed back-and-forth with each request to the server.
-             Web storage is useful for storing small amounts of key/value data and preserving functionality
-             online and offline.
-             With web storage, both the keys and values are stored as strings.
-
-             We can store anything except those not supported by JSON:
-             Infinity, NaN - Will be replaced with null.
-             undefined, Function - Will be removed.
-             The returned object supports the following set of methods:
+             * @ngdoc method
+             * @name avCacheFactory#setBrowserStorage
+             *
+             * @param {string} type Type of storage ( '1' localStorage | '2' sessionStorage).
+             * @param {number} maxAgeInit
+             * @param {number} cacheFlushIntervalInit
+             * @param {number} deleteOnExpireInit
+             *
+             * @description This object makes Web Storage working in the Angular Way.
+             * By default, web storage allows you 5-10MB of space to work with, and your data is stored locally
+             * on the device rather than passed back-and-forth with each request to the server.
+             * Web storage is useful for storing small amounts of key/value data and preserving functionality
+             * online and offline.
+             * With web storage, both the keys and values are stored as strings.
+             *
+             * We can store anything except those not supported by JSON:
+             * Infinity, NaN - Will be replaced with null.
+             * undefined, Function - Will be removed.
+             * The returned object supports the following set of methods:
              * {void} $reset() - Clears the Storage in one go.
              */
             factory.setBrowserStorage = function (
@@ -271,8 +273,8 @@
              * @name avCacheFactory#setDefaultHttpCacheStorage
              *
              * @param {number} duration items expire after this time.
-             * @param {string} capacity  turns the cache into LRU (Least Recently Used) cache.
-             * @description Default cache configuration for $http service
+             * @param {number} capacity  turns the cache into LRU (Least Recently Used) cache.
+             * @description Default cache configuration for $http service.
              */
             factory.setDefaultHttpCacheStorage = function (maxAge, capacity) {
 
@@ -328,9 +330,8 @@
             /**
              * @ngdoc method
              * @name avCacheFactory#getHttpCache
-             * @methodOf avCacheFactory
              * @description Returns the httpcache object in factory
-             * @returns httpcache object
+             * @returns {object} http cache object.
              */
             factory.getHttpCache = function () {
                 return factory._httpCache;
@@ -603,8 +604,6 @@
      *
      * @description
      * Provides browser and network detection.
-     *
-     * @requires appverse.utils
      */
     angular.module('appverse.detection', [
         'appverse.utils',
@@ -613,23 +612,30 @@
     ]);
 
 })();
+
 (function() {
     'use strict';
 
+    /**
+     * @ngdoc module
+     * @name appverse.detection.provider
+     *
+     * @description
+     * Defines the Detection provider.
+     */
     DetectionProvider.$inject = ["MobileDetectorProvider"];
     angular.module('appverse.detection.provider', ['appverse.detection.mobile'])
-        .provider('Detection', DetectionProvider);
 
     /**
      * @ngdoc provider
      * @name Detection
-     * @module appverse.detection
+     * @module appverse.detection.provider
      *
      * @description
      * Contains methods for browser and network detection.
-     *
-     * @requires  MobileDetectorProvider
      */
+    .provider('Detection', DetectionProvider);
+
     function DetectionProvider(MobileDetectorProvider) {
 
         this.mobileDetector = MobileDetectorProvider;
@@ -646,7 +652,7 @@
 
         /**
          * @ngdoc method
-         * @name  AppDetection#hasAppverseMobile
+         * @name  Detection#hasAppverseMobile
          * @return {Boolean} Whether the application has Appverse mobile or not
          */
         this.hasAppverseMobile = function() {
@@ -655,7 +661,7 @@
 
         /**
          * @ngdoc method
-         * @name  AppDetection#isMobileBrowser
+         * @name  Detection#isMobileBrowser
          * @return {Boolean} Whether the application is running on a mobile browser
          */
         this.isMobileBrowser = function() {
@@ -778,6 +784,7 @@
 
 
 })();
+
 (function() {
     'use strict';
 
@@ -1119,11 +1126,10 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         }]);
 
 })();
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.logging')
-        .provider("FormattedLogger", FormattedLoggerProvider);
 
     /**
      * @ngdoc provider
@@ -1132,13 +1138,14 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      *
      * @description
      * Captures the $log service and decorate it.
-     *
      */
+    .provider("FormattedLogger", FormattedLoggerProvider);
+
     function FormattedLoggerProvider() {
 
         var detectionProvider;
 
-        this.$get = ["$injector", "LOGGING_CONFIG", function ($injector, LOGGING_CONFIG) {
+        this.$get = ["$injector", "LOGGING_CONFIG", function($injector, LOGGING_CONFIG) {
             return function decorateLog(delegatedLog) {
 
                 /**
@@ -1158,24 +1165,24 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                         return (value.toString().length < 2) ? '0' + value : value;
                     }
 
-                    return format.replace(/%([a-zA-Z])/g, function (_, fmtCode) {
+                    return format.replace(/%([a-zA-Z])/g, function(_, fmtCode) {
                         switch (fmtCode) {
-                        case 'Y':
-                            return date.getFullYear();
-                        case 'M':
-                            return pad(date.getMonth() + 1);
-                        case 'd':
-                            return pad(date.getDate());
-                        case 'h':
-                            return pad(date.getHours());
-                        case 'm':
-                            return pad(date.getMinutes());
-                        case 's':
-                            return pad(date.getSeconds());
-                        case 'z':
-                            return pad(date.getMilliseconds());
-                        default:
-                            throw new Error('Unsupported format code: ' + fmtCode);
+                            case 'Y':
+                                return date.getFullYear();
+                            case 'M':
+                                return pad(date.getMonth() + 1);
+                            case 'd':
+                                return pad(date.getDate());
+                            case 'h':
+                                return pad(date.getHours());
+                            case 'm':
+                                return pad(date.getMinutes());
+                            case 's':
+                                return pad(date.getSeconds());
+                            case 'z':
+                                return pad(date.getMilliseconds());
+                            default:
+                                throw new Error('Unsupported format code: ' + fmtCode);
                         }
                     });
                 }
@@ -1193,12 +1200,12 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                     try {
 
                         if (!enable) {
-                            return function () {};
+                            return function() {};
                         }
 
                         var logMessage = logLevel + " | " + LOGGING_CONFIG.CustomLogPreffix + " | ";
 
-                        var f = function () {
+                        var f = function() {
                             var args = Array.prototype.slice.call(arguments);
 
                             if (Object.prototype.toString.call(args[0]) === '[object String]') {
@@ -1258,7 +1265,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         }];
 
 
-        this.setDetection = function (detection) {
+        this.setDetection = function(detection) {
             detectionProvider = detection;
         };
 
@@ -2276,16 +2283,15 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Retrieves JSON data using Restangular API. By default it will retrieve a list. If rest-id attribute is set, it will retrieve an object.
          *
-         * @example
-         <div av-rest-get="accounts" ng-repeat="account in accounts">
-            <p ng-bind="account.name"></p>
-            <p ng-bind="account.total"></p>
-         </div>
+         *      <div av-rest-get="accounts" ng-repeat="account in accounts">
+         *          <p ng-bind="account.name"></p>
+         *          <p ng-bind="account.total"></p>
+         *      </div>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
-         * @requires  Restangular
+         * @param {string} restName Name of the scope variable to store the results.
+         * @param {string} restId Id of the object to get through <b>Restangular.one()</b>.
          */
         ["$log", "Restangular", "$rootScope", "$timeout", "REST_CONFIG", function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
             return {
@@ -2359,12 +2365,11 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls Restangular remove function on object passed as attribute value.
          *
-         * @example
-         <button av-rest-remove="account"></button>
+         *     <button av-rest-remove="account"></button>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
         ["$log", "$rootScope", "$timeout", "REST_CONFIG", function ($log, $rootScope, $timeout, REST_CONFIG) {
             return {
@@ -2427,12 +2432,11 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls post or put on the object passed as attribute value depending on fromServer property value.
          *
-         * @example
-         <button av-rest-save="account"></button>
+         *     <button av-rest-save="account"></button>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
         ["$log", "$rootScope", "Restangular", "$timeout", "REST_CONFIG", function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
             return {
@@ -2507,12 +2511,9 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Adds an empty object to the Restangular list passed as attribute value. The empty object is added the editing property to true.
          *
-         * @example
-         <button av-rest-add="users"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-add="users"></button>
          */
         ["$log", function ($log) {
             return {
@@ -2547,12 +2548,9 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls the Restangular clone function on the object passed as attribute value and adds the clone to the beginning of the Restangular collection. The editing property is also set to true on the clone.
          *
-         * @example
-         <button av-rest-clone="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-clone="user"></button>
          */
         ["$log", function ($log) {
             return {
@@ -2585,12 +2583,9 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Clones the object passed as attribute value and store it in the copy variable. Then, sets the editing property to true.
          *
-         * @example
-         <button av-rest-edit="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-edit="user"></button>
          */
         ["$log", function ($log) {
             return {
@@ -2621,12 +2616,11 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Removes the Restangular object passed as attribute value and replaces it with the saved copy if needed.
          *
-         * @example
-         <button av-rest-cancel="user"></button>
+         *     <button av-rest-cancel="user"></button>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @param {string} restName Name of the scope variable that contains the collection to modify.
          */
         ["$log", function ($log) {
             return {
@@ -2662,6 +2656,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
             };
         }]);
 })();
+
 (function () {
     'use strict';
 
@@ -2814,20 +2809,85 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      *
      * @requires https://github.com/angular-ui/ui-router ui.router
      */
-    angular.module('appverse.router', ['ui.router'])
-
-    .run(['$rootScope', '$state', '$stateParams',
-            function ($rootScope, $state, $stateParams) {
-
-            // It's very handy to add references to $state and $stateParams to the $rootScope
-            // so that you can access them from any scope within your applications.For example,
-            // <li ng-class="{ active: $state.includes('contacts.list') }"> will set the <li>
-            // to active whenever 'contacts.list' or one of its decendents is active.
-            $rootScope.$state = $state;
-            $rootScope.$stateParams = $stateParams;
-        }]);
-
+    angular.module('appverse.router', [
+        'ui.router',
+        'appverse.configuration.default'
+    ]);
 })();
+
+(function() {
+    'use strict';
+
+    angular.module('appverse.router')
+
+    .provider('dynamicStates', ["$stateProvider", function($stateProvider) {
+
+        var provider = this;
+
+        provider.$get = function() {
+            return {
+                addState: function(name, state) {
+                    $stateProvider.state(name, state);
+                },
+                setPromise: function(promise) {
+                    provider.promise = promise;
+                },
+                getPromise: function() {
+                    return provider.promise;
+                }
+            };
+        };
+    }]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('appverse.router')
+
+    .run(["$log", "$rootScope", "$state", "$stateParams", "ROUTER_CONFIG", "$http", "dynamicStates", function($log, $rootScope, $state, $stateParams, ROUTER_CONFIG, $http, dynamicStates) {
+
+        $log.debug('appverse.router run');
+
+        // It's very handy to add references to $state and $stateParams to the $rootScope
+        // so that you can access them from any scope within your applications.For example,
+        // <li ng-class="{ active: $state.includes('contacts.list') }"> will set the <li>
+        // to active whenever 'contacts.list' or one of its decendents is active.
+        $rootScope.$state = $state;
+        $rootScope.$stateParams = $stateParams;
+
+        if (ROUTER_CONFIG.loadStates) {
+
+            var promise = dynamicStates.getPromise();
+
+            if (!promise) {
+                var url = ROUTER_CONFIG.statesUrl;
+
+                if (ROUTER_CONFIG.prependBaseUrl) {
+                    url = angular.injector(['appverse.configuration.default']).get('REST_CONFIG').BaseUrl + url;
+                }
+
+                if (ROUTER_CONFIG.appendRequestSuffix) {
+                    url += angular.injector(['appverse.configuration.default']).get('REST_CONFIG').RequestSuffix;
+                }
+
+                promise = $http.get(url);
+            }
+
+            promise.then(function(response) {
+
+                angular.forEach(ROUTER_CONFIG.responsePath.split('.'), function(path) {
+                    response = response[path];
+                });
+
+                angular.forEach(response, function(state) {
+                    dynamicStates.addState(state.name, state.config);
+                });
+            });
+        }
+    }]);
+})();
+
 (function() {
     'use strict';
 
@@ -3130,7 +3190,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
     /**
      * @ngdoc service
-     * @name WebSocketService
+     * @name WebSocketFactory
      * @module appverse.serverPush
      *
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log
@@ -3398,6 +3458,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
 
 })();
+
 (function() {
     'use strict';
 
@@ -3529,11 +3590,10 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
 })();
 
-(function (angular) {
+(function(angular) {
     'use strict';
 
     angular.module('appverse.utils')
-        .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     /**
      * @ngdoc provider
@@ -3542,8 +3602,10 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      * @description
      * Preprends a url with a base path
      */
+    .provider('BaseUrlSetter', BaseUrlSetterProvider);
+
     function BaseUrlSetterProvider() {
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
@@ -3552,7 +3614,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
          * @name BaseUrlSetter#setBasePath
          * @param {string} basePath The base path to prepend
          */
-        this.setBasePath = function (basePath) {
+        this.setBasePath = function(basePath) {
             return new BaseUrlSetter(basePath);
         };
     }
@@ -3564,11 +3626,11 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
         basePath = basePath.trim(basePath);
 
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
-        this.inUrl = function (url) {
+        this.inUrl = function(url) {
             url = url.trim(url);
             if (endsWithSlash(basePath)) {
                 basePath = sliceLastChar(basePath);
@@ -3798,10 +3860,8 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
     /**
      * @ngdoc module
      * @name appverse.configuration.default
-     * @moduleFile appverse-configuration.js
      * @description
      * This module defines default settings.
-     *
      */
     angular.module('appverse.configuration.default', []);
 
@@ -3899,13 +3959,11 @@ function run($log) {
 
 })();
 
-(function () {
+(function() {
     'use strict';
 
     configFn.$inject = ["ConfigLoaderProvider"];
     angular.module('appverse.configuration.loader')
-        .provider('ConfigLoader', ConfigLoaderProvider)
-        .config(configFn);
 
     /**
      * @ngdoc provider
@@ -3915,6 +3973,9 @@ function run($log) {
      * @description
      * Loads configuration parameters int the AppConfiguration module.
      */
+    .provider('ConfigLoader', ConfigLoaderProvider)
+        .config(configFn);
+
     function ConfigLoaderProvider() {
 
         // By default, no detection is present
@@ -3927,7 +3988,7 @@ function run($log) {
          * @name  ConfigLoader#$get
          * @description Factory function. Gets the service instance
          */
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
@@ -3937,7 +3998,7 @@ function run($log) {
          * @param {object} settings See appverse.configuration.default for available settings
          * @description Loads the custom config, overriding defaults
          */
-        this.load = function (settings) {
+        this.load = function(settings) {
             this.loadDefaultConfig()
                 .loadCustomConfig(settings)
                 .overrideDefaultConfig();
@@ -3948,19 +4009,19 @@ function run($log) {
          * @name  ConfigLoader#setDetection
          * @param {object} detectionProvider Detection provider from appverse.detection
          */
-        this.setDetection = function (detectionProvider) {
+        this.setDetection = function(detectionProvider) {
             detection = detectionProvider;
         };
 
         // ---- Privates -----
-        this.loadDefaultConfig = function () {
-            angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function (element) {
+        this.loadDefaultConfig = function() {
+            angular.forEach(angular.module('appverse.configuration.default')._invokeQueue, function(element) {
                 appConfigTemp[element[2][0]] = element[2][1];
             });
             return this;
         };
 
-        this.loadCustomConfig = function (settings) {
+        this.loadCustomConfig = function(settings) {
             if (settings) {
                 this.settings = settings;
             }
@@ -3969,13 +4030,13 @@ function run($log) {
             return this;
         };
 
-        this.overrideDefaultConfig = function () {
-            angular.forEach(appConfigTemp, function (propertyValue, propertyName) {
+        this.overrideDefaultConfig = function() {
+            angular.forEach(appConfigTemp, function(propertyValue, propertyName) {
                 angular.module('appverse.configuration').constant(propertyName, propertyValue);
             });
         };
 
-        this.loadMobileConfigIfRequired = function () {
+        this.loadMobileConfigIfRequired = function() {
             if (detection.hasAppverseMobile()) {
                 this.loadAppverseMobileConfig();
             } else if (detection.isMobileBrowser()) {
@@ -3983,7 +4044,7 @@ function run($log) {
             }
         };
 
-        this.loadEnvironmentConfig = function () {
+        this.loadEnvironmentConfig = function() {
             if (this.settings && this.settings.environment) {
                 this.addConfig(this.settings.environment);
             } else {
@@ -3992,7 +4053,7 @@ function run($log) {
             return this;
         };
 
-        this.loadAppverseMobileConfig = function () {
+        this.loadAppverseMobileConfig = function() {
             if (this.settings && this.settings.appverseMobile) {
                 this.addConfig(this.settings.appverseMobile);
             } else {
@@ -4001,7 +4062,7 @@ function run($log) {
             return this;
         };
 
-        this.loadMobileBrowserConfig = function () {
+        this.loadMobileBrowserConfig = function() {
             if (this.settings && this.settings.mobileBrowser) {
                 this.addConfig(this.settings.mobileBrowser);
             } else {
@@ -4011,12 +4072,12 @@ function run($log) {
             return this;
         };
 
-        this.addConfig = function (settings) {
-            angular.forEach(settings, function (constantObject, constantName) {
+        this.addConfig = function(settings) {
+            angular.forEach(settings, function(constantObject, constantName) {
                 var appConfigObject = appConfigTemp[constantName];
 
                 if (appConfigObject) {
-                    angular.forEach(constantObject, function (propertyValue, propertyName) {
+                    angular.forEach(constantObject, function(propertyValue, propertyName) {
                         appConfigObject[propertyName] = propertyValue;
                     });
                     appConfigTemp[constantName] = appConfigObject;
@@ -4027,7 +4088,7 @@ function run($log) {
 
         };
 
-        this.addConfigFromJSON = function (jsonUrl) {
+        this.addConfigFromJSON = function(jsonUrl) {
 
             // Make syncrhonous request.
             // TODO: make asyncrhonous. Synchronous requests block the browser.
@@ -4049,11 +4110,11 @@ function run($log) {
      */
     function NoDetection() {
 
-        this.hasAppverseMobile = function () {
+        this.hasAppverseMobile = function() {
             return false;
         };
 
-        this.isMobileBrowser = function () {
+        this.isMobileBrowser = function() {
             return false;
         };
     }
@@ -4069,6 +4130,7 @@ function run($log) {
     }
 
 })();
+
 (function() {
     'use strict';
 
@@ -4351,134 +4413,124 @@ function run($log) {
      * to keep consistency between config and the module.
      */
     .constant('REST_CONFIG', {
-            /*
-            The base URL for all calls to your API.
-            For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
-            The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
-            so you can also set an absolute url like http://api.example.com/api/v1
-            if you need do set another domain.
-            */
-            BaseUrl: '/api/v1',
+        /*
+        The base URL for all calls to your API.
+        For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
+        The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
+        so you can also set an absolute url like http://api.example.com/api/v1
+        if you need do set another domain.
+        */
+        BaseUrl: '/api/v1',
 
-            /*
-            Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
-            */
-            Timeout: 1000,
+        /*
+        Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
+        */
+        Timeout: 1000,
 
-            /*
-            These are the fields that you want to save from your parent resources if you need to display them.
-            By default this is an Empty Array which will suit most cases.
-            */
-            ExtraFields: [],
+        /*
+        These are the fields that you want to save from your parent resources if you need to display them.
+        By default this is an Empty Array which will suit most cases.
+        */
+        ExtraFields: [],
 
-            /*
-            Use this property to control whether Restangularized elements to have a parent or not.
-            This method accepts 2 parameters:
-            Boolean: Specifies if all elements should be parentless or not
-            Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
-            */
-            ParentLess: false,
+        /*
+        Use this property to control whether Restangularized elements to have a parent or not.
+        This method accepts 2 parameters:
+        Boolean: Specifies if all elements should be parentless or not
+        Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
+        */
+        ParentLess: false,
 
-            /*
-            HTTP methods will be validated whether they are cached or not.
-            */
-            NoCacheHttpMethods: {
-                'get': false,
-                'post': true,
-                'put': false,
-                'delete': true,
-                'option': false
-            },
+        /*
+        HTTP methods will be validated whether they are cached or not.
+        */
+        NoCacheHttpMethods: {
+            'get': false,
+            'post': true,
+            'put': false,
+            'delete': true,
+            'option': false
+        },
 
-            /*
-            Restangular required 3 fields for every "Restangularized" element. These are:
+        /*
+        Restangular required 3 fields for every "Restangularized" element. These are:
 
-            id: Id of the element. Default: id
-            route: Name of the route of this element. Default: route
-            parentResource: The reference to the parent resource. Default: parentResource
-            restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
-            cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
-            etag: Where to save the ETag received from the server. Defaults to restangularEtag
-            selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
-            URL to an item, you can just leave it blank. Defaults to href
-            Also all of Restangular methods and functions are configurable through restangularFields property.
-            All of these fields except for id and selfLink are handled by Restangular,
-            so most of the time you won't change them.
-            You can configure the name of the property that will be binded to all
-            of this fields by setting restangularFields property.
-            */
-            RestangularFields: {
-                id: 'id',
-                route: 'route'
-            },
+        id: Id of the element. Default: id
+        route: Name of the route of this element. Default: route
+        parentResource: The reference to the parent resource. Default: parentResource
+        restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
+        cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
+        etag: Where to save the ETag received from the server. Defaults to restangularEtag
+        selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
+        URL to an item, you can just leave it blank. Defaults to href
+        Also all of Restangular methods and functions are configurable through restangularFields property.
+        All of these fields except for id and selfLink are handled by Restangular,
+        so most of the time you won't change them.
+        You can configure the name of the property that will be binded to all
+        of this fields by setting restangularFields property.
+        */
+        RestangularFields: {
+            id: 'id',
+            route: 'route'
+        },
 
-            /*
-            You can now Override HTTP Methods. You can set here the array of methods to override.
-            All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
-            header with the real HTTP method we wanted to do.
-            */
-            MethodOverriders: [],
+        /*
+        You can now Override HTTP Methods. You can set here the array of methods to override.
+        All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
+        header with the real HTTP method we wanted to do.
+        */
+        MethodOverriders: [],
 
-            /*
-            You can set default Query parameters to be sent with every request and every method.
-            Additionally, if you want to configure request params per method, you can use
-            requestParams configuration similar to $http.
-            For example RestangularProvider.requestParams.get = {single: true}.
-            Supported method to configure are: remove, get, post, put, common (all).
-            */
-            DefaultRequestParams: {},
+        /*
+        You can set default Query parameters to be sent with every request and every method.
+        Additionally, if you want to configure request params per method, you can use
+        requestParams configuration similar to $http.
+        For example RestangularProvider.requestParams.get = {single: true}.
+        Supported method to configure are: remove, get, post, put, common (all).
+        */
+        DefaultRequestParams: {},
 
-            /*
-            You can set fullResponse to true to get the whole response every time you do any request.
-            The full response has the restangularized data in the data field,
-            and also has the headers and config sent. By default, it's set to false.
-            */
-            FullResponse: false,
+        /*
+        You can set fullResponse to true to get the whole response every time you do any request.
+        The full response has the restangularized data in the data field,
+        and also has the headers and config sent. By default, it's set to false.
+        */
+        FullResponse: false,
 
-            /*
-            You can set default Headers to be sent with every request.
-            Example:
-            DefaultHeaders: {'Content-Type': 'application/json'}
-            */
-            DefaultHeaders: null,
+        /*
+        You can set default Headers to be sent with every request.
+        Example:
+        DefaultHeaders: {'Content-Type': 'application/json'}
+        */
+        DefaultHeaders: null,
 
-            /*
-            If all of your requests require to send some suffix to work, you can set it here.
-            For example, if you need to send the format like /users/123.json you can add that .json
-            to the suffix using the setRequestSuffix method
-            */
-            RequestSuffix: '.json',
+        /*
+        If all of your requests require to send some suffix to work, you can set it here.
+        For example, if you need to send the format like /users/123.json you can add that .json
+        to the suffix using the setRequestSuffix method
+        */
+        RequestSuffix: '.json',
 
-            /*
-            You can set this to either true or false.
-            If set to true, then the cannonical ID from the element will be used for URL creation
-            (in DELETE, PUT, POST, etc.).
-            What this means is that if you change the ID of the element and then you do a put,
-            if you set this to true, it'll use the "old" ID which was received from the server.
-            If set to false, it'll use the new ID assigned to the element.
-            */
-            UseCannonicalId: false,
+        /*
+        You can set this to either true or false.
+        If set to true, then the cannonical ID from the element will be used for URL creation
+        (in DELETE, PUT, POST, etc.).
+        What this means is that if you change the ID of the element and then you do a put,
+        if you set this to true, it'll use the "old" ID which was received from the server.
+        If set to false, it'll use the new ID assigned to the element.
+        */
+        UseCannonicalId: false,
 
-            /*
-            You can set here if you want to URL Encode IDs or not.
-            */
-            EncodeIds: true,           
-           
-            /*
-             * If true, a response extractor is added to use content property and self links
-             */
-            HATEOAS: false
-        })
-        /**
-         * @ngdoc object
-         * @name AD_CONFIG
-         * @module appverse.configuration.default
-         * @description Defines ConsumerKey and ConsumerSecret
+        /*
+        You can set here if you want to URL Encode IDs or not.
+        */
+        EncodeIds: true,
+
+        /*
+         * If true, a response extractor is added to use content property and self links
          */
-        .constant('AD_CONFIG', {
-            ConsumerKey: '',
-            ConsumerSecret: ''
-        })
+        HATEOAS: false
+    })
 
     /**
      * @ngdoc object
@@ -4678,9 +4730,23 @@ function run($log) {
         webworker_dedicated_literal: "dedicated",
         webworker_shared_literal: "shared",
         webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
-    });
+    })
 
+    /**
+     * @ngdoc object
+     * @name STATES_CONFIG
+     * @module appverse.configuration.default
+     * @description Configuration for loading states at runtime
+     */
+    .constant('ROUTER_CONFIG', {
+        loadStates: false,
+        prependBaseUrl: true,
+        appendRequestSuffix: true,
+        statesUrl: '/states',
+        responsePath: 'data'
+    });
 })();
+
 /**
  * @ngdoc object
  * @name  AppInit
@@ -4690,7 +4756,7 @@ function run($log) {
  * Just call the initalization code after having loaded angular and the configuration module:
  * <pre><code>AppInit.setConfig(settings).bootstrap();</code></pre>
  */
-var AppInit = AppInit || (function (angular) {
+var AppInit = AppInit || (function(angular) {
     'use strict';
 
     loadConfig.$inject = ["ConfigLoaderProvider"];
@@ -4708,7 +4774,7 @@ var AppInit = AppInit || (function (angular) {
         settings = settingsObject;
         var module = angular.module('appverse.configuration.loader');
         // Remove default config function
-        module._invokeQueue.some(function (currentValue, index) {
+        module._invokeQueue.some(function(currentValue, index) {
             if (currentValue[0] === '$injector' && currentValue[1] === 'invoke') {
                 module._invokeQueue.splice(index);
                 return true;
@@ -4729,7 +4795,7 @@ var AppInit = AppInit || (function (angular) {
      */
     function bootstrap(appMainModule) {
         var moduleName = appMainModule || mainModuleName;
-        angular.element(document).ready(function () {
+        angular.element(document).ready(function() {
             angular.bootstrap(document, [moduleName]);
         });
     }
@@ -4745,7 +4811,7 @@ var AppInit = AppInit || (function (angular) {
 
     /**
      * @ngdoc method
-     * @name AppInit#setMainModuleName
+     * @name AppInit#getMainModule
      * @return {string} The name of the main application module.
      */
     function getMainModule() {

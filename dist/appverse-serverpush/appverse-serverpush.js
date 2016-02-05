@@ -300,7 +300,7 @@
 
     /**
      * @ngdoc service
-     * @name WebSocketService
+     * @name WebSocketFactory
      * @module appverse.serverPush
      *
      * @requires https://docs.angularjs.org/api/ngMock/service/$log $log

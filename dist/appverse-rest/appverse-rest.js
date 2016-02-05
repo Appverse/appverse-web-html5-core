@@ -125,16 +125,15 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Retrieves JSON data using Restangular API. By default it will retrieve a list. If rest-id attribute is set, it will retrieve an object.
          *
-         * @example
-         <div av-rest-get="accounts" ng-repeat="account in accounts">
-            <p ng-bind="account.name"></p>
-            <p ng-bind="account.total"></p>
-         </div>
+         *      <div av-rest-get="accounts" ng-repeat="account in accounts">
+         *          <p ng-bind="account.name"></p>
+         *          <p ng-bind="account.total"></p>
+         *      </div>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
-         * @requires  Restangular
+         * @param {string} restName Name of the scope variable to store the results.
+         * @param {string} restId Id of the object to get through <b>Restangular.one()</b>.
          */
         ["$log", "Restangular", "$rootScope", "$timeout", "REST_CONFIG", function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
             return {
@@ -208,12 +207,11 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls Restangular remove function on object passed as attribute value.
          *
-         * @example
-         <button av-rest-remove="account"></button>
+         *     <button av-rest-remove="account"></button>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
         ["$log", "$rootScope", "$timeout", "REST_CONFIG", function ($log, $rootScope, $timeout, REST_CONFIG) {
             return {
@@ -276,12 +274,11 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls post or put on the object passed as attribute value depending on fromServer property value.
          *
-         * @example
-         <button av-rest-save="account"></button>
+         *     <button av-rest-save="account"></button>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
         ["$log", "$rootScope", "Restangular", "$timeout", "REST_CONFIG", function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
             return {
@@ -356,12 +353,9 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Adds an empty object to the Restangular list passed as attribute value. The empty object is added the editing property to true.
          *
-         * @example
-         <button av-rest-add="users"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-add="users"></button>
          */
         ["$log", function ($log) {
             return {
@@ -396,12 +390,9 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Calls the Restangular clone function on the object passed as attribute value and adds the clone to the beginning of the Restangular collection. The editing property is also set to true on the clone.
          *
-         * @example
-         <button av-rest-clone="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-clone="user"></button>
          */
         ["$log", function ($log) {
             return {
@@ -434,12 +425,9 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Clones the object passed as attribute value and store it in the copy variable. Then, sets the editing property to true.
          *
-         * @example
-         <button av-rest-edit="user"></button>
-         *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         *     <button av-rest-edit="user"></button>
          */
         ["$log", function ($log) {
             return {
@@ -470,12 +458,11 @@
          * @restrict A
          *
          * @description
-         * Retrieves JSON data
+         * Removes the Restangular object passed as attribute value and replaces it with the saved copy if needed.
          *
-         * @example
-         <button av-rest-cancel="user"></button>
+         *     <button av-rest-cancel="user"></button>
          *
-         * @requires  https://docs.angularjs.org/api/ngMock/service/$log $log
+         * @param {string} restName Name of the scope variable that contains the collection to modify.
          */
         ["$log", function ($log) {
             return {
@@ -511,6 +498,7 @@
             };
         }]);
 })();
+
 (function () {
     'use strict';
 

@@ -12,11 +12,10 @@
 
 })();
 
-(function (angular) {
+(function(angular) {
     'use strict';
 
     angular.module('appverse.utils')
-        .provider('BaseUrlSetter', BaseUrlSetterProvider);
 
     /**
      * @ngdoc provider
@@ -25,8 +24,10 @@
      * @description
      * Preprends a url with a base path
      */
+    .provider('BaseUrlSetter', BaseUrlSetterProvider);
+
     function BaseUrlSetterProvider() {
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
@@ -35,7 +36,7 @@
          * @name BaseUrlSetter#setBasePath
          * @param {string} basePath The base path to prepend
          */
-        this.setBasePath = function (basePath) {
+        this.setBasePath = function(basePath) {
             return new BaseUrlSetter(basePath);
         };
     }
@@ -47,11 +48,11 @@
 
         basePath = basePath.trim(basePath);
 
-        this.$get = function () {
+        this.$get = function() {
             return this;
         };
 
-        this.inUrl = function (url) {
+        this.inUrl = function(url) {
             url = url.trim(url);
             if (endsWithSlash(basePath)) {
                 basePath = sliceLastChar(basePath);
