@@ -280,134 +280,124 @@
      * to keep consistency between config and the module.
      */
     .constant('REST_CONFIG', {
-            /*
-            The base URL for all calls to your API.
-            For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
-            The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
-            so you can also set an absolute url like http://api.example.com/api/v1
-            if you need do set another domain.
-            */
-            BaseUrl: '/api/v1',
+        /*
+        The base URL for all calls to your API.
+        For example if your URL for fetching accounts is http://example.com/api/v1/accounts, then your baseUrl is /api/v1.
+        The default baseUrl is an empty string which resolves to the same url that AngularJS is running,
+        so you can also set an absolute url like http://api.example.com/api/v1
+        if you need do set another domain.
+        */
+        BaseUrl: '/api/v1',
 
-            /*
-            Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
-            */
-            Timeout: 1000,
+        /*
+        Minimum time to wait for each directive operation. It should give the user enough time to see a loading animation using directive variables (Getting, Saving and Removing).
+        */
+        Timeout: 1000,
 
-            /*
-            These are the fields that you want to save from your parent resources if you need to display them.
-            By default this is an Empty Array which will suit most cases.
-            */
-            ExtraFields: [],
+        /*
+        These are the fields that you want to save from your parent resources if you need to display them.
+        By default this is an Empty Array which will suit most cases.
+        */
+        ExtraFields: [],
 
-            /*
-            Use this property to control whether Restangularized elements to have a parent or not.
-            This method accepts 2 parameters:
-            Boolean: Specifies if all elements should be parentless or not
-            Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
-            */
-            ParentLess: false,
+        /*
+        Use this property to control whether Restangularized elements to have a parent or not.
+        This method accepts 2 parameters:
+        Boolean: Specifies if all elements should be parentless or not
+        Array: Specifies the routes (types) of all elements that should be parentless. For example ['buildings']
+        */
+        ParentLess: false,
 
-            /*
-            HTTP methods will be validated whether they are cached or not.
-            */
-            NoCacheHttpMethods: {
-                'get': false,
-                'post': true,
-                'put': false,
-                'delete': true,
-                'option': false
-            },
+        /*
+        HTTP methods will be validated whether they are cached or not.
+        */
+        NoCacheHttpMethods: {
+            'get': false,
+            'post': true,
+            'put': false,
+            'delete': true,
+            'option': false
+        },
 
-            /*
-            Restangular required 3 fields for every "Restangularized" element. These are:
+        /*
+        Restangular required 3 fields for every "Restangularized" element. These are:
 
-            id: Id of the element. Default: id
-            route: Name of the route of this element. Default: route
-            parentResource: The reference to the parent resource. Default: parentResource
-            restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
-            cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
-            etag: Where to save the ETag received from the server. Defaults to restangularEtag
-            selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
-            URL to an item, you can just leave it blank. Defaults to href
-            Also all of Restangular methods and functions are configurable through restangularFields property.
-            All of these fields except for id and selfLink are handled by Restangular,
-            so most of the time you won't change them.
-            You can configure the name of the property that will be binded to all
-            of this fields by setting restangularFields property.
-            */
-            RestangularFields: {
-                id: 'id',
-                route: 'route'
-            },
+        id: Id of the element. Default: id
+        route: Name of the route of this element. Default: route
+        parentResource: The reference to the parent resource. Default: parentResource
+        restangularCollection: A boolean indicating if this is a collection or an element. Default: restangularCollection
+        cannonicalId: If available, the path to the cannonical ID to use. Usefull for PK changes
+        etag: Where to save the ETag received from the server. Defaults to restangularEtag
+        selfLink: The path to the property that has the URL to this item. If your REST API doesn't return a
+        URL to an item, you can just leave it blank. Defaults to href
+        Also all of Restangular methods and functions are configurable through restangularFields property.
+        All of these fields except for id and selfLink are handled by Restangular,
+        so most of the time you won't change them.
+        You can configure the name of the property that will be binded to all
+        of this fields by setting restangularFields property.
+        */
+        RestangularFields: {
+            id: 'id',
+            route: 'route'
+        },
 
-            /*
-            You can now Override HTTP Methods. You can set here the array of methods to override.
-            All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
-            header with the real HTTP method we wanted to do.
-            */
-            MethodOverriders: [],
+        /*
+        You can now Override HTTP Methods. You can set here the array of methods to override.
+        All those methods will be sent as POST and Restangular will add an X-HTTP-Method-Override
+        header with the real HTTP method we wanted to do.
+        */
+        MethodOverriders: [],
 
-            /*
-            You can set default Query parameters to be sent with every request and every method.
-            Additionally, if you want to configure request params per method, you can use
-            requestParams configuration similar to $http.
-            For example RestangularProvider.requestParams.get = {single: true}.
-            Supported method to configure are: remove, get, post, put, common (all).
-            */
-            DefaultRequestParams: {},
+        /*
+        You can set default Query parameters to be sent with every request and every method.
+        Additionally, if you want to configure request params per method, you can use
+        requestParams configuration similar to $http.
+        For example RestangularProvider.requestParams.get = {single: true}.
+        Supported method to configure are: remove, get, post, put, common (all).
+        */
+        DefaultRequestParams: {},
 
-            /*
-            You can set fullResponse to true to get the whole response every time you do any request.
-            The full response has the restangularized data in the data field,
-            and also has the headers and config sent. By default, it's set to false.
-            */
-            FullResponse: false,
+        /*
+        You can set fullResponse to true to get the whole response every time you do any request.
+        The full response has the restangularized data in the data field,
+        and also has the headers and config sent. By default, it's set to false.
+        */
+        FullResponse: false,
 
-            /*
-            You can set default Headers to be sent with every request.
-            Example:
-            DefaultHeaders: {'Content-Type': 'application/json'}
-            */
-            DefaultHeaders: null,
+        /*
+        You can set default Headers to be sent with every request.
+        Example:
+        DefaultHeaders: {'Content-Type': 'application/json'}
+        */
+        DefaultHeaders: null,
 
-            /*
-            If all of your requests require to send some suffix to work, you can set it here.
-            For example, if you need to send the format like /users/123.json you can add that .json
-            to the suffix using the setRequestSuffix method
-            */
-            RequestSuffix: '.json',
+        /*
+        If all of your requests require to send some suffix to work, you can set it here.
+        For example, if you need to send the format like /users/123.json you can add that .json
+        to the suffix using the setRequestSuffix method
+        */
+        RequestSuffix: '.json',
 
-            /*
-            You can set this to either true or false.
-            If set to true, then the cannonical ID from the element will be used for URL creation
-            (in DELETE, PUT, POST, etc.).
-            What this means is that if you change the ID of the element and then you do a put,
-            if you set this to true, it'll use the "old" ID which was received from the server.
-            If set to false, it'll use the new ID assigned to the element.
-            */
-            UseCannonicalId: false,
+        /*
+        You can set this to either true or false.
+        If set to true, then the cannonical ID from the element will be used for URL creation
+        (in DELETE, PUT, POST, etc.).
+        What this means is that if you change the ID of the element and then you do a put,
+        if you set this to true, it'll use the "old" ID which was received from the server.
+        If set to false, it'll use the new ID assigned to the element.
+        */
+        UseCannonicalId: false,
 
-            /*
-            You can set here if you want to URL Encode IDs or not.
-            */
-            EncodeIds: true,           
-           
-            /*
-             * If true, a response extractor is added to use content property and self links
-             */
-            HATEOAS: false
-        })
-        /**
-         * @ngdoc object
-         * @name AD_CONFIG
-         * @module appverse.configuration.default
-         * @description Defines ConsumerKey and ConsumerSecret
+        /*
+        You can set here if you want to URL Encode IDs or not.
+        */
+        EncodeIds: true,
+
+        /*
+         * If true, a response extractor is added to use content property and self links
          */
-        .constant('AD_CONFIG', {
-            ConsumerKey: '',
-            ConsumerSecret: ''
-        })
+        HATEOAS: false
+    })
 
     /**
      * @ngdoc object
@@ -607,6 +597,20 @@
         webworker_dedicated_literal: "dedicated",
         webworker_shared_literal: "shared",
         webworker_Message_template: 'scripts/api/directives/webworkerMessage.html'
-    });
+    })
 
+    /**
+     * @ngdoc object
+     * @name ROUTER_CONFIG
+     * @module appverse.configuration.default
+     * @description Configuration for loading states at runtime
+     */
+    .constant('ROUTER_CONFIG', {
+        loadStatesEnabled: false,
+        autoLoadStates: true,
+        statesUrl: '/states',
+        prependBaseUrl: true,
+        appendRequestSuffix: true,
+        responsePath: 'data'
+    });
 })();
