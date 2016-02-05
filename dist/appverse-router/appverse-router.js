@@ -19,23 +19,11 @@
 
     angular.module('appverse.router')
 
-    .provider('dynamicStates', ["$stateProvider", function($stateProvider) {
+    .config(["$urlRouterProvider", "ROUTER_CONFIG", function($urlRouterProvider, ROUTER_CONFIG) {
 
-        var provider = this;
-
-        provider.$get = function() {
-            return {
-                addState: function(name, state) {
-                    $stateProvider.state(name, state);
-                },
-                setPromise: function(promise) {
-                    provider.promise = promise;
-                },
-                getPromise: function() {
-                    return provider.promise;
-                }
-            };
-        };
+        if (ROUTER_CONFIG.loadStatesEnabled) {
+            $urlRouterProvider.deferIntercept();
+        }
     }]);
 })();
 
@@ -44,7 +32,7 @@
 
     angular.module('appverse.router')
 
-    .run(["$log", "$rootScope", "$state", "$stateParams", "ROUTER_CONFIG", "$http", "dynamicStates", function($log, $rootScope, $state, $stateParams, ROUTER_CONFIG, $http, dynamicStates) {
+    .run(["$log", "$rootScope", "$state", "$stateParams", "ROUTER_CONFIG", "avStates", function($log, $rootScope, $state, $stateParams, ROUTER_CONFIG, avStates) {
 
         $log.debug('appverse.router run');
 
@@ -55,34 +43,61 @@
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
 
-        if (ROUTER_CONFIG.loadStates) {
-
-            var promise = dynamicStates.getPromise();
-
-            if (!promise) {
-                var url = ROUTER_CONFIG.statesUrl;
-
-                if (ROUTER_CONFIG.prependBaseUrl) {
-                    url = angular.injector(['appverse.configuration.default']).get('REST_CONFIG').BaseUrl + url;
-                }
-
-                if (ROUTER_CONFIG.appendRequestSuffix) {
-                    url += angular.injector(['appverse.configuration.default']).get('REST_CONFIG').RequestSuffix;
-                }
-
-                promise = $http.get(url);
-            }
-
-            promise.then(function(response) {
-
-                angular.forEach(ROUTER_CONFIG.responsePath.split('.'), function(path) {
-                    response = response[path];
-                });
-
-                angular.forEach(response, function(state) {
-                    dynamicStates.addState(state.name, state.config);
-                });
-            });
+        if (ROUTER_CONFIG.autoLoadStates) {
+            avStates.loadStates();
         }
+    }]);
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('appverse.router')
+
+    .provider('avStates', ["$stateProvider", function($stateProvider) {
+
+        this.$get = ["$log", "$http", "ROUTER_CONFIG", "REST_CONFIG", "$urlRouter", function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
+
+            return {
+                loadStates: function(promise) {
+
+                    if (promise) {
+                        $log.debug('Promise detected. It will be used to load states.');
+                    } else {
+                        var url = ROUTER_CONFIG.statesUrl;
+
+                        if (ROUTER_CONFIG.prependBaseUrl) {
+                            url = REST_CONFIG.BaseUrl + url;
+                        }
+
+                        if (ROUTER_CONFIG.appendRequestSuffix) {
+                            url += REST_CONFIG.RequestSuffix;
+                        }
+
+                        $log.debug('Getting states from ' + url);
+                        promise = $http.get(url);
+                    }
+
+                    promise.then(function(response) {
+
+                        $log.debug('States promise response', response);
+
+                        if (ROUTER_CONFIG.responsePath !== "") {
+                            angular.forEach(ROUTER_CONFIG.responsePath.split('.'), function(path) {
+                                response = response[path];
+                            });
+                        }
+
+                        angular.forEach(response, function(state) {
+                            $log.debug('Adding state:', state.name);
+                            $stateProvider.state(state.name, state.config);
+                        });
+
+                        $urlRouter.listen();
+                        $urlRouter.sync();
+                    });
+                }
+            };
+        }];
     }]);
 })();

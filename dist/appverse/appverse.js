@@ -878,15 +878,16 @@ function run($log) {
 
     /**
      * @ngdoc object
-     * @name STATES_CONFIG
+     * @name ROUTER_CONFIG
      * @module appverse.configuration.default
      * @description Configuration for loading states at runtime
      */
     .constant('ROUTER_CONFIG', {
-        loadStates: false,
+        loadStatesEnabled: false,
+        autoLoadStates: true,
+        statesUrl: '/states',
         prependBaseUrl: true,
         appendRequestSuffix: true,
-        statesUrl: '/states',
         responsePath: 'data'
     });
 })();
