@@ -2,7 +2,7 @@
 
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
     config.set({
 
@@ -22,7 +22,7 @@ module.exports = function (config) {
                         webSecurityEnabled: false
                     }
                 },
-                flags: ['--load-images=true', '--local-to-remote-url-access=true', '--remote-debugger-autorun=yes', '--remote-debugger-port=9090']
+                flags: ['--load-images=true', '--local-to-remote-url-access=true']
             }
         },
 
@@ -64,6 +64,7 @@ module.exports = function (config) {
             'bower_components/restangular/dist/restangular.min.js',
             'bower_components/sockjs-client/dist/sockjs.js',
             'bower_components/stomp-websocket/lib/stomp.min.js',
+            'bower_components/angular-ui-router/release/angular-ui-router.js',
 
             'src/appverse-*/**/module.js',
             // The rest
