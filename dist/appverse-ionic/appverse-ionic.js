@@ -2,9 +2,9 @@
     'use strict';
 
     var requires = [
+        'ionic',
         'appverse.detection',
         'ui.router',
-        'ui.bootstrap',
         'appverse.ionic.templates'
     ];
 
