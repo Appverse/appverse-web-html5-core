@@ -264,22 +264,6 @@ module.exports = function (grunt) {
             }
         },
 
-        bump: {
-            options: {
-                files: ['package.json', 'bower.json'],
-                updateConfigs: [],
-                commit: true,
-                commitMessage: 'Release v%VERSION%',
-                commitFiles: ['package.json', 'bower.json', 'sonar-project.properties', 'dist'],
-                createTag: true,
-                tagName: 'v%VERSION%',
-                tagMessage: 'Version %VERSION%',
-                push: false,
-                pushTo: 'origin',
-                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
-            }
-        },
-
         // Web server
         connect: {
 
@@ -362,7 +346,36 @@ module.exports = function (grunt) {
                 files: ['src/**', 'config/grunt-tasks/docgen/**'],
                 tasks: ['doc']
             }
+        },
+
+        sonarVersion: {
+            default: {
+                options: {
+                    field: 'sonar.projectVersion'
+                },
+                src: 'sonar-project.properties',
+                dest: 'sonar-project.properties'
+            }
+        },
+
+        release: {
+            options: {
+                additionalFiles: ['bower.json'],
+                bump: true, //default: true
+                changelog: false, //default: false
+                changelogText: '<%= version %>\n', //default: '### <%= version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n'
+                file: 'package.json', //default: package.json
+                add: true, //default: true
+                commit: true, //default: true
+                tag: false, //default: true
+                push: false, //default: true
+                pushTags: false, //default: true
+                npm: false, //default: true
+                npmtag: false, //default: no tag
+                afterBump: ['sonarVersion', 'dist']
+            }
         }
+
     });
 
     /*---------------------------------------- TASKS DEFINITION -------------------------------------*/
