@@ -61,12 +61,12 @@ Appverse Web Client Side  core module based on HTML5 and Java Script
     <!-- REST module -->
     <script src="bower_components/lodash/lodash.min.js"></script>
     <script src="bower_components/restangular/dist/restangular.min.js"></script>
-    <script src="bower_components/appverse-web-html5-core/src/modules/api-rest.js"></script>
+    <script src="bower_components/appverse-web-html5-core/dist/appverse-rest/appverse-rest.min.js"></script>
 
     <!-- Ionic module -->
     <script src="bower_components/ionic/release/ionic.min.js"></script>
     <script src="bower_components/ionic/release/ionic-angular.min.js"></script>
-    <script src="bower_components/appverse-web-html5-core/src/modules/api-rest.js"></script>
+    <script src="bower_components/appverse-web-html5-core/dist/appverse-ionic/appverse-ionic.min.js"></script>
 
     <!-- Server Push module -->
     <script src="bower_components/sockjs-client/dist/sockjs.js"></script>

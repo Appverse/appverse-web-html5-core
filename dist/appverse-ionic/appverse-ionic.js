@@ -58,17 +58,17 @@
 (function() {
     'use strict';
 
-    run.$inject = ["$log", "Detection", "$rootScope", "$state", "$uibModal", "IONIC_CONFIG", "$location"];
+    run.$inject = ["$log", "Detection", "$rootScope", "$state", "IONIC_CONFIG", "$location"];
     angular.module('appverse.ionic')
         .run(run);
 
-    function run($log, Detection, $rootScope, $state, $uibModal, IONIC_CONFIG, $location) {
+    function run($log, Detection, $rootScope, $state, IONIC_CONFIG, $location) {
         $log.info('appverse.ionic run');
 
         function showModalPrompt() {
             if (IONIC_CONFIG.modalPrompt) {
 
-                $uibModal.open({
+                angular.injector(['ui.bootstrap']).get('$uibModal').open({
                     templateUrl: 'appverse-ionic/modal/not-allowed.html',
                     controller: 'ModalNotAllowedCntrl'
                 });
@@ -91,27 +91,26 @@
             delete toState.data;
         }
 
-        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+        $rootScope.$on('$stateChangeStart', function(event, toState) {
 
             if (toState.data) {
                 //if toState.data exists, check restrict attribute
                 if (toState.data.restrict) {
-                  //if restrict, check environment
+                    //if restrict, check environment
                     if ((!Detection.isMobileBrowser() && toState.data.mobile) || (Detection.isMobileBrowser() && !toState.data.mobile)) {
                         showModalPrompt();
                     } else {
                         transformState(toState);
                     }
                 } else {
-                  //if NOT restrict, check environment
-                  transformState(toState);
+                    //if NOT restrict, check environment
+                    transformState(toState);
                 }
             }
         });
 
     }
 })();
-
 /*jshint -W101 */
 angular.module('appverse.ionic.templates', []).run(['$templateCache', function($templateCache) {
   'use strict';
