@@ -1,7 +1,7 @@
 {
   "name": "appverse-web-html5-core",
   "description": "Appverse web html5 core module.",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "main": "dist/api-main/api-main.min.js",
   "dependencies": {
     "angular": "~1.4.8",
@@ -11,7 +11,7 @@
     "angular-translate": "~1.1.1",
     "angular-translate-loader-static-files": "~0.1.6",
     "angular-ui-router": "~0.2.15",
-    "lodash":"3.x.x",
+    "lodash": "3.x.x",
     "restangular": "~1.5.1",
     "socket.io-client": "~0.9.16",
     "sockjs-client": "~1.0.3",
