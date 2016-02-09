@@ -27,13 +27,12 @@ describe('Unit: Testing appverse.router module', function() {
     it('should contain a dynamicStates provider', inject(function(avStates, $state) {
 
         $httpBackend.when('GET', '/api/states.json')
-            .respond([{
-                "name": "home",
-                "config": {
+            .respond({
+                "home": {
                     "url": "/home",
                     "templateUrl": "home.html"
                 }
-            }]);
+            });
 
         expect(avStates).to.be.an.object;
 
