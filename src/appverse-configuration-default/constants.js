@@ -611,6 +611,5 @@
         statesUrl: '/states',
         prependBaseUrl: true,
         appendRequestSuffix: true,
-        responsePath: 'data'
     });
 })();
