@@ -1,9 +1,9 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.router')
 
-    .run(function($log, $rootScope, $state, $stateParams, ROUTER_CONFIG, avStates) {
+    .run(function ($log, $rootScope, $state, $stateParams, ROUTER_CONFIG, avStates) {
 
         $log.debug('appverse.router run');
 
@@ -14,7 +14,7 @@
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
 
-        if (ROUTER_CONFIG.autoLoadStates) {
+        if (ROUTER_CONFIG.loadStatesEnabled && ROUTER_CONFIG.autoLoadStates) {
             avStates.loadStates();
         }
     });
