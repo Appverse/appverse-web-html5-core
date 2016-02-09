@@ -2856,13 +2856,29 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
     .provider('avStates', ["$stateProvider", function($stateProvider) {
 
-        this.$get = ["$log", "$http", "ROUTER_CONFIG", "REST_CONFIG", "$urlRouter", function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
+        var provider = this;
+        provider.stateFunctions = {};
+        provider.globalFunctions = {};
+
+        provider.setFunction = function(functionName, functionObject, stateName) {
+            if (stateName) {
+                if (!provider.stateFunctions[stateName]) {
+                    provider.stateFunctions[stateName] = {};
+                }
+                provider.stateFunctions[stateName][functionName] = functionObject;
+            } else {
+                provider.globalFunctions[functionName] = functionObject;
+            }
+        };
+
+        provider.$get = function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
 
             return {
-                loadStates: function(promise) {
+                loadStates: function(statesObject) {
 
-                    if (promise) {
-                        $log.debug('Promise detected. It will be used to load states.');
+                    if (statesObject) {
+                        $log.debug('States object detected. It will be used to load states.');
+                        parseStates(statesObject);
                     } else {
                         var url = ROUTER_CONFIG.statesUrl;
 
@@ -2875,30 +2891,39 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                         }
 
                         $log.debug('Getting states from ' + url);
-                        promise = $http.get(url);
+                        $http.get(url).then(function(response) {
+                            parseStates(response.data);
+                        });
                     }
 
-                    promise.then(function(response) {
+                    $urlRouter.listen();
 
-                        $log.debug('States promise response', response);
+                    function parseStates(statesObject) {
 
-                        if (ROUTER_CONFIG.responsePath !== "") {
-                            angular.forEach(ROUTER_CONFIG.responsePath.split('.'), function(path) {
-                                response = response[path];
+                        $log.debug('States object', statesObject);
+
+                        angular.forEach(statesObject, function(stateConfig, stateName) {
+
+                            $log.debug('Adding state:', stateName);
+
+                            angular.forEach(provider.globalFunctions, function(value, key) {
+                                stateConfig[key] = value;
                             });
-                        }
 
-                        angular.forEach(response, function(state) {
-                            $log.debug('Adding state:', state.name);
-                            $stateProvider.state(state.name, state.config);
+                            if (provider.stateFunctions) {
+                                angular.forEach(provider.stateFunctions[stateName], function(value, key) {
+                                    stateConfig[key] = value;
+                                });
+                            }
+
+                            $stateProvider.state(stateName, stateConfig);
                         });
 
-                        $urlRouter.listen();
                         $urlRouter.sync();
-                    });
+                    }
                 }
             };
-        }];
+        };
     }]);
 })();
 
@@ -4758,7 +4783,6 @@ function run($log) {
         statesUrl: '/states',
         prependBaseUrl: true,
         appendRequestSuffix: true,
-        responsePath: 'data'
     });
 })();
 
