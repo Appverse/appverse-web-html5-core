@@ -71,7 +71,7 @@
             }
         };
 
-        provider.$get = function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
+        provider.$get = /*@ngInject*/ ["$log", "$http", "ROUTER_CONFIG", "REST_CONFIG", "$urlRouter", function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
 
             return {
                 loadStates: function(statesObject) {
@@ -123,6 +123,6 @@
                     }
                 }
             };
-        };
+        }];
     }]);
 })();
