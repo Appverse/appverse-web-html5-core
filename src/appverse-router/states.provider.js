@@ -20,7 +20,7 @@
             }
         };
 
-        provider.$get = function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
+        provider.$get = /*@ngInject*/ function($log, $http, ROUTER_CONFIG, REST_CONFIG, $urlRouter) {
 
             return {
                 loadStates: function(statesObject) {
