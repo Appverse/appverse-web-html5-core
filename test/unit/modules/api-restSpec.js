@@ -1,7 +1,7 @@
 /*jshint expr:true, node:true */
 "use strict";
 
-describe('Unit: Testing appverse.rest module', function () {
+describe('Unit: Testing appverse.rest module', function() {
 
     var $httpBackend, scope;
 
@@ -9,7 +9,7 @@ describe('Unit: Testing appverse.rest module', function () {
     beforeEach(module('appverse.cache'));
     beforeEach(module('appverse.rest'));
 
-    beforeEach(inject(function ($injector, $rootScope) {
+    beforeEach(inject(function($injector, $rootScope) {
 
         $httpBackend = $injector.get('$httpBackend');
 
@@ -18,12 +18,12 @@ describe('Unit: Testing appverse.rest module', function () {
         scope = $rootScope.$new();
     }));
 
-    afterEach(function () {
+    afterEach(function() {
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     });
 
-    it("GET directive should retrieve a list", inject(function ($compile, $rootScope, $timeout) {
+    it("GET directive should retrieve a list", inject(function($compile, $rootScope, $timeout) {
 
         $httpBackend.when('GET', '/api/books.json')
             .respond([{
@@ -46,7 +46,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect($rootScope.books.length).to.equal(2);
     }));
 
-    it("GET directive should retrieve an object", inject(function ($compile, $rootScope, $timeout) {
+    it("GET directive should retrieve an object", inject(function($compile, $rootScope, $timeout) {
 
         $httpBackend.when('GET', '/api/books/1.json')
             .respond({
@@ -67,7 +67,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect($rootScope.book.id).to.equal(1);
     }));
 
-    it("GET directive should set the correct variable name", inject(function ($compile, $rootScope, $timeout) {
+    it("GET directive should set the correct variable name", inject(function($compile, $rootScope, $timeout) {
 
         $httpBackend.when('GET', '/api/books.json')
             .respond([{
@@ -90,7 +90,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect($rootScope.mybooks.length).to.equal(2);
     }));
 
-    it("GET directive should fail with error", inject(function ($compile, $rootScope, $timeout) {
+    it("GET directive should fail with error", inject(function($compile, $rootScope, $timeout) {
 
         $httpBackend.when('GET', '/api/nobooks.json')
             .respond(404);
@@ -108,7 +108,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect($rootScope.nobooks).to.be.undefined;
     }));
 
-    it("Remove directive should remove element", inject(function ($compile, $timeout, Restangular) {
+    it("Remove directive should remove element", inject(function($compile, $timeout, Restangular) {
 
         $httpBackend.when('DELETE', '/api/books/1.json')
             .respond(200);
@@ -119,7 +119,7 @@ describe('Unit: Testing appverse.rest module', function () {
         }];
         scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
         scope.book = scope.books[0];
-        scope.book.getParentList = function () {
+        scope.book.getParentList = function() {
             return scope.books;
         };
 
@@ -127,15 +127,15 @@ describe('Unit: Testing appverse.rest module', function () {
 
         element.triggerHandler('click');
 
-        expect(scope.booksRemoving).to.be.true;
+        expect(scope.book.$removing).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
 
-        expect(scope.booksRemoving).to.be.false;
+        expect(scope.books).to.have.length(0);
     }));
 
-    it("Remove directive should fail properly", inject(function ($compile, $rootScope, $timeout, Restangular) {
+    it("Remove directive should fail properly", inject(function($compile, $rootScope, $timeout, Restangular) {
 
 
         $httpBackend.when('DELETE', '/api/nobooks/1.json')
@@ -147,7 +147,7 @@ describe('Unit: Testing appverse.rest module', function () {
         }];
         scope.books = Restangular.restangularizeCollection(null, scope.books, 'nobooks');
         scope.book = scope.books[0];
-        scope.book.getParentList = function () {
+        scope.book.getParentList = function() {
             return scope.books;
         };
 
@@ -155,18 +155,18 @@ describe('Unit: Testing appverse.rest module', function () {
 
         element.triggerHandler('click');
 
-        expect(scope.nobooksRemoving).to.be.true;
+        expect(scope.book.$removing).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
 
-        expect(scope.nobooksRemoving).to.be.false;
+        expect(scope.book.$removing).to.be.undefined;
         expect(scope.nobooksError).to.be.true;
 
-        expect($rootScope.nobooksErrors.length).to.equal(1);
+        expect($rootScope.nobooksErrors).to.have.length(1);
     }));
 
-    it("Save directive should create a new element", inject(function ($compile, $rootScope, $timeout, Restangular) {
+    it("Save directive should create a new element", inject(function($compile, $rootScope, $timeout, Restangular) {
 
         $httpBackend.when('POST', '/api/books.json')
             .respond(201);
@@ -178,7 +178,7 @@ describe('Unit: Testing appverse.rest module', function () {
         scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
         scope.book = {
             editing: true,
-            getParentList: function () {
+            getParentList: function() {
                 return scope.books;
             }
         };
@@ -188,15 +188,15 @@ describe('Unit: Testing appverse.rest module', function () {
 
         element.triggerHandler('click');
 
-        expect(scope.booksSaving).to.be.true;
+        expect(scope.book.$saving).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
 
-        expect(scope.booksSaving).to.be.false;
+        expect(scope.books[1].$saving).to.be.undefined;
     }));
 
-    it("Save directive should update an existing element", inject(function ($compile, $rootScope, $timeout, Restangular) {
+    it("Save directive should update an existing element", inject(function($compile, $rootScope, $timeout, Restangular) {
 
         $httpBackend.when('PUT', '/api/books/1.json')
             .respond(201);
@@ -207,7 +207,7 @@ describe('Unit: Testing appverse.rest module', function () {
         }];
         scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
         scope.book = scope.books[0];
-        scope.book.getParentList = function () {
+        scope.book.getParentList = function() {
             return scope.books;
         };
         scope.copy = scope.book.clone();
@@ -218,15 +218,13 @@ describe('Unit: Testing appverse.rest module', function () {
 
         element.triggerHandler('click');
 
-        expect(scope.booksSaving).to.be.true;
+        expect(scope.book.$saving).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
-
-        expect(scope.booksSaving).to.be.false;
     }));
 
-    it("Save directive should fail properly", inject(function ($compile, $rootScope, $timeout, Restangular) {
+    it("Save directive should fail properly", inject(function($compile, $rootScope, $timeout, Restangular) {
 
         $httpBackend.when('POST', '/api/nobooks.json')
             .respond(404);
@@ -239,7 +237,7 @@ describe('Unit: Testing appverse.rest module', function () {
         scope.books = Restangular.restangularizeCollection(null, scope.books, 'nobooks');
         scope.book = {
             editing: true,
-            getParentList: function () {
+            getParentList: function() {
                 return scope.books;
             }
         };
@@ -249,16 +247,15 @@ describe('Unit: Testing appverse.rest module', function () {
 
         element.triggerHandler('click');
 
-        expect(scope.nobooksSaving).to.be.true;
+        expect(scope.book.$saving).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
 
-        expect(scope.nobooksSaving).to.be.false;
         expect($rootScope.nobooksErrors.length).to.equal(1);
     }));
 
-    it("Add directive should add an empty element", inject(function ($compile, Restangular) {
+    it("Add directive should add an empty element", inject(function($compile, Restangular) {
 
         scope.books = [{
             id: 1,
@@ -276,7 +273,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect(scope.books[0].getParentList()).to.equal(scope.books);
     }));
 
-    it("Clone directive should clone an existing element", inject(function ($compile, Restangular) {
+    it("Clone directive should clone an existing element", inject(function($compile, Restangular) {
 
         scope.books = [{
             id: 1,
@@ -284,7 +281,7 @@ describe('Unit: Testing appverse.rest module', function () {
         }];
         scope.books = Restangular.restangularizeCollection(null, scope.books, 'books');
         scope.book = scope.books[0];
-        scope.book.getParentList = function () {
+        scope.book.getParentList = function() {
             return scope.books;
         };
 
@@ -296,7 +293,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect(scope.books[0].editing).to.be.true;
     }));
 
-    it("Edit directive should edit an existing element", inject(function ($compile, Restangular) {
+    it("Edit directive should edit an existing element", inject(function($compile, Restangular) {
 
         scope.books = [{
             id: 1,
@@ -313,7 +310,7 @@ describe('Unit: Testing appverse.rest module', function () {
         expect(scope.books[0].editing).to.be.true;
     }));
 
-    it("Cancel directive should edit an existing element", inject(function ($compile, Restangular) {
+    it("Cancel directive should edit an existing element", inject(function($compile, Restangular) {
 
         scope.books = [{
             id: 1,
