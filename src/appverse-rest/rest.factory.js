@@ -44,7 +44,9 @@
         // It makes it easy to interact with it.
         ////////////////////////////////////////////////////////////////////////////////////
 
-        var factory = {};
+        var factory = {
+            after: {}
+        };
 
         /**
          * @ngdoc method
@@ -77,6 +79,17 @@
                     return data;
                 }
             );
+        };
+
+        /**
+         * @ngdoc method
+         * @name RESTFactory#setAfter
+         * @param {string} Path
+         * @param {function} Function to execute
+         * @description Adds functions to execute after REST operations on the given path
+         */
+        factory.setAfter = function (path, func) {
+            factory.after[path] = func;
         };
 
         /**
