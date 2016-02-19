@@ -83,13 +83,13 @@
 
         /**
          * @ngdoc method
-         * @name RESTFactory#setAfter
-         * @param {string} Path
+         * @name RESTFactory#setAfterRoute
+         * @param {string} Route as passed to Restangular
          * @param {function} Function to execute
-         * @description Adds functions to execute after REST operations on the given path
+         * @description Adds a function to execute after any REST operation on the given route
          */
-        factory.setAfter = function (path, func) {
-            factory.after[path] = func;
+        factory.setAfterRoute = function (route, func) {
+            factory.afterRoute[route] = func;
         };
 
         /**

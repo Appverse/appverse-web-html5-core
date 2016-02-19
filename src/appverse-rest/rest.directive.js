@@ -22,7 +22,7 @@
          * @param {string} restName Name of the scope variable to store the results.
          * @param {string} restId Id of the object to get through <b>Restangular.one()</b>.
          */
-        function ($log, Restangular, $rootScope, $timeout, REST_CONFIG) {
+        function ($log, Restangular, $rootScope, $timeout, REST_CONFIG, RESTFactory) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
@@ -61,10 +61,13 @@
                             $log.debug('onSuccess', data);
                             $timeout(function () {
                                 scope[name + gettingSuffix] = false;
-                                if (scope.$headerContainer) {
-                                    scope.$parent[name] = data;
-                                } else {
-                                    scope[name] = data;
+                                scope[name] = data;
+                                var func = RESTFactory.afterRoute[name];
+                                if (func) {
+                                    func();
+                                }
+                                if (attrs.restThen) {
+                                    scope.$eval(attrs.restThen);
                                 }
                             }, REST_CONFIG.Timeout);
                         }
@@ -100,14 +103,14 @@
          *
          * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
-        function ($log, $rootScope, $timeout, REST_CONFIG) {
+        function ($log, $rootScope, $timeout, REST_CONFIG, RESTFactory) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
                     element.bind('click', function () {
 
-                        var removingSuffix = 'Removing',
+                        var removingProperty = '$removing',
                             errorSuffix = 'Error',
                             item = scope.$eval(attrs.avRestRemove),
                             name = item.route.split('/').reverse()[0];
@@ -118,19 +121,30 @@
                             return;
                         }
 
-                        scope[name + removingSuffix] = true;
-                        scope[name + errorSuffix] = false;
+                        item[removingProperty] = true;
+                        var func = RESTFactory.afterRoute[name];
+                        if (func) {
+                            func();
+                        }
 
                         item.remove().then(onSuccess, onError);
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
                             $timeout(function () {
-                                scope[name + removingSuffix] = false;
-                                var collection = item.getParentList(),
-                                    index = collection.indexOf(item);
+                                var collection;
+                                if (item.getParentList) {
+                                    collection = item.getParentList();
+                                } else {
+                                    collection = scope[name];
+                                }
+                                var index = collection.indexOf(item);
                                 if (index > -1) {
                                     collection.splice(index, 1);
+                                    var func = RESTFactory.afterRoute[name];
+                                    if (func) {
+                                        func();
+                                    }
                                 }
                             }, REST_CONFIG.Timeout);
                         }
@@ -138,7 +152,7 @@
                         function onError(response) {
                             $log.debug('onError', response);
                             $timeout(function () {
-                                scope[name + removingSuffix] = false;
+                                delete item[removingProperty];
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
                                     $rootScope[name + 'Errors'] = [];
@@ -167,19 +181,26 @@
          *
          * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
-        function ($log, $rootScope, Restangular, $timeout, REST_CONFIG) {
+        function ($log, $rootScope, Restangular, $timeout, REST_CONFIG, RESTFactory) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
 
                     element.bind('click', function () {
 
-                        var savingSuffix = 'Saving',
+                        var savingProperty = '$saving',
                             errorSuffix = 'Error',
                             item = scope.$eval(attrs.avRestSave),
-                            collection = item.getParentList(),
-                            index = collection.indexOf(item),
+                            collection, index = -1,
+                            name;
+
+                        if (item.getParentList) {
+                            collection = item.getParentList();
                             name = collection.route.split('/').reverse()[0];
+                        } else {
+                            name = item.route.split('/').reverse()[0];
+                            collection = scope[name];
+                        }
 
                         $log.debug('avRestSave directive', item);
 
@@ -187,31 +208,54 @@
                             return;
                         }
 
-                        scope[name + savingSuffix] = true;
                         scope[name + errorSuffix] = false;
 
                         delete item.editing;
+
                         if (item.fromServer) {
                             item.put().then(onSuccess, onError);
                         } else {
+                            delete item[Restangular.configuration.restangularFields.id];
                             collection.post(item).then(onSuccess, onError);
+                        }
+
+                        collection.some(function (element, idx) {
+                            if (element[Restangular.configuration.restangularFields.id] === item[Restangular.configuration.restangularFields.id]) {
+                                index = idx;
+                                return true;
+                            }
+                        });
+
+                        if (index > -1) {
+                            collection[index][savingProperty] = true;
+                            var func = RESTFactory.afterRoute[name];
+                            if (func) {
+                                func();
+                            }
                         }
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
                             $timeout(function () {
-                                scope[name + savingSuffix] = false;
-                                collection[index] = item;
+                                if (item.fromServer) {
+                                    collection[index] = data;
+                                } else {
+                                    collection.push(data);
+                                }
+                                var func = RESTFactory.afterRoute[name];
+                                if (func) {
+                                    func();
+                                }
                             }, REST_CONFIG.Timeout);
                         }
 
                         function onError(response) {
                             $log.debug('onError', response);
                             $timeout(function () {
-                                scope[name + savingSuffix] = false;
                                 scope[name + errorSuffix] = true;
 
                                 if (index > -1) {
+                                    delete collection[index][savingProperty];
                                     if (item.fromServer) {
                                         collection.splice(index, 1, scope.copy);
                                     } else {
