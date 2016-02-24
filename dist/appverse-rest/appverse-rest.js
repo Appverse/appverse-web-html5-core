@@ -370,6 +370,13 @@
 
                                 if (index > -1) {
                                     delete collection[index][savingProperty];
+                                } else {
+                                    delete collection[savingProperty];
+                                }
+
+                                var func = RESTFactory.afterRoute[name];
+                                if (func) {
+                                    func();
                                 }
 
                                 if (!$rootScope[name + 'Errors']) {
