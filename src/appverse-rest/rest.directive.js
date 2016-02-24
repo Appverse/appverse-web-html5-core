@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
 
     angular.module('appverse.rest')
@@ -22,10 +22,10 @@
          * @param {string} restName Name of the scope variable to store the results.
          * @param {string} restId Id of the object to get through <b>Restangular.one()</b>.
          */
-        function ($log, Restangular, $rootScope, $timeout, REST_CONFIG, RESTFactory) {
+        function($log, Restangular, $rootScope, $timeout, REST_CONFIG, RESTFactory) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
                     $log.debug('avRestGet directive', attrs);
 
@@ -45,9 +45,9 @@
 
                     scope[name + gettingSuffix] = true;
 
-                    scope.$watchCollection(function () {
+                    scope.$watchCollection(function() {
                         return [attrs.avRestGet, attrs.restId, attrs.restName];
-                    }, function (newCollection, oldCollection, scope) {
+                    }, function(newCollection, oldCollection, scope) {
                         $log.debug('avRestGet watch ' + name + ':', newCollection);
                         scope[name + errorSuffix] = false;
 
@@ -59,7 +59,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + gettingSuffix] = false;
                                 scope[name] = data;
                                 var func = RESTFactory.afterRoute[name];
@@ -74,7 +74,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + gettingSuffix] = false;
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
@@ -103,12 +103,12 @@
          *
          * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
-        function ($log, $rootScope, $timeout, REST_CONFIG, RESTFactory) {
+        function($log, $rootScope, $timeout, REST_CONFIG, RESTFactory) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var removingProperty = '$removing',
                             errorSuffix = 'Error',
@@ -131,7 +131,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function () {
+                            $timeout(function() {
                                 var collection;
                                 if (item.getParentList) {
                                     collection = item.getParentList();
@@ -151,7 +151,7 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function () {
+                            $timeout(function() {
                                 delete item[removingProperty];
                                 scope[name + errorSuffix] = true;
                                 if (!$rootScope[name + 'Errors']) {
@@ -181,12 +181,12 @@
          *
          * @param {string} restIf Expression to evaluate and stop execution if returns false.
          */
-        function ($log, $rootScope, Restangular, $timeout, REST_CONFIG, RESTFactory) {
+        function($log, $rootScope, Restangular, $timeout, REST_CONFIG, RESTFactory) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var savingProperty = '$saving',
                             errorSuffix = 'Error',
@@ -210,16 +210,17 @@
 
                         scope[name + errorSuffix] = false;
 
-                        delete item.editing;
+                        var clone = item.clone();
+                        delete clone.editing;
 
                         if (item.fromServer) {
-                            item.put().then(onSuccess, onError);
+                            clone.put().then(onSuccess, onError);
                         } else {
                             delete item[Restangular.configuration.restangularFields.id];
-                            collection.post(item).then(onSuccess, onError);
+                            collection.post(clone).then(onSuccess, onError);
                         }
 
-                        collection.some(function (element, idx) {
+                        collection.some(function(element, idx) {
                             if (element[Restangular.configuration.restangularFields.id] === item[Restangular.configuration.restangularFields.id]) {
                                 index = idx;
                                 return true;
@@ -236,7 +237,7 @@
 
                         function onSuccess(data) {
                             $log.debug('onSuccess', data);
-                            $timeout(function () {
+                            $timeout(function() {
                                 if (item.fromServer) {
                                     collection[index] = data;
                                 } else {
@@ -251,16 +252,11 @@
 
                         function onError(response) {
                             $log.debug('onError', response);
-                            $timeout(function () {
+                            $timeout(function() {
                                 scope[name + errorSuffix] = true;
 
                                 if (index > -1) {
                                     delete collection[index][savingProperty];
-                                    if (item.fromServer) {
-                                        collection.splice(index, 1, scope.copy);
-                                    } else {
-                                        collection.splice(index, 1);
-                                    }
                                 }
 
                                 if (!$rootScope[name + 'Errors']) {
@@ -288,12 +284,12 @@
          *
          *     <button av-rest-add="users"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var collection = scope.$eval(attrs.avRestAdd);
 
@@ -301,7 +297,7 @@
 
                         collection.unshift({
                             editing: true,
-                            getParentList: function () {
+                            getParentList: function() {
                                 return collection;
                             }
                         });
@@ -325,12 +321,12 @@
          *
          *     <button av-rest-clone="user"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var item = scope.$eval(attrs.avRestClone),
                             collection = item.getParentList();
@@ -339,6 +335,7 @@
 
                         var copy = item.clone();
                         copy.editing = true;
+                        copy.fromServer = false;
                         collection.unshift(copy);
 
                         scope.$applyAsync();
@@ -360,12 +357,12 @@
          *
          *     <button av-rest-edit="user"></button>
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         var item = scope.$eval(attrs.avRestEdit);
 
@@ -395,12 +392,12 @@
          *
          * @param {string} restName Name of the scope variable that contains the collection to modify.
          */
-        function ($log) {
+        function($log) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
 
-                    element.bind('click', function () {
+                    element.bind('click', function() {
 
                         $log.debug('avRestCancel directive', scope);
 
