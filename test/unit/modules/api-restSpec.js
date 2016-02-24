@@ -188,12 +188,12 @@ describe('Unit: Testing appverse.rest module', function() {
 
         element.triggerHandler('click');
 
-        expect(scope.book.$saving).to.be.true;
+        expect(scope.books.$saving).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
 
-        expect(scope.books[1].$saving).to.be.undefined;
+        expect(scope.books.$saving).to.be.undefined;
     }));
 
     it("Save directive should update an existing element", inject(function($compile, $rootScope, $timeout, Restangular) {
@@ -247,7 +247,7 @@ describe('Unit: Testing appverse.rest module', function() {
 
         element.triggerHandler('click');
 
-        expect(scope.book.$saving).to.be.true;
+        expect(scope.books.$saving).to.be.true;
 
         $httpBackend.flush();
         $timeout.flush();
