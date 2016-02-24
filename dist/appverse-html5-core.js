@@ -2480,29 +2480,28 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
                         scope[name + errorSuffix] = false;
 
-                        var clone = angular.copy(item);
-                        delete clone.editing;
+                        item = angular.copy(item);
+                        delete item.editing;
 
                         if (item.fromServer) {
-                            clone.put().then(onSuccess, onError);
+                            item.put().then(onSuccess, onError);
+
+                            collection.some(function(element, idx) {
+                                if (element[Restangular.configuration.restangularFields.id] === item[Restangular.configuration.restangularFields.id]) {
+                                    index = idx;
+                                    return true;
+                                }
+                            });
+                            collection[index][savingProperty] = true;
                         } else {
                             delete item[Restangular.configuration.restangularFields.id];
-                            collection.post(clone).then(onSuccess, onError);
+                            collection.post(item).then(onSuccess, onError);
+                            collection[savingProperty] = true;
                         }
 
-                        collection.some(function(element, idx) {
-                            if (element[Restangular.configuration.restangularFields.id] === item[Restangular.configuration.restangularFields.id]) {
-                                index = idx;
-                                return true;
-                            }
-                        });
-
-                        if (index > -1) {
-                            collection[index][savingProperty] = true;
-                            var func = RESTFactory.afterRoute[name];
-                            if (func) {
-                                func();
-                            }
+                        var func = RESTFactory.afterRoute[name];
+                        if (func) {
+                            func();
                         }
 
                         function onSuccess(data) {
@@ -2512,6 +2511,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                                     collection[index] = data;
                                 } else {
                                     collection.push(data);
+                                    delete collection[savingProperty];
                                 }
                                 var func = RESTFactory.afterRoute[name];
                                 if (func) {
