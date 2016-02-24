@@ -222,6 +222,8 @@ describe('Unit: Testing appverse.rest module', function() {
 
         $httpBackend.flush();
         $timeout.flush();
+
+        expect(scope.books.$saving).to.be.undefined;
     }));
 
     it("Save directive should fail properly", inject(function($compile, $rootScope, $timeout, Restangular) {
@@ -252,6 +254,7 @@ describe('Unit: Testing appverse.rest module', function() {
         $httpBackend.flush();
         $timeout.flush();
 
+        expect(scope.books.$saving).to.be.undefined;
         expect($rootScope.nobooksErrors.length).to.equal(1);
     }));
 
