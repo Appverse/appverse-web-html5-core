@@ -210,7 +210,7 @@
 
                         scope[name + errorSuffix] = false;
 
-                        var clone = item.clone();
+                        var clone = angular.copy(item);
                         delete clone.editing;
 
                         if (item.fromServer) {
