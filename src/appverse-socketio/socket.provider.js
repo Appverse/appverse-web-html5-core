@@ -1,7 +1,7 @@
-(function() {
+(function () {
     'use strict';
 
-    angular.module('appverse.socket.io')
+    angular.module('appverse.socketio')
 
     /**
      * @ngdoc provider
@@ -34,7 +34,7 @@
      * @requires SERVERPUSH_CONFIG
      */
     .provider('Socket',
-        function() {
+        function () {
 
             var SERVERPUSH_CONFIG = angular.injector(['appverse.configuration.default']).get('SERVERPUSH_CONFIG');
 
@@ -43,7 +43,7 @@
                 ioSocket;
 
             // expose to provider
-            this.$get = function($rootScope, $timeout) {
+            this.$get = function ($rootScope, $timeout) {
                 /* global io */
 
                 /*
@@ -73,20 +73,20 @@
                     );
                 }
 
-                var asyncAngularify = function(callback) {
-                    return function() {
+                var asyncAngularify = function (callback) {
+                    return function () {
                         var args = arguments;
-                        $timeout(function() {
+                        $timeout(function () {
                             callback.apply(socket, args);
                         }, 0);
                     };
                 };
 
-                var addListener = function(eventName, callback) {
+                var addListener = function (eventName, callback) {
                     socket.on(eventName, asyncAngularify(callback));
                 };
 
-                var removeListener = function() {
+                var removeListener = function () {
                     socket.removeAllListeners();
                 };
 
@@ -96,7 +96,7 @@
                     addListener: addListener,
                     off: removeListener,
 
-                    emit: function(eventName, data, callback) {
+                    emit: function (eventName, data, callback) {
                         if (callback) {
                             socket.emit(eventName, data, asyncAngularify(callback));
                         } else {
@@ -104,19 +104,19 @@
                         }
                     },
 
-                    forward: function(events, scope) {
+                    forward: function (events, scope) {
                         if (events instanceof Array === false) {
                             events = [events];
                         }
                         if (!scope) {
                             scope = $rootScope;
                         }
-                        angular.forEach(events, function(eventName) {
+                        angular.forEach(events, function (eventName) {
                             var prefixed = prefix + eventName;
-                            var forwardEvent = asyncAngularify(function(data) {
+                            var forwardEvent = asyncAngularify(function (data) {
                                 scope.$broadcast(prefixed, data);
                             });
-                            scope.$on('$destroy', function() {
+                            scope.$on('$destroy', function () {
                                 socket.removeListener(eventName, forwardEvent);
                             });
                             socket.on(eventName, forwardEvent);
@@ -127,11 +127,11 @@
                 return wrappedSocket;
             };
 
-            this.prefix = function(newPrefix) {
+            this.prefix = function (newPrefix) {
                 prefix = newPrefix;
             };
 
-            this.ioSocket = function(socket) {
+            this.ioSocket = function (socket) {
                 ioSocket = socket;
             };
         });

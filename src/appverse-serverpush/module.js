@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -42,9 +42,9 @@
      * @requires  appverse.socket.io
      * @requires  appverse.configuration
      */
-    angular.module('appverse.serverPush', ['appverse.socket.io', 'appverse.configuration'])
+    angular.module('appverse.serverPush', ['appverse.configuration'])
 
-    .run(function($log) {
+    .run(function ($log) {
         $log.info('appverse.serverPush run');
     });
 
