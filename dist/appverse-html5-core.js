@@ -3559,7 +3559,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
 })();
 
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -3585,7 +3585,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
     // Get module and set config and run blocks
     //angular.module('appverse.translate')
     .config(configBlock)
-    .run(runBlock);
+        .run(runBlock);
 
 
     function configBlock($translateProvider, I18N_CONFIG, tmhDynamicLocaleProvider, $provide) {
@@ -3594,15 +3594,14 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
             prefix: 'resources/i18n/',
             suffix: '.json'
         };
-        var locationPattern = I18N_CONFIG.LocaleFilePattern;
 
         $translateProvider.useStaticFilesLoader(filesConfig);
         $translateProvider.preferredLanguage(I18N_CONFIG.PreferredLocale);
-        tmhDynamicLocaleProvider.localeLocationPattern(locationPattern);
+        tmhDynamicLocaleProvider.localeLocationPattern(I18N_CONFIG.localeLocationPattern);
 
         // Decorate translate directive to change the original behaviour
         // by not removing <i> tags included in the translation text
-        $provide.decorator('translateDirective',  decorateTranslateDirective);
+        $provide.decorator('translateDirective', decorateTranslateDirective);
 
     }
 
@@ -3630,7 +3629,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         var directive = $delegate[0];
         var originalLinkFunction = directive.link;
 
-        var newLinkFunction = function(scope, $element, attr, ctrl) {
+        var newLinkFunction = function (scope, $element, attr, ctrl) {
 
             // Get the element's html and replaces the text to be translated
             // by a placeholder '%%text%%', so that we can later replace this
@@ -3649,15 +3648,15 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
             });
 
             scope.$watch('[translationId, interpolateParams]', function () {
-              if (scope.translationId) {
-                translateElement();
-              }
+                if (scope.translationId) {
+                    translateElement();
+                }
             }, true);
 
             function translateElement() {
                 $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
                 var translatedText = $element.text();
-                var finalHtml =  htmlOnlyTags.replace('%%text%%', translatedText);
+                var finalHtml = htmlOnlyTags.replace('%%text%%', translatedText);
                 $element.html(finalHtml);
             }
 
@@ -4640,8 +4639,7 @@ function run($log) {
      */
     .constant('I18N_CONFIG', {
         PreferredLocale: 'en-US',
-        LocaleFilePattern: 'angular-i18n/angular-locale_{{locale}}.js',
-        DetectLocale: true
+        localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js'
     })
 
     /**
