@@ -1,15 +1,16 @@
 /*jshint expr:true */
 
-describe('Unit: Testing api-translate', function() { 'use strict';
+describe('Unit: Testing api-translate', function () {
+    'use strict';
 
     var translateProvider,
         dynamicLocaleProvider;
 
     beforeEach(setUpTranslateTesting);
 
-    describe('when configuring module...', function() {
+    describe('when configuring module...', function () {
 
-        it('configures the static files loader', function() {
+        it('configures the static files loader', function () {
             translateProvider.useStaticFilesLoader
                 .calledWith({
                     prefix: 'resources/i18n/',
@@ -18,46 +19,46 @@ describe('Unit: Testing api-translate', function() { 'use strict';
                 .should.be.true;
         });
 
-        it('configures the preferred language', function() {
+        it('configures the preferred language', function () {
             translateProvider.preferredLanguage
                 .calledWith('en_US')
                 .should.be.true;
         });
 
-        it('configures the locale file route pattern', function() {
+        it('configures the locale file route pattern', function () {
             dynamicLocaleProvider.localeLocationPattern
-                .calledWith('resources/i18n/angular/angular-locale_{{locale}}.js')
+                .calledWith('bower_components/angular-i18n/angular-locale_{{locale}}.js')
                 .should.be.true;
         });
 
     });
 
-    describe('when translating with the service...', function() {
+    describe('when translating with the service...', function () {
 
         it('should return the translated string if key exists', inject(function ($translate) {
-          $translate('SALUTE').should.be.equal('Hello');
+            $translate('SALUTE').should.be.equal('Hello');
         }));
 
         it('should return the original string if key does not exist', inject(function ($translate) {
-          $translate('not translated').should.be.equal('not translated');
+            $translate('not translated').should.be.equal('not translated');
         }));
 
     });
 
-    describe('when translating with the directive...', function() {
+    describe('when translating with the directive...', function () {
 
         var $compile;
         var $rootScope;
 
         // Store references to $rootScope and $compile
         // so they are available to all tests in this describe block
-        beforeEach(inject(function(_$compile_, _$rootScope_){
-          // The injector unwraps the underscores (_) from around the parameter names when matching
-          $compile = _$compile_;
-          $rootScope = _$rootScope_;
+        beforeEach(inject(function (_$compile_, _$rootScope_) {
+            // The injector unwraps the underscores (_) from around the parameter names when matching
+            $compile = _$compile_;
+            $rootScope = _$rootScope_;
         }));
 
-        it('should replace original text with translation', function() {
+        it('should replace original text with translation', function () {
             // Compile a piece of HTML containing the directive
             var element = $compile("<p translate>SALUTE</p>")($rootScope);
             // fire all the watches, so text is evaluated
@@ -66,9 +67,9 @@ describe('Unit: Testing api-translate', function() { 'use strict';
             element.html().should.be.equal("Hello");
         });
 
-        describe('when html contains an <i> tag...', function() {
+        describe('when html contains an <i> tag...', function () {
 
-            it('should translate the text and keep the <i> tag', function() {
+            it('should translate the text and keep the <i> tag', function () {
                 var element = $compile('<p translate><i class="icon"></i>SALUTE</p>')($rootScope);
                 $rootScope.$digest();
                 element.html().should.be.equal('<i class="icon"></i>Hello');
@@ -104,27 +105,26 @@ describe('Unit: Testing api-translate', function() { 'use strict';
         // appverse.configuration module mocked by creating it again
         angular.module('appverse.configuration', [])
             .constant('I18N_CONFIG', {
-                PreferredLocale : 'en_US',
-                LocaleFilePattern: 'resources/i18n/angular/angular-locale_{{locale}}.js',
+                PreferredLocale: 'en_US',
+                localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js',
             });
 
         // Get reference to providers.
         // Providers cannot be mocked using $provide like services or factories as they are not
         // available after config phase, therefore they cannot be injected with inject().
         // However, we can get their objects using a module() block.
-        module('pascalprecht.translate', function($translateProvider) {
+        module('pascalprecht.translate', function ($translateProvider) {
             $translateProvider.useStaticFilesLoader = sinon.spy();
             $translateProvider.preferredLanguage = sinon.spy();
-            $translateProvider.translations({'SALUTE' : 'Hello'});
+            $translateProvider.translations({
+                'SALUTE': 'Hello'
+            });
             translateProvider = $translateProvider;
         });
-        module('tmh.dynamicLocale', function(tmhDynamicLocaleProvider) {
+        module('tmh.dynamicLocale', function (tmhDynamicLocaleProvider) {
             tmhDynamicLocaleProvider.localeLocationPattern = sinon.spy();
             dynamicLocaleProvider = tmhDynamicLocaleProvider;
         });
     }
 
 });
-
-
-
