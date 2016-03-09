@@ -1011,7 +1011,7 @@
         }]);
 })();
 
-(function() {
+(function () {
     'use strict';
 
     run.$inject = ["$log", "Detection", "$rootScope", "$state", "IONIC_CONFIG", "$location"];
@@ -1037,7 +1037,9 @@
         function transformState(toState) {
             //check if a mobile view exists, if is available in our envirnoment and if needs a different controller
             if (toState.data.mobile && Detection.isMobileBrowser()) {
-                toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+                if (!toState.data.restrict) {
+                    toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+                }
                 if (toState.data.controller) {
                     toState.controller = toState.controller + IONIC_CONFIG.suffix;
                 }
@@ -1047,7 +1049,7 @@
             delete toState.data;
         }
 
-        $rootScope.$on('$stateChangeStart', function(event, toState) {
+        $rootScope.$on('$stateChangeStart', function (event, toState) {
 
             if (toState.data) {
                 //if toState.data exists, check restrict attribute
@@ -1067,6 +1069,7 @@
 
     }
 })();
+
 /*jshint -W101 */
 angular.module('appverse.ionic.templates', []).run(['$templateCache', function($templateCache) {
   'use strict';
@@ -4228,7 +4231,7 @@ function run($log) {
 
 })();
 
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -4265,7 +4268,9 @@ function run($log) {
      * @description Parent state name of desktop + Ionic application.
      */
     .constant('IONIC_CONFIG', {
-        MainState: 'menu'
+        suffix: '-mobile',
+        modalPrompt: false,
+        redirectionPath: 'home'
     })
 
     /**
