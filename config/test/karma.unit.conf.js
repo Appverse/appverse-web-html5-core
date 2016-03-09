@@ -2,7 +2,7 @@
 
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
     config.set({
 
@@ -15,7 +15,7 @@ module.exports = function (config) {
         // you can define custom flags
         customLaunchers: {
             'PhantomJS_custom': {
-                base: 'PhantomJS2',
+                base: 'PhantomJS',
                 options: {
                     windowName: 'my-window',
                     settings: {
