@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -11,6 +11,6 @@
      *
      * @requires  appverse.configuration
      */
-    angular.module('appverse.socket.io', ['appverse.configuration']);
+    angular.module('appverse.socketio', ['appverse.configuration']);
 
 })();
