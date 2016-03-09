@@ -1,7 +1,7 @@
-(function() {
+(function () {
     'use strict';
 
-    angular.module('appverse.serverPush')
+    angular.module('appverse.socketio')
 
     /**
      * @ngdoc service
@@ -22,7 +22,7 @@
      * @requires Socket
      */
     .factory('SocketFactory',
-        function($rootScope, Socket) {
+        function ($rootScope, Socket) {
             var factory = {};
 
             /**
@@ -35,10 +35,10 @@
                  Use this method for background communication although the current scope is destyroyed.
                  You should cancel communication manually or when the $rootScope object is destroyed.
                  */
-            factory.listen = function(eventName, callback) {
-                Socket.on(eventName, function() {
+            factory.listen = function (eventName, callback) {
+                Socket.on(eventName, function () {
                     var args = arguments;
-                    $rootScope.$apply(function() {
+                    $rootScope.$apply(function () {
                         callback.apply(Socket, args);
                     });
                 });
@@ -54,10 +54,10 @@
                  @description Establishes a communication listening an event/channel from server.
                  It is bound to a given $scope object.
                  */
-            factory.sendMessage = function(eventName, data, callback) {
-                Socket.emit(eventName, data, function() {
+            factory.sendMessage = function (eventName, data, callback) {
+                Socket.emit(eventName, data, function () {
                     var args = arguments;
-                    $rootScope.$apply(function() {
+                    $rootScope.$apply(function () {
                         if (callback) {
                             callback.apply(Socket, args);
                         }
@@ -72,7 +72,7 @@
                  @description Cancels all communications to server.
                  The communication will be cancelled without regarding other consideration.
                  */
-            factory.unsubscribeCommunication = function(callback) {
+            factory.unsubscribeCommunication = function (callback) {
                 Socket.off(callback());
             };
 

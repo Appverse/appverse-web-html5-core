@@ -2,7 +2,7 @@
 
 'use strict';
 
-module.exports = function(config) {
+module.exports = function (config) {
 
     config.set({
 
@@ -43,6 +43,7 @@ module.exports = function(config) {
         coverageReporter: {
             // specify a common output directory
             dir: 'reports/coverage',
+            subdir: '.',
             reporters: [{
                 type: 'lcov'
             }, {
