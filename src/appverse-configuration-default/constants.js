@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular.module('appverse.configuration.default')
@@ -35,7 +35,9 @@
      * @description Parent state name of desktop + Ionic application.
      */
     .constant('IONIC_CONFIG', {
-        MainState: 'menu'
+        suffix: '-mobile',
+        modalPrompt: false,
+        redirectionPath: 'home'
     })
 
     /**

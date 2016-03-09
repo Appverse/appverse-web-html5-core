@@ -189,11 +189,15 @@ module.exports = function (grunt) {
                 }, {
                     src: [
                         '<%= appverse.src %>/appverse-serverpush/**/module.js',
-                        '<%= appverse.src %>/appverse-socketio/**/module.js',
-                        '<%= appverse.src %>/appverse-socketio/**/*.js',
                         '<%= appverse.src %>/appverse-serverpush/**/*.js'
                     ],
                     dest: '<%= appverse.dist %>/appverse-serverpush/appverse-serverpush.js'
+                }, {
+                    src: [
+                        '<%= appverse.src %>/appverse-socketio/**/module.js',
+                        '<%= appverse.src %>/appverse-socketio/**/*.js'
+                    ],
+                    dest: '<%= appverse.dist %>/appverse-socketio/appverse-socketio.js'
                 }, {
                     src: [
                         '<%= appverse.src %>/appverse-translate/**/module.js',
