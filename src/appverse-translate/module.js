@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -22,7 +22,7 @@
     // Get module and set config and run blocks
     //angular.module('appverse.translate')
     .config(configBlock)
-    .run(runBlock);
+        .run(runBlock);
 
 
     function configBlock($translateProvider, I18N_CONFIG, tmhDynamicLocaleProvider, $provide) {
@@ -31,15 +31,14 @@
             prefix: 'resources/i18n/',
             suffix: '.json'
         };
-        var locationPattern = I18N_CONFIG.LocaleFilePattern;
 
         $translateProvider.useStaticFilesLoader(filesConfig);
         $translateProvider.preferredLanguage(I18N_CONFIG.PreferredLocale);
-        tmhDynamicLocaleProvider.localeLocationPattern(locationPattern);
+        tmhDynamicLocaleProvider.localeLocationPattern(I18N_CONFIG.localeLocationPattern);
 
         // Decorate translate directive to change the original behaviour
         // by not removing <i> tags included in the translation text
-        $provide.decorator('translateDirective',  decorateTranslateDirective);
+        $provide.decorator('translateDirective', decorateTranslateDirective);
 
     }
 
@@ -67,7 +66,7 @@
         var directive = $delegate[0];
         var originalLinkFunction = directive.link;
 
-        var newLinkFunction = function(scope, $element, attr, ctrl) {
+        var newLinkFunction = function (scope, $element, attr, ctrl) {
 
             // Get the element's html and replaces the text to be translated
             // by a placeholder '%%text%%', so that we can later replace this
@@ -86,15 +85,15 @@
             });
 
             scope.$watch('[translationId, interpolateParams]', function () {
-              if (scope.translationId) {
-                translateElement();
-              }
+                if (scope.translationId) {
+                    translateElement();
+                }
             }, true);
 
             function translateElement() {
                 $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
                 var translatedText = $element.text();
-                var finalHtml =  htmlOnlyTags.replace('%%text%%', translatedText);
+                var finalHtml = htmlOnlyTags.replace('%%text%%', translatedText);
                 $element.html(finalHtml);
             }
 
