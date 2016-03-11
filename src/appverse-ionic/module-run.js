@@ -26,7 +26,7 @@
             if (toState.data.mobile && Detection.isMobileBrowser()) {
                 if (!toState.data.restrict) {
                     var parentState = state.get('^', toState);
-                    if (parentState) {
+                    if (parentState && parentState.mobile && !parentState.restrict) {
                       parentState.templateUrl = parentState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
                     }
                     toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
