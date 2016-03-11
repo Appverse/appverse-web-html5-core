@@ -6,6 +6,7 @@
 
     function run($log, Detection, $rootScope, $state, IONIC_CONFIG, $location) {
         $log.info('appverse.ionic run');
+        var state = $state;
 
         function showModalPrompt() {
             if (IONIC_CONFIG.modalPrompt) {
@@ -24,10 +25,14 @@
             //check if a mobile view exists, if is available in our envirnoment and if needs a different controller
             if (toState.data.mobile && Detection.isMobileBrowser()) {
                 if (!toState.data.restrict) {
+                    var parentState = state.get('^', toState);
+                    if (parentState && parentState.mobile && !parentState.restrict) {
+                      parentState.templateUrl = parentState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+                    }
                     toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
                 }
                 if (toState.data.controller) {
-                    toState.controller = toState.controller + IONIC_CONFIG.suffix;
+                    toState.controller = toState.data.controller;
                 }
             }
 
