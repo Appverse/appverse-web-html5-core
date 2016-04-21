@@ -1040,23 +1040,28 @@
             if (toState.data.mobile && Detection.isMobileBrowser()) {
                 if (!toState.data.restrict) {
                     var parentState = state.get('^', toState);
-                    if (parentState && parentState.mobile && !parentState.restrict) {
+                    if (parentState && parentState.data && parentState.data.mobile && !parentState.data.restrict) {
                       parentState.templateUrl = parentState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
                     }
                     toState.templateUrl = toState.templateUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
                 }
                 if (toState.data.controller) {
                     toState.controller = toState.data.controller;
+                    delete toState.data.controller;
                 }
             }
 
-            //After change (if is necessary) the template and controller, delete data object to avoid all the process the next time
-            delete toState.data;
+            //After change (if is necessary) the template and controller, delete mobile property of data object to avoid all the process the next time
+            delete toState.data.mobile;
+
+
+
+
         }
 
         $rootScope.$on('$stateChangeStart', function (event, toState) {
 
-            if (toState.data) {
+            if (toState.data && toState.data.mobile) {
                 //if toState.data exists, check restrict attribute
                 if (toState.data.restrict) {
                     //if restrict, check environment
