@@ -10,11 +10,11 @@
     "angular-i18n": "1.0.8",
     "angular-translate": "~1.1.1",
     "angular-translate-loader-static-files": "~0.1.6",
-    "angular-ui-router": "~0.2.15",
+    "angular-ui-router": "~0.3.1",
     "lodash": "3.x.x",
     "restangular": "~1.5.1",
-    "socket.io-client": "~1.4.0",
-    "sockjs-client": "~1.0.3",
+    "socket.io-client": "~1.4.8",
+    "sockjs-client": "~1.1.1",
     "stomp-websocket": "~2.3.4"
   },
   "devDependencies": {
