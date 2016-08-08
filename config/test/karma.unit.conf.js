@@ -57,15 +57,15 @@ module.exports = function(config) {
 
         files: [
             'bower_components/angular/angular.js',
+            'bower_components/angular-ui-router/release/angular-ui-router.js',
             'bower_components/angular-cache/dist/angular-cache.min.js',
             'bower_components/angular-translate/angular-translate.min.js',
             'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
             'bower_components/angular-dynamic-locale/dist/tmhDynamicLocale.js',
-            'bower_components/lodash/lodash.min.js',
+            'bower_components/lodash/dist/lodash.js',
             'bower_components/restangular/dist/restangular.min.js',
             'bower_components/sockjs-client/dist/sockjs.js',
             'bower_components/stomp-websocket/lib/stomp.min.js',
-            'bower_components/angular-ui-router/release/angular-ui-router.js',
 
             'src/appverse-*/**/module.js',
             // The rest
