@@ -477,31 +477,6 @@
 
     /**
      * @ngdoc object
-     * @name GOOGLE_AUTH
-     * @module appverse.configuration.default
-     * @description Defines settings to use Google Oauth2 autentication service
-     */
-    .constant('GOOGLE_AUTH', {
-        clientID: '75169325484-8cn28d7o3dre61052o8jajfsjlnrh53i.apps.googleusercontent.com',
-        scopeURL: 'https://www.googleapis.com/auth/plus.login',
-        requestvisibleactionsURL: 'http://schemas.google.com/AddActivity',
-        theme: 'dark',
-        cookiepolicy: 'single_host_origin',
-        revocationURL: 'https://accounts.google.com/o/oauth2/revoke?token=',
-        /*
-         * Policy about token renewal:
-         * revocation: if the token is invalid the user is fordec to logout and warned.
-         * manual_renovation: the user is warned about the token validity. Renewal is proposed.
-         * automatic_renovation: the token is automatically renewed.
-         */
-        revocation: 'revocation',
-        manual_renovation: 'manual_renovation',
-        automatic_renovation: 'automatic_renovation',
-        tokenRenewalPolicy: 'automatic_renovation'
-    })
-
-    /**
-     * @ngdoc object
      * @name AUTHORIZATION_DATA
      * @module appverse.configuration.default
      * @description Defines default authorization and roles data
