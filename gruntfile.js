@@ -371,7 +371,9 @@ module.exports = function (grunt) {
                 file: 'package.json', //default: package.json
                 add: true, //default: true
                 commit: true, //default: true
-                tag: false, //default: true
+                commitMessage: '<%= version %>', //default: 'release <%= version %>'
+                tag: true, //default: true
+                tagName: 'v<%= version %>', //default: true
                 push: false, //default: true
                 pushTags: false, //default: true
                 npm: false, //default: true
