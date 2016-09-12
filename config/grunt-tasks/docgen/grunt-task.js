@@ -1,14 +1,15 @@
+/*jshint node:true */
 'use strict';
 var
     Dgeni = require('dgeni'),
     path = require('canonical-path'),
-    bowerFile = require('../../../bower.json'),
+    packageFile = require('../../../package.json'),
     appverseDgeniPackage = require('./package');
 
 /**
  * Grunt task responsible for generating documentation
  */
-function generateDocsTask () {
+function generateDocsTask() {
     var done = this.async();
 
     // Configure our appverse-dgeni package. We can ask the Dgeni dependency injector
@@ -25,8 +26,7 @@ function generateDocsTask () {
         done();
     });
 
-    function finishTask(docs) {
-        console.info(docs.length, 'docs generated');
+    function finishTask() {
         done();
     }
 }
@@ -55,7 +55,7 @@ function setGeneralSettings(log, readFilesProcessor, templateFinder, writeFilesP
     }];
 
     // Specify where the writeFilesProcessor will write our generated doc files
-    writeFilesProcessor.outputFolder = 'doc/' + bowerFile.version;
+    writeFilesProcessor.outputFolder = 'doc/' + packageFile.version;
 }
 
 /**
@@ -79,7 +79,7 @@ function setGithubInfo(renderDocsProcessor) {
  * All params are autoinjected by Dgeni
  */
 function setVersion(renderDocsProcessor) {
-    renderDocsProcessor.extraData.version = bowerFile.version;
+    renderDocsProcessor.extraData.version = packageFile.version;
 }
 
 

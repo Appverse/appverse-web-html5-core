@@ -107,7 +107,7 @@ module.exports = function (grunt) {
             },
             reports: '<%= appverse.reports %>',
             server: '.tmp',
-            doc: 'doc/' + bowerFile.version
+            doc: 'doc'
         },
 
         jshint: {
