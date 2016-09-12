@@ -364,7 +364,6 @@ module.exports = function (grunt) {
 
         release: {
             options: {
-                additionalFiles: ['bower.json'],
                 bump: true, //default: true
                 changelog: false, //default: false
                 changelogText: '<%= version %>\n', //default: '### <%= version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n'
