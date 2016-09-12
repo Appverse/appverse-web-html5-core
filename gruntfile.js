@@ -373,8 +373,8 @@ module.exports = function (grunt) {
                 commitMessage: 'v<%= version %>', //default: 'release <%= version %>'
                 tag: true, //default: true
                 tagName: 'v<%= version %>', //default: true
-                push: false, //default: true
-                pushTags: false, //default: true
+                push: true, //default: true
+                pushTags: true, //default: true
                 npm: false, //default: true
                 npmtag: false, //default: no tag
                 afterBump: ['sonarVersion', 'dist', 'stage']
