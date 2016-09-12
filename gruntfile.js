@@ -370,20 +370,27 @@ module.exports = function (grunt) {
                 file: 'package.json', //default: package.json
                 add: true, //default: true
                 commit: true, //default: true
-                commitMessage: '<%= version %>', //default: 'release <%= version %>'
+                commitMessage: 'v<%= version %>', //default: 'release <%= version %>'
                 tag: true, //default: true
                 tagName: 'v<%= version %>', //default: true
                 push: false, //default: true
                 pushTags: false, //default: true
                 npm: false, //default: true
                 npmtag: false, //default: no tag
-                afterBump: ['sonarVersion', 'dist']
+                afterBump: ['sonarVersion', 'dist', 'stage']
             }
         }
 
     });
 
     /*---------------------------------------- TASKS DEFINITION -------------------------------------*/
+
+    grunt.registerTask('stage', 'git add files', function () {
+        grunt.util.spawn({
+            cmd: 'git',
+            args: ['add', '.']
+        }, grunt.task.current.async());
+    });
 
     grunt.registerTask('default', [
         'dist'
