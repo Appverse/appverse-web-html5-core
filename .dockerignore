@@ -1,0 +1,8 @@
+.sonar/
+bower_components/
+node_modules/
+dist/
+doc/
+reports/
+.dockerignore
+Dockerfile

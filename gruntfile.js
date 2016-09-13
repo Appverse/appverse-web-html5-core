@@ -107,7 +107,7 @@ module.exports = function (grunt) {
             },
             reports: '<%= appverse.reports %>',
             server: '.tmp',
-            doc: 'doc/' + bowerFile.version
+            doc: 'doc'
         },
 
         jshint: {
@@ -364,25 +364,33 @@ module.exports = function (grunt) {
 
         release: {
             options: {
-                additionalFiles: ['bower.json'],
                 bump: true, //default: true
                 changelog: false, //default: false
                 changelogText: '<%= version %>\n', //default: '### <%= version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n'
                 file: 'package.json', //default: package.json
                 add: true, //default: true
                 commit: true, //default: true
-                tag: false, //default: true
-                push: false, //default: true
-                pushTags: false, //default: true
+                commitMessage: 'v<%= version %>', //default: 'release <%= version %>'
+                tag: true, //default: true
+                tagName: 'v<%= version %>', //default: true
+                push: true, //default: true
+                pushTags: true, //default: true
                 npm: false, //default: true
                 npmtag: false, //default: no tag
-                afterBump: ['sonarVersion', 'dist']
+                afterBump: ['sonarVersion', 'dist', 'stage']
             }
         }
 
     });
 
     /*---------------------------------------- TASKS DEFINITION -------------------------------------*/
+
+    grunt.registerTask('stage', 'git add files', function () {
+        grunt.util.spawn({
+            cmd: 'git',
+            args: ['add', '.']
+        }, grunt.task.current.async());
+    });
 
     grunt.registerTask('default', [
         'dist'
