@@ -37,6 +37,7 @@
         $translateProvider.useStaticFilesLoader(filesConfig);
         $translateProvider.preferredLanguage(I18N_CONFIG.PreferredLocale);
         tmhDynamicLocaleProvider.localeLocationPattern(I18N_CONFIG.localeLocationPattern);
+        tmhDynamicLocaleProvider.defaultLocale(I18N_CONFIG.DefaultLocale);
 
         // Decorate translate directive to change the original behaviour
         // by not removing <i> tags included in the translation text

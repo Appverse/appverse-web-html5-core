@@ -20,7 +20,7 @@
      */
     .provider('Detection', DetectionProvider);
 
-    function DetectionProvider(MobileDetectorProvider) {
+    function DetectionProvider(MobileDetectorProvider, IONIC_CONFIG) {
 
         this.mobileDetector = MobileDetectorProvider;
         this.bandwidth = 0;
@@ -41,6 +41,15 @@
          */
         this.hasAppverseMobile = function() {
             return this.mobileDetector.hasAppverseMobile();
+        };
+
+        /**
+         * @ngdoc method
+         * @name  Detection#hasCordova
+         * @return {Boolean} Whether the application has cordova or not
+         */
+        this.hasCordova = function() {
+            return this.mobileDetector.hasCordova();
         };
 
         /**
@@ -164,6 +173,39 @@
             clearInterval(this.isPollingBandwidth);
             this.isPollingBandwidth = false;
         };
+
+        //getTpl function params([String] url of the tpl, [boolean] has mobile view, [boolean] use mobile view in mobile browser)
+      this.getTpl = function (tplUrl, hasMobileView, useMobileViewInBrowser){
+          if(!hasMobileView){
+              if(this.hasCordova()){
+                  return '';
+              }
+              return tplUrl;
+          }
+          else{
+              if(this.hasCordova() || (useMobileViewInBrowser && this.isMobileBrowser())){
+                  return tplUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+              }
+              else{
+                  return tplUrl;
+              }
+          }
+      };
+
+      //getController function params([String]desktop controller, [String] mobile controller if it exists)
+      this.getController = function (desktopController, mobileController){
+          if(!mobileController){
+              return desktopController;
+          }
+          else{
+              if(this.hasCordova() || this.isMobileBrowser()){
+                  return mobileController;
+              }
+              else{
+                  return desktopController;
+              }
+          }
+      };
     }
 
 

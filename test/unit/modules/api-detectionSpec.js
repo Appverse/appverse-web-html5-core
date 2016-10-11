@@ -6,7 +6,14 @@ describe('Unit: Api Detection Module', function () {
     describe('when browser is not mobile...', function () {
 
         beforeEach(function () {
+          module(function ($provide) {
+
+              $provide.constant('IONIC_CONFIG', {
+                  "suffix" : "-mobile"
+              });
+          });
             module('appverse.detection');
+
         });
 
         it('hasAppverseMobile property should be false', inject(function (Detection) {

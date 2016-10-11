@@ -35,6 +35,19 @@
 
         /**
          * @ngdoc method
+         * @name MobileDetector#hasCordova
+         * @return {Boolean}
+         */
+        this.hasCordova = function() {
+            if(window.cordova){
+              return true;
+            } else {
+              return false;
+            }
+        };
+
+        /**
+         * @ngdoc method
          * @name MobileDetector#isMobileBrowser
          * @return {Boolean}
          */

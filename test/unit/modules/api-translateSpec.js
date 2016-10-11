@@ -106,7 +106,7 @@ describe('Unit: Testing api-translate', function () {
         angular.module('appverse.configuration', [])
             .constant('I18N_CONFIG', {
                 PreferredLocale: 'en_US',
-                localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js',
+                localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js'
             });
 
         // Get reference to providers.

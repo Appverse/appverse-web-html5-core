@@ -39,8 +39,14 @@ describe('Unit: Testing appverse.native module', function () {
         window.AppverseEmulator = {};
         window._AppverseContext = {};
         window.get_params = function () {};
+        module(function ($provide) {
 
+            $provide.constant('IONIC_CONFIG', {
+                "suffix" : "-mobile"
+            });
+        });
         module('appverse.native');
+
         AppInit.setConfig({
             environment: {
                 REST_CONFIG: {
@@ -51,6 +57,7 @@ describe('Unit: Testing appverse.native module', function () {
                 }
             }
         });
+
     });
 
     beforeEach(inject(function ($injector) {

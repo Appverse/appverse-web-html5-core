@@ -409,7 +409,8 @@
      */
     .constant('I18N_CONFIG', {
         PreferredLocale: 'en-US',
-        localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js'
+        localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js',
+        DefaultLocale:'en-us'
     })
 
     /**

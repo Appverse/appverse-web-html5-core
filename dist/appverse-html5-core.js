@@ -623,7 +623,7 @@
      * @description
      * Defines the Detection provider.
      */
-    DetectionProvider.$inject = ["MobileDetectorProvider"];
+    DetectionProvider.$inject = ["MobileDetectorProvider", "IONIC_CONFIG"];
     angular.module('appverse.detection.provider', ['appverse.detection.mobile'])
 
     /**
@@ -636,7 +636,7 @@
      */
     .provider('Detection', DetectionProvider);
 
-    function DetectionProvider(MobileDetectorProvider) {
+    function DetectionProvider(MobileDetectorProvider, IONIC_CONFIG) {
 
         this.mobileDetector = MobileDetectorProvider;
         this.bandwidth = 0;
@@ -657,6 +657,15 @@
          */
         this.hasAppverseMobile = function() {
             return this.mobileDetector.hasAppverseMobile();
+        };
+
+        /**
+         * @ngdoc method
+         * @name  Detection#hasCordova
+         * @return {Boolean} Whether the application has cordova or not
+         */
+        this.hasCordova = function() {
+            return this.mobileDetector.hasCordova();
         };
 
         /**
@@ -780,6 +789,39 @@
             clearInterval(this.isPollingBandwidth);
             this.isPollingBandwidth = false;
         };
+
+        //getTpl function params([String] url of the tpl, [boolean] has mobile view, [boolean] use mobile view in mobile browser)
+      this.getTpl = function (tplUrl, hasMobileView, useMobileViewInBrowser){
+          if(!hasMobileView){
+              if(this.hasCordova()){
+                  return '';
+              }
+              return tplUrl;
+          }
+          else{
+              if(this.hasCordova() || (useMobileViewInBrowser && this.isMobileBrowser())){
+                  return tplUrl.split('.html')[0] + IONIC_CONFIG.suffix + '.html';
+              }
+              else{
+                  return tplUrl;
+              }
+          }
+      };
+
+      //getController function params([String]desktop controller, [String] mobile controller if it exists)
+      this.getController = function (desktopController, mobileController){
+          if(!mobileController){
+              return desktopController;
+          }
+          else{
+              if(this.hasCordova() || this.isMobileBrowser()){
+                  return mobileController;
+              }
+              else{
+                  return desktopController;
+              }
+          }
+      };
     }
 
 
@@ -817,6 +859,19 @@
                 return true;
             } else {
                 return false;
+            }
+        };
+
+        /**
+         * @ngdoc method
+         * @name MobileDetector#hasCordova
+         * @return {Boolean}
+         */
+        this.hasCordova = function() {
+            if(window.cordova){
+              return true;
+            } else {
+              return false;
             }
         };
 
@@ -3577,6 +3632,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
         $translateProvider.useStaticFilesLoader(filesConfig);
         $translateProvider.preferredLanguage(I18N_CONFIG.PreferredLocale);
         tmhDynamicLocaleProvider.localeLocationPattern(I18N_CONFIG.localeLocationPattern);
+        tmhDynamicLocaleProvider.defaultLocale(I18N_CONFIG.DefaultLocale);
 
         // Decorate translate directive to change the original behaviour
         // by not removing <i> tags included in the translation text
@@ -4620,7 +4676,8 @@ function run($log) {
      */
     .constant('I18N_CONFIG', {
         PreferredLocale: 'en-US',
-        localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js'
+        localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js',
+        DefaultLocale:'en-us'
     })
 
     /**
