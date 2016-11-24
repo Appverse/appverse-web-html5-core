@@ -1273,8 +1273,12 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
                             if (Object.prototype.toString.call(args[0]) === '[object String]') {
                                 args[0] = logMessage + dateTime() + " | " + args[0];
                             } else {
-                                args.push(args[0]);
-                                args[0] = logMessage + dateTime() + " | ";
+                                if(Object.prototype.toString.call(args[0]) === '[object Object]'){
+                                  args.push(JSON.stringify(args[0]));
+                                }else{
+                                  args.push(args[0]);
+                                }
+                                args[0] = logMessage + dateTime() + ' | ';
                             }
 
                             logFunction.apply(null, args);
