@@ -120,7 +120,7 @@
 })();
 
 /*jshint -W101 */
-angular.module('appverse.ionic.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('appverse.ionic.templates', []).run(['$templateCache', function ($templateCache) {
   'use strict';
   $templateCache.put('appverse-ionic/modal/not-allowed.html',
     '<div class="modal-header"><h3 class="modal-title">Not Allowed</h3></div><div class="modal-body">This view is not allowed in {{device}} version, you will be redirected to home page in {{seconds}}...</div>');

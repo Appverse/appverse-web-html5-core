@@ -1131,7 +1131,7 @@
 })();
 
 /*jshint -W101 */
-angular.module('appverse.ionic.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('appverse.ionic.templates', []).run(['$templateCache', function ($templateCache) {
   'use strict';
   $templateCache.put('appverse-ionic/modal/not-allowed.html',
     '<div class="modal-header"><h3 class="modal-title">Not Allowed</h3></div><div class="modal-body">This view is not allowed in {{device}} version, you will be redirected to home page in {{seconds}}...</div>');
@@ -3662,7 +3662,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
      * @param  {function}   translateFilter
      * @return {array}                      The modified delegate object
      */
-    function decorateTranslateDirective($delegate, translateFilter) {
+    function decorateTranslateDirective($delegate, translateFilter, I18N_CONFIG) {
 
         // Get the original directive and its linking function
         var directive = $delegate[0];
@@ -3694,7 +3694,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
             function translateElement() {
                 $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
-                var translatedText = $element.text();
+                var translatedText = $element[I18N_CONFIG.acceptHtml ? 'html' : 'text']();
                 var finalHtml = htmlOnlyTags.replace('%%text%%', translatedText);
                 $element.html(finalHtml);
             }
@@ -3710,7 +3710,7 @@ angular.module('appverse.ionic.templates', []).run(['$templateCache', function($
 
         return $delegate;
     }
-    decorateTranslateDirective.$inject = ['$delegate', 'translateFilter'];
+    decorateTranslateDirective.$inject = ['$delegate', 'translateFilter', 'I18N_CONFIG'];
 
 })();
 
