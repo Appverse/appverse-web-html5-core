@@ -61,7 +61,7 @@
      * @param  {function}   translateFilter
      * @return {array}                      The modified delegate object
      */
-    function decorateTranslateDirective($delegate, translateFilter) {
+    function decorateTranslateDirective($delegate, translateFilter, I18N_CONFIG) {
 
         // Get the original directive and its linking function
         var directive = $delegate[0];
@@ -93,7 +93,7 @@
 
             function translateElement() {
                 $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
-                var translatedText = $element.text();
+                var translatedText = $element[I18N_CONFIG.acceptHtml ? 'html' : 'text']();
                 var finalHtml = htmlOnlyTags.replace('%%text%%', translatedText);
                 $element.html(finalHtml);
             }
@@ -109,6 +109,6 @@
 
         return $delegate;
     }
-    decorateTranslateDirective.$inject = ['$delegate', 'translateFilter'];
+    decorateTranslateDirective.$inject = ['$delegate', 'translateFilter', 'I18N_CONFIG'];
 
 })();
