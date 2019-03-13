@@ -16,7 +16,7 @@ describe('Unit: Testing api-translate', function () {
                     prefix: 'resources/i18n/',
                     suffix: '.json'
                 })
-                .should.be.true;
+                .should.be.true;    
         });
 
         it('configures the preferred language', function () {
@@ -36,11 +36,15 @@ describe('Unit: Testing api-translate', function () {
     describe('when translating with the service...', function () {
 
         it('should return the translated string if key exists', inject(function ($translate) {
-            $translate('SALUTE').should.be.equal('Hello');
+            $translate('SALUTE').then(function(translation) {
+                translation.should.be.equal('Hello');
+            })
         }));
 
         it('should return the original string if key does not exist', inject(function ($translate) {
-            $translate('not translated').should.be.equal('not translated');
+            $translate('not translated').then(function (translation) {
+                translation.should.be.equal('not translated');
+            })
         }));
 
     });
@@ -102,10 +106,12 @@ describe('Unit: Testing api-translate', function () {
      */
     function mockDependencies() {
 
+        var locale = 'en_US';
+
         // appverse.configuration module mocked by creating it again
         angular.module('appverse.configuration', [])
             .constant('I18N_CONFIG', {
-                PreferredLocale: 'en_US',
+                PreferredLocale: locale,
                 localeLocationPattern: 'bower_components/angular-i18n/angular-locale_{{locale}}.js',
             });
 
@@ -116,9 +122,10 @@ describe('Unit: Testing api-translate', function () {
         module('pascalprecht.translate', function ($translateProvider) {
             $translateProvider.useStaticFilesLoader = sinon.spy();
             $translateProvider.preferredLanguage = sinon.spy();
-            $translateProvider.translations({
+            $translateProvider.translations(locale, {
                 'SALUTE': 'Hello'
             });
+            $translateProvider.use(locale);
             translateProvider = $translateProvider;
         });
         module('tmh.dynamicLocale', function (tmhDynamicLocaleProvider) {
