@@ -35,17 +35,59 @@ describe('Unit: Testing api-translate', function () {
 
     describe('when translating with the service...', function () {
 
-        it('should return the translated string if key exists', inject(function ($translate) {
-            $translate('SALUTE').then(function(translation) {
-                translation.should.be.equal('Hello');
-            })
-        }));
+        describe('using asnyc API...', function () {
 
-        it('should return the original string if key does not exist', inject(function ($translate) {
-            $translate('not translated').then(function (translation) {
-                translation.should.be.equal('not translated');
-            })
-        }));
+            it('should return the translated string if key exists', inject(function ($q, $rootScope, $translate) {
+                var deferred = $q.defer(),
+                    promise = deferred.promise,
+                    translatedValue;
+
+                promise.then(function (translation) {
+                    translatedValue = translation;
+                });
+
+                 $translate('SALUTE').then(function(translation) {
+                    deferred.resolve(translation);
+                }, function () {
+                    assert.fail('Could not translate existing key');
+                });
+
+                $rootScope.$apply();
+                translatedValue.should.be.equal('Hello');
+            }));
+    
+            it('should return the original string if key does not exist', inject(function ($q, $rootScope, $translate) {
+                var deferred = $q.defer(),
+                    promise = deferred.promise,
+                    translatedValue;
+
+                promise.then(function (translation) {
+                    translatedValue = translation;
+                });
+
+                $translate('not translated').then(function (translation) {
+                    assert.fail('Non existing key should not be translated');
+                }, function (key) {
+                    deferred.resolve(key);
+                });
+
+                $rootScope.$apply();
+                translatedValue.should.be.equal('not translated');
+            }));
+
+        });
+
+        describe('using sync API...', function () {
+
+            it('should return the translated string if key exists', inject(function ($translate) {
+                $translate.instant('SALUTE').should.be.equal('Hello');
+            }));
+
+            it('should return the original string if key does not exist', inject(function ($translate) {
+                $translate.instant('not translated').should.be.equal('not translated');
+            }));
+
+        });
 
     });
 
