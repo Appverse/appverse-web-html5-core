@@ -4,4 +4,4 @@ node_js:
 before_install:
   - npm i -g npm@3
   - npm i -g bower grunt-cli
- 
+script: grunt karma:unit 
