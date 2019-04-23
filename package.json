@@ -56,7 +56,7 @@
     "time-grunt": "~0.1.0"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=4"
   },
   "scripts": {
     "postinstall": "bower install",
