@@ -59,57 +59,39 @@
      * after the translation
      *
      * @param  {array}      $delegate       The original instance (provided by decorator)
-     * @param  {function}   translateFilter
+     * @param  {Object}     I18N_CONFIG     The I18N_CONFIG appverse object
      * @return {array}                      The modified delegate object
      */
-    function decorateTranslateDirective($delegate, translateFilter) {
+    function decorateTranslateDirective($delegate, I18N_CONFIG) {
 
-        // Get the original directive and its linking function
+        // Get the original directive and its compile function
         var directive = $delegate[0];
-        var originalLinkFunction = directive.link;
+        var originalCompile = directive.compile;
 
-        var newLinkFunction = function (scope, $element, attr, ctrl) {
+        directive.compile = function compile(tElement, tAttr, transclude) {
+            var originalLink = originalCompile(tElement, tAttr);
+            return function newLink(scope, $element, attr, ctrl) {
 
-            // Get the element's html and replaces the text to be translated
-            // by a placeholder '%%text%%', so that we can later replace this
-            // with the translated string
-            var text = $element.text();
-            var html = $element.html();
-            var htmlOnlyTags = html.replace(text, '%%text%%');
+                if ($element.children().length) {
+                    // Get the element's html and replaces the text to be translated
+                    // by a placeholder '%%text%%', so that we can later replace this
+                    // with the translated string
+                    var text = $element.text();
+                    var html = $element.html();
+                    var htmlOnlyTags = html.replace(text, '%%text%%');
 
-            // First we call the original linking function
-            // and afterwards we override the '$on' and '$watch' events
-            // to maintain html tags.
-            originalLinkFunction.apply(this, [scope, $element, attr, ctrl]);
-
-            scope.$on('$translateChangeSuccess', function () {
-                translateElement();
-            });
-
-            scope.$watch('[translationId, interpolateParams]', function () {
-                if (scope.translationId) {
-                    translateElement();
+                    scope.$watch(function () {
+                        var translatedText = $element[I18N_CONFIG.acceptHtml ? 'html' : 'text']();
+                        var finalHtml = htmlOnlyTags.replace('%%text%%', translatedText);
+                        $element.html(finalHtml);
+                    });
                 }
-            }, true);
 
-            function translateElement() {
-                $element.html(translateFilter(scope.translationId, scope.interpolateParams, scope.interpolation));
-                var translatedText = $element.text();
-                var finalHtml = htmlOnlyTags.replace('%%text%%', translatedText);
-                $element.html(finalHtml);
+                originalLink(scope, $element, attr, ctrl);
             }
-
-            return;
-        };
-
-        // Since this has already been built via directive provider
-        // need to put this on compile, not link, property
-        directive.compile = function () {
-            return newLinkFunction;
-        };
-
+        }
         return $delegate;
     }
-    decorateTranslateDirective.$inject = ['$delegate', 'translateFilter'];
+    decorateTranslateDirective.$inject = ['$delegate', 'I18N_CONFIG'];
 
 })();
